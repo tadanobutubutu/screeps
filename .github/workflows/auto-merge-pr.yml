@@ -7,13 +7,18 @@ on:
     - cron: "*/5 * * * *"
   workflow_dispatch:
     inputs:
-      pr_number:
-        description: 'Specific PR number to merge (optional)'
-        required: false
       batch_limit:
-        description: 'Number of oldest PRs to batch merge'
+        description: 'Batch size per cycle'
         required: false
-        default: '25'
+        default: '100'
+      runtime_mins:
+        description: 'Max runtime in minutes (continuous loop)'
+        required: false
+        default: '240'
+      push_every:
+        description: 'Push commits every N merges'
+        required: false
+        default: '10'
 
 concurrency:
   group: auto-merge-pr
@@ -28,6 +33,7 @@ permissions:
 jobs:
   force-merge:
     runs-on: ubuntu-latest
+    timeout-minutes: 360
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -40,7 +46,7 @@ jobs:
         with:
           python-version: '3.14'
 
-      - name: Force Merge PRs
+      - name: Force Merge PRs (Ultra-Fast Continuous Loop)
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -50,13 +56,22 @@ jobs:
           GIT_AUTHOR_EMAIL: "41898282+github-actions[bot]@users.noreply.github.com"
           GIT_COMMITTER_NAME: "github-actions[bot]"
           GIT_COMMITTER_EMAIL: "41898282+github-actions[bot]@users.noreply.github.com"
-          EVENT_PR: ${{ github.event.pull_request.number || inputs.pr_number }}
-          BATCH_LIMIT: ${{ inputs.batch_limit || '25' }}
+          BATCH_LIMIT: ${{ inputs.batch_limit || '100' }}
+          RUNTIME_MINS: ${{ inputs.runtime_mins || '240' }}
+          PUSH_EVERY: ${{ inputs.push_every || '10' }}
         run: |
-          if [ -n "$EVENT_PR" ]; then
-            echo "Processing single PR #$EVENT_PR..."
-            python3 scripts/force_merge_pr.py "$EVENT_PR" || true
+          echo "Starting Ultra-Fast Continuous Merge: Batch=$BATCH_LIMIT, PushEvery=$PUSH_EVERY, Runtime=${RUNTIME_MINS}m"
+          python3 scripts/force_merge_pr.py --batch "$BATCH_LIMIT" --push-every "$PUSH_EVERY" --runtime "$RUNTIME_MINS" || true
+
+      - name: Self-Chaining Trigger (Ensure Continuous Runner)
+        if: always()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          REMAINING=$(gh pr list --state open --limit 1 --json number --jq 'length' || echo "0")
+          if [ "$REMAINING" -gt 0 ]; then
+            echo "🚀 Open PRs still remain! Triggering next workflow run to keep runner active..."
+            gh workflow run auto-merge-pr.yml || true
           else
-            echo "Processing batch of oldest PRs (Limit: $BATCH_LIMIT)..."
-            python3 scripts/force_merge_pr.py --batch "$BATCH_LIMIT" || true
+            echo "🎉 All PRs are merged! Repository is 100% clean!"
           fi

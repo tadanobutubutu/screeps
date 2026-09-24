@@ -56,15 +56,12 @@ if (dependencyGraph) {
 }
 
 // Required changes to fix the React SVG Accessible Name issue
-function fixReactSvgAccessibleName(svgString, fallbackLabel) {
+function fixReactSvgAccessibleName(svgString, description) {
   const parser = new DOMParser();
   const svg = parser.parseFromString(svgString, 'image/svg+xml');
   const svgElement = svg.documentElement;
-  
-  if (svgElement && !svgElement.querySelector('title') && !svgElement.querySelector('desc')) {
-    const title = svgElement.ownerDocument.createElement('title');
-    title.textContent = fallbackLabel || 'Descriptive label for SVG';
-    svgElement.insertBefore(title, svgElement.firstChild);
+  if (!svgElement.getAttribute('aria-label') && !svgElement.getAttribute('aria-labelledby')) {
+    svgElement.setAttribute('aria-label', description || 'Descriptive label for SVG');
   }
   
   const serializer = new XMLSerializer();
@@ -72,24 +69,8 @@ function fixReactSvgAccessibleName(svgString, fallbackLabel) {
 }
 
 // Example usage of the function
-const originalSvgString = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Screeps Dashboard</title><text y="0.9em" dy=".35em" x="50" text-anchor="middle" font-size="16" fill="white"></text></svg>';
+const originalSvgString = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Screeps Dashboard</title><text y="0.9em" dy=".35em" x="50" text-anchor="middle" font-size="16" font-family="sans-serif" fill="black">Dashboard</text></svg>';
 const modifiedSvgString = fixReactSvgAccessibleName(originalSvgString, 'Screeps Dashboard SVG');
-
-// Required function to handle SVG accessible names
-function handleSvgAccessibleName(svgElement) {
-  if (!svgElement) return null;
-  
-  const title = svgElement.querySelector('title');
-  const desc = svgElement.querySelector('desc');
-  
-  if (title) {
-    return title.textContent;
-  } else if (desc) {
-    return desc.textContent;
-  }
-  
-  return null;
-}
 
 /**
  * Validates table accessibility
@@ -113,7 +94,7 @@ function renderAdditionalContent(additionalData) {
   return '<div class="additional-content">' + (additionalData ? additionalData.content : '') + '</div>';
 }
 
-function checkAccessibilityForReport(container) {
+function getDependencyGraphs() {
   return [];
 }
 
@@ -157,12 +138,16 @@ function validateTableStructure (tableData) {
   return true
 }
 
-/**
- * Gets the lang attribute for the HTML element.
- * @returns {string} The lang attribute value.
- */
-function getLangAttribute () {
-  return document.documentElement.lang || 'en'
+export function addLangAttribute(element, lang = 'en') {
+  let htmlElement = element || document.documentElement;
+  if (!htmlElement) {
+    return null;
+  }
+
+  if (htmlElement && !htmlElement.lang) {
+    htmlElement.setAttribute('lang', lang);
+  }
+  return htmlElement;
 }
 
 export function fixTableCaption(tableElement) {
@@ -170,7 +155,7 @@ export function fixTableCaption(tableElement) {
 
   const headers = tableElement.querySelectorAll('th');
   headers.forEach(th => {
-    if (!th.hasAttribute('scope')) {
+    if (!th.getAttribute('scope')) {
       const row = th.closest('tr');
       const cellIndex = Array.from(row.children).indexOf(th);
       th.setAttribute('scope', 'col');
@@ -179,7 +164,10 @@ export function fixTableCaption(tableElement) {
 
   const existingCaption = tableElement.querySelector('caption');
   if (!existingCaption) {
-    const caption = tableElement.ownerDocument.createElement('caption');
+    const caption = tableElement.insertBefore(
+      tableElement.ownerDocument.createElement('caption'),
+      tableElement.firstChild
+    );
     caption.textContent = 'Data table';
     tableElement.insertBefore(caption, tableElement.firstChild);
   }
@@ -189,11 +177,11 @@ export function fixTableCaption(tableElement) {
 
 // Call the functions to address the accessibility issues
 addLangAttribute();
-fixTableCaption();
+fixTableStructure();
 addMainLandmark();
 ensureUniqueLandmarks();
-addLandmarkRegions();
 fixLandmarkIssues();
+addLandmarkRegions();
 fixFakeLinkIssue();
 fixFakeLinkIssues();
 googleSignIn();
@@ -238,8 +226,8 @@ function getLangAttribute() {
 }
 
 function ensureDependencyGraphARIA(elements) {
-  const elementsArray = elements || [];
-  elementsArray.forEach(el => {
+  const elements = [];
+  elements.forEach(el => {
     el.setAttribute('role', 'graph');
     el.setAttribute('aria-label', 'Dependency graph visualization');
   });
@@ -273,7 +261,7 @@ function renderDependencyGraphs(container) {
   if (!container) return null;
   
   // Basic implementation
-  container.innerHTML = '<div class="dependency-graph"></div>';
+  container.innerHTML = '<div class="dependency-graph">Graph</div>';
   return container;
 }
 
@@ -287,7 +275,7 @@ function renderAdditionalContentData(additionalData) {
 }
 
 // Accessibility-related function to be added
-function checkAccessibilityIssues(container) {
+function checkAccessibilityForReport(container) {
   // Placeholder for accessibility checking logic
   // This function should be implemented to check for accessibility issues
   // For now, it just returns an empty array
@@ -304,7 +292,7 @@ function log(message, level = 'info') {
 }
 
 // Implement the function for addressing accessibility issues from insight report
-function addressAccessibilityIssuesFromReport(container, report) {
+function checkAccessibilityForReport(report) {
   const fixes = {
     langAdded: false,
     mainLandmarkAdded: false,
@@ -318,9 +306,9 @@ function addressAccessibilityIssuesFromReport(container, report) {
   }
 
   // Add lang attribute to HTML element if missing
-  const htmlEl = document.documentElement ||
+  const htmlEl = document.querySelector('html') ||
     (container.ownerDocument && container.ownerDocument.documentElement);
-  if (htmlEl && !htmlEl.hasAttribute('lang')) {
+  if (htmlEl && !htmlEl.lang) {
     htmlEl.setAttribute('lang', 'en');
     fixes.langAdded = true;
   }
@@ -330,7 +318,7 @@ function addressAccessibilityIssuesFromReport(container, report) {
   if (!mainElement) {
     const body = container.ownerDocument ? container.ownerDocument.body : document.body;
     if (body) {
-      const newMain = document.createElement('main');
+      const newMain = container.ownerDocument.createElement('main');
       while (body.firstChild) {
         newMain.appendChild(body.firstChild);
       }
@@ -341,12 +329,12 @@ function addressAccessibilityIssuesFromReport(container, report) {
 
   // Update the existing function using the new functions for rendering graph/index
   renderDependencyGraphs(container);
-  renderGraphIndex(container.innerHTML);
-  addSvgAccessibleNames(container);
+  renderGraphIndex();
+  validateTableStructure();
 
   // Fix landmark issues
   validateLandmark(container);
-  fixLandmarkIssues(container);
+  validateLandmarkStructure();
 
   // Fix SVG accessible names
   const svgElements = container.querySelectorAll('svg');
@@ -359,10 +347,10 @@ function addressAccessibilityIssuesFromReport(container, report) {
   });
 
   // Fix fake link issues (elements that look like links but are missing href)
-  const fakeLinks = container.querySelectorAll('span[role="link"], div[role="link"], a:not([href])');
+  const fakeLinks = container.querySelectorAll('[role="link"]');
   fakeLinks.forEach(link => {
-    if (!link.hasAttribute('href')) {
-      link.setAttribute('href', '#' + (link.id || 'fake-link'));
+    if (!link.getAttribute('href')) {
+      link.setAttribute('href', '#' + (link.id || 'unknown'));
     }
     if (!link.hasAttribute('role')) {
       link.setAttribute('role', 'link');
@@ -393,7 +381,7 @@ function addressAccessibilityIssuesFromReport(container, report) {
   // Check for new accessibility issues
   const newAccessibilityIssues = checkAccessibility(container);
   if (newAccessibilityIssues && newAccessibilityIssues.length > 0) {
-    log(`New accessibility issues found: ${newAccessibilityIssues.map(i => i.message).join(', ')}`, 'error');
+    log(`New accessibility issues found: ${newAccessibilityIssues.length}`, 'error');
   }
 
   const landmarkFixesCount = fixes.landmarksFixed || 0;
@@ -405,3 +393,52 @@ function addressAccessibilityIssuesFromReport(container, report) {
   if (svgFixes > 0) {
     log(`Fixed accessible names for ${svgFixes} SVGs`, 'info');
   }
+
+  const fakeLinkFixes = fixes.fakeLinksFixed || 0;
+  if (fakeLinkFixes > 0) {
+    log(`Fixed fake link issues for ${fakeLinkFixes} elements`, 'info');
+  }
+
+  return fixes;
+}
+
+function addAccessibleName(element, name) {
+  if (element) {
+    element.setAttribute('aria-label', name);
+  }
+}
+
+module.exports = {
+  validateTableAccessibility,
+  validateTableStructure,
+  renderAdditionalContent,
+  checkAccessibilityForReport,
+  renderGraphIndex,
+  trapFocus,
+  addLangAttribute,
+  fixTableStructure,
+  createInPageButton,
+  createWebResourceButton,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  getLangAttribute,
+  validateAccessibilityReport,
+  exportUtils,
+  addressAccessibilityIssues,
+  ensureElementHasId,
+  ensureElementHasIdOrigin,
+  addAriaLabel,
+  renderDependencyGraphs,
+  fixButtonIdentifiers,
+  fixDependencyGraphAria,
+  addMainLandmarkToIndex,
+  focusTrap,
+  checkAccessibility,
+  affectedFunction,
+  updateFunction,
+  accessibleFunction,
+  newFunction1,
+  newFunction2,
+  main,
+  newFunction: function()

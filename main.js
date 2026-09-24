@@ -1019,6 +1019,7 @@ function countDependencies (dependencies) {
 
 // Export functions for use in other modules
 module.exports = {
+  accessibilityUtils,
   initSkipLink: accessibilityUtils.initSkipLink,
   trapFocus: accessibilityUtils.trapFocus,
   newFocusTrap: accessibilityUtils.newFocusTrap,

@@ -5,6 +5,31 @@ function calculateSum(a, b) {
 }
 
 /**
+ * Extracts the accessible name for an SVG from its content
+ * @param {SVGElement} svgElement - The SVG element to extract the name from
+ * @returns {string|null} - The accessible name or null if not found
+ */
+function extractSvgAccessibleName(svgElement) {
+  if (!svgElement || svgElement.tagName.toLowerCase() !== 'svg') {
+    return null;
+  }
+  
+  // Check for title element inside the SVG
+  const titleElement = svgElement.querySelector('title');
+  if (titleElement && titleElement.textContent.trim()) {
+    return titleElement.textContent.trim();
+  }
+  
+  // Check for aria-label attribute
+  const ariaLabel = svgElement.getAttribute('aria-label');
+  if (ariaLabel && ariaLabel.trim()) {
+    return ariaLabel.trim();
+  }
+  
+  return null;
+}
+
+/**
  * Addresses accessibility issues from an insight report by applying fixes
  * @param {Array} issues - Array of accessibility issues to address
  * @param {Object} options - Options for how to address the issues
@@ -173,7 +198,7 @@ function setLanguageAttribute(lang = 'en') {
 
 // Exports for the functions
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { checkLinkAndButtonAccessibility, addressAccessibilityIssues, calculateSum, calculateProduct, setLanguageAttribute };
+  module.exports = { checkLinkAndButtonAccessibility, addressAccessibilityIssues, calculateSum, calculateProduct, extractSvgAccessibleName };
 }
 
 // If running in browser context
@@ -189,5 +214,5 @@ if (typeof window !== 'undefined') {
   window.addressAccessibilityIssues = addressAccessibilityIssues;
   window.calculateSum = calculateSum;
   window.calculateProduct = calculateProduct;
-  window.setLanguageAttribute = setLanguageAttribute;
+  window.extractSvgAccessibleName = extractSvgAccessibleName;
 }

@@ -125,26 +125,17 @@ const checkTableStructure = function(tableElement) {
   };
 };
 
-// New function to handle accessibility issues
-function addAccessibilityFeatures() {
-  // Process SVG elements
-  processSvgElements();
-  
-  // Check landmark elements
-  checkLandmarkElements();
-  
-  // Validate table accessibility
-  validateTableAccessibility();
-  
-  // Validate landmark structure
-  validateLandmarkStructure();
-  
-  // Ensure unique landmarks
-  ensureUniqueLandmarks();
-  
-  // Handle accessibility issues with links
-  handleAccessibilityIssues();
+// New function for rendering graph/index
+function renderGraph() {
+  // Implementation for rendering the graph
+  // This is a placeholder for the actual implementation
+  console.log('Graph rendering function called');
 }
 
-// Call the new function on document load
-document.addEventListener('DOMContentLoaded', addAccessibilityFeatures);
+// Existing function that now uses the new renderGraph function
+function updateGraphDisplay() {
+  // Implementation that uses the new renderGraph function
+  renderGraph();
+}
+
+// ... (rest of the code preserved with minor adjustments)

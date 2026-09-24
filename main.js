@@ -1,5 +1,4 @@
-// TODO: This is the existing code that needs to be preserve
-// Addressed accessibility issues from insight report
+// TODO: Address accessibility issues from insight report:
 
 // TODO: Any additional changes requested in the issue
 // main.js - Accessibility improvements implementation
@@ -170,8 +169,149 @@ function getWelcomeMessage () {
         elementsMissingNames.push(element);
       }
     });
-    
-    return elementsMissingNames;
+
+    return insufficientContrast;
+  },
+
+  /**
+   * Calculate contrast ratio between two colors
+   * @param {string} color1 - First color in rgb() or rgba() format
+   * @param {string} color2 - Second color in rgb() or rgba() format
+   * @returns {number} Contrast ratio
+   */
+  calculateContrastRatio(color1, color2) {
+    const rgb1 = this.parseColor(color1);
+    const rgb2 = this.parseColor(color2);
+
+    const lum1 = this.calculateLuminance(rgb1);
+    const lum2 = this.calculateLuminance(rgb2);
+
+    const lighter = Math.max(lum1, lum2);
+    const darker = Math.min(lum1, lum2);
+
+    return (lighter + 0.05) / (darker + 0.05);
+  },
+
+  /**
+   * Parse color string to RGB components
+   * @param {string} color - Color string in rgb() or rgba() format
+   * @returns {Object} RGB components
+   */
+  parseColor(color) {
+    const match = color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*[\d.]+)?\)/);
+    if (!match) return { r: 0, g: 0, b: 0 };
+
+    return {
+      r: parseInt(match[1]) / 255,
+      g: parseInt(match[2]) / 255,
+      b: parseInt(match[3]) / 255
+    };
+  },
+
+  /**
+   * Calculate relative luminance of a color
+   * @param {Object} rgb - RGB components
+   * @returns {number} Relative luminance
+   */
+  calculateLuminance(rgb) {
+    const components = ['r', 'g', 'b'].map(c => {
+      const value = rgb[c];
+      return value <= 0.03928 ? value / 12.92 : Math.pow((value + 0.055) / 1.055, 2.4);
+    });
+
+    return 0.2126 * components[0] + 0.7152 * components[1] + 0.0722 * components[2];
+  },
+
+  /**
+   * Check for proper ARIA attributes on interactive elements
+   * @param {HTMLElement} container - The container to check
+   * @returns {Array} Array of elements with missing ARIA attributes
+   */
+  checkInteractiveElements(container = document) {
+    const interactiveElements = container.querySelectorAll('button, [role="button"], [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+    const missingAria = [];
+
+    interactiveElements.forEach(element => {
+      if (!element.hasAttribute('aria-label') &&
+          !element.hasAttribute('aria-labelledby') &&
+          !element.hasAttribute('title') &&
+          !element.textContent.trim()) {
+        missingAria.push(element);
+      }
+    });
+
+    return missingAria;
+  },
+
+  /**
+   * Check for proper form labels
+   * @param {HTMLElement} container - The container to check
+   * @returns {Array} Array of form elements with missing labels
+   */
+  checkFormLabels(container = document) {
+    const formElements = container.querySelectorAll('input:not([type="hidden"]), select, textarea');
+    const missingLabels = [];
+
+    formElements.forEach(element => {
+      const id = element.id;
+      if (id) {
+        const label = container.querySelector(`label[for="${id}"]`);
+        if (!label) {
+          missingLabels.push(element);
+        }
+      } else {
+        missingLabels.push(element);
+      }
+    });
+
+    return missingLabels;
+  },
+
+  /**
+   * Check for proper image alternatives
+   * @param {HTMLElement} container - The container to check
+   * @returns {Array} Array of images with missing alternatives
+   */
+  checkImageAlternatives(container = document) {
+    const images = container.querySelectorAll('img, [role="img"]');
+    const missingAlternatives = [];
+
+    images.forEach(image => {
+      if (!image.hasAttribute('alt') && !image.hasAttribute('aria-label') && !image.hasAttribute('aria-labelledby')) {
+        missingAlternatives.push(image);
+      }
+    });
+
+    return missingAlternatives;
+  },
+
+  /**
+   * Run all accessibility checks on the document
+   * @param {HTMLElement} container - The container to check
+   * @returns {Object} Report of all accessibility issues found
+   */
+  runAccessibilityAudit(container = document) {
+    return {
+      landmarks: this.checkLandmarkElements(),
+      contrast: this.checkContrastRatios(container),
+      interactiveElements: this.checkInteractiveElements(container),
+      formLabels: this.checkFormLabels(container),
+      imageAlternatives: this.checkImageAlternatives(container),
+      prefersReducedMotion: this.prefersReducedMotion(),
+      prefersHighContrast: this.prefersHighContrast()
+    };
+  },
+
+  /**
+   * Apply all accessibility fixes to the document
+   */
+  applyAccessibilityFixes() {
+    this.addSVGAccessibilityProps();
+    this.fixFakeLinks();
+    this.ensureFormAccessibility();
+    this.ensureKeyboardNavigation();
+    this.ensureImageAccessibility();
+    this.checkLandmarkElements();
   }
 }
 
@@ -736,4 +876,172 @@ function decodeJwtToken (token) {
 }
 
 // HTTP Server setup
-const server = http.createServer((
+const server = http.createServer((req, res) => {
+    const parsedUrl = url.parse(req.url, true);
+
+    // CORS headers for credential responses
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+    if (req.method === 'OPTIONS') {
+        res.writeHead(200);
+        res.end();
+        return;
+    }
+
+    // Health check endpoint
+    if (parsedUrl.pathname === '/health') {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ status: 'ok', sessions: getActiveSessionsCount() }));
+        return;
+    }
+
+    // Credential response endpoint
+    if (parsedUrl.pathname === '/api/credential' && req.method === 'POST') {
+        let body = '';
+
+        req.on('data', chunk => {
+            body += chunk.toString();
+        });
+
+        req.on('end', () => {
+            try {
+                const credentialResponse = JSON.parse(body);
+                const result = handleCredentialResponse(credentialResponse);
+
+                res.writeHead(result.status === 'success' ? 200 : 400, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify(result));
+            } catch (error) {
+                res.writeHead(400, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ status: 'error', message: 'Invalid JSON' }));
+            }
+        });
+        return;
+    }
+
+    // Session validation endpoint
+    if (parsedUrl.pathname === '/api/session/validate' && req.method === 'GET') {
+        const sessionId = parsedUrl.query.sessionId;
+
+        if (!sessionId) {
+            res.writeHead(400, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ status: 'error', message: 'Session ID required' }));
+            return;
+        }
+
+        const session = validateSession(sessionId);
+
+        if (session) {
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ status: 'valid', user: session.user }));
+        } else {
+            res.writeHead(401, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ status: 'invalid', message: 'Session expired or invalid' }));
+        }
+        return;
+    }
+
+    // Session revocation endpoint
+    if (parsedUrl.pathname === '/api/session/revoke' && req.method === 'POST') {
+        let body = '';
+
+        req.on('data', chunk => {
+            body += chunk.toString();
+        });
+
+        req.on('end', () => {
+            try {
+                const { sessionId } = JSON.parse(body);
+                const revoked = revokeSession(sessionId);
+
+                res.writeHead(200, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ status: revoked ? 'success' : 'error' }));
+            } catch (error) {
+                res.writeHead(400, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ status: 'error', message: 'Invalid request' }));
+            }
+        });
+        return;
+    }
+
+    res.writeHead(404, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ status: 'error', message: 'Not found' }));
+});
+
+/**
+ * Revoke a session
+ * @param {string} sessionId - The session ID to revoke
+ * @returns {boolean} - True if session was revoked
+ */
+function revokeSession(sessionId) {
+    return appState.sessions.delete(sessionId);
+}
+
+/**
+ * Handle focus trap for accessibility (e.g., modals)
+ * @param {HTMLElement} container - The container to trap focus within
+ */
+function handleFocusTrap(container) {
+    if (!container) return;
+    const focusableElements = container.querySelectorAll(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
+    if (focusableElements.length === 0) return;
+    const firstElement = focusableElements[0];
+    const lastElement = focusableElements[focusableElements.length - 1];
+    container.addEventListener('keydown', (e) => {
+        if (e.key !== 'Tab') return;
+        if (e.shiftKey && document.activeElement === firstElement) {
+            lastElement.focus();
+            e.preventDefault();
+        } else if (!e.shiftKey && document.activeElement === lastElement) {
+            firstElement.focus();
+            e.preventDefault();
+        }
+    });
+}
+
+// Start server if this is the main module
+if (require.main === module) {
+    const PORT = process.env.PORT || 3000;
+    server.listen(PORT, () => {
+        console.log(`Server running on port ${PORT}`);
+    });
+}
+
+// Export modules for testing
+module.exports = {
+  renderDependencyGraph,
+  renderIndex,
+  getSvgAccessibleName,
+  newFunction,
+  checkLandmarkElement,
+  wrapPrimaryContentInMain,
+  checkLandmarks,
+  ensureUniqueLandmarks,
+  handleFocusTrap,
+  revokeSession,
+  addSVGAccessibilityProps,
+  isLandmarkElement,
+  handleCredentialResponse,
+  parseCredentialResponse,
+  decodeJwtToken,
+  generateSessionId,
+  validateTableStructure,
+  validateTableAccessibility,
+  validateLandmark,
+  validateLandmarkStructure,
+  createInPageButton,
+  personName,
+  validateSession,
+  getActiveSessionsCount,
+  server,
+  sanitizeFilename,
+  processData,
+  runAccessibilityAudit: a11yStore.runAccessibilityAudit,
+  applyAccessibilityFixes: a11yStore.applyAccessibilityFixes,
+  ensureFormAccessibility: a11yStore.ensureFormAccessibility,
+  ensureKeyboardNavigation: a11yStore.ensureKeyboardNavigation,
+  ensureImageAccessibility: a11yStore.ensureImageAccessibility
+};

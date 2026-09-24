@@ -1,6 +1,6 @@
 // TODO: This is the existing code that needs to be preserved (This comment remains as-is)
 
-const main = require('./utilities');
+const main = require('./utilities')
 
 const {
   fixTableStructure,
@@ -361,6 +361,19 @@ function addAccessibleName(element, name) {
   return true;
 }
 
+// TODO: This is the existing code that needs to be preserved
+// ----- BEGIN ORIGINAL CODE (unchanged) -----
+function addLangAttribute() {
+  const html = document.documentElement || document.querySelector('html');
+  if (html) {
+    html.setAttribute('lang', 'en');
+    return html;
+  }
+  return null;
+}
+
+// ----- END ORIGINAL CODE -----
+
 export {
   validateTableAccessibility,
   validateTableStructure,
@@ -395,7 +408,8 @@ export {
   newFunction1,
   newFunction2,
   main,
-  newFunction: anotherNewFunction,
+  newFunction,
+  anotherNewFunction,
   ensureDependencyGraphARIA,
   addAccessibleName: addAccessibleNameToSvg,
   fixLandmarkIssues,

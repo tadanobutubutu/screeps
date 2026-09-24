@@ -22,7 +22,7 @@ function sortByAuthor(a, b) {
 
 // Function to generate a key for each book item
 function generateKey(book) {
-  return book.id || `${book.title}-${book.author}`;
+  return book.id || book.title + book.author;
 }
 
 // Accessibility helper function to get language attribute
@@ -248,105 +248,77 @@ function spawnBook(book) {
 function onTitleSort(dispatch, books) {
   const sortedList = [...books].sort(sortByTitle);
   // Dispatch an action to update the sorted book list in the Redux store
-  dispatch({ type: SORT_BY_TITLE, payload: sortedList });
+  dispatch({ type: 'SORT_BY_TITLE', payload: sortedList });
 }
 
 // Function to handle sorting the book list by author (descending)
 function onAuthorSort(dispatch, books) {
   const sortedList = [...books].sort(sortByAuthor);
   // Dispatch an action to update the sorted book list in the Redux store
-  dispatch({ type: SORT_BY_AUTHOR, payload: sortedList });
+  dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
 }
 
 // Function to create a new book entry in the Redux store
 function addBook(book) {
   // Perform any necessary validation or processing before adding the book
-  const processedBook = spawnBook(book);
-
-  if (!processedBook) {
-    return;
-  }
-
-  // Dispatch an action to add the book to the books list in the Redux store
-  dispatch({ type: 'ADD_BOOK', payload: processedBook });
-}
-
-// Function to improve accessibility for the addBook function or form
-function handleAccessibilityForAddBookForm() {
-  // Implement any necessary changes to improve accessibility, such as:
-  // - Adding labels for form controls
-  // - Ensuring keyboard navigation is supported
-  // - Adding appropriate ARIA roles and properties if needed
   // ...
+
+  // Return an action object to add the book to the books list in the Redux store
+  return { type: ADD_BOOK, payload: book };
 }
 
-// Function to render the dependency graph view
-function renderDependencyGraph() {
-  return dependencyGraphContent;
+// Container for the dependency graph with proper ARIA role for accessibility
+function DependencyGraph({ nodes, edges }) {
+  return (
+    <div 
+      role="img"
+      aria-label="Dependency graph showing relationships between books and authors"
+      tabIndex={0}
+    >
+      {/* Render graph nodes and edges */}
+      {/* ... */}
+    </div>
+  );
 }
 
-// Function to render the index view
-function renderIndexView() {
-  return indexContent;
-}
+// Function to render a form for adding a new book and to handle form submission
+function AddBookForm() {
+  const formId = useId();
+  const [book, setBook] = useState({ title: '', author: '', id: UUID.generate() });
+  const dispatch = useDispatch();
 
-// REACT_036: Function to detect and handle fake links in the document
-function detectFakeLinks() {
-  if (typeof document === 'undefined' || !document.querySelectorAll) return [];
-  
-  // Look for elements with role="link" that don't have href attribute
-  const potentialFakeLinks = document.querySelectorAll('[role="link"]:not([href])');
-  // Also look for elements styled to look like links but are divs/spans without role
-  const styledAsLinks = document.querySelectorAll('div.link, span.link, a[role="button"]');
-  
-  const fakeLinks = [];
-  
-  potentialFakeLinks.forEach(el => {
-    if (!el.hasAttribute('href')) {
-      fakeLinks.push(el);
-    }
-  });
-  
-  styledAsLinks.forEach(el => {
-    if (!el.tagName.toLowerCase() === 'a' || (!el.getAttribute('href') && !el.getAttribute('role'))) {
-      fakeLinks.push(el);
-    }
-  });
-  
-  return Array.from(fakeLinks);
-}
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    // Perform any necessary validation or processing before adding the book
+    // ...
 
-// REACT_041: Function to find SVG elements without accessible names
-function findSvgWithoutAccessibleNames() {
-  if (typeof document === 'undefined' || !document.querySelectorAll) return [];
-  
-  const svgs = document.querySelectorAll('svg');
-  const svgsWithoutNames = [];
-  
-  svgs.forEach(svg => {
-    const hasAccessibleName = 
-      svg.getAttribute('aria-label') || 
-      svg.getAttribute('aria-labelledby') || 
-      (svg.querySelector('title') && svg.querySelector('title').textContent.trim());
-    
-    if (!hasAccessibleName) {
-      svgsWithoutNames.push(svg);
-    }
-  });
-  
-  return Array.from(svgsWithoutNames);
-}
+    dispatch(addBook(book));
+    setBook({ title: '', author: '', id: UUID.generate() }); // Reset the form after submission
+  };
 
-// REACT_015: Function to apply lang attribute to HTML element
-function applyLangAttribute() {
-  if (typeof document === 'undefined') return;
-  
-  const lang = getLangAttribute();
-  const htmlElement = document.documentElement;
-  
-  if (htmlElement && lang) {
-    htmlElement.setAttribute('lang', lang);
-  }
+  return (
+    <form onSubmit={handleSubmit} id={formId}>
+      <label>
+        Title:
+        <input
+          type="text"
+          value={book.title}
+          onChange={(e) => setBook({ ...book, title: e.target.value })}
+          required
+        />
+      </label>
+      <label>
+        Author:
+        <input
+          type="text"
+          value={book.author}
+          onChange={(e) => setBook({ ...book, author: e.target.value })}
+          required
+        />
+      </label>
+      <button type="submit">Add Book</button>
+    </form>
+  );
 }
 
 // REACT_015: Function to get the lang attribute for the HTML element
@@ -363,7 +335,7 @@ function createInPageButton(label, onClickHandler) {
   button.textContent = label;
   button.setAttribute('aria-label', label);
   if (typeof onClickHandler === 'function') {
-    button.addEventListener('click', onClickHandler);
+    button.onclick = onClickHandler;
   }
   return button;
 }
@@ -401,7 +373,7 @@ function validateLandmarkStructure(landmarkElement) {
 
 // REACT_017 & REACT_025: Function to validate landmark accessibility (unique landmarks, proper labels)
 function validateLandmarkAccessibility(landmarkElements) {
-  if (!Array.isArray(landmarkElements) || landmarkElements.length === 0) return true;
+  if (!landmarkElements || landmarkElements.length === 0) return false;
   const seenRoles = new Set();
   const seenLabels = new Set();
   for (const el of landmarkElements) {
@@ -422,8 +394,8 @@ function validateLandmarkAccessibility(landmarkElements) {
 function getSvgAccessibleName(svgElement) {
   if (!svgElement) return '';
   return (
-    svgElement.getAttribute('aria-label') ||
     svgElement.getAttribute('aria-labelledby') ||
+    svgElement.getAttribute('aria-label') ||
     svgElement.querySelector('title')?.textContent ||
     ''
   );
@@ -435,7 +407,7 @@ function setSvgAttributes(svgElement, accessibleName) {
   svgElement.setAttribute('role', 'img');
   svgElement.setAttribute('aria-label', accessibleName);
   if (!svgElement.querySelector('title')) {
-    const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+    const title = document.createElement('title');
     title.textContent = accessibleName;
     svgElement.insertBefore(title, svgElement.firstChild);
   }
@@ -452,7 +424,7 @@ function validateLinkAccessibility(linkElement) {
 
 // REACT_036: Function to handle fake links (divs/buttons styled as links) and convert to accessible elements
 function handleFakeLinks(fakeLinkElements) {
-  if (!Array.isArray(fakeLinkElements)) return;
+  if (!fakeLinkElements) return;
   for (const el of fakeLinkElements) {
     // Replace fake link with a proper accessible element
     el.setAttribute('role', 'button');
@@ -547,11 +519,16 @@ function Main() {
       <button onClick={() => setView('dependencyGraph')}>Dependency Graph</button>
       <button onClick={() => setSorting(sortByTitle)}>Sort by Title</button>
       <button onClick={() => setSorting(sortByAuthor)}>Sort by Author</button>
-      <div>
-        {view === 'books' && <List dataSource={bookItems} />}
-        {view === 'index' && renderIndexView()}
-        {view === 'dependencyGraph' && renderDependencyGraph()}
-      </div>
+      <AddBookForm />
+      <section role="region" aria-label="Book dependency graph">
+        <List>
+          {bookItems}
+        </List>
+      </section>
+      <DependencyGraph 
+        nodes={[]} 
+        edges={[]} 
+      />
     </div>
   );
 }
@@ -571,23 +548,4 @@ export {
   defaultSorting,
   validateLandmark,
   DependencyGraph,
-  AddBookForm,
-  getLangAttribute,
-  createInPageButton,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLandmark as validateLandmarkElement,
-  validateLandmarkStructure,
-  validateLandmarkAccessibility,
-  getSvgAccessibleName,
-  setSvgAttributes,
-  validateLinkAccessibility,
-  handleFakeLinks,
-  // New exports for addressing accessibility issues
-  applyLangAttribute,
-  detectFakeLinks,
-  findSvgWithoutAccessibleNames,
-  fixHtmlLangAttribute,
-  fixFakeLinkIssues,
-  fixSvgAccessibilityIssues,
-};
+  AddBookForm

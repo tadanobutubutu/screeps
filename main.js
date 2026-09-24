@@ -720,109 +720,6 @@ function addLangAttribute (lang) {
   return setHtmlLangAttribute(lang)
 }
 
-/**
- * Function to handle focus trap for keyboard navigation
- * @param {HTMLElement} container - The container element that should trap focus
- * @param {Object} options - Configuration options
- * @param {boolean} options.initialFocus - Whether to focus the first focusable element initially
- * @param {boolean} options.returnFocus - Whether to return focus to the previously focused element when trap is released
- * @returns {Object} An object with methods to manage the focus trap
- */
-function createFocusTrap (container, options = {}) {
-  const { initialFocus = true, returnFocus = true } = options
-  let previouslyFocusedElement = null
-  let isActive = false
-
-  // Get all focusable elements within the container
-  function getFocusableElements () {
-    if (!container) return []
-
-    return Array.from(
-      container.querySelectorAll(
-        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-      )
-    ).filter((el) => !el.hasAttribute('disabled') && el.offsetParent !== null)
-  }
-
-  // Handle keyboard events
-  function handleKeyDown (event) {
-    if (!isActive) return
-
-    const focusableElements = getFocusableElements()
-    const firstElement = focusableElements[0]
-    const lastElement = focusableElements[focusableElements.length - 1]
-
-    // Tab key
-    if (event.key === 'Tab') {
-      if (event.shiftKey) {
-        // Shift+Tab: move focus to previous element or last if at first
-        if (document.activeElement === firstElement) {
-          event.preventDefault()
-          lastElement.focus()
-        }
-      } else {
-        // Tab: move focus to next element or first if at last
-        if (document.activeElement === lastElement) {
-          event.preventDefault()
-          firstElement.focus()
-        }
-      }
-    }
-
-    // Escape key
-    if (event.key === 'Escape') {
-      deactivate()
-    }
-  }
-
-  // Activate the focus trap
-  function activate () {
-    if (isActive) return
-
-    const focusableElements = getFocusableElements()
-
-    if (focusableElements.length === 0) {
-      console.warn('No focusable elements found in container')
-      return
-    }
-
-    // Store the currently focused element
-    previouslyFocusedElement = document.activeElement
-
-    // Add event listener for keyboard navigation
-    document.addEventListener('keydown', handleKeyDown)
-
-    // Focus the first element if requested
-    if (initialFocus) {
-      focusableElements[0].focus()
-    }
-
-    isActive = true
-  }
-
-  // Deactivate the focus trap
-  function deactivate () {
-    if (!isActive) return
-
-    // Remove event listener
-    document.removeEventListener('keydown', handleKeyDown)
-
-    // Return focus to the previously focused element if requested
-    if (returnFocus && previouslyFocusedElement) {
-      previouslyFocusedElement.focus()
-    }
-
-    isActive = false
-  }
-
-  // Public API
-  return {
-    activate,
-    deactivate,
-    isActive: () => isActive
-  }
-}
-
 // Export all functions to maintain current exports
 module.exports = {
   fs,
@@ -854,6 +751,5 @@ module.exports = {
   createAccessibleLink,
   isLinkAccessible,
   towerDefense,
-  personName, // Add back personName export
-  createFocusTrap // Add new focus trap function export
+  personName // Add back personName export
 }

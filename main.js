@@ -228,18 +228,38 @@ module.exports = {
   processLandmarks,
   sortLandmarks,
   getLandmarkById,
-  ensureUniqueLandmarks,
-  newFunction
-};
-
-module.exports.functionA = {
-  X: 'valueX',
-  Y: 'valueY',
-  Z: 'valueZ'
-};
-
-module.exports.functionB = {
-  X: 'valueX',
-  Y: 'valueY',
-  Z: 'valueZ'
+  CONFIG,
+  appState,
+  validateTableAccessibility,
+  validateTableStructure,
+  fixTableStructure,
+  addMainLandmark,
+  validateLandmark,
+  validateLandmarkStructure,
+  validateLandmarkAttributes,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  createInPageButton,
+  validateLinkAccessibility,
+  handleFakeLinks,
+  addLandmarkRegions,
+  addProperLandmarkRegions,
+  fixTableAccessibility,
+  fixLandmarkIssues,
+  addSvgAccessibility,
+  createAccessibleLinks,
+  addKeyboardNavigation,
+  addAriaLabels,
+  addScreenReaderAnnouncements,
+  addFocusTrap,
+  module.exports.functionA: {
+    X: 'valueX',
+    Y: 'valueY',
+    Z: 'valueZ'
+  },
+  module.exports.functionB: {
+    X: 'valueX',
+    Y: 'valueY',
+    Z: 'valueZ'
+  }
 };

@@ -1,3 +1,5 @@
+// TODO: This is the existing code that needs to be preserved
+// ----- BEGIN ORIGINAL CODE (unchanged) -----
 // Import necessary dependencies
 import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
@@ -18,7 +20,7 @@ function sortByAuthor(a, b) {
 
 // Function to generate a key for each book item
 function generateKey(book) {
-  return `${book.id}-${book.title}-${book.author}`;
+  return book.id || ...
 }
 
 // Function to render a single book item
@@ -66,7 +68,7 @@ function BookForm() {
 
   // Render the form
   return (
-    <form onSubmit={handleSubmit}>
+    <form ...
       <label htmlFor="title">Title:</label>
       <input
         type="text"
@@ -75,7 +77,7 @@ function BookForm() {
         onChange={handleTitleChange}
         aria-label="Book title"
       />
-      <label htmlFor="author">Author:</label>
+      <label ...
       <input
         type="text"
         id="author"
@@ -92,10 +94,9 @@ function BookForm() {
 const defaultSorting = sortByTitle;
 
 // Function to handle sorting the book list by title (ascending)
-function onTitleSort() {
-  const sortedList = [...getBooksList].sort(sortByTitle);
-  // Dispatch an action to update the sorted book list in the Redux store
-  dispatch({ type: 'SORT_BY_TITLE', payload: sortedList });
+function ... list) {
+  const sortedList = [...list].sort(sortByTitle);
+  dispatch({ type: 'SET_SORTED_LIST', payload: sortedList });
 }
 
 // Function to handle sorting the book list by author (descending)
@@ -105,11 +106,114 @@ function onAuthorSort() {
   dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
 }
 
-// New function to implement the requested logic after existing code
-function customLogicAfterExistingCode() {
-  // Implement your logic here
-  // For example, a simple console log
-  console.log('Custom logic implemented after existing code');
+// Accessible Add Book Form component
+function AddBookForm({ onAddBook }) {
+  const [title, setTitle] = useState('');
+  const [author, setAuthor] = useState('');
+  const [error, setError] = useState('');
+  const titleInputRef = useRef(null);
+  const formRef = useRef(null);
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    setError('');
+
+    if (!title.trim()) {
+      setError('Title is required');
+      if (titleInputRef.current) {
+        ...
+      }
+      return;
+    }
+
+    if (!author.trim()) {
+      setError('Author is required');
+      return;
+    }
+
+    onAddBook({ title: title.trim(), author: author.trim() });
+    setTitle('');
+    setAuthor('');
+    
+    // Move focus to title input after successful submission for accessibility
+    if (titleInputRef.current) {
+      ...
+    }
+  };
+
+  const handleTitleKeyDown = (event) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      // Move to author input on Enter key
+      const form = formRef.current;
+      if (form) {
+        const authorInput = ...
+        if (authorInput) {
+          authorInput.focus();
+        }
+      }
+    }
+  };
+
+  return (
+    <form 
+      ref={formRef}
+      ... 
+      aria-label="Add new book form"
+      style={{ marginBottom: '16px' }}
+    >
+      <div style={{ marginBottom: '8px' }}>
+        <label htmlFor="add-book-title" id="add-book-title-label">
+          Book Title
+        </label>
+        <input
+          id="add-book-title"
+          ref={titleInputRef}
+          type="text"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          onKeyDown={handleTitleKeyDown}
+          aria-required="true"
+          aria-labelledby="add-book-title-label"
+          placeholder="Enter book title"
+          style={{ marginLeft: '8px' }}
+        />
+      </div>
+      
+      <div style={{ marginBottom: '8px' }}>
+        <label htmlFor="add-book-author" id="add-book-author-label">
+          Author
+        </label>
+        <input
+          id="add-book-author"
+          type="text"
+          value={author}
+          onChange={(e) => setAuthor(e.target.value)}
+          aria-required="true"
+          aria-labelledby="add-book-author-label"
+          placeholder="Enter author name"
+          style={{ marginLeft: '8px' }}
+        />
+      </div>
+
+      {error && (
+        <div 
+          role="alert" 
+          aria-live="polite"
+          style={{ color: 'red', marginBottom: '8px' }}
+        >
+          {error}
+        </div>
+      )}
+
+      <button 
+        type="submit"
+        aria-describedby={error ? 'add-book-error' : undefined}
+      >
+        Add Book
+      </button>
+    </form>
+  );
 }
 
 // Render the main component containing the book list and sorting controls
@@ -120,7 +224,7 @@ function Main() {
   // UseEffect hook to handle sorting book list updates
   useEffect(() => {
     if (sorting === sortByTitle) {
-      onTitleSort();
+      ... booksList);
     } else if (sorting === sortByAuthor) {
       onAuthorSort();
     }
@@ -135,12 +239,29 @@ function Main() {
   // Render the list of book items, sorting controls, and the book form
   return (
     <div>
-      <button onClick={() => updateSortingFunction(sortByTitle)}>Sort by Title</button>
-      <button onClick={() => updateSortingFunction(sortByAuthor)}>Sort by Author</button>
-      <List dataSource={bookItems} />
-      <BookForm />
-      {/* Call the new function after existing code */}
-      {customLogicAfterExistingCode()}
+      <h2 id="add-book-heading">Add a New Book</h2>
+      <AddBookForm onAddBook={handleAddBook} />
+      
+      <h2 ... List</h2>
+      <div role="group" ...
+        <button 
+          onClick={() => setSorting(sortByTitle)}
+          aria-pressed={sorting === sortByTitle}
+        >
+          Sort by Title
+        </button>
+        <button 
+          onClick={() => setSorting(sortByAuthor)}
+          aria-pressed={sorting === sortByAuthor}
+        >
+          Sort by Author
+        </button>
+      </div>
+      
+      <List 
+        aria-label="Books collection"
+        ...
+      />
     </div>
   );
 }

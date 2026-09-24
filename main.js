@@ -369,11 +369,6 @@ const a11yStore = {
     // Placeholder to ensure existing functionality is maintained
     console.log("Preserving existing code and accessibility features");
   },
-
-  // Additional placeholder methods for compatibility
-  addFocusStyles() {},
-  setupFocusVisiblePolyfill() {},
-  enhanceDynamicContent() {}
 };
 
 // New function to handle adding landmark regions
@@ -396,6 +391,8 @@ function addressAccessibilityIssues(report) {
   a11yStore.addressAccessibilityIssues(report);
 }
 
+// New functions to address specific accessibility issues
+
 // Get person name for accessible labeling
 function personName() {
   const nameElement = document.querySelector('[data-person-name]');
@@ -404,7 +401,7 @@ function personName() {
 
 // Validate and fix table accessibility
 function validateTableAccessibility() {
-  if (typeof window === 'undefined') return;
+  if (!window) return;
   const tables = document.querySelectorAll('table');
   tables.forEach(table => {
     const headers = table.querySelectorAll('th');
@@ -421,7 +418,7 @@ function validateTableAccessibility() {
 
 // Validate and fix table structure
 function validateTableStructure() {
-  if (typeof window === 'undefined') return;
+  if (!window) return;
   const tables = document.querySelectorAll('table');
   tables.forEach(table => {
     if (!table.querySelector('thead')) {
@@ -447,7 +444,7 @@ function validateTableStructure() {
 
 // Validate landmark elements
 function validateLandmark() {
-  if (typeof window === 'undefined') return;
+  if (!window) return;
   const landmarks = document.querySelectorAll('main, nav, header, footer, aside');
   landmarks.forEach(el => {
     if (!el.getAttribute('aria-label') && !el.getAttribute('aria-labelledby') && !el.getAttribute('role')) {
@@ -458,7 +455,7 @@ function validateLandmark() {
 
 // Validate landmark structure
 function validateLandmarkStructure() {
-  if (typeof window === 'undefined') return;
+  if (!window) return;
   const main = document.querySelector('main');
   if (main) {
     const nestedLandmarks = main.querySelectorAll('main, nav, header, footer, aside');
@@ -475,7 +472,7 @@ function getSvgAccessibleName(svg) {
 
 // Ensure unique landmark IDs
 function ensureUniqueLandmarks() {
-  if (typeof window === 'undefined') return;
+  if (!window) return;
   const landmarks = document.querySelectorAll('[role="landmark"], main, nav, header, footer, aside');
   const idSet = new Set();
   landmarks.forEach(el => {
@@ -490,50 +487,70 @@ function ensureUniqueLandmarks() {
   });
 }
 
-// Placeholder for newFunction if it exists elsewhere
-function newFunction() {
-  // Placeholder for new functionality
-}
+/**
+ * Creates a web resource button suitable for accessibility (e.g., GitHub, Stack Overflow, etc.)
+ * @param {Object} options - Button configuration options
+ * @param {string} options.url - The URL for the web resource
+ * @param {string} options.text - The text to display on the button
+ * @param {string} [options.icon] - Optional icon (SVG string or icon class)
+ * @param {string} [options.platform] - Platform identifier (e.g., 'github', 'stackoverflow', 'twitter')
+ * @param {string} [options.id] - Optional unique identifier for the button
+ * @param {string} [options.className] - Optional CSS class name for styling
+ * @param {boolean} [options.openInNewTab=true] - Whether to open link in new tab
+ * @returns {HTMLButtonElement} - The created button element
+ */
+function createWebResourceButton(options) {
+  const { url, text, icon, platform, id, className, openInNewTab = true } = options;
 
-// Fix for validateLinkAccessibility (mentioned in comments but not defined)
-function validateLinkAccessibility() {
-  if (typeof window === 'undefined') return;
-  const links = document.querySelectorAll('a');
-  links.forEach(link => {
-    // Check if link has meaningful text
-    const text = link.textContent.trim();
-    if (!text || text === '#') {
-      // Handle fake links
-      if (link.getAttribute('href') === '#' || !link.getAttribute('href')) {
-        link.setAttribute('role', 'button');
-      }
+  // Validate required options
+  if (!url) {
+    throw new Error('URL is required for web resource button');
+  }
+  if (!text) {
+    throw new Error('Button text is required');
+  }
+
+  // Create button element
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.className = `web-resource-button ${className || ''}`.trim();
+  button.setAttribute('data-platform', platform || 'external');
+  
+  if (id) {
+    button.id = id;
+  } else {
+    button.id = `web-btn-${platform || 'external'}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  }
+
+  // Set accessible name
+  button.setAttribute('aria-label', text);
+
+  // Add icon if provided
+  let buttonContent = '';
+  if (icon) {
+    buttonContent += `<span class="web-resource-icon" aria-hidden="true">${icon}</span>`;
+  }
+  buttonContent += `<span class="web-resource-text">${text}</span>`;
+  button.innerHTML = buttonContent;
+
+  // Handle click - open URL
+  button.addEventListener('click', () => {
+    if (openInNewTab) {
+      window.open(url, '_blank', 'noopener,noreferrer');
+    } else {
+      window.location.href = url;
     }
   });
-}
 
-// Fix for handleFakeLinks (mentioned in comments but not defined)
-function handleFakeLinks() {
-  if (typeof window === 'undefined') return;
-  const fakeLinks = document.querySelectorAll('a[href="#"], a:not([href])');
-  fakeLinks.forEach(link => {
-    link.setAttribute('role', 'button');
+  // Keyboard support for button (Enter/Space)
+  button.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      button.click();
+    }
   });
-}
 
-// Set SVG attributes function (mentioned in comments)
-function setSvgAttributes(svg) {
-  if (!svg) return;
-  svg.setAttribute('role', 'img');
-  if (!svg.getAttribute('aria-labelledby')) {
-    const titleText = svg.getAttribute('title') || 'Image description';
-    const descriptionId = `svg-desc-${Math.floor(Math.random() * 1000)}`;
-    svg.setAttribute('aria-labelledby', descriptionId);
-
-    const descriptionElement = document.createElement('desc');
-    descriptionElement.id = descriptionId;
-    descriptionElement.textContent = titleText;
-    svg.appendChild(descriptionElement);
-  }
+  return button;
 }
 
 module.exports = {
@@ -543,7 +560,6 @@ module.exports = {
   a11yStore,
   addLandmarkRegions,
   addressAccessibilityIssues,
-  newFunction,
   LANDMARK_ELEMENTS,
   getLangAttribute: a11yStore.getLangAttribute.bind(a11yStore),
   updateLiveRegion: a11yStore.updateLiveRegion.bind(a11yStore),
@@ -556,7 +572,5 @@ module.exports = {
   validateLandmarkStructure,
   getSvgAccessibleName,
   ensureUniqueLandmarks,
-  validateLinkAccessibility,
-  handleFakeLinks,
-  setSvgAttributes
+  createWebResourceButton
 };

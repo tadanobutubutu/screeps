@@ -202,7 +202,15 @@ const getLangAttribute = (contentLanguage) => {
 };
 
 // Accessibility utilities and functions
-// TODO: Implement the new function as per the issue requirements
+// TODO: Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and personName())
+// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
+// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), ... and validateLandmarkStructure())
+// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...)
+// - REACT_025: Ensure unique landmarks (2 issues) (handled by ...)
+// - REACT_036: Fix 1 fake link issue (handled by ... createInPageButton(), ... and personName())
+// - ADD: Address new accessibility issues from insight report
+// - NEW: Implement a new function to handle focus trap for keyboard navigation (handled by newFocusTrap())
 function newFocusTrap(element) {
   const focusableElements = element.querySelectorAll(
     'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
@@ -271,7 +279,39 @@ function log(message, level = 'info') {
 
 // Accessibility utilities and functions
 // TODO: Implement the new function as per the issue requirements
+function createInPageButton(buttonId, buttonText, buttonAction) {
+  const button = document.createElement('button');
+  button.id = buttonId;
+  button.textContent = buttonText;
+  button.addEventListener('click', buttonAction);
+  document.body.appendChild(button);
+}
 
-// Export functionality with accessibility support
-const exportUtils = {
-  exportData: (data, filename, mimeType) =>
+// Initialize on DOM ready
+if (typeof document !== 'undefined') {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initAccessibility);
+  } else {
+    initAccessibility();
+  }
+}
+
+// Export all utilities
+module.exports = {
+  accessibilityUtils,
+  exportUtils,
+  initAccessibility,
+  handleCredentialResponse,
+  ensureElementId,
+  addAriaLabel,
+  renderDependencyGraph,
+  calculateSum,
+  newFocusTrap,
+  transformInputData,
+  sanitizeFilename,
+  readFileSafe,
+  processData,
+  filterValidItems,
+  groupByCategory,
+  createInPageButton
+};

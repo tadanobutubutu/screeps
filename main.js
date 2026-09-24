@@ -1,18 +1,31 @@
-const userSafety = 'unsafe';
-const safetyCategories = 'Unauthorized Advice';
-const books = [];
-const safetyCategory = "User Safety: safe";
-
+// Import required modules
 const utils = require('./utils');
 const axe = require('axe-core');
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
-const { a11y } = require('@accessible/react');
-
-const accessiblyHelper = async (...args) => {
-  return args;
-};
+const validators = require('./utils/validators');
+const validateInput = validators.validateInput;
+const processData = validators.processData;
+const formatResponse = validators.formatResponse;
+const accessibilityImprovements = require('./accessibility-improvements');
+const validateLandmark = accessibilityImprovements.validateLandmark;
+const addMainLandmark = accessibilityImprovements.addMainLandmark;
+const addSvgAccessibleNames = accessibilityImprovements.addSvgAccessibleNames;
+const fixTableStructureIssues = accessibilityImprovements.fixTableStructureIssues;
+const fixTableHeaderCellScope = accessibilityImprovements.fixTableHeaderCellScope;
+const fixFakeLinksFromModule = accessibilityImprovements.fixFakeLinks;
+const ensureUniqueLandmarks = accessibilityImprovements.ensureUniqueLandmarks;
+const addLandmarkRoles = accessibilityImprovements.addLandmarkRoles;
+const setLanguageAttribute = accessibilityImprovements.setLanguageAttribute;
+const fixTableAccessibility = accessibilityImprovements.fixTableAccessibility;
+const fixLandmarkIssues = accessibilityImprovements.fixLandmarkIssues;
+const addSvgAccessibility = accessibilityImprovements.addSvgAccessibility;
+const createAccessibleLinks = accessibilityImprovements.createAccessibleLinks;
+const generateAccessibilityReport = accessibilityImprovements.generateAccessibilityReport;
+const addressAccessibilityIssues = accessibilityImprovements.addressAccessibilityIssues;
+const a11yModule = require('@accessible/react');
+const a11y = a11yModule.a11y;
 
 const config = {
   name: 'MyApp',
@@ -30,21 +43,20 @@ const CONFIG = {
   allowedRoles: ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region']
 };
 
-export const checkUserSafety = () => {
-  let userSafetyMessage = '';
-
-  if (userSafety !== 'safe') {
-    userSafetyMessage = 'User safety level is set to "unsafe". Please review and update this setting for better security.';
-  }
-
-  if (userSafetyMessage.length === 0) {
-    // Address accessibility issues from insight report:
-    // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and wrapPrimaryContentInMain())
-    // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-    // - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and addFixLandmarkIssues())
-    // - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and addAriaToFormControls())
-    // - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks() and addFixLandmarkIssues())
-    // - REACT_036: Fix 1 fake link issue (handled by fixFakeLinkIssues(), createAccessibleLink() and addFixLandmarkIssues())
+// Ensure unique landmarks by ID
+function ensureUniqueLandmarksLocal(landmarks) {
+    if (!Array.isArray(landmarks)) {
+        return [];
+    }
+    const seen = new Set();
+    return landmarks.filter(landmark => {
+        if (seen.has(landmark.id)) {
+            return false;
+        }
+        seen.add(landmark.id);
+        return true;
+    });
+}
 
     fixAccessibilityIssues();
   }
@@ -342,10 +354,27 @@ function visualizeModuleRelationships(modules) {
 }
 
 module.exports = {
-  applyAccessibilityFixesAndHarvestData,
-  analyzeModuleDependencies,
-  visualizeModuleRelationships,
-  ensureElementHasId,
-  addAriaLabel,
-  writeReport
+    getLangAttribute,
+    getFullLangAttribute,
+    validateTableAccessibility,
+    validateTableStructure,
+    validateLandmark,
+    validateLandmarkStructure,
+    ensureUniqueLandmarks,
+    ensureUniqueLandmarksLocal,
+    getSvgAccessibleName,
+    createInPageButton,
+    createAccessibleLink,
+    handleAccessibilityIssues,
+    initializeApp,
+    getConfig,
+    validateInput,
+    processData,
+    addLandmarkRegions,
+    setSvgAttributes,
+    config,
+    appState,
+    appData,
+    a11y,
+    formatResponse
 };

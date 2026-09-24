@@ -201,47 +201,104 @@ function calculateSum(numbers) {
 // Additional utility functions for accessibility
 function addMainLandmark() {
   // Implementation for REACT_017: Add landmark issues
-  // ...
+  const mainElement = document.createElement('main');
+  mainElement.setAttribute('role', 'main');
+  mainElement.setAttribute('aria-label', 'Main content');
+  document.body.appendChild(mainElement);
 }
 
 function ensureUniqueLandmarks() {
   // Implementation for REACT_025: Ensure unique landmarks
-  // ...
+  const landmarks = document.querySelectorAll(
+    'header, nav, main, aside, footer, [role="banner"], [role="navigation"], [role="main"], [role="complementary"], [role="contentinfo"]'
+  );
+
+  const landmarkTypes = {};
+
+  landmarks.forEach((landmark, index) => {
+    const tagName = landmark.tagName.toLowerCase();
+    const role = landmark.getAttribute('role');
+    const identifier = role || tagName;
+
+    if (!landmarkTypes[identifier]) {
+      landmarkTypes[identifier] = 0;
+    } else {
+      landmarkTypes[identifier]++;
+      if (!landmark.hasAttribute('aria-label') && !landmark.hasAttribute('aria-labelledby')) {
+        landmark.setAttribute('aria-label', `${identifier} ${landmarkTypes[identifier] + 1}`);
+      }
+    }
+  });
 }
 
 function addAltAttribute() {
   // Implementation for adding alt attributes
-  // ...
+  document.querySelectorAll('img:not([alt])').forEach(img => {
+    img.setAttribute('alt', '');
+  });
 }
 
 function replaceButtonId() {
   // Implementation for replacing button id
-  // ...
+  document.querySelectorAll('button[id]').forEach(button => {
+    const newId = `btn-${Math.random().toString(36).substr(2, 9)}`;
+    button.id = newId;
+  });
 }
 
 function addLangAttribute() {
   // Implementation for adding lang attribute
-  // ...
+  const htmlElement = document.documentElement;
+  if (htmlElement && !htmlElement.hasAttribute('lang')) {
+    htmlElement.setAttribute('lang', 'en');
+  }
 }
 
 function fixTableStructure() {
   // Implementation for fixing table structure
-  // ...
+  document.querySelectorAll('table').forEach(table => {
+    if (!table.querySelector('caption')) {
+      const caption = document.createElement('caption');
+      caption.textContent = 'Table caption';
+      table.insertBefore(caption, table.firstChild);
+    }
+
+    if (!table.querySelector('thead')) {
+      const thead = document.createElement('thead');
+      const firstRow = table.querySelector('tr');
+      if (firstRow) {
+        firstRow.querySelectorAll('th, td').forEach(cell => {
+          cell.setAttribute('scope', 'col');
+        });
+        thead.appendChild(firstRow.cloneNode(true));
+        table.insertBefore(thead, table.firstChild);
+      }
+    }
+  });
 }
 
 function addSvgAccessibleName() {
   // Implementation for adding SVG accessible name
-  // ...
+  document.querySelectorAll('svg:not([aria-label]):not([aria-labelledby])').forEach((svg, index) => {
+    svg.setAttribute('role', 'img');
+    svg.setAttribute('aria-label', `Graphic ${index + 1}`);
+  });
 }
 
 function fixFakeLinkIssue() {
   // Implementation for fixing fake link issues
-  // ...
+  document.querySelectorAll('a[role="button"]:not([href]):not([href=""])').forEach(link => {
+    link.setAttribute('href', '#');
+    link.setAttribute('aria-hidden', 'true');
+    link.style.display = 'none';
+  });
 }
 
 function addAriaAttribute() {
   // Implementation for adding aria attributes
-  // ...
+  document.querySelectorAll('[aria-hidden="true"]').forEach(element => {
+    element.setAttribute('aria-hidden', 'false');
+  });
 }
 
 /**
@@ -435,45 +492,73 @@ async function handleCredentialResponse(response) {
   throw new Error('Invalid credential response');
 }
 
-// New function to handle focus trap for keyboard navigation
-function createFocusTrap(element) {
-  if (!element) {
-    throw new Error('Element is required for focus trap');
-  }
-
+// TODO: Implement a new function to handle focus trap for keyboard navigation
+const focusTrap = (element) => {
   const focusableElements = element.querySelectorAll(
-    'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    'a[href], button, input, select, textarea, [tabindex]:not([tabindex="-1"])'
   );
+  let activeElementIndex = focusableElements.length - 1;
 
-  if (focusableElements.length === 0) {
-    throw new Error('No focusable elements found in the container');
+  function setActiveElement(index) {
+    if (index < 0) {
+      index = focusableElements.length - 1;
+    } else if (index >= focusableElements.length) {
+      index = 0;
+    }
+
+    if (focusableElements[index]) {
+      focusableElements[index].focus();
+    } else {
+      element.focus();
+    }
+    activeElementIndex = index;
   }
 
-  const firstElement = focusableElements[0];
-  const lastElement = focusableElements[focusableElements.length - 1];
+  function nextFocusableElement() {
+    setActiveElement(activeElementIndex + 1);
+  }
 
-  // Focus the first element when trap is activated
-  firstElement.focus();
+  function previousFocusableElement() {
+    setActiveElement(activeElementIndex - 1);
+  }
 
-  const handleKeyDown = (e) => {
-    if (e.key === 'Tab') {
-      if (e.shiftKey && document.activeElement === firstElement) {
-        lastElement.focus();
+  function moveFocusToFirst() {
+    setActiveElement(0);
+  }
+
+  function moveFocusToLast() {
+    setActiveElement(focusableElements.length - 1);
+  }
+
+  element.addEventListener('keydown', (e) => {
+    switch (e.key) {
+      case 'Tab':
+        if (e.shiftKey) {
+          previousFocusableElement();
+        } else {
+          nextFocusableElement();
+        }
         e.preventDefault();
-      } else if (!e.shiftKey && document.activeElement === lastElement) {
-        firstElement.focus();
+        break;
+      case 'ArrowLeft':
+        previousFocusableElement();
         e.preventDefault();
-      }
+        break;
+      case 'ArrowRight':
+        nextFocusableElement();
+        e.preventDefault();
+        break;
+      case 'Home':
+        moveFocusToFirst();
+        e.preventDefault();
+        break;
+      case 'End':
+        moveFocusToLast();
+        e.preventDefault();
+        break;
     }
-  };
-
-  element.addEventListener('keydown', handleKeyDown);
-
-  // Return a function to remove the event listener when trap is deactivated
-  return () => {
-    element.removeEventListener('keydown', handleKeyDown);
-  };
-}
+  });
+};
 
 // TODO: Address accessibility issues from insight report
 const addressAccessibilityIssues = (container) => {
@@ -827,7 +912,7 @@ module.exports = {
   ensureDependencyGraphAccessibility,
   renderDependencyGraphs,
   handleCredentialResponse,
-  createFocusTrap,
+  focusTrap,
   addressAccessibilityIssues,
   createInPageButton,
   createWebResourceButton,

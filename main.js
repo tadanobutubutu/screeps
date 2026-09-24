@@ -13,43 +13,43 @@ const { createInPageButton, createWebResourceButton, validateLandmark, validateL
  * Validates and fixes table structure accessibility issues.
  * Handles REACT_027 - Fix 26 table structure issues
  */
-function validateTableStructure () {
-  const tables = document.querySelectorAll('table')
+function validateTableStructure() {
+    const tables = document.querySelectorAll('table');
 
-  tables.forEach((table) => {
-    const rows = table.querySelectorAll('tr')
-    const firstRow = rows[0]
+    tables.forEach(table => {
+        const rows = table.querySelectorAll('tr');
+        const firstRow = rows[0];
 
-    if (!firstRow) return
+        if (!firstRow) return;
 
-    // Get all header cells in the first row to determine column count
-    const firstRowThs = firstRow.querySelectorAll('th')
-    const firstRowTds = firstRow.querySelectorAll('td')
-    const firstRowHeaders = [...firstRowThs, ...firstRowTds]
-    const columnCount = firstRowHeaders.length
+        // Get all header cells in the first row to determine column count
+        const firstRowThs = firstRow.querySelectorAll('th');
+        const firstRowTds = firstRow.querySelectorAll('td');
+        const firstRowHeaders = [...firstRowThs, ...firstRowTds];
+        const columnCount = firstRowHeaders.length;
 
-    rows.forEach((row, rowIndex) => {
-      const ths = row.querySelectorAll('th')
-      const tds = row.querySelectorAll('td')
-      const allCells = [...ths, ...tds]
+        rows.forEach((row, rowIndex) => {
+            const ths = row.querySelectorAll('th');
+            const tds = row.querySelectorAll('td');
+            const allCells = [...ths, ...tds];
 
-      allCells.forEach((cell, cellIndex) => {
-        if (cell.tagName === 'TH' && !cell.hasAttribute('scope')) {
-          const isFirstRow = rowIndex === 0
-          const isFirstCell = cellIndex === 0
+            allCells.forEach((cell, cellIndex) => {
+                if (cell.tagName === 'TH' && !cell.hasAttribute('scope')) {
+                    const isFirstRow = rowIndex === 0;
+                    const isFirstCell = cellIndex === 0;
 
-          // First row cells are column headers
-          if (isFirstRow) {
-            cell.setAttribute('scope', 'col')
-          }
-          // First cell in subsequent rows are row headers
-          else if (isFirstCell) {
-            cell.setAttribute('scope', 'row')
-          }
-        }
-      })
-    })
-  })
+                    // First row cells are column headers
+                    if (isFirstRow) {
+                        cell.setAttribute('scope', 'col');
+                    }
+                    // First cell in subsequent rows are row headers
+                    else if (isFirstCell) {
+                        cell.setAttribute('scope', 'row');
+                    }
+                }
+            });
+        });
+    });
 }
 
 /**
@@ -59,6 +59,8 @@ function validateTableStructure () {
 function validateTableAccessibility () {
   validateTableStructure()
 }
+
+// TODO: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
 
 /**
  * Ensures unique landmarks (DONE: ensureUniqueLandmarks)
@@ -114,6 +116,132 @@ function validateLandmarks() {
   return uniqueLandmarkData;
 }
 
+/**
+ * Gets the lang attribute for the HTML element
+ * Handles REACT_015: Add lang attribute to HTML element
+ */
+function getLangAttribute() {
+    const htmlElement = document.querySelector('html');
+    if (htmlElement && !htmlElement.hasAttribute('lang')) {
+        htmlElement.setAttribute('lang', 'en');
+    }
+}
+
+/**
+ * Wraps primary content in a main element for better landmark structure
+ * Handles REACT_017: Add/fix landmark issues
+ */
+function wrapPrimaryContentInMain() {
+    const body = document.querySelector('body');
+    if (body) {
+        const main = document.createElement('main');
+        while (body.firstChild) {
+            main.appendChild(body.firstChild);
+        }
+        body.appendChild(main);
+    }
+}
+
+/**
+ * Validates landmark structure
+ * Handles REACT_017: Add/fix landmark issues
+ */
+function validateLandmark() {
+    const main = document.querySelector('main');
+    if (!main) {
+        wrapPrimaryContentInMain();
+    }
+}
+
+/**
+ * Validates landmark structure
+ * Handles REACT_017: Add/fix landmark issues
+ */
+function validateLandmarkStructure() {
+    validateLandmark();
+}
+
+/**
+ * Gets accessible name for SVG elements
+ * Handles REACT_041: Add accessible names to SVGs
+ */
+function getSvgAccessibleName(svgElement) {
+    if (!svgElement) return '';
+
+    // Check for aria-label or aria-labelledby first
+    if (svgElement.hasAttribute('aria-label')) {
+        return svgElement.getAttribute('aria-label');
+    }
+    if (svgElement.hasAttribute('aria-labelledby')) {
+        const id = svgElement.getAttribute('aria-labelledby');
+        const labelElement = document.getElementById(id);
+        return labelElement ? labelElement.textContent : '';
+    }
+
+    // Fallback to title or description
+    const title = svgElement.querySelector('title');
+    if (title) return title.textContent;
+
+    const desc = svgElement.querySelector('desc');
+    if (desc) return desc.textContent;
+
+    return '';
+}
+
+/**
+ * Sets SVG attributes for better accessibility
+ * Handles REACT_041: Add accessible names to SVGs
+ */
+function setSvgAttributes() {
+    const svgs = document.querySelectorAll('svg');
+    svgs.forEach(svg => {
+        const name = getSvgAccessibleName(svg);
+        if (!name) {
+            // Add a title if none exists
+            if (!svg.querySelector('title')) {
+                const title = document.createElement('title');
+                title.textContent = 'Graphic element';
+                svg.prepend(title);
+            }
+        }
+    });
+}
+
+/**
+ * Creates an accessible in-page button
+ * Handles REACT_036: Fix fake link issues
+ */
+function createInPageButton() {
+    const buttons = document.querySelectorAll('a[role="button"]');
+    buttons.forEach(button => {
+        if (!button.hasAttribute('tabindex')) {
+            button.setAttribute('tabindex', '0');
+        }
+    });
+}
+
+/**
+ * Validates link accessibility
+ * Handles REACT_036: Fix fake link issues
+ */
+function validateLinkAccessibility() {
+    const links = document.querySelectorAll('a');
+    links.forEach(link => {
+        if (!link.hasAttribute('href') && !link.hasAttribute('role')) {
+            link.setAttribute('role', 'button');
+        }
+    });
+}
+
+/**
+ * Handles fake link issues
+ * Handles REACT_036: Fix fake link issues
+ */
+function handleFakeLinks() {
+    createInPageButton();
+    validateLinkAccessibility();
+}
+
 module.exports = {
   ensureUniqueLandmarks,
   validateTableAccessibility,
@@ -123,5 +251,14 @@ module.exports = {
   landmarks,
   uniqueLandmarks,
   validateTableAccessibility,
-  validateTableStructure
-}
+  validateTableStructure,
+  getLangAttribute,
+  wrapPrimaryContentInMain,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  createInPageButton,
+  validateLinkAccessibility,
+  handleFakeLinks
+};

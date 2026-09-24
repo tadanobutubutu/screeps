@@ -195,4 +195,26 @@ describe('utils.logging', () => {
             errorSpy.mockRestore();
         });
     });
+
+    describe('init', () => {
+        test('does nothing if Memory.logs is undefined', () => {
+            delete Memory.logs;
+            logging.init();
+            expect(Memory.logs).toBeUndefined();
+        });
+
+        test('does not modify Memory.logs if length <= 100', () => {
+            Memory.logs = new Array(50).fill('log');
+            logging.init();
+            expect(Memory.logs).toHaveLength(50);
+        });
+
+        test('truncates Memory.logs to the last 100 items if length > 100', () => {
+            Memory.logs = new Array(150).fill('log');
+            Memory.logs[149] = 'last log';
+            logging.init();
+            expect(Memory.logs).toHaveLength(100);
+            expect(Memory.logs[99]).toBe('last log');
+        });
+    });
 });

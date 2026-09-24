@@ -857,6 +857,64 @@ function addAriaLabel(element, label) {
   }
 }
 
+/**
+ * Function to process data and return formatted results
+ * @param {Array} data - The input data array
+ * @returns {Object} Processed data with summary statistics
+ */
+function functionB(data) {
+  if (!Array.isArray(data)) {
+    throw new Error('Input must be an array');
+  }
+
+  if (data.length === 0) {
+    return {
+      count: 0,
+      sum: 0,
+      average: 0,
+      max: null,
+      min: null
+    };
+  }
+
+  const sum = data.reduce((acc, val) => acc + val, 0);
+  const average = sum / data.length;
+  const max = Math.max(...data);
+  const min = Math.min(...data);
+
+  return {
+    count: data.length,
+    sum,
+    average,
+    max,
+    min
+  };
+}
+
+function App() {
+  const [programData, setProgramData] = useState(null);
+
+  useEffect(() => {
+    const loadProgramData = async () => {
+      const filePath = path.join(appConfig.dataPath, 'program.json');
+      try {
+        const data = await fs.promises.readFile(filePath, 'utf8');
+        const parsedData = JSON.parse(data);
+        setProgramData(parsedData);
+      } catch (error) {
+        console.error('Error loading program data:', error);
+      }
+    };
+    loadProgramData();
+  }, []);
+
+  return (
+    // ... Your accessible React Router setup ...
+  );
+}
+
+export default App;
+
 module.exports = {
   generateAccessibilityReport,
   wrapPrimaryContentInMain,
@@ -886,33 +944,5 @@ module.exports = {
   initialize,
   initializeApp,
   clearCache,
-  // Added back the missing exports
-  getFullLangAttribute,
-  calculateSum,
-  processDataUtil,
-  setAndGetImageAlt,
-  checkLandmarkElement,
-  landmarkStructureCheck,
-  processAccessibilityReport,
-  renderGraph,
-  fixFakeLinks,
-  addLandmarkRegions,
-  validateLandmarkAttributes,
-  setLanguageAttribute,
-  getLangAttribute,
-  addLangAttribute,
-  validateTableAccessibility,
-  validateTableStructure,
-  fixTableStructure,
-  getSvgAccessibleName,
-  setSvgAttributes,
-  createInPageButton,
-  validateLinkAccessibility,
-  handleFakeLinks,
-  validateInput,
-  processData,
-  formatResponse,
-  initialize,
-  initializeApp,
-  clearCache
+  functionB
 };

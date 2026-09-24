@@ -1,26 +1,7 @@
-// TODO: This is the existing code that needs to be preserved (This comment remains as-is)
 // Import necessary dependencies
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { List, Button } from 'antd';
-
-// Function to search books by title or author
-function function3(list, query) {
-  if (!query || typeof query !== 'string') {
-    return list;
-  }
-  
-  const lowerQuery = query.toLowerCase().trim();
-  
-  if (!lowerQuery) {
-    return list;
-  }
-  
-  return list.filter(book => 
-    book.title.toLowerCase().includes(lowerQuery) ||
-    book.author.toLowerCase().includes(lowerQuery)
-  );
-}
 
 // Function to handle sorting books by title (ascending)
 function sortByTitle(a, b) {
@@ -228,7 +209,7 @@ function ensureUniqueLandmarks() {
 }
 
 // REACT_025: Add proper landmark regions
-function ... {
+function addLandmarkRegions() {
   const issues = [];
   const mainContent = ... || ...
   
@@ -285,7 +266,7 @@ function handleFakeLinks() {
 const defaultSorting = sortByTitle;
 
 // Function to handle sorting the book list by title (ascending)
-function ... list) {
+function sortBooksByTitle(dispatch, list) {
   const sortedList = [...list].sort(sortByTitle);
   dispatch({ type: 'SET_SORTED_LIST', payload: sortedList });
 }
@@ -362,67 +343,4 @@ function AddBookForm({ onAddBook }) {
           ref={titleInputRef}
           type="text"
           value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          onKeyDown={handleTitleKeyDown}
-          aria-required="true"
-          aria-labelledby="add-book-title-label"
-          placeholder="Enter book title"
-          style={{ marginLeft: '8px' }}
-        />
-      </div>
-      
-      <div style={{ marginBottom: '8px' }}>
-        <label htmlFor="add-book-author" id="add-book-author-label">
-          Author
-        </label>
-        <input
-          id="add-book-author"
-          type="text"
-          value={author}
-          onChange={(e) => setAuthor(e.target.value)}
-          aria-required="true"
-          aria-labelledby="add-book-author-label"
-          placeholder="Enter author name"
-          style={{ marginLeft: '8px' }}
-        />
-      </div>
-
-      {error && (
-        <div 
-          role="alert" 
-          aria-live="polite"
-          style={{ color: 'red', marginBottom: '8px' }}
-        >
-          {error}
-        </div>
-      )}
-
-      <button 
-        type="submit"
-        aria-describedby={error ? 'add-book-error' : undefined}
-      >
-        Add Book
-      </button>
-    </form>
-  );
-}
-
-// Render the main component containing the book list and sorting controls
-function Main() {
-  const dispatch = useDispatch();
-  const booksList = useSelector(state => state.books?.list || []);
-  const [sorting, setSorting] = useState(defaultSorting);
-
-  // Function to add a new book to the Redux store
-  const handleAddBook = (book) => {
-    dispatch({ type: 'ADD_BOOK', payload: book });
-  };
-
-  // UseEffect hook to handle sorting book list updates
-  useEffect(() => {
-    if (sorting === sortByTitle) {
-      ... booksList);
-    } else if (sorting === sortByAuthor) {
-      onAuthorSort(dispatch, booksList);
-    }
-  }, [sorting
+          onChange={(e)

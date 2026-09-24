@@ -254,277 +254,291 @@ const a11yStore = {
         ... ... + 1}`;
       }
     });
+  },
+
+  // ... Existing functions from current main.js ...
+
+/**
+ * Calculate the sum of two numbers
+ * @param {number} a - First number
+ * @param {number} b - Second number
+ * @returns {number} Sum of a and b
+ */
+export function calculateSum(a, b) {
+  return a + b;
+}
+
+export function calculateDifference(a, b) {
+  return a - b;
+}
+
+export function calculateProduct(a, b) {
+  return a * b;
+}
+
+export function isNumber(value) {
+  return typeof value === 'number' && !isNaN(value);
+}
+
+export function clamp(value, min, max) {
+  return Math.min(Math.max(value, min), max);
+}
+
+export function divide(a, b) {
+  if (!isNumber(a) || !isNumber(b)) {
+    throw new Error('Both operands must be numbers.');
+  }
+  if (b === 0) {
+    throw new Error('Division by zero is not allowed.');
+  }
+  return a / b;
+}
+
+/**
+ * Check if an element has the specified accessibility attribute
+ * @param {HTMLElement} element - The DOM element to check
+ * @param {string} attribute - The accessibility attribute to check for
+ * @returns {boolean} True if the attribute is present and non-empty, false otherwise
+ */
+export function checkAccessibilityAttribute(element, attribute) {
+  if (!element || typeof element.getAttribute !== 'function') {
+    return false;
+  }
+  const value = element.getAttribute(attribute);
+  return value !== null && value !== '';
+}
+
+/**
+ * Ensure an element has a non-empty accessibility label
+ * @param {HTMLElement} element - The DOM element to check
+ * @returns {boolean} True if the element has an aria-label or accessible name, false otherwise
+ */
+export function ensureAccessibleLabel(element) {
+  if (!element) {
+    return false;
+  }
+  return checkAccessibilityAttribute(element, 'aria-label') ||
+         checkAccessibilityAttribute(element, 'aria-labelledby') ||
+         checkAccessibilityAttribute(element, 'alt');
+}
+
+/**
+ * Validate that an element has proper focusability for accessibility
+ * @param {HTMLElement} element - The DOM element to check
+ * @returns {boolean} True if the element is focusable, false otherwise
+ */
+export function validateFocusableElement(element) {
+  if (!element) {
+    return false;
+  }
+  const focusableTags = ['a', 'button', 'input', 'select', 'textarea'];
+  const tagName = element.tagName?.toLowerCase();
+  const isFocusable = focusableTags.includes(tagName) ||
+                      element.tabIndex >= 0 ||
+                      checkAccessibilityAttribute(element, 'tabindex');
+  return isFocusable && !element.hasAttribute('disabled');
+}
+
+// Default export for backwards compatibility
+export default {
+  calculateSum,
+  calculateDifference,
+  calculateProduct,
+  isNumber,
+  clamp,
+  divide,
+  start() {
+    console.log('Application started');
+    return Promise.resolve();
   }
 };
 
-//_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
-//<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
-//_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
-//<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
-//_Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
-//<!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
-//_Commit: 7c71fe35502d1cacefd35e209f9d20be82c56fc3_
-//<!-- todo-hash: 312aa8ea6e4c5e1c9430e4b7136c210eb9172dea -->
-//_Commit: e1c38a81654fe5ba4cfcfba53c47360921b7ae1a_
-
-// Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ...)
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by ...)
-// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
-
-// Ensure the dependencyGraph container has a proper ARIA role
-//_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
-//<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
-//_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
-//<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
-//_Commit: 8c3a9295a6bf382e113f3e8184d40223b3f3f8d5_
-//<!-- todo-hash: c87b573b0860b150bcfdfdff7be68c9f7779afde -->
-
-// Add proper landmark regions for accessibility
-export function addLandmarkRegions() {
-  // Add main landmark
-  const mainElement = document.querySelector('main');
-  if (mainElement && !mainElement.hasAttribute('role')) {
-    mainElement.setAttribute('role', 'main');
+export const logger = {
+  info(message) {
+    console.log(`[INFO] ${message}`);
   }
+};
 
-  // Add banner landmark for header
-  const headerElement = document.querySelector('header');
-  if (headerElement && !headerElement.hasAttribute('role')) {
-    headerElement.setAttribute('role', 'banner');
-  }
+const a11yStore = {
+  // ... existing code (from both conflicting branches)
 
-  // Add contentinfo landmark for footer
-  const footerElement = document.querySelector('footer');
-  if (footerElement && !footerElement.hasAttribute('role')) {
-    footerElement.setAttribute('role', 'contentinfo');
-  }
+  // New function to handle dynamic content updates
+  updateLiveRegion(message, priority = 'polite') {
+    if (!this.liveRegion) return;
+    this.announce(message, priority);
+  },
 
-  // Add navigation landmarks
-  const navElements = document.querySelectorAll('nav');
-  navElements.forEach((nav, index) => {
-    if (!nav.hasAttribute('aria-label')) {
-      nav.setAttribute('aria-label', index === 0 ? 'Main navigation' : `Navigation ${index + 1}`);
-    }
-  });
-}
+  // Game loop function
+  run() {
+    // Your game logic here...
 
-// Get lang attribute from HTML element
-export function getLangAttribute() {
-  const htmlElement = document.querySelector('html');
-  if (htmlElement) {
-    return htmlElement.getAttribute('lang');
-  }
-  return null;
-}
+    // Update scope attributes in all .html files in the views directory
+    const viewsDir = path.join(__dirname, 'views');
+    fs.readdirSync(viewsDir)
+      .filter(file => file.endsWith('.html'))
+      .forEach(file => {
+        const filePath = path.join(viewsDir, file);
+        updateThScopeAttribute(filePath);
+      });
+  },
 
-// Wrap primary content in main element for accessibility
-export function wrapPrimaryContentInMain(content) {
-  const main = document.createElement('main');
-  main.innerHTML = content;
-  return main;
-}
-
-// For example, if the issue requires adding back an export like `calculateSum`, you would add:
-// export function calculateSum(a, b) { return a + b; }
-
-// Existing exports and functions...
-
-export function initializeApp() {
-  console.log('Initializing application...');
-  
-  // Apply accessibility fixes from insight report
-  ensureDependencyGraphARIA();
-  document.documentElement.lang = getLangAttribute();
-  
-  return Promise.resolve();
-}
-
-// TODO: Implement function for generating a report based on accessibility issues
-export function ... {
-  // Placeholder for the actual implementation
-  // This function should return a report object based on the accessibility issues found
-  return {
-    issues: [
-      // Example issue object
-      {
-        description: "Example issue description",
-        severity: "warning",
-        // ... other properties like 'elementId', 'fixRecommendation', etc.
+  // New function to check landmark elements
+  checkLandmarkElements() {
+    const landmarkElements = [...document.querySelectorAll('[role="landmark"]')];
+    landmarkElements.forEach((landmark, index) => {
+      // Ensure landmark has a unique ID
+      if (landmark.id === '') {
+        landmark.id = `landmark-${index}`;
       }
-    ]
-  };
-}
 
-// TODO: Add any other missing exports that might have been?
-// Added missing exports as per the issue
-
-var roleHarvester = require('role.harvester');
-var roleUpgrader = require('role.upgrader');
-
-// Define missing functions for REACT_015
-function getLangAttribute() {
-  return document.documentElement.lang || 'en';
-}
-
-function createInPageButton(text, targetId) {
-  const button = document.createElement('a');
-  button.href = `#${targetId}`;
-  button.textContent = text;
-  button.setAttribute('role', 'button');
-  button.setAttribute('aria-label', text);
-  return button;
-}
-
-function wrapPrimaryContentInMain() {
-  const content = document.querySelector('main') || document.querySelector('.content') || document.querySelector('#content');
-  if (content && content.tagName !== 'MAIN') {
-    const main = document.createElement('main');
-    main.appendChild(content);
-    return main;
-  }
-  return content;
-}
-
-// Define missing function for landmark handling
-export function addLandmarkRegions() {
-  const landmarks = document.querySelectorAll('[role="landmark"]');
-  landmarks.forEach((landmark, index) => {
-    if (!landmark.id) {
-      landmark.id = `landmark-${index}`;
-    }
-    if (!landmark.getAttribute('aria-label')) {
-      const role = landmark.getAttribute('role');
-      landmark.setAttribute('aria-label', `${role}-${index + 1}`);
-    }
-  });
-}
-
-// Address the issues: REACT_015, REACT_017, REACT_041, REACT_025, REACT_036
-function addressAccessibilityIssues() {
-  // Internationalization support
-  const translations = {
-    'en': {
-      landmark: 'landmark',
-      'svg1-title': 'SVG Content',
-      'svg2-title': 'Additional SVG'
-    }
-  };
-
-  const landmarks = ...
-  landmarks.forEach((landmark, index) => {
-    ... ... + 1}`;
-    // Additional landmark processing...
-  });
-
-  const svg1 = ...
-  const svg2 = ...
-  if (svg1) ... 'svg1-title');
-  if (svg2) ... 'svg2-title');
-
-  const mainElements = ...
-  if (mainElements.length > 1) {
-    ... <main> landmarks detected. Consider using <section> or <article> for additional regions.');
-    // The static fix should be applied in the source files
-    // - Replace one <main> with <section role="region" ...
-    // - Same fix
-  }
-
-  const fakeLinks = ...
-  fakeLinks.forEach(link => {
-    link.setAttribute('role', 'presentation');
-  });
-
-  // Implement this function for checking link and button accessibility
-  function checkLinksAndButtons() {
-    const links = document.querySelectorAll('a');
-    const buttons = document.querySelectorAll('button');
-
-    links.forEach(link => {
-      // Check if link needs explicit role="link"
-      if (!link.hasAttribute('href') && link.getAttribute('role') !== 'link') {
-        link.setAttribute('role', 'link');
-      }
-      // Check for link without href attribute
-      if (!link.hasAttribute('href')) {
-        console.error('Accessibility Error: Link without href attribute', link);
+      // Ensure unique accessible names for duplicate landmarks
+      if (landmark.hasAttribute('aria-label')) {
+        landmark.setAttribute('aria-label', `${landmarkElements[index].nodeName.toLowerCase()}-${index + 1}`);
       }
     });
+  },
 
-    buttons.forEach(button => {
-      // Check if button needs explicit role="button"
-      if (button.getAttribute('role') !== 'button') {
-        button.setAttribute('role', 'button');
-      }
-      // Check for accessible name for buttons
-      const hasText = button.textContent.trim().length > 0;
-      const hasAriaLabel = button.hasAttribute('aria-label');
-      const hasAriaLabelledby = button.hasAttribute('aria-labelledby');
+  // ... Existing functions from current main.js ...
 
-      if (!hasText && !hasAriaLabel && !hasAriaLabelledby) {
-        console.error('Accessibility Error: Button without accessible name', button);
-      }
-    });
-  }
-
-  // Call the function to check accessibility
-  checkLinksAndButtons();
+/**
+ * Calculate the sum of two numbers
+ * @param {number} a - First number
+ * @param {number} b - Second number
+ * @returns {number} Sum of a and b
+ */
+export function calculateSum(a, b) {
+  return a + b;
 }
 
-export { addressAccessibilityIssues };
+export function calculateDifference(a, b) {
+  return a - b;
+}
 
-// Screeps module exports for game loop integration
-module.exports.getLangAttribute = getLangAttribute;
-module.exports.wrapPrimaryContentInMain = wrapPrimaryContentInMain;
-module.exports.addressAccessibilityIssues = addressAccessibilityIssues;
-module.exports.addLandmarkRegions = addLandmarkRegions;
+export function calculateProduct(a, b) {
+  return a * b;
+}
 
-// ... existing exported functions preserved for tables, landmarks, SVGs, forms ...
+export function isNumber(value) {
+  return typeof value === 'number' && !isNaN(value);
+}
 
-module.exports.loop = function() {
-    // Clear the memory of dead creeps
-    for(var name in Memory.creeps) {
-        if(!Game.creeps[name]) {
-            delete Memory.creeps[name];
-        }
-    }
+export function clamp(value, min, max) {
+  return Math.min(Math.max(value, min), max);
+}
 
-    // TODO: Add implementation details
+export function divide(a, b) {
+  if (!isNumber(a) || !isNumber(b)) {
+    throw new Error('Both operands must be numbers.');
+  }
+  if (b === 0) {
+    throw new Error('Division by zero is not allowed.');
+  }
+  return a / b;
+}
 
-    var harvesters = _.filter(Game.creeps, (creep) => creep.memory.role == 'harvester');
-    var upgraders = _.filter(Game.creeps, (creep) => creep.memory.role == 'upgrader');
+/**
+ * Check if an element has the specified accessibility attribute
+ * @param {HTMLElement} element - The DOM element to check
+ * @param {string} attribute - The accessibility attribute to check for
+ * @returns {boolean} True if the attribute is present and non-empty, false otherwise
+ */
+export function checkAccessibilityAttribute(element, attribute) {
+  if (!element || typeof element.getAttribute !== 'function') {
+    return false;
+  }
+  const value = element.getAttribute(attribute);
+  return value !== null && value !== '';
+}
 
-    if(harvesters.length < 2) {
-        var newName = 'Harvester' + Game.time;
-        Game.spawns['Spawn1'].spawnCreep(Game.rooms.W0N0.createCreepBody(), newName, 
-            {memory: {role: 'harvester'}});
-    }
-    
-    if(upgraders.length < 2) {
-        var newName = 'Upgrader' + Game.time;
-        Game.spawns['Spawn1'].spawnCreep(Game.rooms.W0N0.createCreepBody(), newName, 
-            {memory: {role: 'upgrader'}});
-    }
-    
-    if(Game.spawns['Spawn1'].spawning) { 
-        var spawningCreep = Game.creeps[Game.spawns['Spawn1'].spawning.name];
-        Game.spawns['Spawn1'].room.visual.text(
-            '🛠️' + spawningCreep.memory.role,
-            Game.spawns['Spawn1'].pos.x + 1, 
-            Game.spawns['Spawn1'].pos.y, 
-            {align: 'left', opacity: 0.8});
-    }
+/**
+ * Ensure an element has a non-empty accessibility label
+ * @param {HTMLElement} element - The DOM element to check
+ * @returns {boolean} True if the element has an aria-label or accessible name, false otherwise
+ */
+export function ensureAccessibleLabel(element) {
+  if (!element) {
+    return false;
+  }
+  return checkAccessibilityAttribute(element, 'aria-label') ||
+         checkAccessibilityAttribute(element, 'aria-labelledby') ||
+         checkAccessibilityAttribute(element, 'alt');
+}
 
-    for(var name in Game.creeps) {
-        var creep = Game.creeps[name];
-        if(creep.memory.role == 'harvester') {
-            roleHarvester.run(creep);
-        }
-        if(creep.memory.role == 'upgrader') {
-            roleUpgrader.run(creep);
-        }
-    }
+/**
+ * Validate that an element has proper focusability for accessibility
+ * @param {HTMLElement} element - The DOM element to check
+ * @returns {boolean} True if the element is focusable, false otherwise
+ */
+export function validateFocusableElement(element) {
+  if (!element) {
+    return false;
+  }
+  const focusableTags = ['a', 'button', 'input', 'select', 'textarea'];
+  const tagName = element.tagName?.toLowerCase();
+  const isFocusable = focusableTags.includes(tagName) ||
+                      element.tabIndex >= 0 ||
+                      checkAccessibilityAttribute(element, 'tabindex');
+  return isFocusable && !element.hasAttribute('disabled');
+}
+
+// Default export for backwards compatibility
+export default {
+  calculateSum,
+  calculateDifference,
+  calculateProduct,
+  isNumber,
+  clamp,
+  divide,
+  start() {
+    console.log('Application started');
+    return Promise.resolve();
+  }
+};
+
+export const logger = {
+  info(message) {
+    console.log(`[INFO] ${message}`);
+  }
+};
+
+const a11yStore = {
+  // ... existing code (from both conflicting branches)
+
+  // New function to handle dynamic content updates
+  updateLiveRegion(message, priority = 'polite') {
+    if (!this.liveRegion) return;
+    this.announce(message, priority);
+  },
+
+  // Game loop function
+  run() {
+    // Your game logic here...
+
+    // Update scope attributes in all .html files in the views directory
+    const viewsDir = path.join(__dirname, 'views');
+    fs.readdirSync(viewsDir)
+      .filter(file => file.endsWith('.html'))
+      .forEach(file => {
+        const filePath = path.join(viewsDir, file);
+        updateThScopeAttribute(filePath);
+      });
+  },
+
+  // New function to check landmark elements
+  checkLandmarkElements() {
+    const landmarkElements = [...document.querySelectorAll('[role="landmark"]')];
+    landmarkElements.forEach((landmark, index) => {
+      // Ensure landmark has a unique ID
+      if (landmark.id === '') {
+        landmark.id = `landmark-${index}`;
+      }
+
+      // Ensure unique accessible names for duplicate landmarks
+      if (landmark.hasAttribute('aria-label')) {
+        landmark.setAttribute('aria-label', `${landmarkElements[index].nodeName.toLowerCase()}-${index + 1}`);
+      }
+    });
+  },
+
+  // ... Existing functions from current main.js ...
 };

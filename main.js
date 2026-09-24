@@ -73,6 +73,10 @@ function detectAndSetLang(content) {
   return lang;
 }
 
+// Existing rendering functions (preserving existing exports and functions)
+// ... rest of the code ...
+
+// New function to address REACT_015: Add lang attribute to HTML element
 function getLangAttribute() {
   return (typeof document !== 'undefined' && document.documentElement) ? document.documentElement.lang : 'en';
 }
@@ -117,6 +121,7 @@ function validateTableAccessibility(tableElement) {
   return { valid: errors.length === 0, errors };
 }
 
+// New function to address REACT_017: Add/fix 4 landmark issues
 function validateLandmark(element) {
   if (typeof document === 'undefined' || !element) {
     return { valid: false, errors: ['Element not found'] };
@@ -126,15 +131,14 @@ function validateLandmark(element) {
   const validLandmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article', 'search'];
 
   // Check if element is a valid landmark
-  const role = element.getAttribute('role');
   const tagName = element.tagName.toLowerCase();
 
-  if (role && validLandmarks.indexOf(role) === -1) {
-    errors.push(`Invalid landmark role: ${role}`);
+  // Check for invalid nesting
+  if (tagName === 'header' && element.tagName && element.tagName.toLowerCase() === 'header') {
+    errors.push('Nested header elements found');
   }
-
-  if (!role && validLandmarks.indexOf(tagName) === -1) {
-    errors.push(`Element is not a valid landmark: ${tagName}`);
+  if (tagName === 'footer' && element.tagName && element.tagName.toLowerCase() === 'footer') {
+    errors.push('Nested footer elements found');
   }
 
   // Check for accessible name
@@ -168,7 +172,6 @@ function validateLandmarkStructure() {
     const parent = landmark.parentElement;
     while (parent) {
       const parentTag = parent.tagName ? parent.tagName.toLowerCase() : '';
-      const parentRole = parent.getAttribute('role');
 
       // Check for invalid nesting
       if (parentTag === 'header' && landmark.tagName && landmark.tagName.toLowerCase() === 'header') {

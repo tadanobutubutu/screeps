@@ -1,9 +1,10 @@
-import React from 'react';
-import { render } from 'react-dom';
-import {
-  renderDependencyGraph,
-  renderIndex
-} from './AccessibilityHelpers';
+// TODO: This is the existing code that needs to be preserved
+// Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
+// _Commit: ec56c28dafbd3fb2078fbae75354cf99a4fb9f89_
+
+// Import content generators from separate modules
+const { dependencyGraphContent, indexContent } = require('./contentGenerators');
 
 const ScreepsBotFactory = require('./ScreepsBot').default;
 const updateUI = require('./updateUI').default;

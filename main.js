@@ -262,9 +262,14 @@ module.exports = {
   addAriaLabels,
   addScreenReaderAnnouncements,
   addFocusTrap,
-  fixLandmarks,
-  addSvgAccessibleNames,
-  fixFakeLinks,
-  fixTableStructureIssues,
-  fixTableHeaderCellScope
+  module.exports.functionA: {
+    X: 'valueX',
+    Y: 'valueY',
+    Z: 'valueZ'
+  },
+  module.exports.functionB: {
+    X: 'valueX',
+    Y: 'valueY',
+    Z: 'valueZ'
+  }
 };

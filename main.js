@@ -426,8 +426,8 @@ function createAccessibleBookForm(options) {
     fields: [],
     submitButton: createInPageButton({
       text: 'Submit Book',
-      ariaLabel: `Submit ${options.title} form',
-      onSubmit: options.onSubmit
+      ariaLabel: `Submit ${options.title} form`,
+      onClick: options.onSubmit
     })
   };
 
@@ -517,6 +517,27 @@ function renderDependencyGraph(graphData) {
     rendered: true,
     timestamp: new Date().toISOString()
   };
+}
+
+/**
+ * Counts the number of dependencies
+ * @param {Object|Array} dependencies - The dependencies object or array to count
+ * @returns {number} The total count of dependencies
+ */
+function countDependencies(dependencies) {
+  if (!dependencies) {
+    return 0;
+  }
+
+  if (Array.isArray(dependencies)) {
+    return dependencies.length;
+  }
+
+  if (typeof dependencies === 'object') {
+    return Object.keys(dependencies).length;
+  }
+
+  return 0;
 }
 
 // New changes for improved accessibility of the addBook function or form
@@ -760,10 +781,10 @@ module.exports = {
   ensureElementId,
   addAriaLabel,
   addProperLandmarkRegions,
-  fixFakeLinks,
-  checkLandmarkElements,
-  ensureUniqueLandmarks,
-  fixSvgAccessibleNames,
-  addSvgAccessibilityProps,
-  fixButtonIdentifiers
+  renderDependencyGraph,
+  countDependencies,
+  addBook,
+  makeAccessible,
+  addAriaSupport,
+  enhanceAddBookAccessibility
 };

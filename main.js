@@ -148,33 +148,13 @@ const a11yStore = {
 
   // ... remaining a11yStore methods ...
 
-  /**
-   * Validate the table structure for accessibility issues
-   */
-  validateTableStructure() {
-    const tables = document.querySelectorAll('table');
-    tables.forEach((table) => {
-      if (!table.hasAttribute('role')) {
-        table.setAttribute('role', 'table');
-      }
-      if (!table.hasAttribute('aria-label') && !table.querySelector('th')) {
-        table.setAttribute('aria-label', 'Table');
-      }
-      const headers = table.querySelectorAll('th');
-      headers.forEach((header, index) => {
-        if (!header.hasAttribute('scope')) {
-          header.setAttribute('scope', 'col');
-        }
-      });
-      const rows = table.querySelectorAll('tr');
-      rows.forEach((row, index) => {
-        if (row.querySelector('th')) {
-          row.setAttribute('role', 'row');
-        } else {
-          row.setAttribute('role', 'rowgroup');
-        }
-      });
-    });
+  // New method
+  getSystemInfo() {
+    return {
+      OS: navigator.platform,
+      Browser: navigator.userAgent,
+      Language: navigator.language
+    };
   }
 };
 

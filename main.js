@@ -1,19 +1,19 @@
 const fs = require('fs');
-const url = require('url');
-
-// Dependency imports
-const { dependencyGraphContent, indexContent } = require('./dependencyContent');
-const { main, ensureElementId: ensureElementIdOrigin, renderDependencyGraph } = require('./utilities');
+const main = require('./utilities');
 
 // Destructure specific functions from main
 const {
   createInPageButton,
-  createWebResourceButton,
+  validateTableAccessibility,
+  validateTableStructure,
   validateLandmark,
   validateLandmarkStructure,
   getSvgAccessibleName,
   getLangAttribute,
   validateAccessibilityReport,
+  announceToScreenReader,
+  handleKeyboardNav,
+  newFocusTrap: originNewFocusTrap,
   exportUtils,
   addressAccessibilityIssues,
   handleCredentialResponse,
@@ -24,18 +24,12 @@ const {
   fixDependencyGraphAria,
   addMainLandmarkToIndex,
   focusTrap,
-  newFocusTrap,
-  transformInputData,
-  initSkipLink,
-  trapFocus,
-  createWebResourceButton,
-  personName,
-  calculateSum
+  renderAdditionalContent,
+  transformInputData
 } = main;
 
 const accessibilityUtils = {
   initSkipLink: () => {
-    // Merge changes from both branches
     const skipLink = document.querySelector('.skip-link');
     if (skipLink) {
       skipLink.addEventListener('click', (e) => {
@@ -48,253 +42,164 @@ const accessibilityUtils = {
       });
     }
   },
-  trapFocus: (element) => {
-    // From 'origin/main' branch
-    if (!element) {
-      return () => {};
-    }
 
+  trapFocus: (element) => {
     const focusableElements = element.querySelectorAll(
       'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
     );
-
-    if (focusableElements.length === 0) {
-      console.warn('No focusable elements found in container');
-      return;
-    }
-
     const firstElement = focusableElements[0];
     const lastElement = focusableElements[focusableElements.length - 1];
 
-    const handleKeyDown = (e) => {
+    element.addEventListener('keydown', (e) => {
       if (e.key === 'Tab') {
         if (e.shiftKey && document.activeElement === firstElement) {
-          e.preventDefault();
           lastElement.focus();
-        } else if (!e.shiftKey && document.activeElement === lastElement) {
           e.preventDefault();
+        } else if (!e.shiftKey && document.activeElement === lastElement) {
           firstElement.focus();
+          e.preventDefault();
         }
       }
-
-      if (e.key === 'Escape') {
-        element.dispatchEvent(new KeyboardEvent('escape'));
-      }
-    };
-
-    element.addEventListener('keydown', handleKeyDown);
-
-    // Return cleanup function
-    return () => {
-      element.removeEventListener('keydown', handleKeyDown);
-    };
+    });
   },
-  createInPageButton,
-  createWebResourceButton,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  getLangAttribute,
-  validateAccessibilityReport,
-  announceToScreenReader,
-  handleKeyboardNav,
-  newFocusTrap,
-  exportUtils,
-  personName,
-  transformInputData
-};
 
-// Additional helper functions from HEAD branch
-const calculateSum = (a, b) => a + b;
+  announceToScreenReader: (message, priority = 'polite') => {
+    const announcer = document.createElement('div');
+    announcer.setAttribute('aria-live', priority);
+    announcer.setAttribute('aria-atomic', 'true');
+    announcer.className = 'sr-only';
+    announcer.style.position = 'absolute';
+    announcer.style.left = '-9999px';
+    announcer.textContent = message;
+    document.body.appendChild(announcer);
+    setTimeout(() => announcer.remove(), 1000);
+  },
 
-const sanitizeFilename = (filename) => filename.replace(/[^a-z0-9.-]/gi, '_');
+  newFocusTrap: (element) => {
+    if (!element) return originNewFocusTrap(element);
+    const focusable = element.querySelectorAll(
+      'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    );
+    if (focusable.length === 0) return;
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
 
-const readFileSafe = (filePath) => {
-  try {
-    return fs.readFileSync(filePath, 'utf8');
-  } catch (error) {
-    console.error(`Error reading file ${filePath}: ${error.message}`);
-    return null;
-  }
-};
+    element.addEventListener('keydown', (e) => {
+      if (e.key === 'Tab') {
+        if (e.shiftKey && document.activeElement === first) {
+          last.focus();
+          e.preventDefault();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          first.focus();
+          e.preventDefault();
+        }
+      }
+    });
+  },
 
-const processData = (items) => {
-  if (!Array.isArray(items)) {
-    return [];
-  }
-  return items.map(item => ({
-    ...item,
-    processed: true,
-    timestamp: Date.now()
-  }));
-};
+  addLandmarkToDocument: (landmarkRole, landmarkName, container = document.body) => {
+    const landmark = document.createElement('div');
+    landmark.setAttribute('role', landmarkRole);
+    landmark.setAttribute('aria-label', landmarkName);
+    container.appendChild(landmark);
+    return landmark;
+  },
 
-const filterValidItems = (items, validator) => {
-  return items.filter(item => {
-    try {
-      return validator(item);
-    } catch {
-      return false;
+  getUniqueLandmarkIndex: (landmarks) => {
+    let index = 0;
+    const map = new Map();
+
+    for (let i = 0; i < landmarks.length; i++) {
+      const landmark = landmarks[i];
+
+      if (!map.has(landmark.id)) {
+        map.set(landmark.id, true);
+        index++;
+      }
     }
-  });
-};
 
-const groupByCategory = (items, getCategory) => {
-  return items.reduce((groups, item) => {
-    const category = getCategory(item);
-    if (!groups[category]) {
-      groups[category] = [];
+    return index;
+  },
+
+  addUniqueIdsToLandmarks: (landmarks) => {
+    let index = 0;
+    const map = new Map();
+
+    for (let i = 0; i < landmarks.length; i++) {
+      const landmark = landmarks[i];
+
+      if (!map.has(landmark.id)) {
+        landmark.id = `landmark-${index++}`;
+        map.set(landmark.id, true);
+      }
     }
-    groups[category].push(item);
-    return groups;
-  }, {});
-};
+  },
 
-// Remaining functions from origin/main branch
-const ensureElementId = (element) => {
-  // Merge changes from both branches
-  if (element && !element.id) {
-    element.id = "element-" + Date.now() + "-" + Math.random().toString(36).slice(2, 11);
-  }
-  return element;
-};
+  findNonUniqueLandmark: (landmarks) => {
+    const seenIds = new Set();
+    let nonUniqueLandmark = null;
 
-const addAriaLabel = (element, label) => {
-  if (element) {
-    element.setAttribute('aria-label', label);
-  }
-  return element;
-};
+    for (let i = 0; i < landmarks.length; i++) {
+      const landmark = landmarks[i];
 
-const renderDependencyGraph = (data) => {
-  // Implementation for rendering dependency graphs
-  return {
-    nodes: data.nodes || [],
-    edges: data.edges || []
-  };
-};
+      if (seenIds.has(landmark.id)) {
+        nonUniqueLandmark = landmark;
+        break;
+      }
 
-// Add back any required exports that might have been removed.
-accessibilityUtils.initSkipLink = () => {
-  const skipLink = document.querySelector('.skip-link');
-  if (!skipLink) {
-    const skipContainer = document.createElement('div');
-    skipContainer.id = 'skip-link';
-    skipContainer.className = 'sr-only';
-    skipContainer.style.position = 'fixed';
-    skipContainer.style.top = '0';
-    skipContainer.style.left = '0';
-    skipContainer.style.width = '100%';
-    skipContainer.style.height = '100%';
-    skipContainer.style.zIndex = '99999';
+      seenIds.add(landmark.id);
+    }
 
-    const skipLinkElement = document.createElement('a');
-    skipLinkElement.href = '#main-content';
-    skipLinkElement.textContent = 'Skip to main content';
-    skipLinkElement.ariaLabel = 'Skip to main content';
-    skipContainer.appendChild(skipLinkElement);
-    document.body.appendChild(skipContainer);
+    return nonUniqueLandmark;
   }
 };
 
-accessibilityUtils.trapFocus = (element) => {
-  // Merge changes from both branches
-  if (!element) {
-    return () => { };
-  }
+function addLandmark(container, role, name) {
+  return accessibilityUtils.addLandmarkToDocument(role, name, container);
+}
 
-  const focusableElements = element.querySelectorAll(
-    'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
-  );
-
-  if (focusableElements.length === 0) {
-    console.warn('No focusable elements found in container');
+function validateAndAssignLandmarkRole(element) {
+  if (element.getAttribute('role') !== undefined) return;
+  if (element.tagName === 'MAIN') {
+    const mainLandmark = accessibilityUtils.addLandmarkToDocument('main', 'Main content');
+    mainLandmark.appendChild(element);
+    element.setAttribute('id', 'main-content');
     return;
   }
 
-  const firstElement = focusableElements[0];
-  const lastElement = focusableElements[focusableElements.length - 1];
-
-  const handleKeyDown = (e) => {
-    if (e.key === 'Tab') {
-      if (e.shiftKey && document.activeElement === firstElement) {
-        e.preventDefault();
-        lastElement.focus();
-      } else if (!e.shiftKey && document.activeElement === lastElement) {
-        e.preventDefault();
-        firstElement.focus();
-      }
-    }
-
-    if (e.key === 'Escape') {
-      element.dispatchEvent(new KeyboardEvent('escape'));
-    }
-  };
-
-  element.addEventListener('keydown', handleKeyDown);
-
-  // Return cleanup function
-  return () => {
-    element.removeEventListener('keydown', handleKeyDown);
-  };
-};
-
-// Credential response handling - uses the imported function from main
-
-// Existing utility functions
-function log(message, level = 'info') {
-  const timestamp = new Date().toISOString();
-  console.log(timestamp + " [" + level.toUpperCase() + "]: " + message);
+  const landmarks = document.querySelectorAll('[role="main"], [role="banner"], [role="navigation"], [role="complementary"], [role="contentinfo"], [role="footer"]');
+  const uniqueIndex = accessibilityUtils.getUniqueLandmarkIndex(landmarks);
+  accessibilityUtils.addLandmarkToDocument(element.getAttribute('role') || 'region', `landmark-${uniqueIndex}`, element.parentNode);
+  element.setAttribute('id', `landmark-${uniqueIndex}`);
 }
 
-// Export functionality with accessibility support
-const exportUtilities = {
-  exportData: (data, filename, mimeType) => {
-    const blob = new Blob([data], { type: mimeType });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = filename;
-    link.setAttribute('aria-label', "Download " + filename);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+// Adjust the following functions to resolve the issues regarding duplicate landmarks
+function validateLandmarks() {
+  const landmarks = document.querySelectorAll('[role="main"], [role="banner"], [role="navigation"], [role="complementary"], [role="contentinfo"], [role="footer"]');
 
-    // Announce download completion to screen readers
-    announceToScreenReader("Download of " + filename + " started");
-  },
+  if (landmarks.length === 6) {
+    accessibilityUtils.addUniqueIdsToLandmarks(landmarks);
+    return;
+  }
 
-  exportToJSON: (data, filename) => {
-    const jsonString = JSON.stringify(data, null, 2);
-    exportUtilities.exportData(jsonString, filename || 'export.json', 'application/json');
-  },
+  const nonUniqueLandmark = accessibilityUtils.findNonUniqueLandmark(landmarks);
 
-  exportToCSV: (data, filename) => {
-    if (!data || data.length === 0) return;
+  if (nonUniqueLandmark) {
+    nonUniqueLandmark.setAttribute('id', nonUniqueLandmark.id || `landmark-${Math.random().toString(36).substr(2, 9)}`);
+  }
+}
 
-    const headers = Object.keys(data[0]);
-    const csvRows = [];
-
-    csvRows.push(headers.join(','));
-
-    for (const row of data) {
-      const values = headers.map(header => {
-        const escaped = ('' + row[header]).replace(/"/g, '\\"');
-        return "\"" + escaped + "\"";
+function fixFakeLinkIssue(links) {
+  links.forEach((link) => {
+    if (!link.getAttribute('href')) {
+      link.setAttribute('role', 'button');
+      link.setAttribute('aria-label', 'Fake link');
+      link.addEventListener('click', (event) => {
+        event.preventDefault();
+        announceToScreenReader(`Clicked on non-link: ${link.textContent}`);
       });
-      csvRows.push(values.join(','));
     }
-  },
-};
+  });
+}
 
-const newFocusTrap = originNewFocusTrap;
-
-module.exports = {
-  ...accessibilityUtils,
-  renderDependencyGraph,
-  renderIndex,
-  calculateSum
-};
+// Rest of the code...

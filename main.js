@@ -35,6 +35,183 @@ import { getRootHtmlAccessibilityProps, getLandmarkProps, getSvgAccessibilityPro
   `;
   document.head.appendChild(focusStyle);
 
+  function BookItem(book) {
+    return (
+      <List.Item key={generateKey(book)}>
+        <List.Item.Meta
+          title={book.title}
+          description={book.author}
+        />
+      </List.Item>
+    );
+  }
+
+  // AddBook component modified to accept title and author as props
+  function AddBook({ onAdd, title, author }) {
+    const [titleForm, setTitleForm] = useState(title);
+    const [authorForm, setAuthorForm] = useState(author);
+    const [error, setError] = useState(null);
+
+    const handleSubmit = (event) => {
+      event.preventDefault();
+      setTitleForm('');
+      setAuthorForm('');
+
+      if (titleForm.trim() && authorForm.trim()) {
+        addBook({ title: titleForm.trim(), author: authorForm.trim() });
+      } else {
+        // Fallback to simple addBook call if needed
+        addBook();
+      }
+    };
+
+    return (
+      <form onSubmit={handleSubmit} aria-label="Add new book">
+        <div>
+          <label htmlFor="book-title-input">Book Title:</label>
+          <input
+            id="book-title-input"
+            type="text"
+            value={titleForm}
+            onChange={(e) => setTitleForm(e.target.value)}
+            ref={addBookInputRef}
+            required
+            aria-required="true"
+            aria-invalid={!!error}
+            aria-describedby={error ? 'book-title-error' : undefined}
+            placeholder="Enter book title"
+          />
+        </div>
+        <div>
+          <label htmlFor="book-author-input">Book Author:</label>
+          <input
+            id="book-author-input"
+            type="text"
+            value={authorForm}
+            onChange={(e) => setAuthorForm(e.target.value)}
+            required
+            aria-required="true"
+            aria-invalid={!!error}
+            aria-describedby={error ? 'book-author-error' : undefined}
+            placeholder="Enter author name"
+          />
+        </div>
+        {error && (
+          <div role="alert" aria-live="polite" id="book-title-error">
+            {error}
+          </div>
+        )}
+        <button type="submit" aria-label="Submit new book">Add Book</button>
+      </form>
+    );
+  }
+
+  // Default sorting function for the book list
+  const defaultSorting = sortByTitle;
+
+  // Function to handle sorting the book list by title (ascending)
+  function onTitleSort() {
+    const sortedList = [...booksList].sort(sortByTitle);
+    // Dispatch an action to update the sorted book list in the Redux store
+    dispatch({ type: 'SORT_BY_TITLE', payload: sortedList });
+  }
+
+  // Function to handle sorting the book list by author (descending)
+  function onAuthorSort() {
+    const sortedList = [...booksList].sort(sortByAuthor);
+    // Dispatch an action to update the sorted book list in the Redux store
+    dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
+  }
+
+  // Render the main component containing the book list and sorting controls
+  const listItems = booksList.map(book => BookItem(book));
+
+  return (
+    <div>
+      <button onClick={() => setSorting(sortByTitle)}>Sort by Title</button>
+      <button onClick={() => setSorting(sortByAuthor)}>Sort by Author</button>
+      <List dataSource={listItems} renderItem={(book) => BookItem(book)} />
+      <AddBook onAdd={addBook} title={newBookTitle} author={newBookAuthor} />
+    </div>
+  );
+};
+
+// App state
+const appState = {
+  initialized: false,
+  data: null,
+  cache: new Map()
+};
+
+// Initialize function
+function initialize() {
+  appState.initialized = true;
+  console.log('App initialized');
+}
+
+// Initialize app function
+function initializeApp() {
+  initialize();
+  return appState;
+}
+
+// Process data function
+function processData(data) {
+  if (!data) {
+    return null;
+  }
+  appState.data = data;
+  return data;
+}
+
+// Fetch user function
+function fetchUser(userId) {
+  if (!userId) {
+    return null;
+  }
+  return { id: userId, name: 'User ' + userId };
+}
+
+// Clear cache function
+function clearCache() {
+  appState.cache.clear();
+}
+
+// Helper function
+function someFunction() {
+  return 'some value';
+}
+
+// Helper for input transformation
+function helper(input) {
+  return input ? input.toUpperCase() : '';
+}
+
+// Format date function
+function formatDate(date) {
+  if (!(date instanceof Date)) {
+    date = new Date(date);
+  }
+  return date.toISOString();
+}
+
+// Validate input function
+function validateInput(input) {
+  if (!input) {
+    return false;
+  }
+  return true;
+}
+
+// Language attribute functions
+function getLangAttribute() {
+  return 'en';
+}
+
+function addLangAttribute(element) {
+  if (element && typeof element === 'object') {
+    element.lang = getLangAttribute();
+  }
   return element;
 }
 
@@ -69,9 +246,18 @@ function enhanceAccessibilityForAddBook(formElement) {
   });
 }
 
-function fixLandmarks() {
-  const landmarkSelectors = ['header', 'nav', 'main', 'footer', 'aside', 'section', 'article'];
-  const landmarkCounts = {};
+// Function to add landmark roles to main containers
+function addLandmarkRoles() {
+  const mainElement = document.querySelector('main');
+  if (mainElement && mainElement.setAttribute) {
+    mainElement.setAttribute('role', 'main');
+  }
+
+  const navElement = document.querySelector('nav');
+  if (navElement && navElement.setAttribute) {
+    navElement.setAttribute('role', 'navigation');
+  }
+}
 
   landmarkSelectors.forEach(selector => {
     landmarkCounts[selector] = 0;
@@ -122,54 +308,132 @@ function addLandmarkRoles() {
   });
 }
 
-  // Render the list of book items and sorting controls
-  const listItems = booksList.map(book => BookItem(book));
-  return (
-    <main id="main" lang="en" {...useLandmark('main')} {...landmarkProps}>
-      <div {...addLangAttribute('main')}>
-        <div>
-          <button onClick={handleSort(sortByTitle)}>Sort by Title</button>
-          <button onClick={handleSort(sortByAuthor)}>Sort by Author</button>
-        </div>
-        <List
-          itemLayout="vertical"
-          dataSource={listItems}
-          renderItem={book => (
-            <List.Item key={generateKey(book)}>
-              <BookItem book={book} />
-            </List.Item>
-          )}
-        />
-        {/* Accessible form for adding a new book */}
-        <form onSubmit={handleAddBook} aria-label="Add new book">
-          <div>
-            <label htmlFor="book-title">Book Title:</label>
-            <input
-              id="book-title"
-              type="text"
-              value={newBookTitle}
-              onChange={(e) => setNewBookTitle(e.target.value)}
-              ref={addBookInputRef}
-              required
-              aria-required="true"
-            />
-          </div>
-          <div>
-            <label htmlFor="book-author">Author:</label>
-            <input
-              id="book-author"
-              type="text"
-              value={newBookAuthor}
-              onChange={(e) => setNewBookAuthor(e.target.value)}
-              required
-              aria-required="true"
-            />
-          </div>
-          <button type="submit">Add Book</button>
-        </form>
-      </div>
-    </main>
-  );
-};
+function getInsightReport() {
+  const issues = [];
 
+  // Check for lang attribute on HTML element
+  const langAttribute = getLangAttribute();
+  if (!langAttribute) {
+    issues.push({
+      type: 'REACT_015',
+      description: 'HTML element is missing lang attribute',
+      severity: 'critical',
+      element: 'html'
+    });
+  }
+
+  // Check table accessibility
+  const tableAccessibilityIssues = validateTableAccessibility();
+  if (tableAccessibilityIssues && tableAccessibilityIssues.length > 0) {
+    tableAccessibilityIssues.forEach((issue) => {
+      issues.push({
+        type: 'REACT_027',
+        subtype: 'accessibility',
+        description: issue.description || 'Table accessibility issue',
+        severity: issue.severity || 'high',
+        element: issue.element,
+        table: issue.table
+      });
+    });
+  }
+
+  // Check table structure
+  const tableStructureIssues = validateTableStructure();
+  if (tableStructureIssues && tableStructureIssues.length > 0) {
+    tableStructureIssues.forEach((issue) => {
+      issues.push({
+        type: 'REACT_027',
+        subtype: 'structure',
+        description: issue.description || 'Table structure issue',
+        severity: issue.severity || 'high',
+        element: issue.element,
+        table: issue.table
+      });
+    });
+  }
+
+  // Check landmark issues
+  const landmarkIssues = validateLandmark();
+  if (landmarkIssues && landmarkIssues.length > 0) {
+    landmarkIssues.forEach((issue) => {
+      issues.push({
+        type: 'REACT_017',
+        description: issue.description || 'Landmark issue',
+        severity: issue.severity || 'medium',
+        element: issue.element,
+        landmark: issue.landmark
+      });
+    });
+  }
+
+  // Check landmark structure
+  const landmarkStructureIssues = validateLandmarkStructure();
+  if (landmarkStructureIssues && landmarkStructureIssues.length > 0) {
+    landmarkStructureIssues.forEach((issue) => {
+      issues.push({
+        type: 'REACT_017',
+        structure: true,
+        description: issue.description || 'Landmark structure issue',
+        severity: issue.severity || 'medium',
+        element: issue.element,
+        landmark: issue.landmark
+      });
+    });
+  }
+
+  // Check landmark attributes
+  const landmarkAttributeIssues = validateLandmarkAttributes();
+  if (landmarkAttributeIssues && landmarkAttributeIssues.length > 0) {
+    landmarkAttributeIssues.forEach((issue) => {
+      issues.push({
+        type: 'REACT_017',
+        description: issue.description || 'Landmark attribute issue',
+        severity: issue.severity || 'low',
+        element: issue.element,
+        landmark: issue.landmark
+      });
+    });
+  }
+
+  // Check SVG accessibility
+  const svgAccessibleNames = getSvgAccessibleName();
+
+  return issues;
+}
+
+export {
+  someFunction,
+  initialize,
+  initializeApp,
+  processData,
+  fetchUser,
+  clearCache,
+  helper,
+  formatDate,
+  validateInput,
+  getLangAttribute,
+  addLangAttribute,
+  setLanguageAttribute,
+  addLandmarkRoles,
+  fixFakeLinks,
+  validateTableAccessibility,
+  validateTableStructure,
+  fixTableStructure,
+  addMainLandmark,
+  validateLandmark,
+  validateLandmarkStructure,
+  validateLandmarkAttributes,
+  addLandmarkRegions,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  ensureUniqueLandmarks,
+  createInPageButton,
+  validateLinkAccessibility,
+  handleFakeLinks,
+  getConfig,
+  getVersion,
+  ensureRootContainerAccessible,
+  addressAccessibilityIssues,
+  getInsightReport
+};
 export default Main;

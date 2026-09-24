@@ -179,24 +179,11 @@ function setHtmlLangAttribute(lang) {
     // Implementation of fixFakeLink
   },
 
+  // New export requested in issue
   newExportFunction: function() {
     // Implementation of the new export function
-    // The function implementation should go here. It could look like this:
-    // return someCodeOrFunctionThatImplementsTheRequirement;
-  },
-
-  // Add the new export function to create a web resource button suitable for accessibility
-  createWebResourceButton: function(url, text, target) {
-    // Create a button element
-    const button = document.createElement('button');
-    // Set the button text
-    button.textContent = text;
-    // Set the button's href attribute to the provided URL
-    button.href = url;
-    // Set the target attribute to '_blank' to open the URL in a new tab/window
-    button.target = target || '_blank';
-    // Return the created button
-    return button;
+    // The function implementation should go here.
+    return someCodeOrFunctionThatImplementsTheRequirement;
   }
   return false;
 }

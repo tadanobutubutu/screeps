@@ -470,7 +470,6 @@ function renderIndexView(container) {
   console.log('Rendering index view');
 }
 
-// TODO: Add any other missing exports that might have been?
 // Added missing exports as per the issue
 function landmarkStructureCheck(container) {
   if (!container) return { valid: false, errors: ['Container is required'] };

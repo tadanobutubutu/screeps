@@ -1,4 +1,4 @@
-// TODO: This is the existing code that needs to be preserved
+// TODO: This is the existing code that needs to be preserve in main.js
 // (This should be preserved)
 // Addressed accessibility issues from insight report
 //_Commit: 243c66538868c6b87845660312397ab39e0f830d_

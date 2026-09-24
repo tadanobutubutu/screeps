@@ -6,6 +6,8 @@
 const http = require('http');
 const path = require('path');
 
+// TODO: No additional changes requested at this time
+
 // Application configuration
 const config = {
   port: process.env.PORT || 3000,

@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 // TODO: This is the existing code that needs to be preserved
 //_Commit: 243c66538868c6b87845660312397ab39e0f830d_
 //<!-- todo-hash: ... -->
@@ -175,7 +172,7 @@ function upgrade(harvestedData) {
             console.log('Applying settings upgrades from harvested data');
         }
 
-        if (normalizedData.configuration) {
+        if (harvestedData.config) {
             // Apply configuration improvements
             console.log('Applying configuration improvements from harvested data');
         }
@@ -240,5 +237,75 @@ function renderDependencyGraph(containerId, graphData) {
     return renderGraphIndex(containerId, graphData);
 }
 
-// ... (preserve existing exports here)
-```
+function wrapPrimaryContentInMain() {
+    // Check if main element already exists
+    let mainElement = document.querySelector('main');
+    
+    // If main element doesn't exist, create one
+    if (!mainElement) {
+        mainElement = document.createElement('main');
+        
+        // Find primary content elements - check multiple common selectors
+        const primaryContentSelectors = [
+            '#primary-content',
+            '.primary-content',
+            '[role="main"]',
+            '#content',
+            '.content',
+            'article',
+            'section.content'
+        ];
+        
+        let primaryContent = null;
+        
+        // Find the first matching primary content element
+        for (const selector of primaryContentSelectors) {
+            const element = document.querySelector(selector);
+            if (element) {
+                primaryContent = element;
+                break;
+            }
+        }
+        
+        // If primary content is found, wrap it in main
+        if (primaryContent) {
+            mainElement.appendChild(primaryContent);
+            document.body.insertBefore(mainElement, document.body.firstChild);
+        } else {
+            // Wrap all body children except header and footer into main
+            const bodyChildren = Array.from(document.body.children);
+            bodyChildren.forEach(child => {
+                const tagName = child.tagName.toLowerCase();
+                if (tagName !== 'header' && tagName !== 'footer' && tagName !== 'nav') {
+                    mainElement.appendChild(child);
+                }
+            });
+            
+            if (mainElement.children.length > 0) {
+                // Find a good insertion point (after header/nav)
+                const header = document.querySelector('header, nav');
+                if (header && header.nextSibling) {
+                    document.body.insertBefore(mainElement, header.nextSibling);
+                } else {
+                    document.body.insertBefore(mainElement, document.body.firstChild);
+                }
+            }
+        }
+    }
+    
+    // Ensure main element has proper ARIA attributes
+    if (!mainElement.id) {
+        mainElement.id = 'main-content';
+    }
+    
+    mainElement.setAttribute('role', 'main');
+    mainElement.setAttribute('tabindex', '-1');
+    
+    // Validate the landmark structure after wrapping
+    validateLandmarkStructure();
+    
+    return mainElement;
+}
+
+// Preserve any existing exports here
+export { createInPageButton, validateLandmarkStructure, getCurrentLanguage, performUpgrade, upgrade, renderGraphIndex, renderDependencyGraph, wrapPrimaryContentInMain };

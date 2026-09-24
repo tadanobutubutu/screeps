@@ -658,19 +658,14 @@ const a11yStore = {
 
   // ... remaining a11yStore methods ...
 
-  // Additional utility methods
-  init() {
-    this.getLangAttribute();
+  // New function to address accessibility issues
+  addressAccessibilityIssues() {
     this.checkLandmarkElements();
-    this.ensureUniqueLandmarks();
-    this.setSvgAttributes();
+    this.addSVGAccessibilityProps();
+    this.fixFakeLinks();
     this.ensureInteractiveRoles();
     this.addFormControlLabels();
     this.ensureImageAccessibility();
-    this.validateTableAccessibility();
-    this.validateTableStructure();
-    this.fixFakeLinks();
-    this.createInPageButton();
   }
 };
 

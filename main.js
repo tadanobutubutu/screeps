@@ -31,15 +31,13 @@ function detectAndSetLang(content) {
       lang = 'zh'; // Chinese
     } else if ... {
       lang = 'ja'; // Japanese
-    } else if (/[\u0400-\u04FF]/.test(content)) {
+    } else if (/[\u0400-\u04ff]/.test(content)) {
       lang = 'ru'; // Russian/Cyrillic
-    } else if (/[\u0600-\u06FF]/.test(content)) {
+    } else if (/[\u0600-\u06ff]/.test(content)) {
       lang = 'ar'; // Arabic
     } else if ... {
       lang = 'fr'; // French
-    } else if ... {
-      lang = 'fr'; // French
-    } else if (/[äöüßÄÖÜ]/i.test(content)) {
+    } else if (/[äöüß]/i.test(content)) {
       lang = 'de'; // German
     }
   }

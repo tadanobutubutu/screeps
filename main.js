@@ -660,56 +660,88 @@ function addressNewAccessibilityIssues(target) {
   return Array.isArray(target) ? processed : processed[0];
 }
 
-// TODO: add the new functions or changes requested in the issue
-// Here's a sample implementation for a new function named 'myNewFunction'
-function myNewFunction () {
-  // Implementation here
-  return 'Hello from myNewFunction!'
+/**
+ * Renders the accessibility report as an HTML string.
+ * @param {Object} report - The accessibility report object.
+ * @returns {string} HTML string representing the report.
+ */
+function renderAccessibilityReportHtml(report) {
+    let html = `<div class="accessibility-report">
+        <h1>Accessibility Report</h1>
+        <p>Generated: ${report.timestamp}</p>
+
+        <div class="summary">
+            <h2>Summary</h2>
+            <ul>
+                <li>Total Issues: ${report.summary.totalIssues}</li>
+                <li>Critical: ${report.summary.critical}</li>
+                <li>Moderate: ${report.summary.moderate}</li>
+                <li>Passed: ${report.summary.passed}</li>
+            </ul>
+        </div>
+
+        <div class="issues">
+            <h2>Issues Found</h2>`;
+
+    if (report.issues.length === 0) {
+        html += '<p>No issues found!</p>';
+    } else {
+        report.issues.forEach(issue => {
+            html += `<div class="issue ${issue.status}">
+                <strong>${issue.category}</strong>: ${issue.message}
+            </div>`;
+        });
+    }
+
+    html += `</div>
+
+        <div class="passed">
+            <h2>Passed Checks</h2>`;
+
+    if (report.passed.length === 0) {
+        html += '<p>No checks passed yet.</p>';
+    } else {
+        report.passed.forEach(item => {
+            html += `<div class="passed-item">
+                <strong>${item.category}</strong>: ${item.message}
+            </div>`;
+        });
+    }
+
+    html += '</div></div>';
+
+    return html;
 }
 
-// Initialize accessibility features
-const initAccessibility = () => {
-  accessibilityUtils.initSkipLink()
+/**
+ * Generates and displays the accessibility report in the console and returns the report object.
+ * @returns {Object} The accessibility report object.
+ */
+function generateAndDisplayReport() {
+    const report = generateAccessibilityReport();
 
-  // Apply all accessibility fixes from the insight report
-  accessibilityUtils.setHtmlLangAttribute()
-  accessibilityUtils.ensureUniqueLandmarks()
-  accessibilityUtils.addProperLandmarkRegions()
+    console.log('=== Accessibility Report ===');
+    console.log(`Generated: ${report.timestamp}`);
+    console.log(`Total Issues: ${report.summary.totalIssues}`);
+    console.log(`Critical: ${report.summary.critical}`);
+    console.log(`Moderate: ${report.summary.moderate}`);
+    console.log(`Passed: ${report.summary.passed}`);
 
-  // Validate and fix tables
-  if (typeof document !== 'undefined') {
-    const tables = document.querySelectorAll('table')
-    accessibilityUtils.validateTableStructure(tables)
-  }
-
-  // Fix fake links
-  accessibilityUtils.handleFakeLinks()
-
-  // Add accessible names to SVGs that don't have them
-  if (typeof document !== 'undefined') {
-    document.querySelectorAll('svg').forEach((svg) => {
-      if (!accessibilityUtils.getSvgAccessibleName(svg)) {
-        accessibilityUtils.setSvgAttributes(svg, 'Decorative icon')
-      }
-    })
-  }
-
-  // Validate landmarks
-  if (typeof document !== 'undefined') {
-    const landmarks = document.querySelectorAll('header, nav, main, aside, footer, section')
-    accessibilityUtils.validateLandmarkStructure(Array.from(landmarks))
-  }
-
-  // Add keyboard support for all interactive elements
-  document.addEventListener('click', (e) => {
-    const element = e.target.closest('[role="button"], button, a')
-    if (element) {
-      accessibilityUtils.handleKeyboardNav(e, {
-        Enter: () => element.click(),
-        ' ': () => element.click()
-      })
+    if (report.issues.length > 0) {
+        console.log('\n--- Issues ---');
+        report.issues.forEach(issue => {
+            console.log(`[${issue.status.toUpperCase()}] ${issue.category}: ${issue.message}`);
+        });
     }
-  })
+
+    if (report.passed.length > 0) {
+        console.log('\n--- Passed Checks ---');
+        report.passed.forEach(item => {
+            console.log(`[PASS] ${item.category}: ${item.message}`);
+        });
+    }
+
+    return report;
 }
 
 // Initialize on DOM ready

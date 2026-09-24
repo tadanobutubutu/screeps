@@ -58,12 +58,23 @@ function newFunction() {
   console.log('New function called');
 }
 
+/**
+ * Adds a new route handler for '/data'
+ * @returns {Function} A middleware function to handle requests to '/data'
+ */
+function dataRouteHandler() {
+  return (req, res) => {
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ data: 'Sample data' }));
+  };
+}
+
 // Export functions for testing
 module.exports = {
   createServer,
   startApp,
   config,
-  myNewFunction,
+  dataRouteHandler,
   handleCredentialResponse,
   getStoredCredentials,
   handleAddLangAttribute,
@@ -80,9 +91,4 @@ module.exports = {
 // Start the application if run directly
 if (require.main === module) {
   startApp();
-}
-
-// New function as per the issue
-function newFunction() {
-  console.log('This is a new function that was added to main.js');
 }

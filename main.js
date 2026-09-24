@@ -167,51 +167,88 @@ const accessibilityUtils = {
   },
 
   /**
-   * Validate the landmark structure for accessibility issues
-   * @param {HTMLElement} rootElement - The root element to validate
-   * @returns {Object} Validation results with issues and suggestions
+   * Trap focus within an element.
+   * @param {HTMLElement} element - The element to trap focus within
    */
-  validateLandmarks: (rootElement) => {
-    if (!rootElement || typeof rootElement.querySelectorAll !== 'function') {
-      return {
-        valid: false,
-        issues: ['Invalid root element provided']
-      };
-    }
+  focusTrap: (element) => {
+    if (!element) return;
 
-    const requiredLandmarks = ['header', 'main', 'footer'];
-    const foundLandmarks = new Set();
-    const issues = [];
-    const suggestions = [];
+    const focusableElements = element.querySelectorAll(
+      'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    );
 
-    // Check for required landmarks
-    requiredLandmarks.forEach(landmark => {
-      const elements = rootElement.querySelectorAll(`[role="${landmark}"], ${landmark}`);
-      if (elements.length === 0) {
-        issues.push(`Missing required landmark: ${landmark}`);
-        suggestions.push(`Add a <${landmark}> element or element with role="${landmark}"`);
-      } else if (elements.length > 1) {
-        issues.push(`Multiple ${landmark} landmarks found`);
-        suggestions.push(`Ensure only one ${landmark} landmark exists in the document`);
-      } else {
-        foundLandmarks.add(landmark);
+    if (focusableElements.length === 0) return;
+
+    const firstElement = focusableElements[0];
+    const lastElement = focusableElements[focusableElements.length - 1];
+
+    element.addEventListener('keydown', (e) => {
+      if (e.key === 'Tab') {
+        if (e.shiftKey && document.activeElement === firstElement) {
+          lastElement.focus();
+          e.preventDefault();
+        } else if (!e.shiftKey && document.activeElement === lastElement) {
+          firstElement.focus();
+          e.preventDefault();
+        }
       }
     });
 
-    // Check for additional landmarks
-    const allLandmarks = rootElement.querySelectorAll('[role="banner"], [role="complementary"], [role="contentinfo"], [role="form"], [role="navigation"], [role="region"], header, main, footer, aside, nav, section');
-    allLandmarks.forEach(element => {
-      const role = element.getAttribute('role') || element.tagName.toLowerCase();
-      if (!requiredLandmarks.includes(role) && !foundLandmarks.has(role)) {
-        suggestions.push(`Consider adding ARIA label to ${role} landmark: aria-label="..."`);
+    return element;
+  },
+
+  /**
+   * Create a new focus trap instance.
+   * @param {HTMLElement} element - The element to trap focus within
+   * @returns {Object} The focus trap instance with activate/deactivate methods
+   */
+  newFocusTrap: (element) => {
+    if (!element) return null;
+
+    let isActive = false;
+    let focusableElements = [];
+    let firstElement = null;
+    let lastElement = null;
+
+    const updateFocusableElements = () => {
+      focusableElements = element.querySelectorAll(
+        'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      );
+      if (focusableElements.length > 0) {
+        firstElement = focusableElements[0];
+        lastElement = focusableElements[focusableElements.length - 1];
       }
-    });
+    };
+
+    const handleKeyDown = (e) => {
+      if (e.key === 'Tab' && focusableElements.length > 0) {
+        if (e.shiftKey && document.activeElement === firstElement) {
+          lastElement.focus();
+          e.preventDefault();
+        } else if (!e.shiftKey && document.activeElement === lastElement) {
+          firstElement.focus();
+          e.preventDefault();
+        }
+      }
+    };
+
+    const activate = () => {
+      if (isActive) return;
+      updateFocusableElements();
+      element.addEventListener('keydown', handleKeyDown);
+      isActive = true;
+    };
+
+    const deactivate = () => {
+      if (!isActive) return;
+      element.removeEventListener('keydown', handleKeyDown);
+      isActive = false;
+    };
 
     return {
-      valid: issues.length === 0,
-      issues,
-      suggestions,
-      foundLandmarks: Array.from(foundLandmarks)
+      activate,
+      deactivate,
+      updateFocusableElements
     };
   }
 }
@@ -715,6 +752,17 @@ function newFocusTrap(element) {
   firstElement.focus();
 }
 
+function newFocusTrap(element) {
+  return accessibilityUtils.newFocusTrap(element);
+}
+
+/**
+ * Spawn a child process with the given command and arguments.
+ * @param {string} command - The command to execute
+ * @param {string[]} args - Arguments to pass to the command
+ * @param {Object} options - Options for the spawn function
+ * @returns {ChildProcess} The spawned process
+ */
 function spawnProcess(command, args = [], options = {}) {
   return spawn(command, args, options);
 }

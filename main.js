@@ -179,7 +179,16 @@ function checkLinkAndButtonAccessibility(root) {
  * @returns {Object} - Summary of fixes applied
  */
 function addressAccessibilityIssues(issues, options = {}) {
-  // ... [previously existing function code]
+  const defaultText = options.defaultText || 'Action';
+  const useAriaLabel = options.useAriaLabel || false;
+
+  const summary = {
+    totalIssues: issues.length,
+    linkIssuesFixed: 0,
+    buttonIssuesFixed: 0,
+    skipped: 0,
+    fixes: []
+  };
 
   // Modified to also handle the new checkLinkAndButtonAccessibility function
   issues = checkLinkAndButtonAccessibility();
@@ -230,35 +239,65 @@ function addressAccessibilityIssues(issues, options = {}) {
   return summary;
 }
 
-function checkLinkAndButtonAccessibility(container) {
-  const root = container || (typeof document !== 'undefined' ? document : null);
-  if (!root || typeof root.querySelectorAll !== 'function') {
-    return [];
-  }
+/**
+ * Check accessibility of links and buttons within the given HTML content
+ * @param {string} htmlContent - HTML content to check for accessibility issues
+ * @param {boolean} options.useStrict - Enable strict checks for accessibility issues
+ * @returns {Object} - An array of accessibility issues found
+ */
+function checkLinkAndButtonAccessibility(htmlContent, options = {}) {
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(htmlContent, 'text/html');
+  const links = doc.querySelectorAll('a:not([href])');
+  const buttons = doc.querySelectorAll('button:not([aria-label])');
 
   const issues = [];
-  let index = 0;
 
-  const checkType = (selector, type) => {
-    const elements = root.querySelectorAll(selector);
-    elements.forEach((el) => {
-      const textContent = el.textContent ? el.textContent.trim() : '';
-      const ariaLabel = el.getAttribute ? el.getAttribute('aria-label') : null;
-      const hasName = textContent.length > 0 || (ariaLabel && ariaLabel.trim().length > 0);
-      if (!hasName) {
+  Array.from(links).forEach((link, index) => {
+    if (options.useStrict) {
+      if (!link.textContent.trim()) {
         issues.push({
-          type: type,
-          element: el,
-          index: index++
+          type: 'link',
+          index: index + 1,
+          element: link
         });
       }
-    });
-  };
+    } else {
+      if (!link.hasAttribute('href')) {
+        issues.push({
+          type: 'link',
+          index: index + 1,
+          element: link
+        });
+      }
+    }
+  });
 
-  checkType('a', 'link');
-  checkType('button', 'button');
+  Array.from(buttons).forEach((button, index) => {
+    if (options.useStrict) {
+      if (!button.getAttribute('aria-label') && !button.textContent.trim()) {
+        issues.push({
+          type: 'button',
+          index: index + 1,
+          element: button
+        });
+      }
+    } else {
+      if (!button.getAttribute('aria-label')) {
+        issues.push({
+          type: 'button',
+          index: index + 1,
+          element: button
+        });
+      }
+    }
+  });
 
   return issues;
+}
+
+function calculateProduct(a, b) {
+  return a * b;
 }
 
 // Exports for the functions
@@ -271,6 +310,6 @@ if (typeof window !== 'undefined') {
   window.addressAccessibilityIssues = addressAccessibilityIssues;
   window.calculateSum = calculateSum;
   window.calculateProduct = calculateProduct;
-  window.renderDependencyGraph = renderDependencyGraph;
-  window.displayModuleStructure = displayModuleStructure;
 }
+
+// TODO: Implement the new function as per the new issue requirements (below this line)

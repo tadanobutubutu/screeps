@@ -171,7 +171,9 @@ const a11yStore = {
 
   // ... remaining a11yStore methods ...
 
-  // New function
+  /**
+   * New function to ensure interactive elements are accessible
+   */
   ensureInteractiveElementsAccessible() {
     this.ensureInteractiveRoles();
     this.addFormControlLabels();

@@ -207,6 +207,48 @@ const ensureElementHasId = (element, prefix = 'element') => {
 };
 
 /**
+ * Extracts the accessible name for an SVG from its content.
+ * Checks for aria-label, aria-labelledby, and title elements in order of priority.
+ *
+ * @param {SVGElement} svg - The SVG element to analyze.
+ * @returns {string|null} The accessible name if found, otherwise null.
+ */
+const getSvgAccessibleName = (svg) => {
+  if (!svg || !(svg instanceof SVGElement)) {
+    throw new Error('A valid SVG element is required');
+  }
+
+  // Check aria-label attribute
+  const ariaLabel = svg.getAttribute('aria-label');
+  if (ariaLabel) {
+    return ariaLabel;
+  }
+
+  // Check aria-labelledby attribute
+  const labelledById = svg.getAttribute('aria-labelledby');
+  if (labelledById) {
+    const labelledByElement = document.getElementById(labelledById);
+    if (labelledByElement) {
+      return labelledByElement.textContent.trim();
+    }
+  }
+
+  // Check for title element
+  const titleElement = svg.querySelector('title');
+  if (titleElement) {
+    return titleElement.textContent.trim();
+  }
+
+  // Check for desc element (less common but sometimes used)
+  const descElement = svg.querySelector('desc');
+  if (descElement) {
+    return descElement.textContent.trim();
+  }
+
+  return null;
+};
+
+/**
  * Renders a dependency graph inside the given container.
  *
  * @param {HTMLElement} container - The DOM element that will hold the graph.
@@ -614,12 +656,16 @@ function handleFakeLinks(link) {
 
 // Export functions for use in other modules
 module.exports = {
-  renderDependencyGraph,
-  renderIndex,
-  handleAccessibilityIssues,
-  formatVersion,
-  sanitizeHtml,
-  validateTableAccessibility,
+  initSkipLink: accessibilityUtils.initSkipLink,
+  trapFocus: accessibilityUtils.trapFocus,
+  newFocusTrap: accessibilityUtils.newFocusTrap,
+  initAccessibility: accessibilityUtils.initAccessibility,
+  exportData: accessibilityUtils.exportData,
+  addressAccessibilityIssues: accessibilityUtils.addressAccessibilityIssues,
+  ensureElementHasId,
+  addAriaLabel,
+  getSvgAccessibleName,
+  renderDependencyGraphs,
   validateTableStructure,
   getLangAttribute,
   createInPageButton,

@@ -1,3 +1,14 @@
+// TODO: Add back any required exports that might have been removed
+// TODO: This is the existing code that needs to be preserved
+// _Commit: 243c66538868c6b87845660312397ab39e0f830d_
+// <!-- todo-hash: ... -->
+
+// Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
+// _Commit: ec56c28dafbd3fb2078fbae75354cf99a4fb9f89_
+
+=======
+>>>>>>> origin/main
 // TODO: Address accessibility issues from insight report — FIXED
 // REACT_015: Add lang attribute
 // REACT_027: Fix 26 table structure issues
@@ -118,9 +129,48 @@ function fixLandmarks(html) {
     return html;
 }
 
-    // Function to validate table structure
-    function validateTableStructure(tableElement) {
-      if (!tableElement) return false;
+// REACT_025: Ensure unique landmarks (2 issues)
+function ensureUniqueLandmarks(html) {
+    if (typeof html !== 'string') return html;
+
+    const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search', 'form'];
+
+    landmarkRoles.forEach(role => {
+        const pattern = new RegExp(`role=["']${role}["']`, 'gi');
+        const matches = html.match(pattern);
+        if (matches && matches.length > 1) {
+            // Keep first occurrence, change subsequent ones
+            let count = 0;
+            html = html.replace(pattern, (match) => {
+                count++;
+                if (count === 1) return match;
+                return `role="region"`;
+            });
+        }
+    });
+
+    // Also check for duplicate HTML5 landmark elements (header, nav, main, aside, footer)
+    const html5Landmarks = ['header', 'nav', 'main', 'aside', 'footer'];
+    html5Landmarks.forEach(tag => {
+        const pattern = new RegExp(`<${tag}[^>]*>`, 'gi');
+        const matches = html.match(pattern);
+        if (matches && matches.length > 1) {
+            // Keep first, add role="region" to others
+            let count = 0;
+            html = html.replace(pattern, (match) => {
+                count++;
+                if (count === 1) return match;
+                return match.replace(/^</, '<' + tag).replace(`<${tag}`, `<${tag} role="region">`);
+            });
+        }
+    });
+
+    return html;
+}
+
+// REACT_036: Fix 1 fake link issue
+function fixFakeLinks(html) {
+    if (typeof html !== 'string') return html;
 
     // Find spans or divs with onclick that act as links and convert to <a>
     html = html.replace(
@@ -340,214 +390,4 @@ function parseColor(colorString) {
             return {
                 r: parseInt(hex[0] + hex[0], 16),
                 g: parseInt(hex[1] + hex[1], 16),
-                b: parseInt(hex[2] + hex[2], 16)
-            };
-        } else {
-            return {
-                r: parseInt(hex.substring(0, 2], 16),
-                g: parseInt(hex.substring(2, 4), 16),
-                b: parseInt(hex.substring(4, 6), 16)
-            };
-        }
-    },
-    fixTableStructures: function () {
-        // REACT_027: Fix 26 table structure issues - add proper th, caption, scope
-        var tables = document.querySelectorAll('table');
-        tables.forEach(function (table) {
-            var headers = table.querySelectorAll('th');
-            headers.forEach(function (th) {
-                if (!th.getAttribute('scope')) {
-                    th.setAttribute('scope', 'col');
-                }
-            });
-            if (!table.querySelector('caption')) {
-                var caption = document.createElement('caption');
-                caption.textContent = 'Data table';
-                table.insertBefore(caption, table.firstChild);
-            }
-        });
-    },
-    addSvgAccessibility: function () {
-        // REACT_041: Add accessible names to 2 SVGs
-        var svgs = document.querySelectorAll('svg');
-        svgs.forEach(function (svg, index) {
-            if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
-                var label = 'SVG graphic ' + (index + 1);
-                svg.setAttribute('aria-label', label);
-            }
-            if (!svg.getAttribute('role')) {
-                svg.setAttribute('role', 'img');
-            }
-        });
-    },
-    fixFakeLinks: function () {
-        // REACT_036: Fix 1 fake link issue - ensure proper link behavior
-        var fakeLinks = document.querySelectorAll('[role="link"], a[href="#"], a[href=""]');
-        fakeLinks.forEach(function (link) {
-            if (link.tagName !== 'A') {
-                link.setAttribute('role', 'button');
-                link.addEventListener('keydown', function (e) {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault();
-                        link.click();
-                    }
-                });
-            }
-        });
-    },
-    ensureDependencyGraphRole: function () {
-        // REACT_042: Ensure dependencyGraph container has proper ARIA role
-        var depGraph =
-            document.getElementById('dependencyGraph') ||
-            document.querySelector('.dependency-graph');
-        if (depGraph && !depGraph.getAttribute('role')) {
-            depGraph.setAttribute('role', 'region');
-            if (!depGraph.getAttribute('aria-label')) {
-                depGraph.setAttribute('aria-label', 'Dependency graph visualization');
-            }
-        }
-    },
-    replaceMyButtonId: function () {
-        // REACT_040: Replace my-button with actual button id for accessibility
-        var myButton = document.getElementById('my-button');
-        if (myButton) {
-            myButton.id = 'primary-action-button';
-            myButton.setAttribute('aria-label', 'Primary action button');
-        }
-    },
-    googleSignIn: function () {
-        // REACT_037: Google sign-in logic
-        var signInBtn = document.getElementById('google-signin-button');
-        if (signInBtn) {
-            signInBtn.setAttribute('aria-label', 'Sign in with Google');
-            signInBtn.addEventListener('click', function () {
-                // Google sign-in implementation
-                console.log('Google sign-in initiated');
-            });
-        }
-    },
-    updateDependencyGraphs: function () {
-        // TODO: Implement function to update dependency graphs
-        const dependencyGraphs = document.querySelectorAll('.dependency-graph, #dependencyGraph');
-        dependencyGraphs.forEach((graph) => {
-            // Ensure proper ARIA attributes
-            if (!graph.getAttribute('role')) {
-                graph.setAttribute('role', 'region');
-            }
-            if (!graph.getAttribute('aria-label')) {
-                graph.setAttribute('aria-label', 'Dependency graph visualization');
-            }
-
-            // Add interactive features if needed
-            const nodes = graph.querySelectorAll('.node');
-            nodes.forEach((node, index) => {
-                if (!node.getAttribute('tabindex')) {
-                    node.setAttribute('tabindex', '0');
-                }
-                if (!node.getAttribute('aria-label')) {
-                    node.setAttribute('aria-label', `Dependency node ${index + 1}`);
-                }
-            });
-
-    return namedColors[colorString.toLowerCase()] || null;
-}
-
-// Helper function to calculate relative luminance
-function calculateLuminance(rgb) {
-    const sRGB = [rgb.r, rgb.g, rgb.b].map(c => {
-        c /= 255;
-        return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
-    });
-    return 0.2126 * sRGB[0] + 0.7152 * sRGB[1] + 0.0722 * sRGB[2];
-}
-
-function validateTableStructure(html) {
-    if (typeof html !== 'string') return { valid: false, issues: [] };
-    const issues = [];
-
-    // Check for tables without thead
-    const tables = html.match(/<table[^>]*>[\s\S]*?<\/table>/gi) || [];
-    tables.forEach((table, index) => {
-        if (!/<thead/i.test(table)) {
-            issues.push(`Table ${index + 1} is missing thead element`);
-        }
-        if (!/<tbody/i.test(table)) {
-            issues.push(`Table ${index + 1} is missing tbody element`);
-        }
-    });
-
-    return { valid: issues.length === 0, issues };
-}
-
-function validateLinkAccessibility(html) {
-    if (typeof html !== 'string') return { valid: false, issues: [] };
-    const issues = [];
-
-    // Check for links with no text content
-    const linkPattern = /<a([^>]*)>([\s]*)<\/a>/gi;
-    let match;
-    while ((match = linkPattern.exec(html)) !== null) {
-        issues.push(`Link ${match[1]} has no accessible text`);
-    }
-
-    return { valid: issues.length === 0, issues };
-}
-
-function handleFakeLinks(html) {
-    if (typeof html !== 'string') return { html, linksConverted: 0 };
-    let count = 0;
-
-    // Find spans or divs with onclick that act as links
-    const fakeLinkPattern = /<span([^>]*)onclick=["']([^"']*)["']([^>]*)>/gi;
-    html = html.replace(fakeLinkPattern, (match, before, onclick, after) => {
-        const hrefMatch = onclick.match(/window\.location\s*=\s*['"]([^'"]+)['"]/);
-        if (hrefMatch) {
-            count++;
-            return `<a href="${hrefMatch[1]}"${before}${after}>`;
-        }
-        return match;
-    });
-
-    html = html.replace(/<\/span>/gi, '</a>');
-
-    return { html, linksConverted: count };
-}
-
-// Don't forget to test your new additions in the test file
-
-// Preserve any existing exports here
-// export { existingFunction1, existingFunction2, ... };
-
-// Export accessibility utility functions
-// Re-add the required exports
-module.exports = {
-    addLangAttribute,
-    fixTableStructure,
-    fixLandmarks,
-    addSvgAccessibleNames,
-    ensureUniqueLandmarks,
-    fixFakeLinks,
-    applyAccessibilityFixes,
-    addressAccessibilityIssues,
-    createInPageButton,
-    divide,
-    myNewFunction,
-    functionA,
-    functionB,
-    isLinkAccessible,
-    checkColorContrast,
-    parseColor,
-    calculateLuminance,
-    validateTableStructure,
-    validateLinkAccessibility,
-    handleFakeLinks
-};
-
-// Run if executed directly
-if (require.main === module) {
-  main();
-}
-
-function main() {
-  // Entry point for the module
-}
+                b: parseInt(hex[

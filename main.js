@@ -1,25 +1,32 @@
-import './styles.css';
+import './styles.less';
 import { initializeApp } from './app.js';
 import { registerSW } from 'effector-sw';
-import { processData, validateLandmark, ensureLandmarkUniqueness, checkLandmarkElement, fixFakeLinks, isSecureContext, initApp, landmarks, appData, icons } from './insightsChecks.js';
 
-const config = {
-    apiUrl: process.env.API_URL || 'https://api.example.com',
-    timeout: 5000
-}
+// Landmark data structure
+const landmarks = [];
 
-// App state
-const appState = {
-    initialized: false,
-    data: null,
-    cache: new Map()
+// Application data structure
+const appData = {
+    title: 'Frontend Application',
+    version: '1.0.0'
 };
 
-function initialize() {
-    appState.initialized = true;
-    console.log('App initialized');
-}
+let icons = {};
 
+// Address accessibility issues from insight report:
+// Ensure the dependencyGraph container has a proper ARIA role
+// (This comment remains as-it's)
+//_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
+//<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
+//_Commit: f8051b788bad4952d8f93f08d3c7d22a06ff80d3_
+//<!-- todo-hash: b498b47abee4b3f29c69a97ba2237d968a50cc419 -->
+
+// Implemented validateLandmark functionality
+/**
+ * Function to check if the specified landmark element is in the document.
+ * @param {string} id - The ID of the landmark element.
+ * @returns {boolean} Returns true if the element exists; otherwise, false.
+ */
 function checkLandmarkElement(id) {
     const element = document ? document.getElementById(id) : null;
     return element !== null;
@@ -57,131 +64,16 @@ function validateLandmark(landmark) {
         errors.push('Landmark longitude must be between -180 and 180');
     }
 
-    // Additional validation changes from the other branch
-    if (Array.isArray(landmark) && landmark.length > 0) {
-        if (!landmark[0].name || typeof landmark[0].name !== 'string' || landmark[0].name.trim() === '') {
-            errors.push('Landmark array must have valid names');
-        }
-    }
-
-    return { valid: errors.length === 0, errors };
-}
-
-/**
- * Wraps the primary content in a <main> landmark element if not already present.
- * Implements proper landmark structure for accessibility compliance.
- */
-function wrapPrimaryContentInMain() {
-  // Check if a <main> element already exists
-  let mainElement = document.querySelector('main[role="main"], main, [role="main"]');
-
-  if (!mainElement) {
-    // Find existing primary content element using common selectors
-    const primaryContentSelectors = [
-      '#primary-content',
-      '#main-content',
-      '[role="main"]',
-      '.primary-content',
-      '.main-content',
-      '#content',
-      'article',
-      '.content'
-    ];
-
-    let primaryContent = null;
-
-    for (const selector of primaryContentSelectors) {
-      const element = document.querySelector(selector);
-      if (element && element.tagName !== 'MAIN') {
-        primaryContent = element;
-        break;
-      }
-    }
-
-    // If no specific primary content found, use body content
-    if (!primaryContent) {
-      primaryContent = document.body;
-    }
-
-    // Create main element with proper attributes
-    mainElement = document.createElement('main');
-    mainElement.id = 'main-content';
-    mainElement.setAttribute('role', 'main');
-
-    // Preserve existing id if the primary content has one
-    if (primaryContent.id) {
-      mainElement.id = primaryContent.id;
-    }
-
-    // Wrap the content appropriately
-    if (primaryContent !== document.body && primaryContent.parentNode) {
-      primaryContent.parentNode.insertBefore(mainElement, primaryContent);
-      mainElement.appendChild(primaryContent);
-    } else if (primaryContent === document.body) {
-      // For body, insert main as first child
-      mainElement.appendChild(document.createDocumentFragment());
-      while (document.body.firstChild) {
-        mainElement.appendChild(document.body.firstChild);
-      }
-      document.body.appendChild(mainElement);
-    }
-  }
-
-  return mainElement;
-}
-
-function processUniqueElements(elements) {
-    const seen = new Set();
-    const uniqueElements = [];
-
-    if (Array.isArray(elements)) {
-        elements.forEach(element => {
-            const key = element.id || element.name || JSON.stringify(element);
-            if (!seen.has(key)) {
-                seen.add(key);
-                uniqueElements.push(element);
+    // Check for updated validation changes from another branch that also checks for array composition
+    if (Array.isArray(landmark)) {
+        landmark.forEach(innerLandmark => {
+            if (!innerLandmark.name || typeof innerLandmark.name !== 'string' || innerLandmark.name.trim() === '') {
+                errors.push('Landmark array must have valid names');
             }
         });
     }
 
-    return uniqueElements;
-}
-
-// Implemented validateLandmark functionality
-
-function initializeApp() {
-    initialize();
-    return appState;
-}
-
-// Main function (required export)
-
-function main() {
-    initialize();
-    initializeApp();
-    console.log('Main function executed');
-    return { executed: true };
-}
-
-// Accessibility helper function to validate table accessibility
-function validateTableAccessibility(table) {
-    const issues = [];
-
-    // Check for caption
-    const caption = table.querySelector('caption');
-    if (!caption) {
-        issues.push('Table missing caption');
-    }
-
-    // Check for th elements with scope or headers
-    const headers = table.querySelectorAll('th');
-    headers.forEach(th => {
-        if (!th.getAttribute('scope') && !th.getAttribute('headers')) {
-            issues.push('TH element missing scope or headers attribute');
-        }
-    });
-
-    return issues;
+    return { valid: errors.length === 0, errors };
 }
 
 // Accessibility helper function to validate table structure
@@ -210,21 +102,22 @@ function validateTableStructure(table) {
 
 // Landmark functions (merged from both branches)
 function ensureLandmarkUniqueness(elements) {
-    if (Array.isArray(elements)) {
-        const elementsById = {};
+    const landmarks = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
 
+    const elementsById = {};
+
+    if (Array.isArray(elements)) {
         for (const landmark of elements) {
-            if (landmark && landmark.id) {
-                if (!elementsById[landmark.id]) {
-                    elementsById[landmark.id] = true;
-                } else {
+            if (landmark.id) {
+                if (elementsById[landmark.id]) {
                     landmark.id += '_duplicate';
+                } else {
+                    elementsById[landmark.id] = true;
                 }
             }
         }
-
-        return elements;
     }
+
     return elements;
 }
 
@@ -354,320 +247,72 @@ function createFocusTrap(container, options = {}) {
     returnFocus = true,
   } = options;
 
-  let previousActiveElement = null;
-  let isActive = false;
+// NEW: Implement a new function to handle focus trap for keyboard navigation (handled by newFocusTrap())
+function newFocusTrap(focusableElements, onEscape) {
+    const initialFocus = null;
 
-  // Get all focusable elements within the container
-  const getFocusableElements = () => {
-    const focusableSelectors = [
-      'button:not([disabled])',
-      'a[href]',
-      'input:not([disabled])',
-      'select:not([disabled])',
-      'textarea:not([disabled])',
-      '[tabindex]:not([tabindex="-1"])',
-    ].join(', ');
-
-    return Array.from(container.querySelectorAll(focusableSelectors));
-  };
-
-  // Handle keydown events to trap focus
-  const handleKeyDown = (event) => {
-    if (!isActive) return;
-
-    if (event.key === 'Tab') {
-      const focusableElements = getFocusableElements();
-      if (focusableElements.length === 0) return;
-
-      const firstElement = focusableElements[0];
-      const lastElement = focusableElements[focusableElements.length - 1];
-
-      // Shift + Tab on first element moves to last
-      if (event.shiftKey && document.activeElement === firstElement) {
-        event.preventDefault();
-        lastElement.focus();
-      }
-      // Tab on last element moves to first
-      else if (!event.shiftKey && document.activeElement === lastElement) {
-        event.preventDefault();
-        firstElement.focus();
-      }
+    function trapFocus(event) {
+        if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') {
+            const focusable = Array.from(focusableElements).filter(el => el.offsetWidth > 0 && el.offsetHeight > 0);
+            if (focusable[0]) {
+                focusable[0].focus();
+            } else {
+                if (initialFocus) initialFocus.focus();
+            }
+        } else if (event.key === 'Escape') {
+            // Close the trap by returning focus to the last focused element
+            // In a real implementation, we would need to track the previous element
+            console.log('Focus trap triggered, returning focus');
+        }
     }
 
-    // Handle escape key
-    if (event.key === 'Escape' && onEscape) {
-      event.preventDefault();
-      onEscape();
-    }
-  };
-
-  // Activate the focus trap
-  const activate = () => {
-    previousActiveElement = document.activeElement;
-    isActive = true;
-    container.addEventListener('keydown', handleKeyDown);
-
-    // Set initial focus
-    if (initialFocus) {
-      initialFocus.focus();
-    } else {
-      const focusableElements = getFocusableElements();
-      if (focusableElements.length > 0) {
-        focusableElements[0].focus();
-      }
-    }
-  };
-
-  // Deactivate the focus trap
-  const deactivate = () => {
-    isActive = false;
-    container.removeEventListener('keydown', handleKeyDown);
-
-    // Return focus to the previously focused element
-    if (returnFocus && previousActiveElement && previousActiveElement.focus) {
-      previousActiveElement.focus();
-    }
-  };
-
-  return {
-    activate,
-    deactivate,
-    getFocusableElements,
-  };
-}
-
-function landmarkStructureCheck(landmark) {
-  if (!landmark) {
-    return false;
-  }
-  return landmark.name && landmark.latitude !== undefined && landmark.longitude !== undefined;
-}
-
-function setLanguageAttribute(lang) {
-  if (typeof document !== 'undefined') {
-    document.documentElement.setAttribute('lang', lang);
-  }
-}
-
-function addLandmarkRoles(element, role) {
-  if (element && role) {
-    element.setAttribute('role', role);
-  }
-  return element;
-}
-
-function fixFakeLinks(element) {
-  if (element && element.tagName === 'A' && !element.hasAttribute('href')) {
-    element.setAttribute('role', 'button');
-  }
-  return element;
-}
-
-function isSecureContext() {
-  if (typeof window !== 'undefined' && window.isSecureContext !== undefined) {
-    return window.isSecureContext;
-  }
-  return false;
-}
-
-function initApp() {
-  initializeApp();
-}
-
-function ensureFocusableElements(elements) {
-  if (!Array.isArray(elements)) {
-    return [];
-  }
-  return elements.filter(el => el && (el.tabIndex >= 0 || el.tagName === 'A' || el.tagName === 'BUTTON' || el.tagName === 'INPUT'));
-}
-
-function renderDependencyGraphContent(graphData) {
-  if (!graphData) {
-    return '';
-  }
-  return JSON.stringify(graphData);
-}
-
-function validateSvgAccessibility(svgElement) {
-  if (!svgElement) {
-    return { valid: false, errors: ['SVG element is required'] };
-  }
-  const errors = [];
-  if (!svgElement.getAttribute('role')) {
-    errors.push('SVG must have a role attribute');
-  }
-  if (!svgElement.getAttribute('aria-label') && !svgElement.getAttribute('aria-labelledby')) {
-    errors.push('SVG must have an accessible name');
-  }
-  return { valid: errors.length === 0, errors };
-}
-
-// New function for creating in-page buttons (from the other branch)
-function createInPageButtons(buttonsData) {
-    const buttonsContainer = document.getElementById('in-page-buttons-container');
-
-    if (!buttonsContainer) {
-        console.error('In-page buttons container not found');
-        return;
-    }
-
-    buttonsData.forEach(buttonData => {
-        const button = document.createElement('button');
-        button.id = buttonData.id;
-        button.textContent = buttonData.text;
-        button.setAttribute('data-role', buttonData.role);
-
-        button.addEventListener('click', () => {
-            location.hash = buttonData.href;
-        });
-
-        buttonsContainer.appendChild(button);
-    });
-}
-
-// Merged countDependencies function from both branches
-/**
- * Counts the number of dependencies (landmarks) in the application.
- * @returns {number} The count of dependencies.
- */
-function countDependencies() {
-  return landmarks.length;
+    return { trapFocus };
 }
 
 function addressInsightIssues(insights) {
-  if (!Array.isArray(insights)) {
-    return [];
-  }
-  return insights.map(insight => ({
-    ...insight,
-    addressed: true
-  }));
+    if (!Array.isArray(insights)) {
+        return [];
+    }
+
+    // Process landmarks with validation and uniqueness guarantees
+    const validLandmarks = insights.filter(landmark => {
+        const validation = validateLandmark(landmark);
+        return validation.valid;
+    });
+
+    return ensureUniqueLandmarks(validLandmarks);
 }
 
-function renderDependencyGraph(graph) {
-  if (!graph) {
-    return null;
-  }
-  return { rendered: true, graph };
-}
-
-function renderIndexView(data) {
-  if (!data) {
-    return null;
-  }
-  appState.data = data;
-  return data;
-}
-
-// Fetch user function
-function fetchUser(userId) {
-  if (!userId) {
-    return null;
-  }
-  return { id: userId, name: 'User ' + userId };
-}
-
-// Clear cache function
-function clearCache() {
-  appState.cache.clear();
-}
-
-// Helper function
-function someFunction() {
-  return 'some value';
-}
-
-// Helper for input transformation
-function helper(input) {
-  return input ? input.toUpperCase() : '';
-}
-
-// Format date function
-function formatDate(date) {
-  if (!(date instanceof Date)) {
-    date = new Date(date);
-  }
-  return date.toISOString();
-}
-
-// Validate input function
-function validateInput(input) {
-  if (!input) {
-    return false;
-  }
-  return true;
-}
-
-// Icons container
-let icons = {};
-
-// Landmark data
-const landmarks = [];
-
-// App data
-const appData = {
-  title: 'Screeps',
-  version: '1.0.0'
-};
-
-// TODO: Address accessibility issues from insight report
-
-const HTML = ({ lang }) => <html lang={lang}>/* other children */</html>;
-
-// Address accessibility issues from insight report:
-// Ensure the dependencyGraph container has a proper ARIA role
-// (This comment remains as-is)
-// TODO: This is the existing code that needs to be preserved
-//_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
-//<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
-//_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
-//<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
-
-// Implemented validateLandmark functionality
-function validateLandmarkObject(landmark) {
-  const errors = [];
-}
-
-function getLangAttribute() {
-  return 'en';
-}
-
-function addLangAttribute(element) {
-  if (element && typeof element === 'object') {
-    element.lang = getLangAttribute();
-  }
-  return element;
-}
-
-function setLanguageAttribute() {
-  if (typeof document !== 'undefined') {
-    document.documentElement.lang = 'en';
-  }
-
-module.exports = {
-    User,
-    spawnNewUser,
-    config,
-    initialize,
-    initializeApp,
-    main,
-    ensureLandmarkUniqueness,
-    wrapPrimaryContentInMain,
-    createInPageButtons,
-    createFocusTrap,
-    validateTableAccessibility,
-    validateTableStructure,
-    countDependencies,
+// Export functions for testing
+export {
+    checkLandmarkElement,
+    ensureUniqueLandmarks,
     landmarkStructureCheck,
     setLanguageAttribute,
     addLandmarkRoles,
     fixFakeLinks,
     isSecureContext,
     initApp,
+    landmarks,
+    appData,
+    icons,
+    validateLandmark,
     ensureFocusableElements,
     renderDependencyGraphContent,
+    ensureLandmarkUniqueness,
     validateSvgAccessibility,
     processUniqueElements,
-    checkLandmarkElement,
-    validateLandmark
+    addressInsightIssues,
+    renderDependencyGraph,
+    renderIndexView,
+    calculateSum,
+    addProperLandmarkRegions,
+    countDependencies,
+    processLandmarks,
+    validateTableStructure,
+    getSvgAccessibleName,
+    setSvgAttributes,
+    visualizeDependencyTree,
+    processData,
+    newFocusTrap
 };

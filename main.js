@@ -199,7 +199,8 @@ const a11yStore = {
   // ... remaining a11yStore methods ...
 
   // New function
-  ensureAccessibilityForAllInteractiveElements() {
+  ensureAccessibleInteractiveElements() {
+    // This function will call the other a11yStore methods to ensure accessibility
     this.ensureInteractiveRoles();
     this.addFormControlLabels();
     this.ensureImageAccessibility();
@@ -210,12 +211,7 @@ const a11yStore = {
 
 // New functions
 function ensureInteractiveElementsAccessible() {
-  const interactiveElements = document.querySelectorAll('button, a, input, select, textarea');
-  interactiveElements.forEach((element) => {
-    if (!element.getAttribute('tabindex')) {
-      element.setAttribute('tabindex', '0');
-    }
-  });
+  a11yStore.ensureAccessibleInteractiveElements();
 }
 
 // ... rest of the code ...

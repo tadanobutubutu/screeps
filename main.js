@@ -40,7 +40,20 @@ const config = {
 let storedCredentials = null;
 
 /**
- * Main application entry point with accessibility features
+ * Generates a dependency graph of the application modules.
+ * @returns {Object} A mapping of module names to their dependencies.
+ */
+function getDependencyGraph() {
+  return {
+    app: ['server', 'config'],
+    config: [],
+    server: ['http', 'path']
+  };
+}
+
+/**
+ * Creates and starts the HTTP server
+ * @returns {http.Server} The created server instance
  */
 function createServer() {
   const server = http.createServer((req, res) => {
@@ -182,8 +195,8 @@ function startApp() {
 module.exports = {
   createServer,
   startApp,
-  createInPageButton,
-  config
+  config,
+  getDependencyGraph
 };
 
 // Start the application if run directly

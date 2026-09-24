@@ -191,9 +191,19 @@ function startApp() {
   return server;
 }
 
-// Import the new function to create a button with correct accessibility properties
-function createAccessibleButton(text, href) {
-  return `<button type="button" aria-label="${text}">${text}</button>`;
+/**
+ * Creates a web resource button suitable for accessibility
+ * @param {string} url - The URL of the web resource
+ * @param {string} text - The text content of the button
+ * @returns {HTMLButtonElement} The created button element
+ */
+function createAccessibleWebResourceButton(url, text) {
+  const button = document.createElement('button');
+  button.setAttribute('type', 'button');
+  button.setAttribute('aria-label', `Go to ${text}`);
+  button.textContent = text;
+  button.href = url;
+  return button;
 }
 
 // Export functions for testing
@@ -201,7 +211,7 @@ module.exports = {
   createServer,
   startApp,
   config,
-  validateTableAccessibility
+  createAccessibleWebResourceButton
 };
 
 // Start the application if run directly

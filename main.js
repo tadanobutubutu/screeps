@@ -105,37 +105,12 @@ function ensureThScope() {
     // ... other methods ...
 }
 
-// Accessibility improvements
-function getAccessibleDescription(elementId) {
-  const element = document.getElementById(elementId);
-  if (!element) return null;
-
-  const ariaLabel = element.getAttribute('aria-label');
-  const ariaDescribedBy = element.getAttribute('aria-describedby');
-  const title = element.getAttribute('title');
-
-  return ariaLabel || (ariaDescribedBy && document.getElementById(ariaDescribedBy)?.textContent) || title || element.textContent;
-}
-
-function setAccessibleFocus(elementId) {
-  const element = document.getElementById(elementId);
-  if (element) {
-    element.setAttribute('tabindex', '0');
-    element.setAttribute('role', 'button');
-    element.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        element.click();
-      }
-    });
+// New function added after existing code
+function logProcessedData(result) {
+  if (config.debug) {
+    console.log('Processed data:', result);
   }
+  return result;
 }
 
-module.exports = {
-  main,
-  processData,
-  validateInput,
-  initializeApp,
-  setupHandlers,
-  getAccessibleDescription,
-  setAccessibleFocus
-};
+module.exports = { main, processData, validateInput, initializeApp, setupHandlers, logProcessedData };

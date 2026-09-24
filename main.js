@@ -579,49 +579,54 @@ module.exports = function () {
 }
 
 // Export for use in other modules (CommonJS)
-module.exports.debounce = debounce
-module.exports.throttle = throttle
-module.exports.isEmpty = isEmpty
-module.exports.capitalize = capitalize
-module.exports.getRandomInt = getRandomInt
-module.exports.clamp = clamp
-module.exports.deepClone = deepClone
-module.exports.generateId = generateId
-module.exports.safeJsonParse = safeJsonParse
-module.exports.isInViewport = isInViewport
-module.exports.initializeAccessibility = initializeAccessibility
-module.exports.handleKeyboardNavigation = handleKeyboardNavigation
-module.exports.handleKeyboard = handleKeyboard
-module.exports.trapFocus = trapFocus
-module.exports.createAnnouncer = createAnnouncer
-module.exports.prefersReducedMotion = prefersReducedMotion
-module.exports.ensureDependencyGraphARIA = ensureDependencyGraphARIA
-module.exports.getLangAttribute = getLangAttribute
-module.exports.addAccessibleNamesToSvg = addAccessibleNamesToSvg
-module.exports.createInPageButton = createInPageButton
-module.exports.validateTableAccessibility = validateTableAccessibility
-module.exports.validateTableStructure = validateTableStructure
-module.exports.validateLandmark = validateLandmark
-module.exports.validateLandmarkStructure = validateLandmarkStructure
-module.exports.ensureUniqueLandmarks = ensureUniqueLandmarks
-module.exports.getSvgAccessibleName = getSvgAccessibleName
-module.exports.setSvgAttributes = setSvgAttributes
-module.exports.handleFakeLinks = handleFakeLinks
-module.exports.validateLinkAccessibility = validateLinkAccessibility
-module.exports.ensureUniqueLandmarkId = ensureUniqueLandmarkId
-module.exports.addAriaLabel = addAriaLabel
-module.exports.addLangAttribute = addLangAttribute
-module.exports.ensureElementHasId = ensureElementHasId
-module.exports.addAriaLabelById = addAriaLabelById
-module.exports.renderDependencyGraph = renderDependencyGraph
-module.exports.displayModuleStructure = displayModuleStructure
-module.exports.generateAccessibilityReport = generateAccessibilityReport
-module.exports.myNewFunction = myNewFunction
-module.exports.getDocument = getDocument
-module.exports.addressAccessibilityIssues = addressAccessibilityIssues
-module.exports.wrapPrimaryContentInMain = wrapPrimaryContentInMain
-module.exports.addFixLandmarkIssues = addFixLandmarkIssues
-module.exports.addAriaToFormControls = addAriaToFormControls
-module.exports.fixFakeLinkIssues = fixFakeLinkIssues
-module.exports.createAccessibleLink = createAccessibleLink
-module.exports.checkLinkAccessibility = checkLinkAccessibility
+module.exports.debounce = debounce;
+module.exports.throttle = throttle;
+module.exports.isEmpty = isEmpty;
+module.exports.capitalize = capitalize;
+module.exports.getRandomInt = getRandomInt;
+module.exports.clamp = clamp;
+module.exports.deepClone = deepClone;
+module.exports.generateId = generateId;
+module.exports.safeJsonParse = safeJsonParse;
+module.exports.isInViewport = isInViewport;
+module.exports.initializeAccessibility = initializeAccessibility;
+module.exports.handleKeyboardNavigation = handleKeyboardNavigation;
+module.exports.handleKeyboard = handleKeyboard;
+module.exports.trapFocus = trapFocus;
+module.exports.createAnnouncer = createAnnouncer;
+module.exports.prefersReducedMotion = prefersReducedMotion;
+module.exports.ensureDependencyGraphARIA = ensureDependencyGraphARIA;
+module.exports.getLangAttribute = getLangAttribute;
+module.exports.addAccessibleNamesToSvg = addAccessibleNamesToSvg;
+module.exports.createInPageButton = createInPageButton;
+module.exports.validateTableAccessibility = validateTableAccessibility;
+module.exports.validateTableStructure = validateTableStructure;
+module.exports.validateLandmark = validateLandmark;
+module.exports.validateLandmarkStructure = validateLandmarkStructure;
+module.exports.ensureUniqueLandmarks = ensureUniqueLandmarks;
+module.exports.getSvgAccessibleName = getSvgAccessibleName;
+module.exports.setSvgAttributes = setSvgAttributes;
+module.exports.handleFakeLinks = handleFakeLinks;
+module.exports.validateLinkAccessibility = validateLinkAccessibility;
+module.exports.ensureUniqueLandmarkId = ensureUniqueLandmarkId;
+module.exports.addAriaLabel = addAriaLabel;
+module.exports.addLangAttribute = addLangAttribute;
+module.exports.ensureElementHasId = ensureElementHasId;
+module.exports.addAriaLabelById = addAriaLabelById;
+module.exports.renderDependencyGraph = renderDependencyGraph;
+module.exports.displayModuleStructure = displayModuleStructure;
+module.exports.generateAccessibilityReport = generateAccessibilityReport;
+module.exports.myNewFunction = myNewFunction;
+module.exports.getDocument = getDocument;
+module.exports.addressAccessibilityIssues = addressAccessibilityIssues;
+
+// TODO: This is the existing code that needs to be preserved
+// Address accessibility issues from insight report:
+// Ensure the dependencyGraph container has a proper ARIA role
+// (This comment remains as-is)
+//_Commit: eef4b6be04a5e2cd61b7543cfe2dff2da0857ca2_
+//<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
+//_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
+//<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
+//_Commit: fc03996e31e738651a43d99f1dad385b4d0ae9fe_
+//<!-- todo-hash: b713d536f0ce67bf9eb8012f08502c264300052f -->

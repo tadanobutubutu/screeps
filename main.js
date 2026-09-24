@@ -638,52 +638,63 @@ function displayModuleStructure (module) {
 function addAriaLabel(element, label) {
   // Combined and reconciled code from both branches
   if (!element.getAttribute('aria-label')) {
-    element.setAttribute('aria-label', element.textContent.trim() || element.getAttribute('title') || 'Accessible element');
+    element.setAttribute('aria-label', element.textContent.trim());
   }
 }
 
-// New function to get accessibility report
-function getAccessibilityReport() {
-  // This function would generate a report of accessibility issues found in the page
-  const report = {
-    langAttribute: document.documentElement.hasAttribute('lang'),
-    tables: document.querySelectorAll('table').length,
-    landmarks: document.querySelectorAll('nav, main, aside, footer').length,
-    svgs: document.querySelectorAll('svg').length,
-    uniqueLandmarks: true, // Assuming ensureUniqueLandmarks was called
-    fakeLinks: document.querySelectorAll('a[href="#"]').length
-  };
+// New function to add a book with accessibility considerations
+function addBookWithAccessibility(title, author, isbn, description) {
+  // Create a new book element with proper ARIA attributes
+  const bookElement = document.createElement('article');
+  bookElement.setAttribute('role', 'article');
+  bookElement.setAttribute('aria-labelledby', `book-title-${uuidv4()}`);
 
-  return report;
+  // Create title element with proper heading structure
+  const titleElement = document.createElement('h3');
+  titleElement.id = `book-title-${uuidv4()}`;
+  titleElement.textContent = title;
+  addAriaLabel(titleElement);
+
+  // Create author element
+  const authorElement = document.createElement('p');
+  authorElement.textContent = `By ${author}`;
+  authorElement.setAttribute('aria-label', `Author: ${author}`);
+
+  // Create ISBN element
+  const isbnElement = document.createElement('p');
+  isbnElement.textContent = `ISBN: ${isbn}`;
+  isbnElement.setAttribute('aria-label', `ISBN: ${isbn}`);
+
+  // Create description element
+  const descriptionElement = document.createElement('p');
+  descriptionElement.textContent = description;
+  descriptionElement.setAttribute('aria-label', 'Book description');
+
+  // Assemble the book element
+  bookElement.appendChild(titleElement);
+  bookElement.appendChild(authorElement);
+  bookElement.appendChild(isbnElement);
+  bookElement.appendChild(descriptionElement);
+
+  // Add keyboard navigation support
+  bookElement.setAttribute('tabindex', '0');
+  bookElement.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      // Focus the book when Enter or Space is pressed
+      bookElement.focus();
+    }
+  });
+
+  // Return the accessible book element
+  return bookElement;
 }
 
-// New function to set accessibility mode
-function setAccessibilityMode(mode) {
-  // This function would set the accessibility mode for the application
-  if (typeof triggerAccessibilityMode === 'function') {
-    triggerAccessibilityMode(mode);
+// Export the new function
+export { addBookWithAccessibility };
+
+function addAriaLabel(element) {
+  // Combined and reconciled code from both branches
+  if (!element.getAttribute('aria-label')) {
+    element.setAttribute('aria-label', element.textContent.trim());
   }
 }
-
-// Export all necessary functions
-export {
-  getFullLangAttribute,
-  personName,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLandmark,
-  validateLandmarkStructure,
-  updateDocumentAccessibility,
-  createInPageButton,
-  countDependencies,
-  ensureUniqueLandmarks,
-  fixAccessibilityIssues,
-  wrapPrimaryContentInMain,
-  initializeAccessibilityControls,
-  makeHeaderFocusable,
-  ensureElementId,
-  initializeAccessibility,
-  addAriaLabel,
-  getAccessibilityReport,
-  setAccessibilityMode
-};

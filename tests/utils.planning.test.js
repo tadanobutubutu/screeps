@@ -99,4 +99,56 @@ describe('utils.planning', () => {
         expect(result).toBeDefined();
         expect(result.openSpaces).toBeDefined();
     });
+
+    test('isOpenArea returns false for out of bounds coordinates', () => {
+        expect(utilsPlanning.isOpenArea(mockRoom, -1, 25, 2)).toBe(false);
+        expect(utilsPlanning.isOpenArea(mockRoom, 55, 25, 2)).toBe(false);
+        expect(utilsPlanning.isOpenArea(mockRoom, 25, -1, 2)).toBe(false);
+        expect(utilsPlanning.isOpenArea(mockRoom, 25, 55, 2)).toBe(false);
+    });
+
+    test('findBestSpawnPosition returns a position when controller and sources exist', () => {
+        const mockSource = { pos: { x: 10, y: 10, getRangeTo: jest.fn().mockReturnValue(10) }, getRangeTo: jest.fn().mockReturnValue(10) };
+        mockCache.getSources.mockReturnValue([mockSource]);
+
+        mockRoom.getTerrain.mockReturnValue({
+            get: jest.fn().mockReturnValue(0)
+        });
+
+        // This will find open spaces. We mock the RoomPosition to have getRangeTo
+        const pos = utilsPlanning.findBestSpawnPosition(mockRoom);
+        expect(pos).not.toBeNull();
+        expect(pos.x).toBeDefined();
+        expect(pos.y).toBeDefined();
+    });
+
+    test('visualizePlanning draws circle for each position', () => {
+        const positions = [{ x: 1, y: 1 }, { x: 2, y: 2 }];
+        utilsPlanning.visualizePlanning(mockRoom, positions, '#ff0000');
+        expect(mockRoom.visual.circle).toHaveBeenCalledTimes(2);
+        expect(mockRoom.visual.circle).toHaveBeenCalledWith(1, 1, expect.any(Object));
+        expect(mockRoom.visual.circle).toHaveBeenCalledWith(2, 2, expect.any(Object));
+    });
+
+    test('planRoadNetwork correctly builds roads using spawn and controller', () => {
+        const mockSpawn = { pos: { findPathTo: jest.fn().mockReturnValue([{ x: 1, y: 1 }, { x: 2, y: 2 }]) } };
+        mockCache.getSpawns.mockReturnValue([mockSpawn]);
+        const mockSource = { id: 'source1' };
+        mockCache.getSources.mockReturnValue([mockSource]);
+
+        // Let the cache.get execute the callback
+        mockCache.get.mockImplementation((key, cb) => cb());
+
+        const roads = utilsPlanning.planRoadNetwork(mockRoom);
+        expect(Array.isArray(roads)).toBe(true);
+        expect(roads.length).toBeGreaterThan(0);
+        expect(mockSpawn.pos.findPathTo).toHaveBeenCalled();
+    });
+
+    test('planRoadNetwork returns empty array if controller is missing', () => {
+        mockRoom.controller = null;
+        mockCache.getSpawns.mockReturnValue([{ pos: {} }]);
+        const roads = utilsPlanning.planRoadNetwork(mockRoom);
+        expect(roads).toEqual([]);
+    });
 });

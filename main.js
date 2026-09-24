@@ -563,3 +563,36 @@ module.exports = {
   addProperLandmarkRegions,
   accessibilityUtils
 };
+
+// Initialize the application with accessibility improvements
+function initialize() {
+    // Ensure the dependencyGraph container has a proper ARIA role
+    if (dependencyGraph) {
+        dependencyGraph.setAttribute('role', 'region');
+        dependencyGraph.setAttribute('aria-label', 'Dependency graph visualization');
+    }
+
+    // Address accessibility issues
+    addressAccessibilityIssues();
+
+    // Create the in-page button
+    createInPageButton();
+
+    // Initialize accessibility features from a11y utilities
+    if (a11y && a11y.init) {
+        a11y.init();
+    }
+}
+
+root.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);
+
+reportWebVitals();
+
+export { createInPageButton, validateLandmarkStructure, addLangAttribute, fixTableStructure, generateAccessibilityReport, addressAccessibilityIssues, getLangAttribute, a11y, accessibilityUtils };
+
+// Initialize after React render to ensure DOM is updated
+initialize();

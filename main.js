@@ -15,15 +15,6 @@ import { checkLinkAccessibility } from './utils/linkAccessibilityUtils';
 const fs = require('fs');
 const path = require('path');
 
-// TODO: This is the existing code that needs to be preserved
-// Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ...
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by ...
-// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
-
 // New function to visualize the dependency tree
 function visualizeDependencyTree(dependencies) {
   const report = generateDependencyReport(dependencies);
@@ -62,6 +53,16 @@ export const main = {
   // New function to address all accessibility issues
   addressAccessibilityIssues: function() {
     fixAccessibilityIssues();
+  },
+
+  // New function to visualize dependency tree
+  visualizeDependencyTree: function(dependencies) {
+    visualizeDependencyTree(dependencies);
+  },
+
+  // New function to generate dependency report
+  generateDependencyReport: function(dependencies) {
+    return generateDependencyReport(dependencies);
   }
 };
 
@@ -107,7 +108,7 @@ function createUnrotateButton() {
   const button = document.createElement('button');
   button.id = 'unrotate';
   button.setAttribute('role', 'button');
-  button.setAttribute('aria-label', 'rotate back');
+  button.ariaLabel = 'rotate back';
   button.textContent = 'rotate back';
   button.addEventListener('click', rotateBack);
   return button;

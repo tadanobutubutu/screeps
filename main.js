@@ -433,7 +433,7 @@ class ScreetsBot {
 
 // Accessibility utilities for keyboard navigation and screen reader support
 const accessibilityUtils = {
-    // ... (Existing accessibility utilities)
+    // ... (Preserve existing accessibilityUtils methods)
 
     /**
      * Initialize skip link functionality

@@ -143,55 +143,52 @@ const accessibilityUtils = {
   },
 
   /**
-   * Add keyboard navigation support for interactive elements
-   * @param {HTMLElement} element - The element to add keyboard support to
-   * @param {Object} handlers - The handler functions for different keys
+   * Validate the landmark structure for accessibility issues
+   * @param {HTMLElement} rootElement - The root element to validate
+   * @returns {Object} Validation results with issues and suggestions
    */
-  addKeyboardNavigation: (element, handlers) => {
-    if (!element || !handlers) return;
-
-    element.addEventListener('keydown', (e) => {
-      accessibilityUtils.handleKeyboardNav(e, handlers);
-    });
-  },
-
-  /**
-   * Ensure proper ARIA labels on dynamic content
-   * @param {HTMLElement} element - The element to add ARIA attributes to
-   * @param {Object} ariaAttributes - The ARIA attributes to add
-   */
-  ensureAriaAttributes: (element, ariaAttributes) => {
-    if (!element || !ariaAttributes) return;
-
-    Object.entries(ariaAttributes).forEach(([key, value]) => {
-      element.setAttribute(key, value);
-    });
-  },
-
-  /**
-   * Maintain focus management for modal dialogs
-   * @param {HTMLElement} modal - The modal element
-   * @param {HTMLElement} trigger - The element that triggered the modal
-   */
-  manageModalFocus: (modal, trigger) => {
-    if (!modal || !trigger) return;
-
-    // Trap focus within the modal
-    focusTrap(modal);
-
-    // Set initial focus to the first focusable element
-    const firstFocusable = modal.querySelector(
-      'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
-    );
-
-    if (firstFocusable) {
-      firstFocusable.focus();
+  validateLandmarks: (rootElement) => {
+    if (!rootElement || typeof rootElement.querySelectorAll !== 'function') {
+      return {
+        valid: false,
+        issues: ['Invalid root element provided']
+      };
     }
 
-    // Return focus to trigger when modal closes
-    modal.addEventListener('close', () => {
-      trigger.focus();
+    const requiredLandmarks = ['header', 'main', 'footer'];
+    const foundLandmarks = new Set();
+    const issues = [];
+    const suggestions = [];
+
+    // Check for required landmarks
+    requiredLandmarks.forEach(landmark => {
+      const elements = rootElement.querySelectorAll(`[role="${landmark}"], ${landmark}`);
+      if (elements.length === 0) {
+        issues.push(`Missing required landmark: ${landmark}`);
+        suggestions.push(`Add a <${landmark}> element or element with role="${landmark}"`);
+      } else if (elements.length > 1) {
+        issues.push(`Multiple ${landmark} landmarks found`);
+        suggestions.push(`Ensure only one ${landmark} landmark exists in the document`);
+      } else {
+        foundLandmarks.add(landmark);
+      }
     });
+
+    // Check for additional landmarks
+    const allLandmarks = rootElement.querySelectorAll('[role="banner"], [role="complementary"], [role="contentinfo"], [role="form"], [role="navigation"], [role="region"], header, main, footer, aside, nav, section');
+    allLandmarks.forEach(element => {
+      const role = element.getAttribute('role') || element.tagName.toLowerCase();
+      if (!requiredLandmarks.includes(role) && !foundLandmarks.has(role)) {
+        suggestions.push(`Consider adding ARIA label to ${role} landmark: aria-label="..."`);
+      }
+    });
+
+    return {
+      valid: issues.length === 0,
+      issues,
+      suggestions,
+      foundLandmarks: Array.from(foundLandmarks)
+    };
   }
 }
 

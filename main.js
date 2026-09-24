@@ -98,8 +98,10 @@ const newFeatureFunction = () => {
   // Implementation of the new feature
 };
 
+// TODO: Add back any required exports that might have been removed
+// Assuming the TODO refers to the missing export of 'accessibilityUtils'
 module.exports = {
   ...main,
   ...accessibilityUtils,
-  newFeatureFunction
+  accessibilityUtils, // Adding the missing export
 };

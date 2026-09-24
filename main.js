@@ -287,7 +287,23 @@ function ensureInteractiveElementsAccessible() {
   a11yStore.fixImageAlts();
 }
 
-// ... rest of the code ...
+/**
+ * Calculate the discount amount for a given price and discount percentage.
+ * @param {number} price - The original price.
+ * @param {number} discountPercent - The discount percentage (0-100).
+ * @returns {number} The discount amount.
+ */
+function calculateDiscount(price, discountPercent) {
+  if (typeof price !== 'number' || typeof discountPercent !== 'number') {
+    throw new TypeError('Both price and discountPercent must be numbers.');
+  }
+  if (price < 0) {
+    throw new RangeError('Price must be non-negative.');
+  }
+  if (discountPercent < 0 || discountPercent > 100) {
+    throw new RangeError('discountPercent must be between 0 and 100.');
+  }
+  return (price * discountPercent) / 100;
+}
 
-// _Commit: 08aa9452ee7a7a34d5e50346ffee28ae555f1c37_
-// <!-- todo-hash: 22d219617ccb2188150a8a9092f8def56c72e7a8 -->
+// ... rest of the code ...

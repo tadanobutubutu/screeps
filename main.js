@@ -1,4 +1,25 @@
 // TODO: This is the existing code that needs to be preserved
+// (This comment remains as-is)
+//_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
+//<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
+//_Commit: f80b51b788bad4952d8f93f08d3c7d22a06ff80d3_
+//<!-- todo-hash: b498b47abee4b3f29c69a97a22a37d968a50cc419 -->
+//_Commit: 30b5f08a59d5ec914a59aa66e32dc3a3eb059e_
+//<!-- todo-hash: 669117b4c3d1a635653f730f0a059efacbb752>
+//<!-- todo-hash: 312aa8ea4c5e1c94e4e4b7c36c210eb9a72dea -->
+//_Commit: 54b7c4d06282fbf48e78de43e5e115814006658c_
+//<!-- todo-hash: d290c9a63ee693e91602d63f7ca6757def47f63e -->
+//<!-- todo-hash: 12c3149b34a2eac018e7433408f77e3d8a61fef6 -->
+// TODO: Identify and update specific functions that render dependency graphs or
+// index views.
+// TODO: Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and personName())
+// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
+// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), ... and validateLandmarkStructure())
+// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...)
+// - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks())
+// - REACT_036: Fix 1 fake link issue (handled by personName(), createInPageButton(), and ...)
+// - ADD: Address new accessibility issues from insight report
 import React from 'react';
 import { dependencyGraphContent } from './dependencyGraphContent';
 import { indexContent } from './indexContent';
@@ -56,9 +77,9 @@ function detectAndSetLang(content) {
       lang = 'ru'; // Russian/Cyrillic
     } else if ... {
       lang = 'ar'; // Arabic
-    } else if ... {
+    } else if (/[àâçéèêëîïôùûü]/i.test(content)) {
       lang = 'fr'; // French
-    } else if ... {
+    } else if (/[äöüß]/i.test(content)) {
       lang = 'de'; // German
     }
   }
@@ -126,7 +147,7 @@ export function validateTableStructure(tableElement) {
   const rows = ...
   
   rows.forEach((row, rowIndex) => {
-    const cells = ...
+    const cells = row.querySelectorAll('td, th');
     
     const cellCount = cells.length;
 
@@ -140,7 +161,7 @@ export function validateTableStructure(tableElement) {
     // Check that rows have consistent cell counts
     if (rowIndex > 0) {
       const prevRow = rows[rowIndex - 1];
-      const prevCells = ...
+      const prevCells = prevRow.querySelectorAll('td, th');
       
       if (cellCount !== prevCells.length) {
         errors.push(`Row ${rowIndex + 1} has inconsistent cell count (${cellCount} vs ...
@@ -168,7 +189,7 @@ function validateLandmark(element) {
     errors.push(`Element has invalid landmark role: ${role}`);
   }
   
-  if (!role && tagName) {
+  if (!role && !validLandmarks.includes(tagName)) {
     errors.push(`Element is not a valid landmark: ${tagName}`);
   }
   
@@ -192,18 +213,18 @@ function validateLandmarkStructure() {
   const errors = [];
   
   // Check for multiple main landmarks
-  const mainElements = ...
+  const mainElements = document.querySelectorAll('main, [role="main"]');
   if (mainElements.length > 1) {
     errors.push(`Multiple main landmarks found. Only one main landmark should exist.`);
   }
   
   // Check for proper nesting of landmarks
-  const landmarks = ... main, aside, footer, section, article, [role]');
+  const landmarks = document.querySelectorAll('header, nav, main, aside, footer, section, article, [role]');
   
   landmarks.forEach((landmark) => {
     const parent = landmark.parentElement;
     while (parent) {
-      const parentTag = ...
+      const parentTag = parent.tagName ? parent.tagName.toLowerCase() : '';
       
       // Check for invalid nesting
       if (parentTag === 'header' && parentTag === 'header') {
@@ -229,7 +250,7 @@ function ... {
   // Check for aria-labelledby referencing another element
   const labelledBy = ...
   if (labelledBy) {
-    const labelElement = ...
+    const labelElement = document.getElementById(labelledBy);
     if (labelElement) return labelElement.textContent;
   }
   
@@ -240,3 +261,17 @@ function ... {
   }
   
   // Check for desc element inside SVG
+  const desc = svgElement.querySelector('desc');
+  if (desc && desc.textContent.trim()) {
+    return desc.textContent.trim();
+  }
+  
+  return null;
+}
+
+function validateSvgAccessibility() {
+  if (typeof document === 'undefined') {
+    return { valid: true, errors: [] };
+  }
+  
+  const errors = [];

@@ -9,24 +9,4 @@
 // - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks() and validateLandmarkStructure())
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), createAccessibleLink() and handleAccessibilityIssues())
 
-/**
- * Validates the accessibility report for issues in the application
- * @returns {Object} An object containing accessibility validation results
- */
-function validateAccessibilityReport() {
-  const report = {
-    langAttribute: getLangAttribute() !== null,
-    tableStructure: validateTableStructure(),
-    landmarks: validateLandmarkStructure(),
-    svgAccessibility: getSvgAccessibleName() !== null,
-    uniqueLandmarks: ensureUniqueLandmarks(),
-    fakeLinks: handleAccessibilityIssues().fakeLinksFixed
-  };
-
-  return {
-    isAccessible: Object.values(report).every(Boolean),
-    details: report
-  };
-}
-
-// TODO: Validate the accessibility report for issues
+// No additional changes requested in the issue

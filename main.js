@@ -2,41 +2,32 @@
 // RESOLVED MAIN.JS - Merging functionality from both branches
 // =====================================================================
 
-// Importing utilities for formatting and validation
-const React = require('react');
-const ReactDOM = require('react-dom/client');
-require('./index.css');
-const App = require('./App').default;
-const reportWebVitals = require('./reportWebVitals').default;
+// Function to render graph/index
+function renderGraphIndex() {
+    // Validate landmark structure for accessibility
+    if (!validateLandmarkStructure()) {
+        console.warn('Accessibility issues detected in graph/index');
+    }
+    
+    // Create in-page buttons using the new function
+    const prevButton = createInPageButton('prev-btn', 'Previous', 'nav-button');
+    const nextButton = createInPageButton('next-btn', 'Next', 'nav-button');
+    
+    // Existing rendering logic
+    const graphContainer = document.getElementById('graph-container');
+    if (graphContainer) {
+        graphContainer.appendChild(prevButton);
+        graphContainer.appendChild(nextButton);
+    }
+}
 
-// Import accessibility helpers from AccessibilityHelpers module
-const main = require('./utilities')
-const accessibilityHelpers = require('./AccessibilityHelpers')
-
-// Access the dependencyGraph container and ensure it has proper ARIA role
-const dependencyGraph = document.getElementById('dependencyGraph')
-
-if (dependencyGraph) {
-  // Set appropriate ARIA role for the dependency graph container
-  if (!dependencyGraph.getAttribute('role')) {
-    dependencyGraph.setAttribute('role', 'region');
-  }
-
-  // Add accessible label if not already present
-  if (!dependencyGraph.getAttribute('aria-label')) {
-    dependencyGraph.setAttribute('aria-label', 'Dependency graph visualization');
-  }
-
-  // Ensure element has an ID if not present
-  if (!dependencyGraph.getAttribute('id')) {
-    dependencyGraph.setAttribute('id', 'dependencyGraph');
-  }
-
-  // Update Dependency Graph ARIA
-  updateDependencyGraphAria(dependencyGraph)
-
-  // Trap focus within the dependency graph
-  accessibilityHelpers.setupFocusTrap('#dependencyGraph')
+// TODO: Implement this function for creating in-page buttons
+function createInPageButton(buttonId, buttonText, buttonClass) {
+    const button = document.createElement('button');
+    button.id = buttonId;
+    button.textContent = buttonText;
+    button.className = buttonClass;
+    return button;
 }
 
 // New functions added from both branches (merged)

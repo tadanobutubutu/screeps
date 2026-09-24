@@ -53,7 +53,7 @@ const accessibilityUtils = {
   transformInputData
 };
 
-const customEnsureElementId = (element) => {
+const ensureElementIdCustom = (element) => {
   if (element && !element.id) {
     element.id = "element-" + Date.now() + "-" + ... 11);
   }
@@ -78,7 +78,7 @@ const renderDependencyGraph = (data) => {
 // Add back any required exports that might have been removed.
 function calculateSum(a, b) { return a + b; }
 
-const customInitSkipLink = () => {
+accessibilityUtils.initSkipLink = () => {
   const skipLink = ...
   if (!skipLink) {
     const skipContainer = ...
@@ -100,7 +100,7 @@ const customInitSkipLink = () => {
   }
 };
 
-const customTrapFocus = (element) => {
+accessibilityUtils.trapFocus = (element) => {
   if (!element) {
     return () => {};
   }
@@ -284,7 +284,7 @@ const announcementDelayHandler = () => {
   }, 1000);
 };
 
-const customHandleKeyboardNav = (e, handlers) => {
+function handleKeyboardNav(e, handlers) {
   handleKeyboardNav(e, handlers);
   ... handlers);
 }
@@ -304,7 +304,7 @@ module.exports = {
   ...accessibilityUtils,
   ensureElementId,
   ensureElementIdOrigin,
-  customEnsureElementId,
+  ensureElementIdCustom,
   addAriaLabel,
   renderDependencyGraph,
   renderDependencyGraphs,
@@ -362,7 +362,4 @@ module.exports = {
   ...
   initiateAnnounceToScreenReader,
   handleTabNavigation: ...
-  customInitSkipLink,
-  customTrapFocus,
-  customHandleKeyboardNav
 };

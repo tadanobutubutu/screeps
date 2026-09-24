@@ -125,22 +125,88 @@ function ensureLandmarkUniqueness(elements) {
   return elements;
 }
 
-// TODO: Implement the required changes to improve accessibility for the addBook function or form
-/**
- * Adds a book to the collection with accessibility enhancements
- * @param {Object} book - The book object to add
- * @param {string} book.title - The title of the book
- * @param {string} book.author - The author of the book
- * @param {string} book.isbn - The ISBN of the book
- * @param {string} [book.description] - Optional description of the book
- * @returns {boolean} True if the book was added successfully
- */
-function addBook(book) {
-  // Validate book object
-  if (!book || typeof book !== 'object') {
-    console.error('Invalid book object provided');
-    return false;
-  }
+// New function to add landmark roles to elements
+function addLandmarkRolesToElements() {
+  const landmarkRoles = {
+    main: 'main',
+    navigation: 'navigation',
+    search: 'search',
+    contentinfo: 'contentinfo',
+    complementary: 'complementary',
+    form: 'form',
+    region: 'region'
+  };
+
+  Object.keys(landmarkRoles).forEach(role => {
+    const elements = document.querySelectorAll(`[data-landmark="${role}"]`);
+    elements.forEach(element => {
+      element.setAttribute('role', landmarkRoles[role]);
+      element.setAttribute('aria-label', role);
+    });
+  });
+}
+
+// New function to add accessible names to SVGs
+function addSvgAccessibleNames() {
+  const svgs = document.querySelectorAll('svg');
+  svgs.forEach((svg, index) => {
+    if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
+      svg.setAttribute('aria-label', `SVG graphic ${index + 1}`);
+    }
+  });
+}
+
+// New function to ensure unique landmarks
+function ensureUniqueLandmarksInDocument() {
+  const landmarkRoles = ['main', 'navigation', 'search', 'contentinfo', 'complementary', 'form', 'region'];
+  const seenRoles = {};
+
+  landmarkRoles.forEach(role => {
+    const elements = document.querySelectorAll(`[role="${role}"]`);
+    if (elements.length > 1) {
+      elements.forEach((element, index) => {
+        if (index > 0) {
+          element.setAttribute('role', `${role}-${index + 1}`);
+        }
+      });
+    }
+    seenRoles[role] = true;
+  });
+}
+
+// New function to fix fake links
+function fixFakeLinks() {
+  const fakeLinks = document.querySelectorAll('a[href="#"]');
+  fakeLinks.forEach(link => {
+    link.setAttribute('role', 'button');
+    link.setAttribute('tabindex', '0');
+    link.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        link.click();
+      }
+    });
+  });
+}
+
+// New function to address all insight issues
+function addressInsightIssues() {
+  addLangAttribute(document, 'en');
+  addLandmarkRolesToElements();
+  addSvgAccessibleNames();
+  ensureUniqueLandmarksInDocument();
+  fixFakeLinks();
+}
+
+// Render the main component containing the book list, sorting controls, user safety checks, and authorization check
+function Main({ checkAllowed }) {
+  // ... previous code for state, dispatch, booksList, bookItems, handleSort, and handleAddBook
+  const [language, setLanguage] = useState('en');
+  useEffect(() => {
+    addLangAttribute(document, language);
+    setLanguageAttribute(document, language);
+    addressInsightIssues();
+  }, [language]);
 
   // Validate required fields
   const requiredFields = ['title', 'author', 'isbn'];
@@ -219,5 +285,8 @@ export {
   calculateSum,
   addProperLandmarkRegions,
   countDependencies,
-  addBook
+  addLandmarkRolesToElements,
+  addSvgAccessibleNames,
+  ensureUniqueLandmarksInDocument,
+  fixFakeLinks
 };

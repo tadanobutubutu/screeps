@@ -1,4 +1,5 @@
-// main.js - Combined utility and accessibility features with exported functions (functionA, functionB, createInPageButton)
+// TODO: This is the existing code that needs to be preserved
+// main.js - Combined utility and accessibility features
 
 const fs = require('fs');
 const path = require('path');

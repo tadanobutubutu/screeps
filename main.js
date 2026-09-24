@@ -1,201 +1,458 @@
-Here is the resolved conflict version of the 'main.js' file:
+// TODO: Address accessibility issues from insight report:
+// Ensure the dependencyGraph container has a proper ARIA role
+// Ensure all landmark elements have unique ids. If a landmark doesn't have an id, generates one.
+// (Preserve existing function for control)
 
-```javascript
-//... your imports and other exports
-
-// TODO: Add back any required exports that might have been removed
-// Present example assumes that the removed export was a function called removeDuplicates
-function removeDuplicates(array) {
-  // your removeDuplicates function implementation here
+/**
+ * Ensures an element has a unique id, generating one if it doesn't exist
+ * @param {HTMLElement} element - The DOM element to check
+ * @param {string} prefix - The prefix for the generated ID
+ * @returns {string} The element's ID (existing or generated)
+ */
+function ensureUniqueId(element, prefix = 'landmark') {
+    if (!element.id) {
+        element.id = `${prefix}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    }
+    return element.id;
 }
 
-// Existing code from both branches combined
-const fs = require('fs');
-const path = require('path');
-
-// Function to check if a link is accessible
-export function isLinkAccessible(link) {
-  if (!link) {
-    return false;
-  }
-
-  const tagName = link.tagName ? link.tagName.toUpperCase() : '';
-  const role = link.getAttribute ? link.getAttribute('role') : null;
-  const href = link.getAttribute('href');
-  const text = link.textContent || '';
-  const ariaLabel = link.getAttribute('aria-label');
-
-  // Must be an anchor or have a link role
-  if (tagName !== 'A' && role !== 'link') {
-    return false;
-  }
-
-  // Must have a valid href (not missing, empty, or just a hash)
-  if (!href || typeof href !== 'string' || href.trim() === '' || href.trim() === '#') {
-    return false;
-  }
-
-  // Must not be a button disguised as a link
-  if (role === 'button') {
-    return false;
-  }
-
-  // Must have an accessible name
-  const hasText = text.trim().length > 0;
-  const hasAriaLabel = ariaLabel && ariaLabel.trim().length > 0;
-  const hasAriaLabelledby = link.getAttribute('aria-labelledby');
-
-  if (!hasText && !hasAriaLabel && !hasAriaLabelledby) {
-    return false;
-  }
-
-  return true;
-}
-
-function getLangAttribute(element) {
-  // Handle getting language attribute for specific HTML elements
-  if (element && typeof element.getAttribute === 'function') {
-    return element.getAttribute('lang') || getLangAttributeMain();
-  }
-  return getLangAttributeMain();
-}
-
-function validateLinkAccessibility(link) {
-  // Handle validating link accessibility
-  return isLinkAccessible(link);
-}
-
-function handleFakeLinks(links) {
-  // Handle fake links
-  if (!links) return;
-  const list = Array.isArray(links) ? links : (typeof links === 'string' ? (typeof document !== 'undefined' ? document.querySelectorAll(links) : []) : [links]);
-  if (list && typeof list.forEach === 'function') {
-    list.forEach(link => {
-      if (link && link.getAttribute) {
-        if (link.getAttribute('role') === 'button' && link.tagName === 'A') {
-          link.removeAttribute('role');
+/**
+ * Applies accessibility improvements to the dependencyGraph container
+ * Ensures proper ARIA role and unique IDs for landmark elements
+ * @param {HTMLElement} container - The dependency graph container element
+ */
+function applyAccessibilityToGraph(container) {
+    // Ensure the container has a proper ARIA role for accessibility
+    if (!container.getAttribute('role')) {
+        container.setAttribute('role', 'application');
+        container.setAttribute('aria-label', 'Dependency graph visualization');
+    }
+    
+    // Ensure all landmark elements have unique IDs
+    const landmarkSelectors = 'header, nav, main, aside, footer, section, article';
+    const landmarks = container.querySelectorAll(landmarkSelectors);
+    landmarks.forEach((landmark, index) => {
+        ensureUniqueId(landmark, `landmark-${index}`);
+    });
+    
+    // Also ensure interactive elements have proper labeling
+    const buttons = container.querySelectorAll('button');
+    buttons.forEach((button, index) => {
+        if (!button.getAttribute('aria-label') && !button.textContent.trim()) {
+            button.setAttribute('aria-label', `Button ${index + 1}`);
         }
-      }
     });
-  }
 }
 
-/**
- * Ensures an element has an id attribute, generating one if necessary
- * @param {HTMLElement} element - The element to check
- * @param {string} [prefix] - Optional prefix for the generated id
- * @returns {string} The element's id (existing or newly generated)
- */
-export function ensureElementHasId(element, prefix = 'element') {
-    if (!element) {
-        throw new Error('Element is required');
+// Example usage - initialize the dependencyGraph container with accessibility
+function initializeDependencyGraph(containerId) {
+    const container = document.getElementById(containerId);
+    if (container) {
+        applyAccessibilityToGraph(container);
     }
-
-    if (element.id) {
-        return element.id;
-    }
-
-    const generatedId = `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
-    element.id = generatedId;
-    return generatedId;
 }
 
-/**
- * Adds an aria-label to an element if one doesn't exist
- * @param {HTMLElement} element - The element to modify
- * @param {string} label - The aria-label text
- * @returns {HTMLElement} The modified element
- */
-export function addAriaLabel(element, label) {
-    if (!element) {
-        throw new Error('Element is required');
-    }
+// TODO: Address accessibility issues from insight report — FIXED
+// TODO: Add back any required exports that might have been removed.
 
-    if (!element.getAttribute('aria-label')) {
-        element.setAttribute('aria-label', label);
-    }
+// main.js - Main application entry point
+// This file initializes the application and exports core modules
 
-    return element;
-}
+// TODO: This is the existing code that needs to be preserved
+// (This comment remains as-is)
 
-/**
- * Renders a dependency graph visualization
- * @param {HTMLElement} container - The container element for the graph
- * @param {Object} dependencies - The dependency data to render
- * @returns {HTMLElement} The rendered graph element
- */
-export function renderDependencyGraph(container, dependencies = {}) {
-    if (!container) {
-        throw new Error('Container element is required');
-    }
+// TODO: Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element
+// - REACT_017: Add landmark roles and fix landmark issues
+// - REACT_041: Add accessible names to 2 SVGs
+// - REACT_025: Ensure unique landmarks (2 issues)
+// - REACT_036: Fix 1 fake link issue
+// - REACT_027: Add scope="col" or scope="row" to <th> elements (already implemented)
 
-    const graphElement = document.createElement('div');
-    graphElement.className = 'dependency-graph';
-    graphElement.setAttribute('role', 'img');
-    graphElement.setAttribute('aria-label', 'Dependency graph visualization');
+const { getDepGraph } = require('./depGraph');
+const {
+  getLangAttribute,
+  getFullLangAttribute,
+  validateTableAccessibility,
+  validateTableStructure,
+  createInPageButton,
+  createAccessibleLink,
+} = require('./accessibility-helpers');
 
-    const nodes = dependencies.nodes || [];
-    const edges = dependencies.edges || [];
-
-    // Create SVG for graph rendering
-    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    svg.setAttribute('width', '100%');
-    svg.setAttribute('height', '100%');
-    svg.setAttribute('aria-hidden', 'true');
-
-    // Render edges
-    edges.forEach((edge, index) => {
-        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-        line.setAttribute('x1', edge.source?.x || 0);
-        line.setAttribute('y1', edge.source?.y || 0);
-        line.setAttribute('x2', edge.target?.x || 0);
-        line.setAttribute('y2', edge.target?.y || 0);
-        line.setAttribute('stroke', '#666');
-        line.setAttribute('stroke-width', '2');
-        line.setAttribute('id', `edge-${index}`);
-        svg.appendChild(line);
-    });
-
-    // Render nodes
-    nodes.forEach((node, index) => {
-        const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-        circle.setAttribute('cx', node.x || 0);
-        circle.setAttribute('cy', node.y || 0);
-        circle.setAttribute('r', node.size || 20);
-        circle.setAttribute('fill', node.color || '#4A90E2');
-        circle.setAttribute('id', `node-${index}`);
-
-        const nodeId = ensureElementHasId(circle, 'graph-node');
-        if (node.label) {
-            addAriaLabel(circle, node.label);
-        }
-
-        svg.appendChild(circle);
-    });
-
-    graphElement.appendChild(svg);
-    container.appendChild(graphElement);
-    return graphElement;
-}
+const { class1, address, Object1 } = require('./components');
 
 // Original content from main.js
 function existingFunction() {
-    // existing code
+  // existing code
 }
 
+// New function implementation as per the issue requirements
 function personName() {
-    // Implementation details go here
-    // For example:
-    return 'Person';
+  // Implementation details go here
+  // For example:
+  // return 'New function result';
 }
-
-// Existing export from both branches combined
-export { existingFunction, personName, removeDuplicates as _removeDuplicates };
 
 // TODO: Address accessibility issues from insight report — FIXED
-// TODO: Implement this function for creating in-page buttons
-export function createInPageButton(buttonId, buttonText, buttonClass) {
-    // Create a new button element
+// TODO: Add back any required exports that might have been removed.
+
+// Accessibility utilities
+
+/**
+ * Sets the lang attribute on an element with validation
+ * REACT_015: Address lang attribute accessibility requirement
+ * @param {Element} element - The target element
+ * @param {string} lang - The language code (e.g., 'en', 'en-US')
+ * @returns {boolean} - Returns true if successful, false otherwise
+ */
+const setLangAttribute = (element, lang) => {
+  if (!element || typeof lang !== 'string') {
+    return false;
+  }
+  
+  // Validate lang attribute format (BCP 47 compliance)
+  const validLangPattern = /^[a-z]{2,3}(-[A-Z]{2})?$/;
+  if (!validLangPattern.test(lang)) {
+    return false;
+  }
+  
+  element.setAttribute('lang', lang);
+  return true;
+};
+
+/**
+ * Checks and returns accessibility attributes for an element
+ * REACT_025: Add other accessibility changes as per the insight report
+ * @param {Element} element - The target element
+ * @returns {Object} - Object containing accessibility attribute values
+ */
+const checkAccessibilityAttributes = (element) => {
+  const attributes = {};
+  
+  if (!element) {
+    return attributes;
+  }
+  
+  attributes.lang = element.getAttribute('lang');
+  attributes.role = element.getAttribute('role');
+  attributes.ariaLabel = element.getAttribute('aria-label');
+  attributes.ariaDescribedby = element.getAttribute('aria-describedby');
+  attributes.ariaHidden = element.getAttribute('aria-hidden');
+  attributes.tabIndex = element.getAttribute('tabindex');
+  
+  return attributes;
+};
+
+/**
+ * Ensures element has proper accessibility attributes
+ * @param {Element} element - The target element
+ * @param {Object} options - Accessibility options
+ * @returns {boolean} - Returns true if all attributes were set successfully
+ */
+const ensureAccessibility = (element, options = {}) => {
+  if (!element) {
+    return false;
+  }
+  
+  let success = true;
+  
+  if (options.lang) {
+    success = setLangAttribute(element, options.lang) && success;
+  }
+  
+  if (options.role) {
+    element.setAttribute('role', options.role);
+  }
+  
+  if (options.ariaLabel) {
+    element.setAttribute('aria-label', options.ariaLabel);
+  }
+  
+  return success;
+};
+
+/**
+ * Ensures that the dependency graph has appropriate ARIA attributes.
+ * This function should be called after the graph is rendered.
+ */
+function ensureDependencyGraphARIA() {
+  const graph = document.querySelector('[data-dependency-graph]') || document.querySelector('.dependency-graph');
+  if (graph) {
+    if (!graph.hasAttribute('aria-label')) {
+      graph.setAttribute('aria-label', 'Dependency graph');
+    }
+    if (!graph.hasAttribute('aria-describedby')) {
+      const description = document.getElementById('graph-description');
+      if (description) {
+        graph.setAttribute('aria-describedby', 'graph-description');
+      }
+    }
+  }
+}
+
+/**
+ * Returns the language attribute of the HTML element.
+ * If not set, defaults to 'en'.
+ * @returns {string} The language code.
+ */
+function getLangAttributeMain() {
+  const html = document.documentElement;
+  return html.lang || 'en';
+}
+
+const version = "1.0.0";
+
+// Render dependency graph - main function
+function renderDependencyGraph(container) {
+    const graph = getDepGraph();
+    if (!graph) {
+        return null;
+    }
+    
+    const nodes = graph.nodes || [];
+    const edges = graph.edges || [];
+    
+    return {
+        nodes: nodes,
+        edges: edges,
+        render: function(target) {
+            if (target && typeof target.render === 'function') {
+                target.render(this.nodes, this.edges);
+            }
+        }
+    };
+}
+
+// Update dependency graph rendering based on config
+function updateDependencyGraphRender(targetConfig) {
+    const graph = renderDependencyGraph();
+    if (!graph) {
+        return false;
+    }
+    
+    if (targetConfig && targetConfig.renderMode) {
+        graph.renderMode = targetConfig.renderMode;
+    }
+    
+    return true;
+}
+
+// Get all dependency graph nodes
+function getAllDependencyNodes() {
+    const graph = getDepGraph();
+    return graph ? graph.nodes : [];
+}
+
+// Get all dependency graph edges
+function getAllDependencyEdges() {
+    const graph = getDepGraph();
+    return graph ? graph.edges : [];
+}
+
+// This is a simple greeting module
+function greet(name) {
+  return `Hello, ${name}!`;
+}
+// TODO: Any additional changes requested in the issue should be added after this function
+
+// New function implementation as per the issue requirements
+function newFeature() {
+  // Implementation details go here
+  // For example:
+  // return 'New function result';
+}
+
+// Existing exports must be preserved
+function existingFunction() {
+  // Implementation details go here
+}
+
+function anotherExistingFunction() {
+  // Implementation details go here
+}
+
+// Exported functions
+function calculateSum(a, b) {
+  return a + b;
+}
+
+function calculateProduct(a, b) {
+  return a * b;
+}
+
+/**
+ * Renders a graph visualization for accessibility issues
+ * @param {Array} issues - Array of accessibility issues to render
+ * @param {Element} container - The container element to render the graph into
+ */
+function renderAccessibilityGraph(issues, container) {
+  if (!container || !issues || issues.length === 0) {
+    return;
+  }
+
+  const graphContainer = document.createElement('div');
+  graphContainer.className = 'accessibility-graph';
+  // Ensure the dependencyGraph container has a proper ARIA role
+  graphContainer.setAttribute('role', 'region');
+  graphContainer.setAttribute('aria-label', 'Accessibility issues graph');
+  graphContainer.innerHTML = `
+    <h3>Accessibility Issues Graph</h3>
+    <div class="graph-content">
+      ${issues.map((issue, index) => `
+        <div class="graph-node" data-index="${index}">
+          <span class="node-type">${issue.type}</span>
+          <span class="node-message">${issue.message}</span>
+        </div>
+      `).join('')}
+    </div>
+  `;
+  
+  container.appendChild(graphContainer);
+}
+
+/**
+ * Renders an index of accessibility issues
+ * @param {Array} issues - Array of accessibility issues to render
+ * @param {Element} container - The container element to render the index into
+ */
+function renderAccessibilityIndex(issues, container) {
+  if (!container || !issues || issues.length === 0) {
+    return;
+  }
+
+  const indexContainer = document.createElement('div');
+  indexContainer.className = 'accessibility-index';
+  
+  const groupedIssues = {};
+  issues.forEach((issue, index) => {
+    if (!groupedIssues[issue.type]) {
+      groupedIssues[issue.type] = [];
+    }
+    groupedIssues[issue.type].push({ ...issue, originalIndex: index });
+  });
+
+  let indexHTML = '<h3>Accessibility Issues Index</h3><ul class="index-list">';
+  
+  Object.keys(groupedIssues).forEach(type => {
+    indexHTML += `<li class="index-type"><strong>${type}s</strong> (${groupedIssues[type].length})`;
+    indexHTML += '<ul class="index-sublist">';
+    groupedIssues[type].forEach(item => {
+      indexHTML += `<li data-original-index="${item.originalIndex}">${item.message}</li>`;
+    });
+    indexHTML += '</ul></li>';
+  });
+  
+  indexHTML += '</ul>';
+  indexContainer.innerHTML = indexHTML;
+  
+  container.appendChild(indexContainer);
+}
+
+/**
+ * Renders both graph and index for accessibility issues
+ * @param {Element} container - The container element to check for accessibility issues
+ * @param {Element} outputContainer - The container element to render results into
+ */
+function renderAccessibilityResults(container, outputContainer) {
+  const issues = checkAccessibility(container);
+  
+  if (outputContainer) {
+    renderAccessibilityGraph(issues, outputContainer);
+    renderAccessibilityIndex(issues, outputContainer);
+  }
+  
+  return issues;
+}
+
+/**
+ * Renders the index view of the application
+ */
+function renderIndexView() {
+  // Placeholder for the index view rendering logic
+  // This could involve creating elements, setting text content, and appending them to the DOM
+  // For the purpose of this example, we'll just log a message
+  console.log('Index view rendered');
+}
+
+/**
+ * Gets recommendation for specific accessibility issue type
+ * @param {string} issueType - Type of accessibility issue
+ * @returns {string} - Recommendation for fixing the issue
+ */
+function getRecommendation(issueType) {
+  const recommendations = {
+    'missing-alt-text': 'Add descriptive alt text to images for screen readers',
+    'missing-aria-label': 'Add ARIA labels to interactive elements',
+    'low-contrast': 'Increase color contrast ratio to at least 4.5:1',
+    'missing-heading': 'Add proper heading hierarchy for screen reader navigation',
+    'missing-form-label': 'Add label elements to form inputs',
+    'missing-link-text': 'Use descriptive link text instead of "click here"',
+    'missing-lang-attribute': 'Add lang attribute to HTML element',
+    'missing-title': 'Add a descriptive title element'
+  };
+  return recommendations[issueType] || 'Review and fix accessibility issue manually';
+}
+
+/**
+ * New function to fix the React SVG Accessible Name issue
+ * @param {string} svgString - The SVG string to fix
+ * @returns {string} - SVG string with accessible name added
+ */
+function fixSVGAccessibleName(svgString) {
+  // Check if the SVG string already contains an accessible name
+  if (svgString.includes('aria-label') || svgString.includes('aria-labelledby') || svgString.includes('title')) {
+    return svgString;
+  }
+
+  // Create a temporary SVG element to parse the SVG string
+  const tempSVG = document.implementation.createHTMLDocument();
+  tempSVG.body.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg">${svgString}</svg>`;
+  const svgRoot = tempSVG.querySelector('svg');
+
+  // Check if the SVG is decorative and does not need an accessible name
+  const parentElement = svgRoot.parentElement;
+  const isDecorative = parentElement && (
+    parentElement.tagName === 'button' || 
+    parentElement.tagName === 'input' || 
+    parentElement.tagName === 'textarea' || 
+    parentElement.tagName === 'select' ||
+    (parentElement.tagName === 'audio' && parentElement.hasAttribute('controls')) ||
+    (parentElement.tagName === 'video' && parentElement.hasAttribute('controls'))
+  );
+  
+  if (isDecorative) {
+    return svgString.replace('<svg', '<svg aria-hidden="true"');
+  }
+
+  // Add an aria-label to the SVG if it's not decorative
+  const svgWithAriaLabel = svgString.replace('<svg', '<svg aria-label="SVG description"');
+  return svgWithAriaLabel;
+}
+
+/**
+ * Generates a summary of addressed accessibility issues
+ * @param {Array} addressedIssues - Array of addressed issues
+ * @returns {string} - Summary text
+ */
+function generateSummary(addressedIssues) {
+  const total = addressedIssues.length;
+  const critical = addressedIssues.filter(i => i.severity === 'critical').length;
+  const moderate = addressedIssues.filter(i => i.severity === 'moderate').length;
+  const low = addressedIssues.filter(i => i.severity === 'low').length;
+
+  return `Addressed ${total} accessibility issues: ${critical} critical, ${moderate} moderate, ${low} low priority.`;
+}
+
+const a11yStore = {
+  init() {
+    this.initLangAttribute();
+    this.setupSkipLinks();
+    this.ensureUniqueLandmarks();
+    this.fixFakeLinks();
+    this.initAccessibility();
+  },
+
+  createAccessibleButton(id, label, onClick) {
     const button = document.createElement('button');
 
     // Set the button's ID, text content, and class
@@ -222,12 +479,24 @@ function countDependencies() {
 const a11yStore = {
   // Existing code from both branches combined
   countDependencies,
-
-    fixFakeLinks() {
-        handleFakeLinks(typeof document !== 'undefined' && document.querySelectorAll ? document.querySelectorAll('a') : []);
-    },
-
-  //... rest of the a11yStore object remains the same
+  getFullLangAttribute,
+  validateTableStructure,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  createAccessibleLink,
+  accessibilityCheckTables,
+  checkLandmarkElements,
+  addLangAttribute,
+  run,
+  main,
+  SomeClass,
+  setLangAttribute,
+  checkAccessibilityAttributes,
+  ensureAccessibility,
+  personName,
+  ensureUniqueId,
+  applyAccessibilityToGraph,
+  initializeDependencyGraph,
 };
 
 //... rest of the file remains the same

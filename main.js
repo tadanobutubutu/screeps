@@ -44,15 +44,86 @@ let storedCredentials = null;
  */
 function createServer() {
   const server = http.createServer((req, res) => {
-    // TODO: Address accessibility issues from insight report
-    // For example, we can add appropriate headers for CORS
+    // Request logging
+    const startTime = Date.now();
+    console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+    
+    // CORS headers for cross-origin requests
     res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-
-    res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ status: 'ok', config }));
+    
+    // Handle preflight requests
+    if (req.method === 'OPTIONS') {
+      res.writeHead(204);
+      res.end();
+      return;
+    }
+    
+    // Parse URL and extract pathname
+    const url = new URL(req.url, `http://${req.headers.host}`);
+    const pathname = url.pathname;
+    
+    // Route handling
+    try {
+      // Health check endpoint
+      if (pathname === '/health' || pathname === '/') {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ 
+          status: 'ok', 
+          config,
+          timestamp: new Date().toISOString()
+        }));
+      }
+      // Status endpoint
+      else if (pathname === '/status') {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ 
+          status: 'healthy',
+          uptime: process.uptime(),
+          memory: process.memoryUsage(),
+          config 
+        }));
+      }
+      // 404 for unknown routes
+      else {
+        res.writeHead(404, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ 
+          error: 'Not Found',
+          path: pathname,
+          method: req.method
+        }));
+      }
+      
+      // Log request completion
+      const duration = Date.now() - startTime;
+      console.log(`[${new Date().toISOString()}] Completed in ${duration}ms`);
+      
+    } catch (error) {
+      // Error handling
+      console.error(`[ERROR] Request failed:`, error.message);
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ 
+        error: 'Internal Server Error',
+        message: error.message 
+      }));
+    }
   });
+  
+  // Server error handling
+  server.on('error', (error) => {
+    if (error.code === 'EADDRINUSE') {
+      console.error(`Port ${config.port} is already in use`);
+    } else {
+      console.error('Server error:', error);
+    }
+  });
+  
+  // Server timeout configuration
+  server.timeout = 30000;
+  server.keepAliveTimeout = 5000;
+  server.headersTimeout = 6000;
+  
   return server;
 }
 
@@ -98,17 +169,13 @@ function createInPageButton(options) {
  * Starts the application
  */
 function startApp() {
-  // ... (existing code)
-}
-
-/**
- * Function to render dependency graphs
- * @returns {String} HTML content of the dependency graph
- */
-function renderDependencyGraph() {
-  // Implementation to render dependency graph
-  // Placeholder implementation:
-  return '<div>Dependency Graph HTML Content</div>';
+  const server = createServer();
+  server.listen(config.port, () => {
+    console.log(`Server running on port ${config.port}`);
+    console.log(`Environment: ${config.env}`);
+    console.log(`PID: ${process.pid}`);
+  });
+  return server;
 }
 
 // Export functions for testing

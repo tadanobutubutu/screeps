@@ -735,9 +735,9 @@ function generateAndDisplayReport() {
     return report;
 }
 
-// Export the report generation functions
+// Export the accessibility report functions
 export {
-  generateAccessibilityReport,
-  renderAccessibilityReportHtml,
-  generateAndDisplayReport
+    generateAccessibilityReport,
+    renderAccessibilityReportHtml,
+    generateAndDisplayReport
 };

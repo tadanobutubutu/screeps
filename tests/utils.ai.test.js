@@ -106,18 +106,58 @@ describe('utils.ai', () => {
         expect(typeof suggestions.harvester).toBe('number');
     });
 
-    test('shouldBuildStructure should return false in defense phase', () => {
+    test('initMemory should return early if already initialized this tick', () => {
+        global.Game = { time: 12345 };
+        global.Memory.aiState = { phase: 'expansion', priority: 'energy' };
+
+        AIHelper.initMemory();
+
+        const originalAiState = global.Memory.aiState;
+
+        // Next call should return early
+        AIHelper.initMemory();
+        expect(global.Memory.aiState).toBe(originalAiState);
+
+        delete global.Game;
+    });
+
+    test('getAIDecision should return endgame when RCL >= 8', () => {
         const room = {
             find: jest.fn().mockReturnValue([]),
+            controller: { level: 8 },
+            energyAvailable: 2000,
+            energyCapacityAvailable: 2000,
+        };
+
+        const decision = AIHelper.getAIDecision(room);
+        expect(decision.phase).toBe('endgame');
+    });
+
+    test('shouldBuildStructure should return false in defense phase', () => {
+        const room = {
+            find: jest.fn().mockImplementation((type) => {
+                if (type === FIND_HOSTILE_CREEPS) return [{ id: 'creep1' }];
+                return [];
+            }),
             controller: { level: 5 },
             energyAvailable: 1000,
             energyCapacityAvailable: 2000,
         };
 
         const result = AIHelper.shouldBuildStructure(room);
-        // When no hostiles, no early_game, it will check structure count
-        // With empty structures and RCL 5, max is 30, so returns true
-        expect(typeof result).toBe('boolean');
+        expect(result).toBe(false);
+    });
+
+    test('shouldBuildStructure should return false in early_game phase', () => {
+        const room = {
+            find: jest.fn().mockReturnValue([]),
+            controller: { level: 2 },
+            energyAvailable: 100,
+            energyCapacityAvailable: 300,
+        };
+
+        const result = AIHelper.shouldBuildStructure(room);
+        expect(result).toBe(false);
     });
 
     test('shouldBuildStructure should return true when structure count is below limit', () => {

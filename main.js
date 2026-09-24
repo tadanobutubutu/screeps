@@ -10,13 +10,21 @@ const {
   getSvgAccessibleName,
   getLangAttribute,
   validateAccessibilityReport,
-  announceToScreenReader,
+  announceToScreenReader: originalAnnounceToScreenReader,
   handleKeyboardNav,
-  newFocusTrap: originNewFocusTrap,
+  originNewFocusTrap,
   exportUtils,
+  transformInputData,
+  initSkipLink,
+  trapFocus,
+  newFocusTrap,
+  ensureElementId,
+  addLangAttribute,
+  fixTableStructureIssues,
+  addMainLandmark,
+  addAriaLabel,
   addressAccessibilityIssues,
   handleCredentialResponse,
-  ensureElementId: ensureElementIdOrigin,
   ensureElementHasIdOrigin,
   renderDependencyGraphs,
   fixButtonIdentifiers,
@@ -26,16 +34,10 @@ const {
   renderAdditionalContent,
   transformInputData,
   addSvgAccessibleName,
-  initSkipLink,
-  trapFocus,
-  announceToScreenReader: originalAnnounceToScreenReader,
-  newFocusTrap,
-  ensureElementId,
-  addLangAttribute,
-  fixTableStructureIssues,
-  addMainLandmark,
-  addAriaLabel
+  announceToScreenReader,
 } = main;
+
+// TODO: This is the existing code that needs to be preserved
 
 // Accessibility utilities and functions
 const accessibilityUtils = {

@@ -96,8 +96,9 @@ function implementAccessibilityFixesFromReport(container, report) {
   addMainLandmarkToIndex(container)
 
   // Fix landmark issues
-  validateLandmark(container)
-  ...
+  if (typeof validateLandmark === 'function') {
+    validateLandmark(container)
+  }
 
   // Fix SVG accessible names
   const svgElements = ...

@@ -7,17 +7,10 @@
 // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
 
-// Process accessibility insights report on initialization
-addressAccessibilityInsights({
-  source: 'insight-report',
-  issues: ['aria-roles', 'landmark-structure', 'table-structure', 'svg-accessible-names', 'lang-attribute']
-});
-
-// New function to render dependency graphs
-function renderDependencyGraph(dependencyData) {
-    // Hypothetical logic to render a dependency graph
-    console.log('Rendering dependency graph for:', dependencyData);
-    // Actual implementation would go here, such as drawing a graph to the DOM or saving to a file
+// New function that needs to be exported
+function newFunction() {
+  // Implementation of the new function
+  // Example: console.log('New function executed');
 }
 
 // Current main.js content:

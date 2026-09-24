@@ -119,6 +119,15 @@ class ScreepsBot {
     if (html) {
       // Extract table structure from the provided HTML and check its accessibility according to the criteria
       // ... (Add the logic to validate table accessibility)
+      // Example of a simple accessibility check:
+      const table = document.createElement('div');
+      table.innerHTML = html;
+      const isAccessible = table.querySelectorAll('table').every(t => {
+        return t.hasAttribute('role') && t.hasAttribute('tabindex');
+      });
+      if (!isAccessible) {
+        throw new Error('Table is not accessible. Missing roles or tabindex attributes.');
+      }
     }
   }
 
@@ -139,5 +148,4 @@ module.exports = {
   // ... (The existing exports remain the same)
   createInPageButtons,
   renderDependencyGraph,
-  ScreetsBot
 };

@@ -74,32 +74,54 @@ const accessibilityUtils = {
     setTimeout(() => announcer.remove(), 1000);
   },
   ensureElementId,
-  addAriaLabel
-};
-
-// Implement this function for checking landmark elements
-function checkLandmarkAccessibility(landmark) {
-  if (!landmark) {
-    throw new Error('Invalid landmark element');
-  }
-  const landmarkType = landmark.getAttribute('role');
-  const requiredAttributes = ['aria-labelledby', 'aria-describedby'];
-
-  if (!landmarkType) {
-    throw new Error('Role attribute is missing from the landmark element');
-  }
-
-  requiredAttributes.forEach(attribute => {
-    if (!landmark.getAttribute(attribute)) {
-      throw new Error(`Required attribute ${attribute} is missing from the landmark element with role ${landmarkType}`);
+  addAriaLabel,
+  addLangAttribute: () => {
+    // Example function to add lang attribute to the document
+    const lang = document.documentElement.getAttribute('lang') || 'en';
+    if (!lang) {
+      console.error('No language set for document.');
     }
-  });
-
-  // Further accessibility checks can be implemented here as needed
-}
+    document.documentElement.setAttribute('lang', lang);
+  },
+  addSvgAccessibleName: (svg, name) => {
+    // Example function to add accessible name to SVGs
+    if (svg) {
+      const title = svg.querySelector('title');
+      if (!title) {
+        const titleElement = document.createElement('title');
+        titleElement.textContent = name;
+        svg.insertBefore(titleElement, svg.firstChild);
+      } else {
+        title.textContent = name;
+      }
+    }
+  },
+  ensureUniqueLandmarks: () => {
+    // Example function to ensure unique landmarks
+    const landmarks = ['nav', 'main', 'aside', 'footer', 'header'];
+    landmarks.forEach(landmark => {
+      const count = document.querySelectorAll(landmark).length;
+      if (count > 1) {
+        console.error(`Duplicate ${landmark} element detected.`);
+      }
+    });
+  },
+  fixTableStructureIssues: () => {
+    // Example function to fix table structure issues
+    const tables = document.querySelectorAll('table');
+    tables.forEach(table => {
+      // Example check: Ensure table has a caption
+      const caption = table.querySelector('caption');
+      if (!caption) {
+        const captionElement = document.createElement('caption');
+        captionElement.textContent = 'Table content description';
+        table.insertBefore(captionElement, table.firstChild);
+      }
+    });
+  }
+};
 
 module.exports = {
   ...main,
   ...accessibilityUtils,
-  checkLandmarkAccessibility
 };

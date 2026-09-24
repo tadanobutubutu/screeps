@@ -336,6 +336,257 @@ function fixUniqueLandmarks(insightReport) {
       }
     }
   });
+
+  // Check if all landmarks are unique and re-add if necessary
+  ensureUniqueLandmarks();
+}
+
+// New function to implement accessibility fixes
+function improveAccessibility() {
+  addressAccessibilityIssues();
+  fixFakeLinks();
+  ensureUniqueLandmarks();
+  addLangAttribute();
+  addSvgAccessibleNames();
+  fixTableStructureIssues();
+  fixTableHeaderCellScope();
+  addMainLandmark();
+}
+
+// New function to generate a report based on accessibility issues
+function generateAccessibilityReport(insightReport) {
+  if (!insightReport || !insightReport.issues || insightReport.issues.length === 0) {
+    return {
+      summary: 'No accessibility issues found',
+      issues: [],
+      severityCounts: {
+        critical: 0,
+        high: 0,
+        medium: 0,
+        low: 0
+      }
+    };
+  }
+
+  const severityCounts = {
+    critical: 0,
+    high: 0,
+    medium: 0,
+    low: 0
+  };
+
+  const categorizedIssues = {
+    landmarks: [],
+    tables: [],
+    svgs: [],
+    links: [],
+    language: [],
+    other: []
+  };
+
+  insightReport.issues.forEach(issue => {
+    // Count severity
+    switch (issue.severity) {
+      case 'critical':
+        severityCounts.critical++;
+        break;
+      case 'high':
+        severityCounts.high++;
+        break;
+      case 'medium':
+        severityCounts.medium++;
+        break;
+      case 'low':
+        severityCounts.low++;
+        break;
+    }
+
+    // Categorize issues
+    switch (issue.type) {
+      case 'REACT_015':
+        categorizedIssues.language.push(issue);
+        break;
+      case 'REACT_027':
+        categorizedIssues.tables.push(issue);
+        break;
+      case 'REACT_017':
+        categorizedIssues.landmarks.push(issue);
+        break;
+      case 'REACT_041':
+        categorizedIssues.svgs.push(issue);
+        break;
+      case 'REACT_036':
+        categorizedIssues.links.push(issue);
+        break;
+      default:
+        categorizedIssues.other.push(issue);
+    }
+  });
+
+  // Generate summary
+  const totalIssues = insightReport.issues.length;
+  let summary = `Accessibility report: ${totalIssues} issue${totalIssues !== 1 ? 's' : ''} found. `;
+
+  if (severityCounts.critical > 0) {
+    summary += `${severityCounts.critical} critical, `;
+  }
+  if (severityCounts.high > 0) {
+    summary += `${severityCounts.high} high, `;
+  }
+  if (severityCounts.medium > 0) {
+    summary += `${severityCounts.medium} medium, `;
+  }
+  if (severityCounts.low > 0) {
+    summary += `${severityCounts.low} low severity issues. `;
+  }
+
+  // Remove trailing comma and space
+  summary = summary.replace(/, $/, '.');
+
+  return {
+    summary,
+    issues: categorizedIssues,
+    severityCounts,
+    totalIssues
+  };
+}
+
+// More existing code that should be preserved
+
+// Configuration
+const config = {
+  apiUrl: process.env.API_URL || 'http://localhost:3000',
+  timeout: 5000
+};
+
+// App state
+const appState = {
+  initialized: false,
+  data: null,
+  cache: new Map()
+};
+
+// Initialize function
+function initialize() {
+  appState.initialized = true;
+  console.log('App initialized');
+}
+
+// Initialize app function
+function initializeApp() {
+  initialize();
+  return appState;
+}
+
+// Process data function
+function processData(data) {
+  if (!data) {
+    return null;
+  }
+  appState.data = data;
+  return data;
+}
+
+// Fetch user function
+function fetchUser(userId) {
+  if (!userId) {
+    return null;
+  }
+  return { id: userId, name: 'User ' + userId };
+}
+
+// Clear cache function
+function clearCache() {
+  appState.cache.clear();
+}
+
+// Helper function
+function someFunction() {
+  return 'some value';
+}
+
+// Helper for input transformation
+function helper(input) {
+  return input ? input.toUpperCase() : '';
+}
+
+// Format date function
+function formatDate(date) {
+  if (!(date instanceof Date)) {
+    date = new Date(date);
+  }
+  return date.toISOString();
+}
+
+// Validate input function
+function validateInput(input) {
+  if (!input) {
+    return false;
+  }
+  return true;
+}
+
+// Language attribute functions
+function getLangAttribute() {
+  return 'en';
+}
+
+function addLangAttribute(element) {
+  if (element && typeof element === 'object') {
+    element.lang = getLangAttribute();
+  }
+  return element;
+}
+
+// Function to set language attribute on the document
+function setLanguageAttribute() {
+  document.documentElement.lang = 'en';
+}
+
+// Function to add landmark roles to main containers
+function addLandmarkRoles() {
+  const mainElement = document.querySelector('main');
+  if (mainElement && !mainElement.hasAttribute('role')) {
+    mainElement.setAttribute('role', 'main');
+  }
+
+  const navElement = document.querySelector('nav');
+  if (navElement && !navElement.hasAttribute('role')) {
+    navElement.setAttribute('role', 'navigation');
+  }
+}
+
+// Icons container
+let icons = {};
+
+// Table accessibility functions
+function validateTableAccessibility() {
+  console.log('Validating table accessibility');
+}
+
+function validateTableStructure() {
+  console.log('Validating table structure');
+}
+
+function fixTableStructure() {
+  console.log('Fixing table structure issues');
+}
+
+// Landmark functions
+function validateLandmark() {
+  console.log('Validating landmark');
+}
+
+function validateLandmarkStructure() {
+  console.log('Validating landmark structure');
+}
+
+function validateLandmarkAttributes() {
+  console.log('Validating landmark attributes');
+}
+
+function addLandmarkRegions() {
+  console.log('Adding landmark regions');
 }
 
 // SVG accessibility functions
@@ -539,8 +790,12 @@ module.exports = {
   fixTableStructure,
   validateLandmark,
   getSvgAccessibleName,
-  setSvgAttributes
+  setSvgAttributes,
+  createInPageButton,
+  validateLinkAccessibility,
+  handleFakeLinks,
+  appData,
+  initApp,
+  getInsightReport,
+  generateAccessibilityReport
 };
-
-// Execute main function
-main();

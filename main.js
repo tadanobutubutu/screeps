@@ -1,6 +1,4 @@
-// TODO: This is the existing code that needs to be preserved
-// Address accessibility issues from insight report
-// ----- END ORIGINAL CODE-----
+// TODO: This is the existing code that needs to be preserved (This comment remains as-is)
 // main.js - Main application entry point
 
 // TODO: This is the existing code that needs to be preserved

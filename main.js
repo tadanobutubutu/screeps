@@ -221,9 +221,322 @@ function createBookForm(container) {
 
   formContainer.appendChild(form);
 
-  // Add to container if provided
-  if (container && typeof container.appendChild === 'function') {
-    container.appendChild(formContainer);
+  addSVGAccessibilityProps() {
+    const svgElements = document.querySelectorAll('svg');
+    svgElements.forEach((svg) => {
+      let titleElement = svg.querySelector('title');
+      if (!titleElement) {
+        titleElement = document.createElement('title');
+        titleElement.textContent = 'Image';
+        svg.insertBefore(titleElement, svg.firstChild);
+      }
+
+      if (!titleElement.id) {
+        titleElement.id = `svg-title-${Math.floor(Math.random() * 10000)}`;
+      }
+
+      svg.setAttribute('aria-labelledby', titleElement.id);
+
+      if (!svg.hasAttribute('role')) {
+        svg.setAttribute('role', 'img');
+      }
+    });
+  },
+
+  fixFakeLinks() {
+    const fakeLinks = document.querySelectorAll('[href]:not(a)');
+    fakeLinks.forEach((link) => {
+      link.setAttribute('role', 'link');
+      link.setAttribute('tabindex', '0');
+      link.setAttribute('data-interactive', 'true');
+    });
+  },
+
+  /**
+   * Ensure all form elements have proper labels
+   */
+  ensureFormAccessibility() {
+    const formElements = document.querySelectorAll('input, textarea, select');
+    formElements.forEach((element) => {
+      if (!element.id) {
+        element.id = `form-element-${Math.floor(Math.random() * 10000)}`;
+      }
+
+      if (!element.getAttribute('aria-label') && !element.getAttribute('aria-labelledby')) {
+        const label = document.querySelector(`label[for="${element.id}"]`);
+        if (!label) {
+          element.setAttribute('aria-label', element.placeholder || 'Form input');
+        }
+      }
+    });
+  },
+
+  /**
+   * Ensure all interactive elements have proper keyboard support
+   */
+  ensureKeyboardNavigation() {
+    const interactiveElements = document.querySelectorAll('[role="button"], [role="tab"], [role="menuitem"]');
+    interactiveElements.forEach((element) => {
+      if (!element.hasAttribute('tabindex')) {
+        element.setAttribute('tabindex', '0');
+      }
+
+      if (!element.hasAttribute('aria-disabled')) {
+        element.setAttribute('aria-disabled', 'false');
+      }
+    });
+  },
+
+  /**
+   * Ensure all images have proper alternative text
+   */
+  ensureImageAccessibility() {
+    const images = document.querySelectorAll('img');
+    images.forEach((img) => {
+      if (!img.alt && !img.getAttribute('aria-hidden')) {
+        img.setAttribute('alt', '');
+      }
+    });
+  },
+
+  preserveExistingCode() {
+    // TODO: This is the existing code that needs to be preserved
+    // _Commit: 4b0a76170c9695891c503753fc8449a3a8434fd3_
+    // <!-- todo-hash: 4bdb3fdb46f8c23568fe2832e296806312b7e888 -->
+    // _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
+    // <!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
+    // _Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
+    // <!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
+    // _Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
+    // <!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
+  },
+
+  /**
+   * Ensure all elements have unique IDs in the document
+   * Checks for duplicate IDs and generates unique IDs for elements with duplicates
+   * @returns {Object} - Object containing count of duplicates fixed and list of fixed elements
+   */
+  newFunction() {
+    const idCountMap = new Map();
+    const elementsById = new Map();
+
+    // First pass: collect all elements by ID
+    const allElements = document.querySelectorAll('[id]');
+    allElements.forEach(element => {
+      const id = element.id;
+      if (!elementsById.has(id)) {
+        elementsById.set(id, []);
+      }
+      elementsById.get(id).push(element);
+    });
+
+    // Second pass: identify duplicates and fix them
+    const result = {
+      duplicatesFixed: 0,
+      fixedElements: []
+    };
+
+    elementsById.forEach((elements, id) => {
+      if (elements.length > 1) {
+        // Mark the first occurrence as valid, fix the rest
+        elements.slice(1).forEach((element, index) => {
+          let newId = `${id}-${index + 1}`;
+          // Ensure the new ID doesn't already exist
+          let counter = 0;
+          while (document.getElementById(newId)) {
+            counter++;
+            newId = `${id}-${index + 1}-${counter}`;
+          }
+          element.id = newId;
+          result.duplicatesFixed++;
+          result.fixedElements.push({
+            originalId: id,
+            newId: newId,
+            element: element.tagName.toLowerCase()
+          });
+        });
+      }
+    });
+
+    return result;
+  },
+
+  /**
+   * Ensure proper heading hierarchy in the document
+   * @param {HTMLElement} container - The container to check
+   */
+  ensureProperHeadingHierarchy(container = document) {
+    const headings = container.querySelectorAll('h1, h2, h3, h4, h5, h6');
+    let currentLevel = 0;
+
+    headings.forEach(heading => {
+      const level = parseInt(heading.tagName.substring(1));
+      if (level > currentLevel + 1) {
+        // Skip a level - create intermediate heading
+        const intermediateLevel = currentLevel + 1;
+        const intermediateHeading = document.createElement(`h${intermediateLevel}`);
+        intermediateHeading.textContent = 'Section';
+        intermediateHeading.setAttribute('aria-hidden', 'true');
+        heading.parentNode.insertBefore(intermediateHeading, heading);
+        currentLevel = intermediateLevel;
+      }
+      currentLevel = level;
+    });
+  },
+
+  /**
+   * Check for proper contrast ratios in the document
+   * @param {HTMLElement} container - The container to check
+   * @returns {Array} Array of elements with insufficient contrast
+   */
+  checkContrastRatios(container = document) {
+    const elements = container.querySelectorAll('*');
+    const insufficientContrast = [];
+
+    elements.forEach(element => {
+      const style = window.getComputedStyle(element);
+      const bgColor = style.backgroundColor;
+      const color = style.color;
+
+      if (bgColor && color && bgColor !== 'rgba(0, 0, 0, 0)') {
+        const contrastRatio = this.calculateContrastRatio(color, bgColor);
+        if (contrastRatio < 4.5) {
+          insufficientContrast.push({
+            element,
+            contrastRatio,
+            text: element.textContent.trim()
+          });
+        }
+      }
+    });
+
+    return insufficientContrast;
+  },
+
+  /**
+   * Calculate contrast ratio between two colors
+   * @param {string} color1 - First color in rgb() or rgba() format
+   * @param {string} color2 - Second color in rgb() or rgba() format
+   * @returns {number} Contrast ratio
+   */
+  calculateContrastRatio(color1, color2) {
+    const rgb1 = this.parseColor(color1);
+    const rgb2 = this.parseColor(color2);
+
+    const lum1 = this.calculateLuminance(rgb1);
+    const lum2 = this.calculateLuminance(rgb2);
+
+    const lighter = Math.max(lum1, lum2);
+    const darker = Math.min(lum1, lum2);
+
+    return (lighter + 0.05) / (darker + 0.05);
+  },
+
+  /**
+   * Parse color string to RGB components
+   * @param {string} color - Color string in rgb() or rgba() format
+   * @returns {Object} RGB components
+   */
+  parseColor(color) {
+    const match = color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*[\d.]+)?\)/);
+    if (!match) return { r: 0, g: 0, b: 0 };
+
+    return {
+      r: parseInt(match[1]) / 255,
+      g: parseInt(match[2]) / 255,
+      b: parseInt(match[3]) / 255
+    };
+  },
+
+  /**
+   * Calculate relative luminance of a color
+   * @param {Object} rgb - RGB components
+   * @returns {number} Relative luminance
+   */
+  calculateLuminance(rgb) {
+    const components = ['r', 'g', 'b'].map(c => {
+      const value = rgb[c];
+      return value <= 0.03928 ? value / 12.92 : Math.pow((value + 0.055) / 1.055, 2.4);
+    });
+
+    return 0.2126 * components[0] + 0.7152 * components[1] + 0.0722 * components[2];
+  },
+
+  /**
+   * Check for proper ARIA attributes on interactive elements
+   * @param {HTMLElement} container - The container to check
+   * @returns {Array} Array of elements with missing ARIA attributes
+   */
+  checkInteractiveElements(container = document) {
+    const interactiveElements = container.querySelectorAll('button, [role="button"], [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+    const missingAria = [];
+
+    interactiveElements.forEach(element => {
+      if (!element.hasAttribute('aria-label') &&
+          !element.hasAttribute('aria-labelledby') &&
+          !element.hasAttribute('title') &&
+          !element.textContent.trim()) {
+        missingAria.push(element);
+      }
+    });
+
+    return missingAria;
+  },
+
+  /**
+   * Check for proper form labels
+   * @param {HTMLElement} container - The container to check
+   * @returns {Array} Array of form elements with missing labels
+   */
+  checkFormLabels(container = document) {
+    const formElements = container.querySelectorAll('input:not([type="hidden"]), select, textarea');
+    const missingLabels = [];
+
+    formElements.forEach(element => {
+      const id = element.id;
+      if (id) {
+        const label = container.querySelector(`label[for="${id}"]`);
+        if (!label) {
+          missingLabels.push(element);
+        }
+      } else {
+        missingLabels.push(element);
+      }
+    });
+
+    return missingLabels;
+  },
+
+  /**
+   * Check for proper image alternatives
+   * @param {HTMLElement} container - The container to check
+   * @returns {Array} Array of images with missing alternatives
+   */
+  checkImageAlternatives(container = document) {
+    const images = container.querySelectorAll('img, [role="img"]');
+    const missingAlternatives = [];
+
+    images.forEach(image => {
+      if (!image.hasAttribute('alt') && !image.hasAttribute('aria-label') && !image.hasAttribute('aria-labelledby')) {
+        missingAlternatives.push(image);
+      }
+    });
+
+    return missingAlternatives;
+  }
+};
+
+/**
+ * Check if an element is a landmark element for accessibility.
+ * Landmark elements include: main, nav, aside, header, footer, section, article, form, search
+ * @param {HTMLElement|string} element - The element or element tag name to check
+ * @returns {boolean} True if the element is a landmark element
+ */
+function isLandmarkElement(element) {
+  const landmarkTags = ['main', 'nav', 'aside', 'header', 'footer', 'section', 'article', 'form', 'search'];
+
+  if (!element) {
+    return false;
   }
 
   // Focus the first input field for accessibility

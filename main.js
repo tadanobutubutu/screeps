@@ -111,6 +111,32 @@ function renderDependencyGraph(deps, options = {}) {
     return container;
 }
 
+// TODO: Implement new function3 logic here
+function function3(param1, param2 = {}) {
+    const { optionA = false, optionB = true } = param2;
+    
+    if (!param1) {
+        throw new Error('function3 requires a valid parameter');
+    }
+    
+    const result = {
+        processed: true,
+        input: param1,
+        options: { optionA, optionB },
+        timestamp: Date.now()
+    };
+    
+    if (optionA && typeof param1 === 'string') {
+        result.input = param1.toUpperCase();
+    }
+    
+    if (optionB && typeof param1 === 'object') {
+        result.options.included = true;
+    }
+    
+    return result;
+}
+
 class ScreetsBot {
   constructor(options = {}) {
     this.options = options;
@@ -413,21 +439,6 @@ module.exports = {
     initSkipLink: accessibilityUtils.initSkipLink,
     announceToScreenReader: accessibilityUtils.announceToScreenReader,
     handleKeyboardNav: accessibilityUtils.handleKeyboardNav,
-    createInPageButtons
+    createInPageButtons,
+    function3
 };
-
-// Implement the function for creating in-page buttons
-function createInPageButtons(buttonData) {
-    if (!Array.isArray(buttonData)) {
-        throw new Error('createInPageButtons expects an array of button data');
-    }
-
-    buttonData.forEach(button => {
-        const { id, text, onClick } = button;
-        const buttonElement = document.createElement('button');
-        buttonElement.id = id;
-        buttonElement.textContent = text;
-        buttonElement.addEventListener('click', onClick);
-        document.body.appendChild(buttonElement);
-    });
-}

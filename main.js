@@ -15,15 +15,12 @@ function addressAccessibilityIssues() {
     landmark.setAttribute('aria-label', 'landmark');
   });
 
-  // Ensure SVGs have accessible titles
-  const svg1 = document.getElementById('svg1');
-  const svg2 = document.getElementById('svg2');
-  if (svg1) {
-    svg1.setAttribute('aria-labelledby', 'svg1-title');
-  }
-  if (svg2) {
-    svg2.setAttribute('aria-labelledby', 'svg2-title');
-  }
+  const svg1 = document.querySelector('#svg1');
+  const svg2 = document.querySelector('#svg2');
+  if (svg1) svg1.setAttribute('aria-labelledby', 'svg1-title');
+  if (svg2) svg2.setAttribute('aria-labelledby', 'svg2-title');
+
+  module.exports.addressAccessibilityIssues = addressAccessibilityIssues;
 }
 
 function getLangAttribute() {
@@ -31,11 +28,27 @@ function getLangAttribute() {
 }
 
 function wrapPrimaryContentInMain() {
-  const main = document.querySelector('main');
-  if (main && !main.id) {
-    main.id = 'main-content';
+  const primary = document.querySelector('.primary-content');
+  if (primary && !primary.closest('main')) {
+    const main = document.createElement('main');
+    primary.parentNode.insertBefore(main, primary);
+    main.appendChild(primary);
   }
 }
+
+module.exports.getLangAttribute = getLangAttribute;
+module.exports.wrapPrimaryContentInMain = wrapPrimaryContentInMain;
+
+function renderGraph() {
+  // TODO: Add implementation details
+}
+
+function renderIndex() {
+  // TODO: Add implementation details
+}
+
+module.exports.renderGraph = renderGraph;
+module.exports.renderIndex = renderIndex;
 
 module.exports.loop = function() {
     // Clear the memory of dead creeps
@@ -45,7 +58,8 @@ module.exports.loop = function() {
         }
     }
 
-    // TODO: Add implementation details
+    // TODO: Update the existing function using the new functions for rendering graph/index
+    // DO NOT REMOVE OR RENAME THE EXISTING FUNCTIONS BELOW
 
     var harvesters = _.filter(Game.creeps, (creep) => creep.memory.role == 'harvester');
     var upgraders = _.filter(Game.creeps, (creep) => creep.memory.role == 'upgrader');

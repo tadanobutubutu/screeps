@@ -228,14 +228,18 @@ const AddressabilityIssues = {
 
     const dependencies = JSON.parse(packageJson).dependencies || {};
     const devDependencies = JSON.parse(packageJson).devDependencies || {};
+    const peerDependencies = JSON.parse(packageJson).peerDependencies || {};
 
     return {
       dependencies: Object.keys(dependencies).length,
       devDependencies: Object.keys(devDependencies).length,
-      total: Object.keys(dependencies).length + Object.keys(devDependencies).length
+      peerDependencies: Object.keys(peerDependencies).length,
+      // TODO: This is the existing code that needs to be preserved
+      total: Object.keys(dependencies).length + Object.keys(devDependencies).length + Object.keys(peerDependencies).length
     };
   },
 
+  // Additional changes requested in the issue should be added after this function
   newFunctionality() {
     // TODO: Implement the new functionality as described in the issue
   }

@@ -496,3 +496,15 @@ function getInsightReport() {
 
   return issues;
 }
+
+// Preserve all existing exports
+module.exports = {
+  User,
+  spawnNewUser,
+  config,
+  initialize,
+  initializeApp,
+  main,
+  visualizeDependencyTree,
+  someFunction
+};

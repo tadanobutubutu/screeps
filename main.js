@@ -299,7 +299,8 @@ export {
   validateLandmark,
   validateLandmarkStructure,
   getSvgAccessibleName,
-  createInPageButton
+  createInPageButton,
+  setSvgAttributes
 };
 
 // Export all required imports and stubs that might have been removed

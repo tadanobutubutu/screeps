@@ -16,8 +16,8 @@ const accessibilityUtils = {
     if (skipLink) {
       skipLink.addEventListener('click', (e) => {
         e.preventDefault();
-        const targetId = skipLink.getAttribute('href').substring(1);
-        const target = document.getElementById(targetId) || document.querySelector(targetId);
+        const targetId = skipLink.getAttribute('href');
+        const target = document.querySelector(targetId);
         if (target) {
           target.setAttribute('tabindex', '-1');
           target.focus();
@@ -36,7 +36,7 @@ const accessibilityUtils = {
     const firstElement = focusableElements[0];
     const lastElement = focusableElements[focusableElements.length - 1];
 
-    const handleTab = (e) => {
+    const handleTabKey = (e) => {
       if (e.key === 'Tab') {
         if (e.shiftKey && document.activeElement === firstElement) {
           e.preventDefault();
@@ -47,9 +47,7 @@ const accessibilityUtils = {
         }
       }
     };
-
-    element.addEventListener('keydown', handleTab);
-    return handleTab;
+    return handleTabKey;
   },
 
   // Announce message to screen readers
@@ -93,15 +91,15 @@ const accessibilityUtils = {
   }
 };
 
-// Existing configuration
-const config = {
-    verbose: true,
-    debug: false,
-    rules: {
-        contrast: true,
-        semantic: true,
-        structure: true
-    }
+// Functions to ensure the element has an id, add aria-label, render dependency graphs
+// (Previously existing code that needs to be preserved)
+
+const ensureElementId = (element) => {
+  if (element && !element.id) {
+    const timestamp = Date.now();
+    element.id = `element-${Math.random().toString(36).substr(2, 9)}`;
+  }
+  return element;
 };
 
 /**
@@ -219,38 +217,29 @@ const getLangAttribute = (contentLanguage) => {
 // - NEW: Implement a new function to handle focus trap for keyboard navigation (handled by newFocusTrap())
 function newFocusTrap(element) {
   const focusableElements = element.querySelectorAll(
-    'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    'a[href], button, textarea, input, select, [tabindex]:not([tabindex="-1"])'
   );
   const firstElement = focusableElements[0];
   const lastElement = focusableElements[focusableElements.length - 1];
 
-/**
- * Validate and fix table accessibility issues
- * @param {HTMLElement} table - The table element to validate
- * @returns {boolean} True if table is accessible, false otherwise
- */
-const validateTableAccessibility = (table) => {
-  if (!table || !table.nodeName || table.nodeName !== 'TABLE') {
-    return false;
-  }
-
-  let isValid = true;
-
-  // Check for scope attributes on th elements
-  const thElements = table.querySelectorAll('th');
-  thElements.forEach((th, index) => {
-    if (!th.getAttribute('scope')) {
-      if (index === 0) {
-        th.setAttribute('scope', 'row');
-      } else {
-        const row = th.closest('tr');
-        const isFirstRow = table.tHead !== null ? 
-          row === table.tHead.rows[0] : 
-          row === table.querySelector('tr');
-        th.setAttribute('scope', isFirstRow ? 'col' : 'row');
+  const handleTabKey = (e) => {
+    if (e.key === 'Tab') {
+      if (e.shiftKey && document.activeElement === firstElement) {
+        lastElement.focus();
+        e.preventDefault();
+      } else if (!e.shiftKey && document.activeElement === lastElement) {
+        firstElement.focus();
+        e.preventDefault();
       }
     }
-  });
+  };
+  
+  element.addEventListener('keydown', handleTabKey);
+  
+  return () => {
+    element.removeEventListener('keydown', handleTabKey);
+  };
+}
 
   // Check for thead and tbody structure
   const hasThead = table.tHead !== null;
@@ -280,7 +269,7 @@ async function handleCredentialResponse(response) {
 // Existing utility functions
 function log(message, level = 'info') {
   const timestamp = new Date().toISOString();
-  console.log(`${timestamp} [${level.toUpperCase()}] ${message}`);
+  console.log(`[${timestamp}] [${level}] ${message}`);
 }
 
 // Accessibility utilities and functions
@@ -332,20 +321,94 @@ function processData(data) {
   return data;
 }
 
-function filterValidItems(items) {
-  if (!Array.isArray(items)) return [];
-  return items.filter(item => item != null && item !== '');
+  if (Array.isArray(inputData)) {
+    return inputData.map(item => {
+      const newItem = {};
+      for (const key in item) {
+        if (item.hasOwnProperty(key)) {
+          newItem[key] = transformValue(item[key]);
+        }
+      }
+      return newItem;
+    });
+  }
+
+  // plain object
+  const result = {};
+  for (const key in inputData) {
+    if (inputData.hasOwnProperty(key)) {
+      result[key] = transformValue(inputData[key]);
+    }
+  }
+  return result;
 }
 
-function groupByCategory(items, categoryKey = 'category') {
-  const groups = {};
-  if (!Array.isArray(items)) return groups;
-  items.forEach(item => {
-    const key = item && item[categoryKey] !== undefined && item[categoryKey] !== null ? item[categoryKey] : 'unknown';
-    if (!groups[key]) groups[key] = [];
-    groups[key].push(item);
-  });
-  return groups;
+// Export utilities
+const exportUtils = {
+  formatDate: (date) => {
+    if (!(date instanceof Date)) {
+      date = new Date(date);
+    }
+    return date.toISOString().split('T')[0];
+  },
+  
+  validateEmail: (email) => {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return regex.test(email);
+  },
+  
+  capitalize: (str) => {
+    if (typeof str !== 'string') return '';
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  }
+};
+
+// Initialize accessibility
+function initAccessibility() {
+  if (typeof document !== 'undefined') {
+    accessibilityUtils.initSkipLink();
+  }
+}
+
+// File utilities
+function sanitizeFilename(filename) {
+  return filename.replace(/[^a-z0-9.-]/gi, '_').toLowerCase();
+}
+
+function readFileSafe(filePath, defaultValue = null) {
+  try {
+    const fs = require('fs');
+    if (fs.existsSync(filePath)) {
+      return fs.readFileSync(filePath, 'utf8');
+    }
+    return defaultValue;
+  } catch (error) {
+    return defaultValue;
+  }
+}
+
+// Data processing utilities
+function processData(data, transformers = []) {
+  let result = data;
+  for (const transformer of transformers) {
+    result = transformer(result);
+  }
+  return result;
+}
+
+function filterValidItems(items, validator = (item) => Boolean(item)) {
+  return items.filter(validator);
+}
+
+function groupByCategory(items, getCategory) {
+  return items.reduce((groups, item) => {
+    const category = getCategory(item);
+    if (!groups[category]) {
+      groups[category] = [];
+    }
+    groups[category].push(item);
+    return groups;
+  }, {});
 }
 
 // Initialize on DOM ready
@@ -442,5 +505,5 @@ module.exports = {
   processData,
   filterValidItems,
   groupByCategory,
-  createInPageButton
+  log
 };

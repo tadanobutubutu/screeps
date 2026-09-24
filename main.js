@@ -41,9 +41,9 @@ function trapFocus(element) {
 }
 
 // Handle keyboard navigation for custom components
-function handleKeyboardNavigation(items, options = {}) {
-  const itemsArray = items;
-  itemsArray.forEach((item, index) => {
+function handleKeyboardNavigation(container, options = {}) {
+  const items = container.querySelectorAll(options.selector || '[role="option"], [role="treeitem"]');
+  items.forEach((item, index) => {
     item.setAttribute('tabindex', index === 0 ? '0' : '-1');
     item.addEventListener('keydown', (e) => {
       let newIndex;
@@ -57,9 +57,9 @@ function handleKeyboardNavigation(items, options = {}) {
         newIndex = itemsArray.length - 1;
       }
       if (newIndex !== undefined) {
-        itemsArray[newIndex].focus();
-        itemsArray[newIndex].setAttribute('tabindex', '0');
-        item.setAttribute('tabindex', '-1');
+        items[newIndex].focus();
+        items[newIndex].setAttribute('tabindex', '0');
+        items[index].setAttribute('tabindex', '-1');
         e.preventDefault();
       }
     });
@@ -74,7 +74,7 @@ function handleKeyboardNavigation(items, options = {}) {
 
 // Skip link functionality
 function initSkipLinks() {
-  const skipLink = document.querySelector('.skip-link');
+  const skipLink = document.querySelector('.skip-link, [href="#main-content"]');
   if (skipLink) {
     skipLink.addEventListener('click', (e) => {
       const targetId = skipLink.getAttribute('href').slice(1);
@@ -140,16 +140,51 @@ const ensureAccessibility = (element, options = {}) => {
   return success;
 };
 
+// New function: ensureUniqueLandmarks
+function ensureUniqueLandmarks(container) {
+  const landmarks = container.querySelectorAll('[role="main"], [role="navigation"], [role="banner"], [role="contentinfo"], [role="complementary"]');
+  const landmarkCounts = {};
+
+  landmarks.forEach((landmark) => {
+    const role = landmark.getAttribute('role');
+    landmarkCounts[role] = (landmarkCounts[role] || 0) + 1;
+  });
+
+  let hasDuplicates = false;
+  Object.values(landmarkCounts).forEach((count) => {
+    if (count > 1) {
+      hasDuplicates = true;
+    }
+  });
+
+  if (hasDuplicates) {
+    landmarks.forEach((landmark) => {
+      const role = landmark.getAttribute('role');
+      if (landmarkCounts[role] > 1) {
+        if (!landmark.getAttribute('aria-label') && !landmark.getAttribute('aria-labelledby')) {
+          const label = landmark.tagName.toLowerCase();
+          landmark.setAttribute('aria-label', label);
+        }
+      }
+    });
+    return false;
+  }
+
+  return true;
+}
+
 // New function: ensureDependencyGraphARIA
 function ensureDependencyGraphARIA(container) {
-  const graph = container.querySelector('.dependency-graph') || container.querySelector('[data-graph]');
+  const graph = container.querySelector('[role="img"]') || container.querySelector('.dependency-graph');
   if (graph) {
-    if (!graph.getAttribute('role')) {
-      graph.setAttribute('role', 'img');
-    }
     if (!graph.getAttribute('aria-label')) {
       graph.setAttribute('aria-label', 'Dependency graph');
     }
+    if (!graph.getAttribute('role') || graph.getAttribute('role') === 'img') {
+      graph.setAttribute('role', 'img');
+    }
+  }
+}
 
 module.exports = {
   announceToScreenReader,
@@ -160,5 +195,6 @@ module.exports = {
   setLangAttribute,
   checkAccessibilityAttributes,
   ensureAccessibility,
+  ensureUniqueLandmarks,
   ensureDependencyGraphARIA
 };

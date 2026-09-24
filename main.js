@@ -376,7 +376,7 @@ function ensureLandmarkIds(scopeSelector) {
 
 // Exports for the functions
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { ...module.exports, addressAccessibilityIssues, ensureDependencyGraphRole, ensureLandmarkIds, calculateSum, calculateProduct };
+  module.exports = { addressAccessibilityIssues, calculateSum, calculateProduct };
 }
 
 // If running in browser context

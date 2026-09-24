@@ -87,6 +87,69 @@ function countDependencies(dependencies) {
   return 0;
 }
 
+// ----- END ORIGINAL CODE -----
+// ----- BEGIN NEW FUNCTIONS -----
+
+/**
+ * Runs all accessibility checks and returns a consolidated report
+ * @returns {Object} An object containing all accessibility issues found
+ */
+function runAccessibilityChecks() {
+  const report = {
+    linkIssues: checkLinkAccessibility(),
+    tableIssues: validateTableAccessibility(),
+    tableStructureIssues: validateTableStructure(),
+    linkValidationIssues: validateLinkAccessibility()
+  };
+  return report;
+}
+
+/**
+ * Gets all accessibility issues as a flat array of strings
+ * @returns {string[]} Array of accessibility issue descriptions
+ */
+function getAllAccessibilityIssues() {
+  const report = runAccessibilityChecks();
+  const allIssues = [];
+  
+  if (report.linkIssues && Array.isArray(report.linkIssues)) {
+    allIssues.push(...report.linkIssues);
+  }
+  if (report.tableIssues && Array.isArray(report.tableIssues)) {
+    allIssues.push(...report.tableIssues);
+  }
+  if (report.tableStructureIssues && Array.isArray(report.tableStructureIssues)) {
+    allIssues.push(...report.tableStructureIssues);
+  }
+  if (report.linkValidationIssues && Array.isArray(report.linkValidationIssues)) {
+    allIssues.push(...report.linkValidationIssues);
+  }
+  
+  return allIssues;
+}
+
+/**
+ * Gets the language attribute from the document
+ * @returns {string|null} The language attribute value or null if not found
+ */
+function getDocumentLanguage() {
+  return getLangAttribute(document.documentElement);
+}
+
+/**
+ * Creates an accessibility report summary
+ * @returns {Object} Summary object with counts of issues
+ */
+function getAccessibilitySummary() {
+  const issues = getAllAccessibilityIssues();
+  return {
+    totalIssues: issues.length,
+    issues: issues,
+    language: getDocumentLanguage(),
+    hasIssues: issues.length > 0
+  };
+}
+
 // Don't forget to test your new additions in the test file
 
 // Export accessibility utility functions
@@ -98,5 +161,8 @@ export {
   validateLinkAccessibility,
   handleFakeLinks,
   checkLinkAccessibility,
-  countDependencies,
+  runAccessibilityChecks,
+  getAllAccessibilityIssues,
+  getDocumentLanguage,
+  getAccessibilitySummary,
 };

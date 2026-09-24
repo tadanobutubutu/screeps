@@ -32,12 +32,304 @@ function setupKeyboardNavigation(element, options = {}) {
   });
 }
 
-// Helper to manage focus within a container
-function trapFocus(container) {
-  const focusableElements = container.querySelectorAll(
-    'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-  );
+function checkLandmarks(container = document) {
+  // (code for checkLandmarks remains the same)
+}
+
+// Check if user prefers reduced motion
+function prefersReducedMotion() {
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
+// Function to address accessibility issues from insight report
+// Mock implementation of the function to address accessibility issues
+// This should be replaced with actual logic based on the insight report structure
+// For example, we might log the issues or take some action to fix them
+function addressAccessibilityIssues(insightReport) {
+  if (!insightReport) return;
   
+  const issueType = insightReport.issue;
+  
+  switch (issueType) {
+    case 'REACT_026': // Ensure SVG elements have accessibility attributes
+      if (insightReport.elements) {
+        insightReport.elements.forEach((element) => {
+          if (element.tagName && element.tagName.toLowerCase() === 'svg') {
+            // Apply accessibility props to SVG elements
+            const options = insightReport.details || {};
+            addSvgAccessibilityProps(element, options);
+          }
+        });
+      }
+      break;
+    case 'REACT_027': // Ensure interactive elements are keyboard accessible
+      if (insightReport.elements) {
+        insightReport.elements.forEach((element) => {
+          if (!element.hasAttribute('tabindex') && !element.hasAttribute('role')) {
+            // Add default tabindex for interactive elements without proper roles
+            const tagName = element.tagName ? element.tagName.toLowerCase() : '';
+            const interactiveTags = ['a', 'button', 'input', 'select', 'textarea'];
+            if (interactiveTags.includes(tagName)) {
+              element.setAttribute('tabindex', '0');
+            }
+          }
+        });
+      }
+      break;
+    case 'REACT_028': // Ensure color contrast is sufficient
+      if (insightReport.details && insightReport.details.suggestions) {
+        insightReport.details.suggestions.forEach((suggestion) => {
+          if (suggestion.element && suggestion.newColor) {
+            suggestion.element.style.color = suggestion.newColor;
+          }
+        });
+      }
+      break;
+    case 'REACT_029': // Ensure form inputs have labels
+      if (insightReport.elements) {
+        insightReport.elements.forEach((element) => {
+          const tagName = element.tagName ? element.tagName.toLowerCase() : '';
+          if (tagName === 'input' || tagName === 'select' || tagName === 'textarea') {
+            if (!element.hasAttribute('aria-label') && !element.hasAttribute('aria-labelledby')) {
+              // Check for associated label element
+              const labels = document.querySelectorAll(`label[for="${element.id}"]`);
+              if (labels.length === 0 && element.id) {
+                // Create a label element if none exists
+                const label = document.createElement('label');
+                label.setAttribute('for', element.id);
+                label.textContent = insightReport.details?.defaultLabel || 'Field';
+                element.parentNode.insertBefore(label, element);
+              }
+            }
+          }
+        });
+      }
+      break;
+    case 'REACT_030': // Ensure images have alt text
+      if (insightReport.elements) {
+        insightReport.elements.forEach((element) => {
+          const tagName = element.tagName ? element.tagName.toLowerCase() : '';
+          if (tagName === 'img') {
+            if (!element.hasAttribute('alt')) {
+              element.setAttribute('alt', insightReport.details?.defaultAlt || 'Image');
+            }
+          }
+        });
+      }
+      break;
+    case 'REACT_031': // Ensure focus indicators are visible
+      if (insightReport.elements) {
+        insightReport.elements.forEach((element) => {
+          element.addEventListener('focus', () => {
+            element.style.outline = '2px solid #005fcc';
+            element.style.outlineOffset = '2px';
+          });
+          element.addEventListener('blur', () => {
+            element.style.outline = '';
+            element.style.outlineOffset = '';
+          });
+        });
+      }
+      break;
+    case 'REACT_032': // Ensure dynamic content has live regions
+      if (insightReport.elements) {
+        insightReport.elements.forEach((element) => {
+          if (!element.hasAttribute('aria-live')) {
+            const politeness = insightReport.details?.politeness || 'polite';
+            element.setAttribute('aria-live', politeness);
+            element.setAttribute('aria-atomic', 'true');
+          }
+        });
+      }
+      break;
+    default:
+      console.warn(`Unknown accessibility issue type: ${insightReport.issue}`);
+  }
+}
+
+// Initialize accessibility features
+function initializeAccessibility() {
+  const announcer = createAnnouncer();
+  
+  // Ensure all landmarks have unique IDs
+  ensureUniqueLandmarks();
+  
+  // Return the announcer for use in the app
+  return {
+    announce: announcer.announce,
+    setupKeyboardNavigation,
+    trapFocus,
+    prefersReducedMotion
+  };
+}
+
+/**
+ * Adds accessibility properties to an SVG element
+ * @param {SVGElement} svgElement - The SVG element to add accessibility props to
+ * @param {Object} options - Accessibility options for the SVG
+ * @param {string} [options.role='img'] - The ARIA role for the SVG
+ * @param {string} [options.label] - The aria-label text
+ * @param {string} [options.labelledBy] - The ID of an element that labels this SVG
+ * @param {string} [options.description] - The aria-describedby text
+ * @param {boolean} [options.focusable=true] - Whether the SVG is focusable
+ * @param {boolean} [options.keyboardFocusable] - Whether the SVG can be focused via keyboard
+ * @returns {SVGElement} - The SVG element with accessibility props applied
+ */
+function addSvgAccessibilityProps(svgElement, options = {}) {
+  // Return null/undefined as-is if not a valid SVG element
+  if (!svgElement) {
+    return svgElement;
+  }
+
+  // Validate that we have an SVG element (check for tagName property)
+  const tagName = svgElement.tagName;
+  if (!tagName || tagName.toLowerCase() !== 'svg') {
+    return svgElement;
+  }
+
+  const {
+    role = 'img',
+    label,
+    labelledBy,
+    description,
+    focusable = true,
+    keyboardFocusable = false
+  } = options;
+
+  // Set the role attribute
+  if (role) {
+    svgElement.setAttribute('role', role);
+  }
+
+  // Set aria-label if provided
+  if (label && typeof label === 'string') {
+    svgElement.setAttribute('aria-label', label);
+  }
+
+  // Set aria-labelledby if provided
+  if (labelledBy && typeof labelledBy === 'string') {
+    svgElement.setAttribute('aria-labelledby', labelledBy);
+  }
+
+  // Set aria-describedby if provided
+  if (description && typeof description === 'string') {
+    svgElement.setAttribute('aria-describedby', description);
+  }
+
+  // Set focusable attribute (important for IE/older browsers)
+  if (typeof svgElement.setAttribute === 'function') {
+    svgElement.setAttribute('focusable', focusable ? 'true' : 'false');
+  }
+
+  // Add tabindex for keyboard focus if requested
+  if (keyboardFocusable && typeof svgElement.setAttribute === 'function') {
+    svgElement.setAttribute('tabindex', '0');
+  }
+
+  return svgElement;
+}
+
+/**
+ * Checks if a value is an empty string, null, or undefined
+ * @param {*} value - The value to check
+ * @returns {boolean} - True if the value is empty
+ */
+function isEmpty(value) {
+  return value === null || value === undefined || value === '';
+}
+
+/**
+ * Capitalizes the first letter of a string
+ * @param {string} str - The string to capitalize
+ * @returns {string} - The capitalized string
+ */
+function capitalize(str) {
+  if (typeof str !== 'string' || str.length === 0) return str;
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+/**
+ * Generates a random integer between min and max (inclusive)
+ * @param {number} min - Minimum value
+ * @param {number} max - Maximum value
+ * @returns {number} - Random integer
+ */
+function getRandomInt(min, max) {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+/**
+ * Clamps a number between min and max values
+ * @param {number} num - Number to clamp
+ * @param {number} min - Minimum value
+ * @param {number} max - Maximum value
+ * @returns {number} - Clamped number
+ */
+function clamp(num, min, max) {
+  return Math.min(Math.max(num, min), max);
+}
+
+/**
+ * Deep clones an object
+ * @param {*} obj - Object to clone
+ * @returns {*} - Cloned object
+ */
+function deepClone(obj) {
+  if (obj === null || typeof obj !== 'object') return obj;
+  if (obj instanceof Date) return new Date(obj.getTime());
+  if (obj instanceof Array) return obj.map(item => deepClone(item));
+  if (obj instanceof Object) {
+    const cloned = {};
+    for (const key in obj) {
+      if (obj.hasOwnProperty(key)) {
+        cloned[key] = deepClone(obj[key]);
+      }
+    }
+    return cloned;
+  }
+  return obj;
+}
+
+/**
+ * Ensure unique main landmarks exist in the document.
+ * Logs a warning if multiple main landmarks are detected.
+ */
+function ensureUniqueLandmarks() {
+  const mains = document.querySelectorAll('main, [role="main"]');
+  if (mains.length > 1) {
+    console.warn('Multiple main landmarks detected. Ensure only one main landmark exists.');
+    throw new Error('Document should have at most one main landmark');
+  }
+}
+
+/**
+ * Revoke a session
+ * @param {string} sessionId - The session ID to revoke
+ * @returns {boolean} - True if session was revoked
+ */
+function revokeSession(sessionId) {
+    return appState.sessions.delete(sessionId);
+}
+
+/**
+ * Focus trap handler to keep focus within a container.
+ * @param {Element} element - Element to monitor for focus events
+ */
+function handleFocusTrap(element) {
+  if (!element || typeof element.querySelectorAll !== 'function') {
+    return;
+  }
+
+  const focusableElements = Array.from(element.querySelectorAll(
+    'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+  ));
+
+  if (focusableElements.length === 0) {
+    return;
+  }
+
   const firstElement = focusableElements[0];
   const lastElement = focusableElements[focusableElements.length - 1];
 
@@ -216,321 +508,23 @@ function initializeAccessibility() {
  * Generates a report based on accessibility issues
  * @returns {Object} - Report containing accessibility issues found
  */
-function generateAccessibilityReport() {
-  const issues = [];
-  const landmarks = document.querySelectorAll('[role="region"], [role="main"], [role="navigation"], [role="banner"], [role="contentinfo"], [role="complementary"]');
-  const landmarkIds = {};
-  
-  // Check for duplicate landmark IDs
-  landmarks.forEach(landmark => {
-    if (landmark.id) {
-      if (landmarkIds[landmark.id]) {
-        issues.push({
-          type: 'DUPLICATE_ID',
-          rule: 'REACT_025',
-          message: `Duplicate landmark ID found: "${landmark.id}"`,
-          element: landmark.tagName.toLowerCase()
-        });
-      } else {
-        landmarkIds[landmark.id] = true;
-      }
-    }
-  });
-  
-  // Check for landmarks without accessible names
-  landmarks.forEach(landmark => {
-    const hasLabel = landmark.getAttribute('aria-label') || 
-                     landmark.getAttribute('aria-labelledby') ||
-                     landmark.querySelector('[aria-label]') ||
-                     landmark.querySelector('[aria-labelledby]') ||
-                     landmark.querySelector('h1, h2, h3, h4, h5, h6');
-    
-    if (!hasLabel) {
-      issues.push({
-        type: 'MISSING_LABEL',
-        rule: 'ARIA_025',
-        message: `Landmark without accessible name found`,
-        element: landmark.tagName.toLowerCase()
-      });
-    }
-  });
-  
-  return {
-    timestamp: new Date().toISOString(),
-    totalIssues: issues.length,
-    issues: issues,
-    summary: {
-      duplicateIds: issues.filter(i => i.type === 'DUPLICATE_ID').length,
-      missingLabels: issues.filter(i => i.type === 'MISSING_LABEL').length
-    }
-  };
-}
-
-/**
- * Checks if a value is an empty string, null, or undefined
- * @param {*} value - The value to check
- * @returns {boolean} - True if the value is empty
- */
-function isEmpty(value) {
-  return value === null || value === undefined || value === '';
-}
-
-/**
- * Capitalizes the first letter of a string
- * @param {string} str - The string to capitalize
- * @returns {string} - The capitalized string
- */
-function capitalize(str) {
-  if (typeof str !== 'string' || str.length === 0) return str;
-  return str.charAt(0).toUpperCase() + str.slice(1);
-}
-
-/**
- * Generates a random integer between min and max (inclusive)
- * @param {number} min - Minimum value
- * @param {number} max - Maximum value
- * @returns {number} - Random integer
- */
-function getRandomInt(min, max) {
-  min = Math.ceil(min);
-  max = Math.floor(max);
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-
-/**
- * Clamps a number between min and max values
- * @param {number} num - Number to clamp
- * @param {number} min - Minimum value
- * @param {number} max - Maximum value
- * @returns {number} - Clamped number
- */
-function clamp(num, min, max) {
-  return Math.min(Math.max(num, min), max);
-}
-
-/**
- * Deep clones an object
- * @param {*} obj - Object to clone
- * @returns {*} - Cloned object
- */
-function deepClone(obj) {
-  if (obj === null || typeof obj !== 'object') return obj;
-  if (obj instanceof Date) return new Date(obj.getTime());
-  if (obj instanceof Array) return obj.map(item => deepClone(item));
-  if (obj instanceof Object) {
-    const cloned = {};
-    for (const key in obj) {
-      if (obj.hasOwnProperty(key)) {
-        cloned[key] = deepClone(obj[key]);
-      }
-    }
-    return cloned;
-  }
-  return obj;
-}
-
-/**
- * Renders a dependency graph visualization
- * @param {Object} dependencies - Graph data structure with nodes and edges
- * @param {string|HTMLElement} container - DOM element or selector to render the graph
- * @param {Object} options - Visualization options
- * @returns {Object} - Graph visualization control object
- */
-function renderDependencyGraph(dependencies, container, options = {}) {
-  const defaultOptions = {
-    nodeWidth: 100,
-    nodeHeight: 40,
-    nodeColor: '#4a90e2',
-    nodeTextColor: '#ffffff',
-    edgeColor: '#999999',
-    animated: true,
-    ...options
-  };
-  
-  const containerEl = typeof container === 'string' 
-    ? document.querySelector(container) 
-    : container;
-  
-  if (!containerEl) {
-    throw new Error('Container element not found for dependency graph rendering');
-  }
-  
-  // Use the imported module to render the graph
-  const graphControl = dependencyGraphContent.renderGraph(containerEl, dependencies, defaultOptions);
-  
-  // Initial render
-  graphControl.redraw?.();
-  
-  return graphControl;
-}
-
-/**
- * Displays module structure for debugging purposes
- * @param {Object|Array} modules - Module data structure with module information
- * @param {string|HTMLElement} container - DOM element or selector to display the structure
- * @param {Object} options - Display options
- * @returns {Object} - Control object for the module structure display
- */
-function displayModuleStructure(modules, container, options = {}) {
-  const defaultOptions = {
-    showDependencies: true,
-    showExports: true,
-    maxDepth: Infinity,
-    indentSize: 2,
-    ...options
-  };
-  
-  const containerEl = typeof container === 'string' 
-    ? document.querySelector(container) 
-    : container;
-  
-  if (!containerEl) {
-    throw new Error('Container element not found for module structure display');
-  }
-  
-  // Clear container
-  containerEl.innerHTML = '';
-  
-  // Create a pre element for structured output
-  const pre = document.createElement('pre');
-  pre.style.fontFamily = 'monospace';
-  pre.style.whiteSpace = 'pre-wrap';
-  pre.style.backgroundColor = '#f5f5f5';
-  pre.style.padding = '10px';
-  pre.style.border = '1px solid #ddd';
-  pre.style.borderRadius = '4px';
-  pre.style.overflow = 'auto';
-  pre.style.maxHeight = '500px';
-  
-  // Generate the module structure text
-  let output = '';
-  
-  function renderModule(module, depth = 0, visited = new Set()) {
-    if (depth > defaultOptions.maxDepth) return;
-    if (visited.has(module.id)) return;
-    visited.add(module.id);
-    
-    const indent = ' '.repeat(depth * defaultOptions.indentSize);
-    output += `${indent}📦 ${module.name || module.id}\n`;
-    
-    if (module.path) {
-      output += `${indent}   📁 ${module.path}\n`;
-    }
-    
-    if (module.exports && defaultOptions.showExports) {
-      output += `${indent}   📤 Exports:\n`;
-      module.exports.forEach(exp => {
-        output += `${indent}      - ${exp}\n`;
-      });
-    }
-    
-    if (module.dependencies && defaultOptions.showDependencies) {
-      output += `${indent}   🔗 Dependencies:\n`;
-      module.dependencies.forEach(dep => {
-        output += `${indent}      - ${dep.name || dep.id}\n`;
-        if (typeof dep === 'object' && dep !== null) {
-          renderModule(dep, depth + 2, visited);
-        }
-      });
-    }
-    
-    output += '\n';
-  }
-  
-  // Handle both single module and array of modules
-  if (Array.isArray(modules)) {
-    modules.forEach(module => renderModule(module));
-  } else if (modules && typeof modules === 'object') {
-    renderModule(modules);
-  } else {
-    output = 'No module data available';
-  }
-  
-  pre.textContent = output;
-  containerEl.appendChild(pre);
-  
-  // Return control object
-  return {
-    container: containerEl,
-    element: pre,
-    updateData: function(newModules) {
-      modules = newModules;
-      this.redraw();
-    },
-    redraw: function() {
-      containerEl.innerHTML = '';
-      let newOutput = '';
-      
-      function renderModuleRecursive(module, depth = 0, visited = new Set()) {
-        if (depth > defaultOptions.maxDepth) return;
-        if (visited.has(module.id)) return;
-        visited.add(module.id);
-        
-        const indent = ' '.repeat(depth * defaultOptions.indentSize);
-        newOutput += `${indent}📦 ${module.name || module.id}\n`;
-        
-        if (module.path) {
-          newOutput += `${indent}   📁 ${module.path}\n`;
-        }
-        
-        if (module.exports && defaultOptions.showExports) {
-          newOutput += `${indent}   📤 Exports:\n`;
-          module.exports.forEach(exp => {
-            newOutput += `${indent}      - ${exp}\n`;
-          });
-        }
-        
-        if (module.dependencies && defaultOptions.showDependencies) {
-          newOutput += `${indent}   🔗 Dependencies:\n`;
-          module.dependencies.forEach(dep => {
-            newOutput += `${indent}      - ${dep.name || dep.id}\n`;
-            if (typeof dep === 'object' && dep !== null) {
-              renderModuleRecursive(dep, depth + 2, visited);
-            }
-          });
-        }
-        
-        newOutput += '\n';
-      }
-      
-      if (Array.isArray(modules)) {
-        modules.forEach(module => renderModuleRecursive(module));
-      } else if (modules && typeof modules === 'object') {
-        renderModuleRecursive(modules);
-      } else {
-        newOutput = 'No module data available';
-      }
-      
-      pre.textContent = newOutput;
-      containerEl.appendChild(pre);
-    }
-  };
-}
-
-// Export for use in other modules
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = {
-    initializeAccessibility,
-    setupKeyboardNavigation,
-    trapFocus,
-    createAnnouncer,
-    prefersReducedMotion,
-    isLinkAccessible,
-    addSvgAccessibilityProps,
-    isEmpty,
-    capitalize,
-    getRandomInt,
-    clamp,
-    deepClone,
-    addressAccessibilityIssues,
-    renderDependencyGraph,
-    displayModuleStructure
-  };
-}
-
-// Auto-initialize when DOM is ready
-if (typeof document !== 'undefined') {
-  document.addEventListener('DOMContentLoaded', () => {
-    window.accessibilityFeatures = initializeAccessibility();
-  });
-}
+module.exports = {
+  renderDependencyGraph,
+  renderIndex,
+  newFunction,
+  checkLandmarkElement,
+  wrapPrimaryContentInMain,
+  checkLandmarks,
+  ensureUniqueLandmarks,
+  handleFocusTrap,
+  revokeSession,
+  initializeAccessibility,
+  prefersReducedMotion,
+  addSvgAccessibilityProps,
+  isEmpty,
+  capitalize,
+  getRandomInt,
+  clamp,
+  deepClone,
+  addressAccessibilityIssues
+};

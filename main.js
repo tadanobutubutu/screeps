@@ -485,15 +485,6 @@ const accessibilityUtils = {
                 break;
         }
     },
-    
-    /**
-     * Validate the landmark structure for accessibility issues
-     * @param {Document|HTMLElement} context - The document or element to validate
-     * @returns {Object} Validation result with issues array and summary
-     */
-    validateLandmarkStructure(context = document) {
-        return validateLandmarkStructure(context);
-    }
 };
 
 // New focus trap implementation with enhanced features
@@ -698,5 +689,6 @@ module.exports = {
     getTables,
     getConfig,
     setConfig,
-    myNewFunction
+    dependencyGraphContent,
+    indexContent
 };

@@ -1,3 +1,4 @@
+// TODO: Identify and update specific functions that render dependency graphs or
 // TODO: This is the existing code that needs to be preserved
 // ----- BEGIN ORIGINAL CODE (unchanged) -----
 // This is the existing code that needs to be preserved
@@ -357,3 +358,172 @@ function ensureUniqueLandmarks(html) {
 }
 
 // REACT_036: Fix fake link issues
+function fixFakeLinks(html) {
+    if (typeof html !== 'string') return html;
+
+    // Find spans or divs with onclick that act as links and convert to <a>
+    html = html.replace(
+        /<span([^>]*)onclick=["']([^"']*)["']([^>]*)>/gi,
+        (match, before, onclick, after) => {
+            const hrefMatch = onclick.match(/window\.location\s*=\s*['"]([^'"]+)['"]/);
+            if (hrefMatch) {
+                return `<a href="${hrefMatch[1]}"${before}${after}>`;
+            }
+            return match;
+        }
+    );
+
+    html = html.replace(/<\/span>/gi, '</a>');
+
+    return html;
+}
+
+// Main function that applies all accessibility fixes
+function applyAccessibilityFixes(html) {
+    let result = html;
+    result = addLangAttribute(result);
+    result = fixTableStructure(result);
+    result = fixLandmarks(result);
+    result = addSvgAccessibleNames(result);
+    result = ensureUniqueLandmarks(result);
+    result = fixFakeLinks(result);
+    return result;
+}
+
+function addressAccessibilityIssues(insightReport) {
+  // Apply accessibility fixes to HTML content based on insight report
+  if (insightReport && insightReport.html) {
+    insightReport.html = applyAccessibilityFixes(insightReport.html);
+  }
+  console.log('Addressing accessibility issues from insight report:', insightReport);
+}
+
+function createInPageButton(buttonId, buttonText, buttonClass) {
+    const button = document.createElement('button');
+    button.id = buttonId;
+    button.textContent = buttonText;
+    button.className = buttonClass;
+    button.setAttribute('aria-label', buttonText); // Added for accessibility
+    button.setAttribute('role', 'button'); // Added for accessibility
+    document.body.appendChild(button);
+}
+
+// New function to improve accessibility for adding a new book
+/**
+ * Creates an accessible form for adding a new book with proper labels and ARIA attributes
+ * @param {string} formId - The ID for the form element
+ * @param {string} submitButtonId - The ID for the submit button
+ * @returns {HTMLFormElement} The created form element
+ */
+function createAccessibleBookForm(formId, submitButtonId) {
+    const form = document.createElement('form');
+    form.id = formId;
+    form.setAttribute('role', 'form');
+    form.setAttribute('aria-labelledby', `${formId}-title`);
+
+    // Add form title for accessibility
+    const title = document.createElement('h2');
+    title.id = `${formId}-title`;
+    title.textContent = 'Add New Book';
+    form.appendChild(title);
+
+    // Create accessible form fields
+    const createField = (labelText, inputId, inputType = 'text') => {
+        const fieldset = document.createElement('fieldset');
+        const label = document.createElement('label');
+        label.setAttribute('for', inputId);
+        label.textContent = labelText;
+        const input = document.createElement('input');
+        input.type = inputType;
+        input.id = inputId;
+        input.setAttribute('required', 'true');
+        input.setAttribute('aria-required', 'true');
+
+        fieldset.appendChild(label);
+        fieldset.appendChild(input);
+        return fieldset;
+    };
+
+    // Add form fields
+    form.appendChild(createField('Book Title:', `${formId}-title`));
+    form.appendChild(createField('Author:', `${formId}-author`));
+    form.appendChild(createField('Publication Year:', `${formId}-year`, 'number'));
+
+    // Add submit button
+    const submitButton = document.createElement('button');
+    submitButton.id = submitButtonId;
+    submitButton.type = 'submit';
+    submitButton.textContent = 'Add Book';
+    submitButton.setAttribute('aria-label', 'Submit new book form');
+    form.appendChild(submitButton);
+
+    return form;
+}
+
+/**
+ * Renders a dependency graph as an accessible HTML representation.
+ * Takes a graph object with nodes and edges, and produces structured HTML
+ * with proper ARIA attributes for screen reader compatibility.
+ * @param {Object} graph - The dependency graph with nodes and edges
+ * @param {string} graph.title - Optional title for the graph
+ * @param {Array<{id: string, label: string, group?: string}>} graph.nodes - List of graph nodes
+ * @param {Array<{from: string, to: string, label?: string}>} graph.edges - List of graph edges
+ * @returns {string} HTML string representing the dependency graph
+ */
+function renderDependencyGraph(graph) {
+    if (!graph || typeof graph !== 'object') return '';
+
+    const nodes = Array.isArray(graph.nodes) ? graph.nodes : [];
+    const edges = Array.isArray(graph.edges) ? graph.edges : [];
+    const title = typeof graph.title === 'string' ? graph.title : 'Dependency Graph';
+    const titleId = `dep-graph-title-${Date.now()}`;
+
+    let html = `<figure role="figure" aria-labelledby="${titleId}" class="dependency-graph">`;
+    html += `<figcaption id="${titleId}">${title}</figcaption>`;
+    html += `<table role="table" aria-label="${title}">`;
+    html += `<thead><tr><th scope="col">Node</th><th scope="col">Group</th><th scope="col">Depends On</th></tr></thead>`;
+    html += `<tbody>`;
+
+    const dependencies = {};
+    edges.forEach(edge => {
+        if (!edge || !edge.from) return;
+        if (!dependencies[edge.from]) dependencies[edge.from] = [];
+        if (edge.to) dependencies[edge.from].push(edge.to);
+    });
+
+    nodes.forEach(node => {
+        if (!node || !node.id) return;
+        const label = typeof node.label === 'string' ? node.label : node.id;
+        const group = typeof node.group === 'string' ? node.group : '';
+        const deps = (dependencies[node.id] || []).join(', ');
+        html += `<tr><td>${label}</td><td>${group}</td><td>${deps}</td></tr>`;
+    });
+
+    html += `</tbody></table></figure>`;
+    return html;
+}
+
+// Don't forget to test your new additions in the test file
+
+// Export accessibility utility functions
+module.exports = {
+    addLangAttribute,
+    fixTableStructure,
+    fixLandmarks,
+    addSvgAccessibleNames,
+    ensureUniqueLandmarks,
+    fixFakeLinks,
+    applyAccessibilityFixes,
+    addressAccessibilityIssues,
+    createInPageButton,
+    divide,
+    checkLinkAccessibility,
+    wrapPrimaryContentInMain,
+    createAccessibleBookForm,
+    renderDependencyGraph
+};
+
+// Run if executed directly
+if (require.main === module) {
+  main();
+}

@@ -358,40 +358,8 @@ function ensureUniqueLandmarkIds() {
         element.id = `${landmark.role}-${index + 1}`;
       }
     });
-  });
-}
+  }
+});
 
-function createInPageButton(buttonId, buttonText, buttonClass) {
-    const button = document.createElement('button');
-    button.id = buttonId;
-    button.textContent = buttonText;
-    button.className = buttonClass;
-    document.body.appendChild(button);
-}
-
-// Export the function for testing and external use
-module.exports = { newFunction };
-
-// Export accessibility utility functions
-export {
-  getLangAttribute,
-  createInPageButton,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLinkAccessibility,
-  handleFakeLinks,
-  checkLinkAccessibility,
-  newFunction,
-  addressAccessibilityIssues,
-  addLangAttribute,
-  fixTableStructure,
-  fixLandmarks,
-  addSvgAccessibleNames,
-  ensureUniqueLandmarks,
-  fixFakeLinks,
-  applyAccessibilityFixes,
-  divide,
-  wrapPrimaryContentInMain,
-  ensureDependencyGraphContainerAccessibility,
-  ensureUniqueLandmarkIds
-};
+// Export functions for testing and external use
+module.exports = { addBook, newFunction };

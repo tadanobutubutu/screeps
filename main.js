@@ -108,7 +108,7 @@ const isSecureContext = () => {
 const setLanguageAttribute = (lang = 'en') => {
   const htmlElement = document.documentElement;
   if (htmlElement) {
-    htmlElement.lang = lang;
+    ... lang);
   }
 };
 
@@ -120,31 +120,25 @@ const setLanguageAttribute = (lang = 'en') => {
  */
 const addLandmarkRoles = () => {
   // Navigation landmark
-  const navElement = document.querySelector('nav');
-  if (navElement && !navElement.getAttribute('role')) {
-    navElement.setAttribute('role', 'navigation');
+  const navElement = ...
+  if (navElement && ... {
+    ... 'navigation');
   }
 
-// Example usage for SVGs:
-// const svg1 = document.querySelector && document.querySelector('.svg-icon-1');
-// const svg2 = document.querySelector && document.querySelector('.svg-icon-2');
-// svg1 && svg1.setAttribute('aria-label', 'Description of first icon');
-// svg2 && svg2.setAttribute('aria-label', 'Description of second icon');
+  // Main content landmark
+  const mainElement = ...
+  if (mainElement && ... {
+    mainElement.setAttribute('role', 'main');
+  }
 
-// REACT_027: Add scope="col" or scope="row" to <th> elements (already implemented)
-// Ensure all <th> elements have scope attribute
-function ensureThScope() {
-  const thElements = document.querySelectorAll && document.querySelectorAll('th');
-  thElements && thElements.forEach && thElements.forEach(th => {
-    if (!th.hasAttribute('scope')) {
-      // Determine if it`s a column header or row header based on context
-      const parent = th.parentElement;
-      const parentTagName = parent ? parent.tagName.toLowerCase() : '';
-      const siblings = parent ? Array.from(parent.children) : [];
-      const isFirstCell = parent && siblings.indexOf(th) === 0;
+  // Header landmark (banner)
+  const headerElement = ...
+  if (headerElement && ... {
+    ... 'banner');
+  }
 
   // Footer landmark (contentinfo)
-  const footerElement = document.querySelector('footer');
+  const footerElement = ...
   if (footerElement && !footerElement.getAttribute('role')) {
     footerElement.setAttribute('role', 'contentinfo');
   }
@@ -164,9 +158,9 @@ function ensureThScope() {
  */
 const ensureUniqueLandmarkElements = () => {
   // Navigation landmark uniqueness
-  const navElements = document.querySelectorAll('[role="navigation"]');
-  if (navElements.length > 0) {
-    navElements.forEach((nav, index) => {
+  const navElements = ...
+  if (navElements.length > 1) {
+    ... index) => {
       if (index > 0) {
         nav.setAttribute('aria-label', `Navigation ${index + 1}`);
       }
@@ -174,9 +168,9 @@ const ensureUniqueLandmarkElements = () => {
   }
 
   // Main content landmark uniqueness
-  const mainElements = document.querySelectorAll('[role="main"]');
-  if (mainElements.length > 0) {
-    mainElements.forEach((main, index) => {
+  const mainElements = ...
+  if (mainElements.length > 1) {
+    ... index) => {
       if (index > 0) {
         main.setAttribute('aria-label', `Main content ${index + 1}`);
       }
@@ -194,10 +188,10 @@ const ensureUniqueLandmarkElements = () => {
  * @param {string} accessibleName - The accessible name to set.
  */
 const addSVGAccessibleName = (svgSelector, accessibleName) => {
-  const svgs = document.querySelectorAll(svgSelector);
+  const svgs = ...
   svgs.forEach((svg) => {
     // Check if the SVG already has a title element
-    let titleElement = svg.querySelector('title');
+    let titleElement = ...
     if (!titleElement) {
       titleElement = document.createElement('title');
       svg.insertBefore(titleElement, svg.firstChild);
@@ -425,7 +419,7 @@ function createUnrotateButton() {
   return button;
 }
 
-export function replaceFakeLinks() {
+function replaceFakeLinks() {
   const fakeLink = ...
   if (fakeLink && fakeLink.tagName === 'A') {
     const parent = fakeLink.parentElement;
@@ -435,6 +429,59 @@ export function replaceFakeLinks() {
 }
 
 // ... (other code in main.js)
+
+// Updated function using new rendering functions for graph/index
+function renderGraphIndex(containerId, graphData, options = {}) {
+  const container = document.getElementById(containerId);
+  if (!container) {
+    console.error(`Container with id "${containerId}" not found`);
+    return;
+  }
+
+  // Clear existing content
+  container.innerHTML = '';
+
+  // Process graph data using ensureUniqueLandmarks
+  const landmarks = graphData.landmarks || [];
+  const uniqueLandmarks = ensureUniqueLandmarks(landmarks);
+
+  // Create navigation buttons for each unique landmark
+  const navContainer = document.createElement('div');
+  navContainer.setAttribute('role', 'navigation');
+  navContainer.setAttribute('aria-label', 'Graph navigation');
+
+  uniqueLandmarks.forEach((landmark, index) => {
+    const button = createInPageButton(
+      landmark.name || `Landmark ${index + 1}`,
+      () => {
+        // Navigate to landmark
+        if (options.onNavigate) {
+          options.onNavigate(landmark, index);
+        }
+      }
+    );
+    button.setAttribute('aria-label', `${landmark.name || 'Landmark'} - ${landmark.role || 'region'}`);
+    navContainer.appendChild(button);
+  });
+
+  container.appendChild(navContainer);
+
+  // Render main content area
+  const mainContent = document.createElement('main');
+  mainContent.setAttribute('role', 'main');
+  mainContent.setAttribute('aria-label', 'Graph content');
+
+  // Add graph visualization
+  const graphCanvas = document.createElement('div');
+  graphCanvas.id = 'graph-canvas';
+  mainContent.appendChild(graphCanvas);
+
+  container.appendChild(mainContent);
+
+  // Apply accessibility improvements
+  addLandmarkRoles();
+  ensureUniqueLandmarkElements();
+}
 
 // Additional function
 export function newFunction() {

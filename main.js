@@ -5,7 +5,7 @@
 // - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames)
 // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks - updated to keep single <main>)
 // - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue)
-// - REACT_027: Add scope="col" or scope="row" to <th> elements (DONE: addScopeToTableHeaders)
+// - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
 
 const fs = require('fs');
 const path = require('path');

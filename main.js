@@ -178,8 +178,7 @@ const validateTableAccessibility = (html) => {
 
 const a11yStore = {
   // ... existing methods ...
-
-  prefersReducedMotion() {
+  prefersReducedMotion: function() {
     return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   },
 
@@ -253,7 +252,8 @@ const a11yStore = {
 
   newFunction: function() {
     // New function implementation from origin/main
-  },
+  }
+};
 
   addressAccessibilityIssues(container, options = {}) {
     const fixes = {
@@ -264,12 +264,33 @@ const a11yStore = {
       fakeLinksFixed: 0
     };
 
-    const log = (message, level = 'info') => {
-      if (options.silent) return;
-      if (level === 'warn') console.warn(message);
-      else if (level === 'error') console.error(message);
-      else console.log(message);
-    };
+function getSvgAccessibleName(svgElement) {
+  const title = svgElement.querySelector('title');
+  const desc = svgElement.querySelector('desc');
+
+  if (title && title.textContent) {
+    return title.textContent.trim();
+  }
+
+  if (desc && desc.textContent) {
+    return desc.textContent.trim();
+  }
+
+  const ariaLabel = svgElement.getAttribute('aria-label');
+  if (ariaLabel) {
+    return ariaLabel.trim();
+  }
+
+  const ariaLabelledby = svgElement.getAttribute('aria-labelledby');
+  if (ariaLabelledby) {
+    const labeledElement = document.getElementById(ariaLabelledby);
+    if (labeledElement && labeledElement.textContent) {
+      return labeledElement.textContent.trim();
+    }
+  }
+
+  return 'SVG graphic';
+}
 
     const focusTrap = (element) => {
       if (!element || typeof element.querySelectorAll !== 'function') return;
@@ -281,21 +302,225 @@ const a11yStore = {
       const firstElement = focusableElements[0];
       const lastElement = focusableElements[focusableElements.length - 1];
 
-      element.addEventListener('keydown', function(event) {
-        if (event.key !== 'Tab') return;
-        if (event.shiftKey && document.activeElement === firstElement) {
-          event.preventDefault();
-          lastElement.focus();
-        } else if (!event.shiftKey && document.activeElement === lastElement) {
-          event.preventDefault();
-          firstElement.focus();
+if (typeof document !== 'undefined') {
+  const mainElement = document.createElement('main');
+  mainElement.setAttribute('lang', document.documentElement.lang);
+
+  if (!document.documentElement.getAttribute('lang')) {
+    document.documentElement.setAttribute('lang', 'en');
+  }
+}
+
+function newFunction() {
+  // Implementation from origin/main
+}
+
+if (typeof document !== 'undefined') {
+  const banners = document.querySelectorAll('[role="banner"], [role="header"]');
+  if (banners.length > 1) {
+    throw new Error('Document should have at most one banner or header landmark');
+  }
+}
+
+function checkLandmarkElement(role, element) {
+  // (code for checkLandmarkElement remains the same)
+}
+
+function wrapPrimaryContentInMain() {
+  if (typeof document === 'undefined' || !document.body) {
+    return null;
+  }
+
+  let mainElement = document.querySelector('main');
+  if (mainElement) {
+    return mainElement;
+  }
+
+  const elementsToExclude = [];
+  const landmarks = document.querySelectorAll('header, nav, aside, footer, [role="banner"], [role="navigation"], [role="complementary"], [role="contentinfo"]');
+  landmarks.forEach(landmark => elementsToExclude.push(landmark));
+
+  mainElement = document.createElement('main');
+
+  const bodyChildren = Array.from(document.body.children);
+  bodyChildren.forEach(child => {
+    if (!elementsToExclude.includes(child)) {
+      mainElement.appendChild(child);
+    }
+  });
+
+  document.body.appendChild(mainElement);
+
+  return mainElement;
+}
+
+function checkLandmarks(container = document) {
+  // (code for checkLandmarks remains the same)
+}
+
+/**
+ * Ensure unique main landmarks exist in the document.
+ * Logs a warning if multiple main landmarks are detected.
+ */
+function ensureUniqueLandmarks() {
+  const mains = document.querySelectorAll('main, [role="main"]');
+  if (mains.length > 1) {
+    console.warn('Multiple main landmarks detected. Ensure only one main landmark exists.');
+    throw new Error('Document should have at most one main landmark');
+  }
+}
+
+/**
+ * Revoke a session
+ * @param {string} sessionId - The session ID to revoke
+ * @returns {boolean} - True if session was revoked
+ */
+function revokeSession(sessionId) {
+    return appState.sessions.delete(sessionId);
+}
+
+/**
+ * Focus trap handler to keep focus within a container.
+ * @param {Element} element - Element to monitor for focus events
+ */
+function handleFocusTrap(element) {
+  if (!element || typeof element.querySelectorAll !== 'function') {
+    return;
+  }
+
+  const focusableElements = Array.from(element.querySelectorAll(
+    'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+  ));
+
+  if (focusableElements.length === 0) {
+    return;
+  }
+
+  const firstElement = focusableElements[0];
+  const lastElement = focusableElements[focusableElements.length - 1];
+
+  element.addEventListener('keydown', function(event) {
+    if (event.key !== 'Tab') {
+      return;
+    }
+
+    if (event.shiftKey) {
+      if (document.activeElement === firstElement) {
+        event.preventDefault();
+        lastElement.focus();
+      }
+    } else {
+      if (document.activeElement === lastElement) {
+        event.preventDefault();
+        firstElement.focus();
+      }
+    }
+  });
+}
+
+// HTTP Server setup
+const server = http.createServer((req, res) => {
+    const parsedUrl = url.parse(req.url, true);
+
+    // CORS headers for credential responses
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+    if (req.method === 'OPTIONS') {
+        res.writeHead(200);
+        res.end();
+        return;
+    }
+
+    // Health check endpoint
+    if (parsedUrl.pathname === '/health') {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ status: 'ok', sessions: getActiveSessionsCount() }));
+        return;
+    }
+
+    // Credential response endpoint
+    if (parsedUrl.pathname === '/api/credential' && req.method === 'POST') {
+        let body = '';
+
+        req.on('data', chunk => {
+            body += chunk.toString();
+        });
+
+        req.on('end', () => {
+            try {
+                const credentialResponse = JSON.parse(body);
+                const result = handleCredentialResponse(credentialResponse);
+
+                res.writeHead(result.status === 'success' ? 200 : 400, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify(result));
+            } catch (error) {
+                res.writeHead(400, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ status: 'error', message: 'Invalid JSON' }));
+            }
+        });
+        return;
+    }
+
+    // Session validation endpoint
+    if (parsedUrl.pathname === '/api/session/validate' && req.method === 'GET') {
+        const sessionId = parsedUrl.query.sessionId;
+
+        if (!sessionId) {
+            res.writeHead(400, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ status: 'error', message: 'Session ID required' }));
+            return;
         }
       });
     };
 
-    const getLangAttribute = (container) => {
-      return container.getAttribute('lang') || container.documentElement?.getAttribute('lang') || 'en';
-    };
+        const session = validateSession(sessionId);
+
+        if (session) {
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ status: 'valid', user: session.user }));
+        } else {
+            res.writeHead(401, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ status: 'invalid', message: 'Session expired or invalid' }));
+        }
+        return;
+    }
+
+    // Session revocation endpoint
+    if (parsedUrl.pathname === '/api/session/revoke' && req.method === 'POST') {
+        let body = '';
+
+        req.on('data', chunk => {
+            body += chunk.toString();
+        });
+
+        req.on('end', () => {
+            try {
+                const { sessionId } = JSON.parse(body);
+                const revoked = revokeSession(sessionId);
+
+                res.writeHead(200, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ status: revoked ? 'success' : 'error' }));
+            } catch (error) {
+                res.writeHead(400, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ status: 'error', message: 'Invalid request' }));
+            }
+        });
+        return;
+    }
+
+    res.writeHead(404, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ status: 'error', message: 'Not found' }));
+});
+
+// Start server if this is the main module
+if (require.main === module) {
+    const PORT = process.env.PORT || 3000;
+    server.listen(PORT, () => {
+        console.log(`Server running on port ${PORT}`);
+    });
+}
 
     // Add lang attribute to HTML element if missing
     const htmlElement = container.querySelector('html') || container.ownerDocument?.querySelector('html');

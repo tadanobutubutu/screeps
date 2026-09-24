@@ -745,4 +745,92 @@ function wrapPrimaryContentInMain() {
   button.type = 'button';
   
   // Set the accessible name
-  button.setAttribute
+  button.setAttribute('aria-label', opts.ariaLabel || text);
+  
+  // Use aria-controls to indicate the element the button controls/links to
+  if (targetId) {
+    button.setAttribute('aria-controls', targetId);
+  }
+  
+  // Set the text content
+  button.textContent = text;
+  
+  // Apply optional className
+  if (opts.className) {
+    button.className = opts.className;
+  }
+  
+  // Store the target id as a data attribute for handling clicks
+  if (targetId) {
+    button.setAttribute('data-target-id', targetId);
+    
+    // Attach a click handler that scrolls to the target and updates the URL hash
+    button.addEventListener('click', function(event) {
+      const targetElement = document.getElementById(targetId);
+      if (targetElement) {
+        // Prevent default to allow smooth scrolling behavior to be controlled
+        event.preventDefault();
+        targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        // Update the URL hash without jumping
+        if (history && typeof history.pushState === 'function') {
+          history.pushState(null, '', '#' + targetId);
+        } else {
+          window.location.hash = targetId;
+        }
+        // Move focus to the target element if it's focusable, otherwise set tabindex
+        if (!targetElement.hasAttribute('tabindex')) {
+          targetElement.setAttribute('tabindex', '-1');
+        }
+        targetElement.focus({ preventScroll: true });
+      }
+    });
+  }
+  
+  return button;
+}
+
+function personName(name) {
+  if (typeof name !== 'string') {
+    return '';
+  }
+  return name.trim();
+}
+
+/**
+ * New function added to address the issue: provides a sample utility
+ * that performs a simple operation useful for accessibility tooling.
+ * @param {*} value - The input value to process
+ * @returns {boolean} True if the value is considered valid/truthy
+ */
+function myNewFunction(value) {
+  if (value === null || value === undefined) {
+    return false;
+  }
+  if (typeof value === 'string') {
+    return value.trim().length > 0;
+  }
+  if (Array.isArray(value)) {
+    return value.length > 0;
+  }
+  if (typeof value === 'object') {
+    return Object.keys(value).length > 0;
+  }
+  return Boolean(value);
+}
+
+// Export all functions to make them available as module exports
+export {
+  setHtmlLangAttribute,
+  detectAndSetLang,
+  getLangAttribute,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  validateSvgAccessibility,
+  ensureUniqueLandmarks,
+  createInPageButton,
+  personName,
+  myNewFunction
+};

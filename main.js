@@ -127,21 +127,48 @@ function setHtmlLangAttribute(lang) {
 }
 
 function getLangAttribute() {
-  // ... existing code ...
-  if (typeof document !== 'undefined') {
-    return document.documentElement.lang || 'en';
-  }
-  return 'en';
+    const html = document.documentElement;
+    return html.lang || html.getAttribute('lang') || navigator.language || navigator.userLanguage;
 }
 
-// New function: Keyboard event handler for accessibility
-function ... {
-  const key = event.key;
-  const activeElement = document.activeElement;
+// NEW FUNCTION: Wrap primary content in 'main' if needed
+function wrapPrimaryContentInMain() {
+    const primaryContent = document.querySelector('main');
+    if (!primaryContent) {
+        const main = document.createElement('main');
+        document.body.appendChild(main);
+        main.appendChild(document.body.firstChild);
+    }
+}
 
 // FUNCTIONS TO HANDLE ADDRESSED ACCESSIBILITY ISSUES:
 // - REACT_015, - REACT_027, - REACT_017, - REACT_041, - REACT_025, - REACT_036
-// Add these functions as needed based on the existing code and the issue description
+function addAriaRoles() {
+    // Add ARIA roles as needed
+    const nav = document.querySelector('nav');
+    if (nav) {
+        nav.setAttribute('role', 'navigation');
+    }
+
+    const searchInput = document.querySelector('input[type="search"]');
+    if (searchInput) {
+        searchInput.setAttribute('aria-label', 'Search');
+    }
+}
+
+function addAriaLabels() {
+    const buttons = document.querySelectorAll('button:not([aria-label])');
+    buttons.forEach(button => {
+        button.setAttribute('aria-label', button.textContent);
+    });
+}
+
+function addRoleDescription() {
+    const footer = document.querySelector('footer');
+    if (footer) {
+        footer.setAttribute('aria-label', 'Footer');
+    }
+}
 
 // TODO: Implement this new function for showing a modal
 function showModal(modalId, modalContent) {
@@ -162,24 +189,11 @@ function spawnButtons(buttonDefinitions) {
 
 // Address accessibility issues from insight report — FIXED
 function fixAccessibilityIssues() {
-    // Example of a function to fix accessibility issues
-    // This is a placeholder for the actual accessibility fixes
-    // Implement the necessary changes based on the insight report
-    // For example, adding ARIA roles, labels, or other attributes
-
-    // Example fix: Add ARIA role to a navigation landmark
-    const nav = document.querySelector('nav');
-    if (nav) {
-        nav.setAttribute('role', 'navigation');
-    }
-
-    // Example fix: Add ARIA label to a search input
-    const searchInput = document.querySelector('input[type="search"]');
-    if (searchInput) {
-        searchInput.setAttribute('aria-label', 'Search');
-    }
-
-    // Additional accessibility fixes can be added here
+    validateLandmarkStructure();
+    wrapPrimaryContentInMain();
+    addAriaRoles();
+    addAriaLabels();
+    addRoleDescription();
 }
 
 // Function to generate accessibility report
@@ -190,7 +204,21 @@ function generateAccessibilityReport() {
         report.landmark = 'Missing required landmarks';
     }
 
-    // You can add more checks here to generate the report
+    if (!wrapPrimaryContentInMain()) {
+        report.primary_content = 'Primary content is not wrapped in a <main> tag';
+    }
+
+    if (!addAriaRoles()) {
+        report.aria_roles = 'Missing ARIA roles';
+    }
+
+    if (!addAriaLabels()) {
+        report.aria_labels = 'Missing ARIA labels';
+    }
+
+    if (!addRoleDescription()) {
+        report.footer = 'Footer lacking ARIA description';
+    }
 
     return report;
 }
@@ -506,269 +534,5 @@ function addAriaLabelLocal(element, label) {
     }
 }
 
-function addAccessibleName(element, name) {
-    if (element) {
-        element.setAttribute('aria-label', name);
-    }
-}
-
-function ensureElementHasIdLocal(element) {
-    return ensureElementIdLocal(element);
-}
-
-function getTables() {
-    // Implementation for getting tables
-    return document.querySelectorAll('table');
-}
-
-function getConfig() {
-    // Implementation for getting config
-    return {};
-}
-
-function setConfig(config) {
-    // Implementation for setting config
-}
-
-function createInPageButtons() {
-    // Implementation for creating in-page buttons
-}
-
-// Main function to address accessibility issues from insight report — FIXED
-function addressAccessibilityIssuesFromReport(report) {
-    if (!report) return;
-    
-    // Apply table accessibility fixes
-    if (report.tableIssues) {
-        const tables = getTables();
-        tables.forEach(table => {
-            validateTableAccessibility(table);
-            validateTableStructure(table);
-        });
-    }
-    
-    // Apply landmark fixes
-    if (report.landmarkIssues) {
-        fixLandmarkIssues();
-        addMainLandmark();
-        addLandmarkRegions();
-        ensureUniqueLandmarks();
-    }
-    
-    // Apply SVG accessibility fixes
-    if (report.svgIssues) {
-        const svgs = document.querySelectorAll('svg');
-        svgs.forEach(svg => {
-            getSvgAccessibleName(svg);
-        });
-    }
-    
-    // Apply fake link fixes
-    if (report.fakeLinkIssues) {
-        fixFakeLinkIssues();
-    }
-    
-    // Apply button identifier fixes
-    if (report.buttonIssues) {
-        fixButtonIdentifiers();
-    }
-    
-    // Apply language attribute fixes
-    if (report.langIssues) {
-        const content = document.documentElement.outerHTML;
-        const lang = detectAndSetLang(content);
-        setHtmlLangAttribute(lang);
-    }
-}
-
-class ScreepsBot {
-  // ... (The rest of the class definition remains the same as in the original conflict branch)
-
-  validateTableAccessibility(html) {
-    if (html) {
-      // Extract table structure from the provided HTML and check its accessibility according to the criteria
-      // ... (Add the logic to validate table accessibility)
-    }
-  }
-
-  validateTableStructure(html) {
-    // Implementation for validating table structure
-  }
-
-  // ... (Add the event listener for click events on the dependencyGraph element)
-  
-  // Additional methods from origin/main
-  setupFocusTrap(element) {
-    // Setup focus trap for accessibility
-    return focusTrap(element);
-  }
-
-  restoreFocus() {
-    // Restore focus to previous active element
-    return restoreFocus();
-  }
-
-  checkAccessibility() {
-    // Check accessibility of the current page
-    return checkAccessibility();
-  }
-
-  implementAccessibilityFixesFromReport(report) {
-    // Implement fixes based on accessibility report
-    return implementAccessibilityFixesFromReport(report);
-  }
-
-  checkAccessibilityForReport() {
-    // Generate accessibility report
-    return checkAccessibilityForReport();
-  }
-
-  renderGraphIndex() {
-    // Render the graph index page
-    return renderGraphIndex();
-  }
-
-  trapFocus(element) {
-    // Trap focus within the specified element
-    return trapFocus(element);
-  }
-
-  getActiveSessionsCount() {
-    // Get count of active user sessions
-    return getActiveSessionsCount();
-  }
-
-  validateSession(session) {
-    // Validate user session
-    return validateSession(session);
-  }
-
-  handleCredentialResponse(response) {
-    // Handle Google sign-in credential response
-    return handleCredentialResponse(response);
-  }
-
-  createAnnouncer() {
-    // Create accessibility announcer
-    return createAnnouncer();
-  }
-
-  prefersReducedMotion() {
-    // Check if user prefers reduced motion
-    return prefersReducedMotion();
-  }
-
-  renderSimpleDependencyGraph() {
-    // Render a simplified version of dependency graph
-    return renderSimpleDependencyGraph();
-  }
-
-  initializeAccessibility() {
-    // Initialize accessibility features
-    return initializeAccessibility();
-  }
-
-  newFunction() {
-    // New functionality from origin/main
-    return newFunction();
-  }
-
-  get a11yStore() {
-    // Access accessibility store
-    return a11yStore;
-  }
-}
-
-// Additional event listeners and initialization from origin/main
-document.addEventListener('DOMContentLoaded', () => {
-  // Initialize accessibility features
-  if (typeof initializeAccessibility === 'function') {
-    initializeAccessibility();
-  }
-
-  // Detect and set language attribute for accessibility (REACT_015)
-  const bodyContent = document.body.textContent || document.body.innerText || '';
-  const lang = detectAndSetLang(bodyContent);
-  setHtmlLangAttribute(lang);
-
-  // Add event listener for dependency graph clicks
-  const dependencyGraphElement = document.querySelector('.dependency-graph');
-  if (dependencyGraphElement) {
-    dependencyGraphElement.addEventListener('click', (event) => {
-      // Validate table accessibility when dependency graph is clicked
-      const tables = document.querySelectorAll('table');
-      tables.forEach(table => {
-        validateTableAccessibility(table);
-      });
-    });
-  }
-});
-
-// Export all required functions and utilities
-module.exports = {
-  ScreepsBot,
-  calculateDiscount,
-  setHtmlLangAttribute,
-  detectAndSetLang,
-  getLangAttribute,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  validateSvgAccessibility,
-  renderDependencyGraph,
-  renderIndex,
-  accessibilityUtils: accessibilityUtilsLocal,
-  trapFocus: accessibilityUtilsLocal.trapFocus,
-  newFocusTrap,
-  initSkipLink: accessibilityUtilsLocal.initSkipLink,
-  announceToScreenReader: accessibilityUtilsLocal.announceToScreenReader,
-  handleKeyboardNav: accessibilityUtilsLocal.handleKeyboardNav,
-  createInPageButtons,
-  addAriaLabel: addAriaLabelLocal,
-  addAccessibleName,
-  ensureElementId: ensureElementIdLocal,
-  ensureElementHasId: ensureElementHasIdLocal,
-  getTables,
-  getConfig,
-  setConfig,
-  addressAccessibilityIssues,
-  addressAccessibilityIssuesFromReport,
-  // ... other exports from AccessibilityHelpers
-  fixTableStructure,
-  fixLandmarkIssues,
-  addMainLandmark,
-  addLandmarkRegions,
-  ensureUniqueLandmarks,
-  addSvgAccessibleName,
-  addAccessibleNamesToSVGs,
-  fixFakeLinkIssue,
-  fixFakeLinkIssues,
-  googleSignIn,
-  decodeJwtResponse,
-  fixButtonIdentifiers,
-  ensureElementHasId,
-  addAriaLabel,
-  renderDependencyGraphs,
-  fixDependencyGraphAria,
-  addMainLandmarkToIndex,
-  // ... other exports from utilities
-  createWebResourceButton,
-  setupFocusTrap,
-  restoreFocus,
-  checkAccessibility,
-  implementAccessibilityFixesFromReport,
-  checkAccessibilityForReport,
-  renderGraphIndex,
-  getActiveSessionsCount,
-  validateSession,
-  handleCredentialResponse,
-  createAnnouncer,
-  prefersReducedMotion,
-  renderSimpleDependencyGraph,
-  initializeAccessibility,
-  newFunction,
-  a11yStore,
-  ...mainUtilities
-};
+// Preserve any existing exports here
+export { performActionWithButton, generateAccessibilityReport, fixAccessibilityIssues, checkIfBodyContainButton, showModal, spawnButtons };

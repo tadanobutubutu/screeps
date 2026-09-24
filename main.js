@@ -60,53 +60,26 @@ function renderDependencyGraph(data) {
 
 function implementAccessibilityFixesFromReport(container, report) {
     // Implementation to address accessibility issues from the insight report
-    if (report.tables && Array.isArray(report.tables)) {
-        report.tables.forEach(table => {
-            if (table && typeof table === 'object' && table.nodeType === 1) {
-                accessibilityUtils.validateAndFixTableStructure(table);
-            }
-        });
-    }
-
-    if (report.landmarks && Array.isArray(report.landmarks)) {
-        report.landmarks.forEach(landmark => {
-            if (landmark && typeof landmark === 'object' && landmark.nodeType === 1) {
-                accessibilityUtils.validateAndFixLandmark(landmark);
-            }
-        });
-    }
-
-    if (report.svgs && Array.isArray(report.svgs)) {
-        report.svgs.forEach(svg => {
-            if (svg && typeof svg === 'object' && svg.nodeType === 1) {
-                accessibilityUtils.improveSvgAccessibility(svg);
-            }
-        });
-    }
-
-    if (report.forms && Array.isArray(report.forms)) {
-        report.forms.forEach(form => {
-            if (form && typeof form === 'object' && form.nodeType === 1) {
-                accessibilityUtils.validateAndFixFormAccessibility(form);
-            }
-        });
-    }
-
-    if (report.links && Array.isArray(report.links)) {
-        report.links.forEach(link => {
-            if (link && typeof link === 'object' && link.nodeType === 1) {
-                accessibilityUtils.validateAndFixLinkAccessibility(link);
-            }
-        });
-    }
-
-    if (report.buttons && Array.isArray(report.buttons)) {
-        report.buttons.forEach(button => {
-            if (button && typeof button === 'object' && button.nodeType === 1) {
-                accessibilityUtils.validateAndFixButtonAccessibility(button);
-            }
-        });
-    }
+    // Assuming that `report` is an object containing details of accessibility issues
+    report.accessibilityIssues.forEach(issue => {
+        switch (issue.type) {
+            case 'missingAriaLabel':
+                accessibilityUtils.addAriaLabel(issue.element, issue.label);
+                break;
+            case 'tableStructure':
+                accessibilityUtils.validateAndFixTableStructure(issue.table);
+                break;
+            case 'landmark':
+                accessibilityUtils.validateAndFixLandmark(issue.landmark);
+                break;
+            case 'svgAccessibility':
+                accessibilityUtils.improveSvgAccessibility(issue.svg);
+                break;
+            // Handle other cases as necessary
+            default:
+                console.error('Unknown accessibility issue type:', issue.type);
+        }
+    });
 }
 
 // Initialize accessibility features

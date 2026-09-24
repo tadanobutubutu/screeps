@@ -235,12 +235,14 @@ function getLangAttribute() {
 
 // REACT_015 & REACT_036: Create accessible in-page button
 function createInPageButton(buttonText, onClickHandler) {
-  return {
-    type: 'button',
-    onClick: onClickHandler,
-    lang: getLangAttribute(),
-    text: buttonText
-  };
+  return (
+    <button
+      onClick={onClickHandler}
+      lang={getLangAttribute()}
+    >
+      {buttonText}
+    </button>
+  );
 }
 
 // REACT_027: Validate table accessibility
@@ -377,6 +379,39 @@ function handleFakeLinks() {
   });
 
   return issues;
+}
+
+// TODO: Implement this function for adding SVG accessibility props
+// Function to add SVG accessibility props
+function addSvgAccessibilityProps(svgElement, options = {}) {
+  if (!svgElement || !(svgElement instanceof SVGElement)) {
+    console.warn('Invalid SVG element provided');
+    return;
+  }
+
+  // Set default role if not specified
+  if (!svgElement.getAttribute('role')) {
+    svgElement.setAttribute('role', options.role || 'img');
+  }
+
+  // Set accessible name if provided
+  if (options.ariaLabel) {
+    svgElement.setAttribute('aria-label', options.ariaLabel);
+  } else if (options.ariaLabelledby) {
+    svgElement.setAttribute('aria-labelledby', options.ariaLabelledby);
+  }
+
+  // Add title if not present and accessible name is provided
+  if ((options.ariaLabel || options.ariaLabelledby) && !svgElement.querySelector('title')) {
+    const titleElement = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+    titleElement.textContent = options.ariaLabel || '';
+    svgElement.prepend(titleElement);
+  }
+
+  // Set focusable attribute if needed
+  if (options.focusable !== undefined) {
+    svgElement.setAttribute('focusable', options.focusable);
+  }
 }
 
 // TODO: Implement new function3 logic here
@@ -581,6 +616,19 @@ function validateSvgAccessibility(svg) {
     processed: true,
     data: data,
     timestamp: Date.now()
+  };
+
+  const validateInput = (input) => input !== null && input !== undefined;
+
+  const BookItem = ({ book }) => {
+    return (
+      <List.Item key={generateKey(book)}>
+        <List.Item.Meta
+          title={book.title}
+          description={`by ${book.author}`}
+        />
+      </List.Item>
+    );
   };
 }
 
@@ -796,52 +844,6 @@ const appState = {
 export {
   BookItem,
   BookForm,
-  getLangAttribute,
-  createInPageButton,
-  validateTableAccessibility,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  setSvgAttributes,
-  ensureUniqueLandmarks,
-  addProperLandmarkRegions,
-  validateLinkAccessibility,
-  handleFakeLinks,
-  function3,
-  defaultSorting,
-  onTitleSort,
-  onAuthorSort,
-  AddBookForm,
-  checkLandmarkElement,
-  filterUniqueLandmarks,
-  createInPageButtons,
-  ensureLandmarkUniqueness,
-  countDependencies,
-  processData,
-  validateInput,
   main,
-  landmarks,
-  appData,
-  icons,
-  cleanup,
-  initApp,
-  VisualizeDependencyTree,
-  landmarkStructureCheck,
-  setLanguageAttribute,
-  addLandmarkRoles,
-  fixFakeLinkIssue,
-  isSecureContext,
-  initApp,
-  landmarks,
-  appData,
-  icons,
-  validateLandmark,
-  ensureFocusableElements,
-  validateSvgAccessibility,
-  processUniqueElements,
-  addressInsightIssues,
-  renderDependencyGraph,
-  renderIndexView,
-  calculateSum,
-  addMainLandmark,
-  addSvgAccessibleNames
+  addSvgAccessibilityProps
 };

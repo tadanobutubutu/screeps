@@ -308,6 +308,154 @@ function renderApp(doc, options = {}) {
   return doc;
 }
 
+// REACT_015: Utility for person name
+function personName() {
+  return 'User';
+}
+
+// REACT_027: Validate table accessibility
+function validateTableAccessibility(doc) {
+  if (!doc) {
+    if (typeof document !== 'undefined') {
+      doc = document;
+    } else {
+      return [];
+    }
+  }
+  const tables = doc.querySelectorAll('table');
+  const issues = [];
+  tables.forEach((table) => {
+    if (!table.querySelector('caption')) {
+      issues.push({ element: table, issue: 'missing-caption' });
+    }
+  });
+  return issues;
+}
+
+// REACT_027: Validate table structure
+function validateTableStructure(doc) {
+  if (!doc) {
+    if (typeof document !== 'undefined') {
+      doc = document;
+    } else {
+      return [];
+    }
+  }
+  const tables = doc.querySelectorAll('table');
+  const issues = [];
+  tables.forEach((table) => {
+    if (!table.querySelector('thead')) {
+      issues.push({ element: table, issue: 'missing-thead' });
+    }
+    if (!table.querySelector('tbody')) {
+      issues.push({ element: table, issue: 'missing-tbody' });
+    }
+  });
+  return issues;
+}
+
+// REACT_017: Validate landmark
+function validateLandmark(doc) {
+  if (!doc) {
+    if (typeof document !== 'undefined') {
+      doc = document;
+    } else {
+      return [];
+    }
+  }
+  const issues = [];
+  const landmarks = ['header', 'nav', 'main', 'footer'];
+  landmarks.forEach((landmark) => {
+    const elements = doc.querySelectorAll(landmark);
+    if (elements.length === 0) {
+      issues.push({ landmark, issue: 'missing-landmark' });
+    }
+  });
+  return issues;
+}
+
+// REACT_017: Validate landmark structure
+function validateLandmarkStructure(doc) {
+  if (!doc) {
+    if (typeof document !== 'undefined') {
+      doc = document;
+    } else {
+      return [];
+    }
+  }
+  const issues = [];
+  const landmarks = doc.querySelectorAll('header, nav, main, aside, footer');
+  landmarks.forEach((el) => {
+    if (!el.getAttribute('aria-label') && !el.getAttribute('aria-labelledby')) {
+      issues.push({ element: el, issue: 'missing-accessible-name' });
+    }
+  });
+  return issues;
+}
+
+// REACT_041: Get SVG accessible name
+function getSvgAccessibleName(svg) {
+  if (svg && svg.tagName && svg.tagName.toLowerCase() === 'svg') {
+    return svg.getAttribute('aria-label') || (svg.querySelector('title') && svg.querySelector('title').textContent) || '';
+  }
+  return '';
+}
+
+// REACT_036: Create in-page button
+function createInPageButton(doc, options = {}) {
+  if (!doc) {
+    if (typeof document !== 'undefined') {
+      doc = document;
+    } else {
+      return null;
+    }
+  }
+  const button = doc.createElement('button');
+  if (options.label) {
+    button.setAttribute('aria-label', options.label);
+    button.textContent = options.label;
+  }
+  return button;
+}
+
+// NEW: Focus trap for keyboard navigation
+function newFocusTrap(container) {
+  if (!container) {
+    return null;
+  }
+  const focusableElements = container.querySelectorAll(
+    'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+  );
+  const firstElement = focusableElements[0];
+  const lastElement = focusableElements[focusableElements.length - 1];
+
+  function handleKeyDown(event) {
+    if (event.key === 'Tab') {
+      if (event.shiftKey) {
+        if (document.activeElement === firstElement) {
+          event.preventDefault();
+          lastElement && lastElement.focus();
+        }
+      } else {
+        if (document.activeElement === lastElement) {
+          event.preventDefault();
+          firstElement && firstElement.focus();
+        }
+      }
+    }
+  }
+
+  container.addEventListener('keydown', handleKeyDown);
+  if (firstElement) {
+    firstElement.focus();
+  }
+
+  return {
+    activate: () => firstElement && firstElement.focus(),
+    deactivate: () => container.removeEventListener('keydown', handleKeyDown)
+  };
+}
+
 // Export all functions
 export {
   addLangAttribute,
@@ -325,6 +473,22 @@ export {
   fixButtonIdentifiers,
   ensureDependencyGraphContainer,
   newExportedFunction,
-  newFunction,
-  renderApp
+
+  // Utility
+  getLangAttribute,
+  personName,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  createInPageButton,
+  newFocusTrap
 };
+
+// Start the application if run directly
+if (require.main === module) {
+  // Note: startApp is not defined in this file, so it's commented out to avoid error.
+  // If startApp is defined elsewhere, uncomment the following line.
+  // startApp();
+}

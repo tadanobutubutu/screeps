@@ -1,123 +1,130 @@
-// main.js
-
-// Find the primary content element in the DOM
-const primaryContent = document.querySelector('.primary-content') ||
-                        document.querySelector('[role="main"]') ||
-                        document.getElementById('main-content') ||
-                        document.querySelector('#content');
-
-// Function to wrap primary content in a <main> element
-function wrapPrimaryContentInMain() {
-  // If primary content exists and is not already inside a <main> element
-  if (primaryContent && !primaryContent.closest('main')) {
-    // Create a new <main> element
-    const mainElement = document.createElement('main');
-
-    // Insert the <main> element before the primary content in the DOM
-    primaryContent.parentNode.insertBefore(mainElement, primaryContent);
-
-    // Move the primary content inside the <main> element
-    mainElement.appendChild(primaryContent);
-
-    return mainElement;
-  }
-  return null;
-}
-
-// Import necessary dependencies (modified to keep both changes)
+// Import necessary dependencies
 import React, { useState, useEffect } from 'react';
-import { List, Button } from 'antd';
 import { useSelector, useDispatch } from 'react-redux';
-import { setDependencyGraph } from './actions/dependencyGraph';
-import { sortByTitle, sortByAuthor, generateKey, BookItem, addBook, enhanceAccessibilityForAddBook } from './bookFunctions';
-import { initializeApp } from './app.js';
-import { registerSW } from 'effector-sw';
-import { isSecureContext } from './utils.js';
-import fs from 'fs';
-import './styles.css';
-import './styles.less';
-import { calculateSum } from './utils';
-import { getLangAttribute, getFullLangAttribute } from './utils/accessibilityUtils';
-import { validateTableAccessibility, validateTableStructure } from './utils/tableAccessibilityUtils';
-import { validateLandmark, validateLandmarkStructure } from './utils/landmarkUtils';
-import { getSvgAccessibleName, setSvgAttributes } from './utils/svgAccessibilityUtils';
-import { validateLinkAccessibility, handleFakeLinks } from './utils/linkAccessibilityUtils';
-import { CONFIG } from './utils/constants';
-import App from './App';
-import { helper, formatDate } from './utils';
-import { someFunction } from './utils/someFunction';
-import express from 'express';
-import path from 'path';
-import { fetchUser, clearCache } from './utils/user';
+import { List } from 'antd';
 
-// Function to ensure ARIA attributes are properly set for the dependency graph (merged change)
-function setAriaAttributesForDependencyGraph() {
-  const graphContainer = document.querySelector('.dependency-graph');
-  if (graphContainer) {
-    graphContainer.setAttribute('role', 'tree');
-    graphContainer.setAttribute('aria-labelledby', 'dependency-graph-title');
+// Import dependency graph and index content from appropriate modules
+import { dependencyGraphContent } from './dependencyGraphContent';
+import { indexContent } from './indexContent';
+
+// Get the list of books from the Redux store
+const getBooksList = useSelector(state => state.books.list);
+
+// Function to get the language attribute value for accessibility
+function getLangAttribute() {
+  // Return the language code from the document's HTML element
+  // This helps screen readers pronounce content correctly
+  if (typeof document !== 'undefined' && document.documentElement) {
+    return document.documentElement.lang || 'en';
   }
+  return 'en';
 }
 
-const config = {
-  apiUrl: process.env.API_URL || 'https://api.example.com',
-  timeout: 5000,
-  debug: true,
-  version: '1.0.0'
-};
-
-// Application state
-const appState = {
-  initialized: false,
-  data: null,
-  cache: new Map()
-};
-
-function validateLandmarkMerged(landmark) {
-  const errors = [];
-
-  if (!landmark) {
-    errors.push('Landmark is required');
-    return { valid: false, errors };
+// Function to ensure ARIA attributes are properly set for the dependency graph
+function ... {
+  // Ensure the document has proper lang attribute for accessibility
+  const lang = getLangAttribute();
+  
+  // Set lang attribute on document root if not already set
+  if (typeof document !== 'undefined' && document.documentElement) {
+    if (!document.documentElement.lang) {
+      document.documentElement.lang = lang;
+    }
   }
-
-  if (!landmark.name || typeof landmark.name !== 'string' || landmark.name.trim() === '') {
-    errors.push('Landmark must have a valid name');
-  }
-
-  if (landmark.latitude === undefined || landmark.latitude === null) {
-    errors.push('Landmark must have a latitude');
-  } else if (typeof landmark.latitude !== 'number' || isNaN(landmark.latitude)) {
-    errors.push('Landmark latitude must be a number');
-  } else if (landmark.latitude < -90 || landmark.latitude > 90) {
-    errors.push('Landmark latitude must be between -90 and 90');
-  }
-
-  if (landmark.longitude === undefined || landmark.longitude === null) {
-    errors.push('Landmark must have a longitude');
-  } else if (typeof landmark.longitude !== 'number' || isNaN(landmark.longitude)) {
-    errors.push('Landmark longitude must be a number');
-  } else if (landmark.longitude < -180 || landmark.longitude > 180) {
-    errors.push('Landmark longitude must be between -180 and 180');
-  }
-
-  if (Array.isArray(landmark)) {
-    landmark.forEach((innerLandmark, index) => {
-      if (!innerLandmark.name || typeof innerLandmark.name !== 'string' || innerLandmark.name.trim() === '') {
-        errors.push(`Landmark at index ${index} must have a valid name`);
-      }
-    });
-  }
-
+  
   return {
-    valid: errors.length === 0,
-    errors
+    lang: lang,
+    accessible: true
   };
 }
 
-// Ensure landmark uniqueness
-function ensureLandmarkUniqueness(elements) {
-  const elementsById = {};
+// Function to handle sorting books by title (ascending)
+function sortByTitle(a, b) {
+  return a.title.localeCompare(b.title);
+}
+
+// Function to handle sorting books by author (descending)
+function sortByAuthor(a, b) {
+  return b.author.localeCompare(a.author);
+}
+
+// Function to generate a key for each book item
+function generateKey(book) {
+  return book.id || ... 9)}`;
+}
+
+// Function to render dependency graph content
+function renderDependencyGraph() {
+  return (
+    <div ...
+      {dependencyGraphContent}
+    </div>
+  );
+}
+
+// Function to render index view content
+function renderIndexView() {
+  return (
+    <div ...
+      {indexContent}
+    </div>
+  );
+}
+
+// Function to count dependencies
+function countDependencies() {
+  const dependencies = ['react', 'react-redux', 'antd'];
+  return dependencies.length;
+}
+
+// Function to render a single book item
+function BookItem(book) {
+  return (
+    <List.Item key={generateKey(book)}>
+      <List.Item.Meta
+        title={book.title}
+        ...
+      />
+    </List.Item>
+  );
+}
+
+// Function to create a new book entry in the Redux store
+export function addBook(book) {
+  // Perform any necessary validation or processing before adding the book
+  // ...
+
+  // Dispatch an action to add the book to the books list in the Redux store
+  dispatch({ type: 'ADD_BOOK', payload: book });
+}
+
+// Ensure accessibility attributes are set when adding a book
+...
+
+// Default sorting function for the book list
+const defaultSorting = sortByTitle;
+
+// Function to handle sorting the book list by title (ascending)
+function onTitleSort() {
+  const sortedList = ...
+  // Dispatch an action to update the sorted book list in the Redux store
+  dispatch({ type: 'SORT_BY_TITLE', payload: sortedList });
+}
+
+// Function to handle sorting the book list by author (descending)
+function onAuthorSort() {
+  const sortedList = ...
+  // Dispatch an action to update the sorted book list in the Redux store
+  dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
+}
+
+// Export utility functions
+export { sortByTitle, sortByAuthor, generateKey, BookItem, defaultSorting, onTitleSort, onAuthorSort, countDependencies };
+
+// Render the main component containing the book list and sorting controls
+function Main() {
+  const [sorting, setSorting] = useState(defaultSorting);
+  const dispatch = useDispatch();
 
   // UseEffect hook to handle sorting book list updates
   useEffect(() => {
@@ -133,184 +140,28 @@ function ensureLandmarkUniqueness(elements) {
 
   // Render the list of book items and sorting controls
   return (
-    <div role="region" aria-label="Book list with sorting controls">
-      <button 
-        onClick={() => setSorting(sortByTitle)} 
-        aria-label="Sort books by title in ascending order"
-      >
-        Sort by Title
-      </button>
-      <button 
-        onClick={() => setSorting(sortByAuthor)} 
-        aria-label="Sort books by author in descending order"
-      >
-        Sort by Author
-      </button>
-      <List 
-        itemLayout="vertical" 
-        dataSource={getBooksList} 
-        renderItem={book => BookItem(book)} 
-        role="list"
-        aria-label="List of books"
-      />
-      {/* Implement the required changes to improve accessibility for adding a new book */}
+    <div>
+      <button onClick={() => setSorting(sortByTitle)}>Sort by Title</button>
+      <button onClick={() => setSorting(sortByAuthor)}>Sort by Author</button>
+      <List itemLayout="vertical" ... renderItem={book => BookItem(book)} />
+      {/* TODO: Implement the required changes to improve accessibility for adding a new book */}
       {/* ... */}
+      {/* Example of adding a new book form with accessibility considerations */}
+      <form onSubmit={(e) => {
+        e.preventDefault();
+        // Assuming there's a function to get the form data
+        const newBook = getFormData();
+        addBook(newBook);
+      }}>
+        <label htmlFor="title">Title:</label>
+        <input type="text" id="title" name="title" required />
+        <label ...
+        <input type="text" id="author" name="author" required />
+        <button type="submit">Add Book</button>
+      </form>
     </div>
   );
 }
 
-// Initialize app
-function initApp() {
-  initializeApp();
-  wrapPrimaryContentInMain();
-  setAriaAttributesForDependencyGraph();
-}
-
-function setupHandlers() {
-  console.log('Setting up event handlers...');
-}
-
-function validateInput(input) {
-  return input !== null && input !== undefined;
-}
-
-function processData(data) {
-  if (!validateInput(data)) {
-    throw new Error('Invalid input data');
-  }
-  return {
-    processed: true,
-    data: data,
-    timestamp: Date.now()
-  };
-}
-
-function main() {
-  initApp();
-  setupHandlers();
-  return processData;
-}
-
-// Utility functions for accessibility (environment-agnostic)
-function getLangAttribute() {
-  return typeof document !== 'undefined' && document.documentElement ? document.documentElement.lang : 'en';
-}
-
-function sortByTitle(a, b) {
-  return a.title.localeCompare(b.title);
-}
-
-function sortByAuthor(a, b) {
-  return a.author.localeCompare(b.author);
-}
-
-function generateKey(book) {
-  return `${book.title}-${book.author}`.replace(/\s+/g, '-').toLowerCase();
-}
-
-function countDependencies(obj) {
-  if (!obj || typeof obj !== 'object') return 0;
-  let count = 0;
-  for (const key in obj) {
-    if (obj.hasOwnProperty(key)) {
-      count++;
-      if (typeof obj[key] === 'object') {
-        count += countDependencies(obj[key]);
-      }
-    }
-  }
-  return count;
-}
-
-// Validate landmark structure for accessibility issues
-function validateLandmarkStructure() {
-  const results = {
-    hasMain: false,
-    hasNav: false,
-    hasHeader: false,
-    hasFooter: false,
-    issues: []
-  };
-  
-  if (typeof document !== 'undefined' && document.querySelector) {
-    // Check for main landmark - critical for screen reader navigation
-    const mainElement = document.querySelector('main, [role="main"]');
-    results.hasMain = mainElement !== null;
-    
-    // Check for navigation landmark
-    const navElement = document.querySelector('nav, [role="navigation"]');
-    results.hasNav = navElement !== null;
-    
-    // Check for header/banner landmark
-    const headerElement = document.querySelector('header, [role="banner"]');
-    results.hasHeader = headerElement !== null;
-    
-    // Check for footer landmark
-    const footerElement = document.querySelector('footer, [role="contentinfo"]');
-    results.hasFooter = footerElement !== null;
-    
-    // Report missing main landmark as critical issue
-    if (!results.hasMain) {
-      results.issues.push('Missing main landmark. Screen readers rely on this to identify primary content.');
-    }
-  }
-  
-  return results;
-}
-
-// Calculate sum utility
-function calculateSum(a, b) {
-  return a + b;
-}
-
-// Format date utility
-function formatDate(date) {
-  return new Date(date).toISOString().split('T')[0];
-}
-
-// Helper utility
-const helper = {
-  formatDate,
-  calculateSum
-};
-
-if (require.main === module) {
-  main();
-  console.log('Main function executed');
-}
-
-// Export functions for testing (only those defined in this file)
-export {
-  wrapPrimaryContentInMain,
-  initializeApp,
-  setAriaAttributesForDependencyGraph,
-  validateLandmarkMerged,
-  ensureLandmarkUniqueness,
-  setupHandlers,
-  validateInput,
-  processData,
-  main,
-  config,
-  appState
-};
-
-module.exports = {
-  config,
-  appState,
-  validateLandmarkMerged,
-  ensureLandmarkUniqueness,
-  initializeApp,
-  setupHandlers,
-  validateInput,
-  processData,
-  main,
-  getLangAttribute,
-  sortByTitle,
-  sortByAuthor,
-  generateKey,
-  countDependencies,
-  validateLandmarkStructure,
-  calculateSum,
-  formatDate,
-  helper
-};
+// Export the Main component
+export default Main;

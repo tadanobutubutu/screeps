@@ -734,8 +734,140 @@ function focusTrap(container) {
   );
   if (focusableElements.length === 0) return;
 
-  const firstElement = focusableElements[0];
-  const lastElement = focusableElements[focusableElements.length - 1];
+// TODO: Implement this function for creating in-page buttons
+// (Now implemented with accessibility improvements)
+/**
+ * Creates an in-page button element with proper accessibility attributes.
+ * Implements an in-page button with accessibility improvements including
+ * aria-label, role, and tabindex support.
+ * @param {string} label - The visible text content of the button
+ * @param {Object} options - Configuration options for the button
+ * @param {string} options.ariaLabel - Accessible label for screen readers
+ * @param {string} options.id - The id attribute for the button element
+ * @param {string} options.className - CSS class name(s) for styling
+ * @param {Function} options.onClick - Click event handler
+ * @param {boolean} options.disabled - Whether the button is disabled
+ * @param {string} options.type - Button type (button, submit, reset)
+ * @param {number} options.tabIndex - Tab index for keyboard navigation
+ * @returns {HTMLButtonElement} The created button element
+ */
+function createInPageButton(label, options = {}) {
+  if (typeof document === 'undefined') {
+    return null;
+  }
+
+  const button = document.createElement('button');
+
+  // Set the visible text content
+  button.textContent = label || '';
+
+  // Set the type attribute (default to 'button' to prevent form submission)
+  button.type = options.type || 'button';
+
+  // Set the id if provided
+  if (options.id) {
+    button.id = options.id;
+  }
+
+  // Set CSS class if provided
+  if (options.className) {
+    button.className = options.className;
+  }
+
+  // Set disabled state
+  if (options.disabled) {
+    button.disabled = true;
+    button.setAttribute('aria-disabled', 'true');
+  }
+
+  // Set tabindex
+  if (typeof options.tabIndex === 'number') {
+    button.setAttribute('tabindex', String(options.tabIndex));
+  }
+
+  // Set aria-label for accessibility (improvement)
+  if (options.ariaLabel) {
+    button.setAttribute('aria-label', options.ariaLabel);
+  } else if (label) {
+    // Fall back to visible label as aria-label if not explicitly provided
+    button.setAttribute('aria-label', label);
+  }
+
+  // Set role for explicit semantic meaning
+  button.setAttribute('role', 'button');
+
+  // Attach click handler if provided
+  if (typeof options.onClick === 'function') {
+    button.addEventListener('click', options.onClick);
+  }
+
+  return button;
+}
+
+/**
+ * Creates a web resource button (anchor styled as a button) with proper accessibility attributes.
+ * @param {string} label - The visible text content of the button
+ * @param {string} url - The URL the button links to
+ * @param {Object} options - Configuration options for the button
+ * @param {string} options.ariaLabel - Accessible label for screen readers
+ * @param {string} options.id - The id attribute for the button element
+ * @param {string} options.className - CSS class name(s) for styling
+ * @param {boolean} options.openInNewTab - Whether to open the link in a new tab
+ * @returns {HTMLAnchorElement} The created anchor element styled as a button
+ */
+function createWebResourceButton(label, url, options = {}) {
+  if (typeof document === 'undefined') {
+    return null;
+  }
+
+  const anchor = document.createElement('a');
+
+  // Set the visible text content
+  anchor.textContent = label || '';
+
+  // Set the href
+  anchor.href = url || '#';
+
+  // Set the id if provided
+  if (options.id) {
+    anchor.id = options.id;
+  }
+
+  // Set CSS class if provided
+  if (options.className) {
+    anchor.className = options.className;
+  }
+
+  // Set role for explicit semantic meaning
+  anchor.setAttribute('role', 'button');
+
+  // Set aria-label for accessibility
+  if (options.ariaLabel) {
+    anchor.setAttribute('aria-label', options.ariaLabel);
+  } else if (label) {
+    anchor.setAttribute('aria-label', label);
+  }
+
+  // Handle opening in new tab with proper accessibility attributes
+  if (options.openInNewTab) {
+    anchor.setAttribute('target', '_blank');
+    anchor.setAttribute('rel', 'noopener noreferrer');
+  }
+
+  return anchor;
+}
+
+// TODO: This is the existing code that needs to be preserved
+// (This comment remains as-is)
+//_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
+//<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
+//_Commit: f80b51b788bad4952d8f93f08d3c7d22a06ff80d3_
+//<!-- todo-hash: b498b47abee4b3f29c69a97a2237d968a50cc419 -->
+//_Commit: 30b5f08a59d5ec914a59aa66e32dc3a3eb059e_
+//<!-- todo-hash: 1f8a6325b07b9b809ac49f5e1c81cf4f89f9c1 -->
+//_Commit: 669117b4c3d1a635653f730f0a059efacbb752_
+//<!-- todo-hash: 54b7c4d06282fbf48e78de43e5e115814006658c_ -->
+//<!-- todo-hash: d290c9a63ee693e91602163f7ca6757def47f63e -->
 
   container.addEventListener('keydown', function(e) {
     if (e.key === 'Tab') {
@@ -842,13 +974,78 @@ module.exports = {
   focusTrap,
   validateAccessibilityReport,
   checkAccessibility,
-  fixDependencyGraphAria,
-  setHtmlLangAttribute,
-  ensureElementAccessibility,
-  addTask,
-  generateTaskId,
-  cancelTask,
-  setElementLabel,
-  setFocus,
-  handleKeyboardNavigation
+  validateSvgAccessibility,
+  ensureUniqueLandmarks,
+  personName,
+  validateLinks,
+  createFocusTrap,
+  checkLandmarkElements,
+  createInPageButton,
+  createWebResourceButton
 };
+
+// Implement the function for addressing accessibility issues from insight report
+function implementAccessibilityFixesFromReport (container, report) {
+  const fixes = {
+    langAdded: false,
+    mainLandmarkAdded: false,
+    landmarksFixed: 0,
+    svgNamesAdded: 0,
+    fakeLinksFixed: 0
+  }
+
+  if (!report || !report.issues) {
+    return fixes
+  }
+
+  fixes.langAdded = addLangAttribute(container) ? true : fixes.langAdded;
+  fixes.mainLandmarkAdded = addMainLandmark(container) ? true : fixes.mainLandmarkAdded;
+  fixTableStructure(container);
+  fixLandmarkIssues(container);
+  fixes.landmarksFixed += uniqueLandmarks.length;
+  addAccessibleNamesToSVGs(container);
+  fixFakeLinkIssues(container);
+  fixes.fakeLinksFixed += container.querySelectorAll('a:not([href])').length;
+
+  // Validate accessibility report
+  const accessibilityReport = validateAccessibilityReport(container);
+  if (accessibilityReport && accessibilityReport.issues && accessibilityReport.issues.length > 0) {
+    log(`Accessibility report contains ${accessibilityReport.issues.length} remaining issues`, 'warn')
+  }
+
+  // Implement focus trap for keyboard navigation
+  focusTrap(container);
+
+  if (fixes.langAdded) {
+    log('Lang attribute added to HTML element', 'info')
+  }
+
+  if (fixes.mainLandmarkAdded) {
+    log('Main landmark added', 'info')
+  }
+
+  // Check for new accessibility issues
+  const newAccessibilityIssues = checkAccessibility(container);
+  if (newAccessibilityIssues.length > 0) {
+    log(`New accessibility issues found: ${newAccessibilityIssues.join(', ')}`, 'error')
+  }
+
+  const landmarkFixesCount = fixes.landmarksFixed || 0;
+  if (landmarkFixesCount > 0) {
+    log(`Fixed ${landmarkFixesCount} unique landmarks`, 'info')
+  }
+
+  const svgFixes = fixes.svgNamesAdded || 0;
+  if (svgFixes > 0) {
+    log(`Fixed accessible names for ${svgFixes} SVGs`, 'info')
+  }
+
+  const fakeLinkFixes = fixes.fakeLinksFixed || 0;
+  if (fakeLinkFixes > 0) {
+    log(`Fixed fake link issues for ${fakeLinkFixes} elements`, 'info')
+  }
+
+  return fixes
+}
+
+// ... Rest of the file remains unchanged

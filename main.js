@@ -121,21 +121,10 @@ function init() {
 
 // Add lang attribute to HTML element
 function addLangAttribute() {
-    // Implementation goes here
     const html = document.querySelector('html');
     if (html) {
-        html.setAttribute('lang', 'en'); // Example: Set the language to English
+        html.setAttribute('lang', 'en'); // Set the default language
     }
-}
-
-// REACT_015: Get the lang attribute for the HTML element
-function getLangAttribute() {
-    // Implementation goes here
-}
-
-// REACT_015: Get a person name for accessibility
-function personName() {
-    // Implementation goes here
 }
 
 // Fix 26 table structure issues
@@ -396,32 +385,17 @@ module.exports = {
   renderDependencyGraph,
   displayModuleStructure,
   newFunction,
-  // REACT_015: lang attribute and person name
   addLangAttribute,
-  getLangAttribute,
-  personName,
-  // REACT_027: table structure
   fixTableStructure,
-  validateTableAccessibility,
-  validateTableStructure,
-  // REACT_017: landmark issues
   fixLandmarkIssues,
   addMainLandmark,
   addLandmarkRegions,
-  validateLandmark,
-  validateLandmarkStructure,
-  newFocusTrap,
-  // REACT_025: unique landmarks
   ensureUniqueLandmarks,
   uniqueLandmarks,
-  // REACT_041: SVG accessible names
   addSvgAccessibleNames,
   addAccessibleNamesToSVGs,
-  getSvgAccessibleName,
-  // REACT_036: fake link issue
   fixFakeLinkIssue,
   fixFakeLinkIssues,
-  googleSignIn,
   fixButtonIdentifiers,
   ensureDependencyGraphARIA
 };

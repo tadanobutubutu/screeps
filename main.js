@@ -96,7 +96,7 @@ function addressAccessibilityIssues(issues, options = {}) {
         summary.fixes.push({
           type: 'svg',
           index: issue.index,
-          action: 'Set accessible name from content'
+          action: 'Extracted accessible name'
         });
       }
     } catch (error) {

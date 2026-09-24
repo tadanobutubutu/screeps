@@ -198,9 +198,10 @@ const a11yStore = {
 
   // ... remaining a11yStore methods ...
 
-  // New function
-  ensureAccessibleInteractiveElements() {
-    // This function will call the other a11yStore methods to ensure accessibility
+  /**
+   * Ensure interactive elements are accessible
+   */
+  ensureInteractiveElementsAccessible() {
     this.ensureInteractiveRoles();
     this.addFormControlLabels();
     this.ensureImageAccessibility();

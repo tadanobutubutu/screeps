@@ -27,8 +27,6 @@ function getVersion() {
   return VERSION;
 }
 
-// TODO: This is the existing code that needs to be preserved
-// (This comment remains as-is)
 function addressAccessibilityIssues() {
   // Ensure the root container has an accessible name
   const rootContainer = document.getElementById('root');
@@ -53,7 +51,6 @@ function addressAccessibilityIssues() {
   }
 }
 
-// Validate that tables in the document are accessible
 function validateTableAccessibility() {
   const tables = document.querySelectorAll('table');
   const results = [];
@@ -77,7 +74,6 @@ function validateTableAccessibility() {
   return results;
 }
 
-// Validate the structure of tables in the document
 function validateTableStructure() {
   const tables = document.querySelectorAll('table');
   const results = [];
@@ -111,78 +107,6 @@ function validateTableStructure() {
   return results;
 }
 
-// Validate landmark elements in the document
-function validateLandmark() {
-  const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'form', 'search'];
-  const landmarkElements = document.querySelectorAll('[role], header, nav, main, aside, footer, form, [role="search"]');
-  const results = [];
-  
-  landmarkElements.forEach((element, index) => {
-    const role = element.getAttribute('role') || getImplicitRole(element);
-    const isLandmark = landmarkRoles.includes(role);
-    
-    let isValid = true;
-    let error = null;
-    
-    if (isLandmark) {
-      if (role === 'main') {
-        const mainCount = document.querySelectorAll('[role="main"], main').length;
-        if (mainCount > 1) {
-          isValid = false;
-          error = 'Multiple main landmarks found';
-        }
-        if (!element.hasAttribute('aria-label') && !element.hasAttribute('aria-labelledby')) {
-          if (!element.querySelector('h1, h2, h3, h4, h5, h6, [aria-label], [aria-labelledby]')) {
-            // Only flag if no heading or label exists
-          }
-        }
-      }
-      
-      if (role === 'navigation') {
-        const navCount = document.querySelectorAll('[role="navigation"], nav').length;
-        if (navCount > 1 && !element.hasAttribute('aria-label') && !element.hasAttribute('aria-labelledby')) {
-          isValid = false;
-          error = 'Multiple navigation landmarks without aria-label';
-        }
-      }
-      
-      if (role === 'banner' || role === 'contentinfo') {
-        const count = document.querySelectorAll(`[role="${role}"]`).length;
-        if (count > 1) {
-          isValid = false;
-          error = `Multiple ${role} landmarks found`;
-        }
-      }
-    }
-    
-    results.push({
-      elementIndex: index,
-      role,
-      isLandmark,
-      isValid,
-      error,
-      tagName: element.tagName.toLowerCase()
-    });
-  });
-  
-  return results;
-}
-
-function getImplicitRole(element) {
-  const tagName = element.tagName.toLowerCase();
-  const implicitRoles = {
-    'header': 'banner',
-    'nav': 'navigation',
-    'main': 'main',
-    'aside': 'complementary',
-    'footer': 'contentinfo',
-    'form': 'form',
-    'section': 'region'
-  };
-  return implicitRoles[tagName] || null;
-}
-
-// Generate accessibility report
 function generateAccessibilityReport() {
   const timestamp = new Date().toISOString();
   const tableAccessibilityResults = validateTableAccessibility();
@@ -233,7 +157,6 @@ function generateAccessibilityReport() {
   };
 }
 
-// Export the new function
 export {
   VERSION,
   CONFIG,
@@ -248,7 +171,6 @@ export {
   generateAccessibilityReport
 };
 
-// Add the new function to the default export
 export default {
   VERSION,
   CONFIG,

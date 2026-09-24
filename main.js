@@ -10,6 +10,15 @@ const { addLangAttribute, fixTableStructureIssues, addMainLandmark, ensureUnique
 const { createInPageButton, createWebResourceButton, validateLandmark, validateLandmarkStructure, validateAccessibilityReport } = require('./utilities');
 
 /**
+ * Gets the language attribute for the HTML element
+ * @returns {string} The language attribute value
+ */
+function getLangAttribute() {
+    // Default to English if no language is specified
+    return document.documentElement.lang || 'en';
+}
+
+/**
  * Validates and fixes table structure accessibility issues.
  * Handles REACT_027 - Fix 26 table structure issues
  */
@@ -348,6 +357,5 @@ module.exports = {
   ensureUniqueLandmarks,
   landmarks,
   uniqueLandmarks,
-  validateTableAccessibility,
-  validateTableStructure
+  getLangAttribute
 };

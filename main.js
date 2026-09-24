@@ -33,11 +33,11 @@ function checkLandmarkElements(landmarks) {
   if (!Array.isArray(landmarks)) {
     return false;
   }
-  
+
   if (landmarks.length === 0) {
     return false;
   }
-  
+
   return landmarks.every(landmark => {
     if (!landmark) return false;
     return landmark.id || landmark.name;
@@ -49,16 +49,78 @@ function ensureUniqueLandmarks(insightReport) {
   if (!Array.isArray(insightReport)) {
     return [];
   }
-  
+
   const seen = new Set();
   return insightReport.filter(landmark => {
     if (!landmark) return false;
-    
+
     const identifier = landmark.id || landmark.name;
-    
+
     if (seen.has(identifier)) {
       return false;
     }
+  });
+}
+
+// Address accessibility issues
+function addressAccessibilityIssues() {
+  // Ensure the dependencyGraph container has a proper ARIA role
+  // Support both class and data attribute selectors for compatibility
+  const dependencyGraph = document.querySelector('.dependency-graph, [data-dependency-graph]') ||
+    document.querySelector('.dependencyGraph') ||
+    document.querySelector('[data-testid="dependency-graph"]') ||
+    document.querySelector('div[data-testid=dependency-graph]');
+  if (dependencyGraph) {
+    dependencyGraph.setAttribute('role', 'tree');
+    dependencyGraph.setAttribute('aria-label', 'Dependency Graph');
+  }
+
+  // New accessibility functions
+  function improveAccessibility() {
+    const buttons = document.querySelectorAll('button');
+    buttons.forEach(button => {
+      if (!button.getAttribute('aria-label')) {
+        button.setAttribute('aria-label', button.textContent || 'Button');
+      }
+    });
+
+    const focusable = document.querySelectorAll('[role="link"]');
+    focusable.forEach(el => {
+      if (el.tabIndex < 0) el.tabIndex = 0;
+    });
+  }
+
+  function ensureUniqueLandmarks(insightReport) {
+    const landmarks = [...new Set(insightReport.issues.flatMap(issue => issue.ariaRole))];
+
+    // Check if all landmarks exist, re-add if necessary
+    landmarks.forEach(landmark => {
+      const elements = document.querySelectorAll(`[role="${landmark}"]`);
+      if (elements.length < landmarks.length) {
+        const uniqueLandmarkMap = {};
+
+        landmarks.forEach(uniqueLandmark => {
+          let element = elements.filter(el => el.getAttribute('role') === uniqueLandmark);
+          if (!element[0]) {
+            element = document.createElement(`div`);
+            element.setAttribute('role', uniqueLandmark);
+            if (!document.querySelector(`#${uniqueLandmark}`)) {
+              const id = uniqueLandmark;
+              element.setAttribute('id', id);
+            }
+            document.body.appendChild(element);
+          }
+          uniqueLandmarkMap[uniqueLandmark] = element[0];
+        });
+        uniqueLandmarks = uniqueLandmarkMap;
+      }
+    });
+  }
+
+  // Call the function to improve accessibility and ensure unique landmarks
+  improveAccessibility();
+  ensureUniqueLandmarks({
+    issues: [{ariaRole: 'landmark-1'}, {ariaRole: 'landmark-2'}, {ariaRole: 'landmark-3'}, {ariaRole: 'landmark-4'}, {ariaRole: 'landmark-5'}]
   });
 }
 
@@ -116,7 +178,5 @@ module.exports = {
   renderDependencyGraph,
   displayModuleStructure,
   newFunction,
-  getLangAttribute,
-  createInPageButton,
-  ensureElementIdAndAriaLabel
+  addressAccessibilityIssues  // Add this export for testing purpose
 };

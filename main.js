@@ -1,8 +1,5 @@
-// Existing code starts here
-import { initializeApp } from './app.js';
-import { registerSW } from 'effector-swift';
-// This is the existing code that needs to be preserved
-// (This comment remains as-is)
+import React from 'react';
+import PropTypes from 'prop-types';
 
 const Main = ({ children, title, lang = 'en' }) => {
   // Assuming harvest and upgrade are simple functions that manipulate some in-memory data.

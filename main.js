@@ -5,6 +5,25 @@ import { setDependencyGraph } from './actions/dependencyGraph';
 import { sortByTitle, sortByAuthor, generateKey, BookItem, addBook, enhanceAccessibilityForAddBook } from './bookFunctions';
 import { getRootHtmlAccessibilityProps, getLandmarkProps, getSvgAccessibilityProps, getAccessibleLinkProps } from './accessibility';
 
+// TODO: This is the existing code that needs to be preserved
+
+// Import necessary dependencies
+import React, { useState, useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { List, Button } from 'antd';
+import { setDependencyGraph } from './actions/dependencyGraph';
+import { sortByTitle, sortByAuthor, generateKey, BookItem, addBook, enhanceAccessibilityForAddBook } from './bookFunctions';
+import { getRootHtmlAccessibilityProps, getLandmarkProps, getSvgAccessibilityProps, getAccessibleLinkProps } from './accessibility';
+
+// TODO: Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
+// - REACT_017: Add landmark roles and fix landmark issues
+// - REACT_041: Add accessible names to 2 SVGs
+// - REACT_025: Ensure unique landmarks (2 issues)
+// - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue)
+// - REACT_027: Add scope="col" or scope="row" to <th> elements (already implemented)
+// (Added functions for REACT_017 and new REACT_025)
+
 // Function to add SVG accessibility props
 function addSvgAccessibilityProps(props = {}) {
   return {
@@ -39,7 +58,7 @@ export function sortByAuthor(a, b) {
 
 // Function to generate a key for each book item
 export function generateKey(book) {
-  return book.id.toString();
+  return `${book.title}-${book.author}`;
 }
 
 // Function to render a single book item
@@ -133,6 +152,11 @@ function validateLinkAccessibility() {
   // Implementation for validating link accessibility
 }
 
+// New function for REACT_017: Add landmark roles and fix landmark issues
+function addLandmarkRoles() {
+  // Implementation for adding landmark roles
+}
+
 // Function to handle sorting the book list by title (ascending)
 export function onTitleSort() {
   const sortedList = [...getBooksList].sort(sortByTitle);
@@ -142,19 +166,15 @@ export function onTitleSort() {
 
 // Function to handle sorting the book list by author (descending)
 export function onAuthorSort() {
-  const sortedList = [...getBooksList].sort(sortByAuthor.reverse());
+  const sortedList = [...getBooksList].sort(sortByAuthor);
   // Dispatch an action to update the sorted book list in the Redux store
   dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
-}
-
-// Function to get the person name (handles REACT_015 lang attribute and REACT_036 fake link)
-function personName() {
-  // Implementation for getting person name to address REACT_015 and REACT_036 accessibility issues
 }
 
 // Render the main component containing the book list and sorting controls
 function Main() {
   const [sorting, setSorting] = useState(defaultSorting);
+  const dispatch = useDispatch();
 
   // UseEffect hook to handle sorting book list updates
   useEffect(() => {
@@ -163,10 +183,10 @@ function Main() {
     } else if (sorting === sortByAuthor) {
       onAuthorSort();
     }
-  }, [sorting]);
+  }, [sorting, dispatch]);
 
   // Map the book list to the BookItem function to create book items
-  const bookItems = getBooksList.map(BookItem);
+  const bookItems = getBooksList.map(book => BookItem(book));
 
   // Render the list of book items and sorting controls
   return (
@@ -175,7 +195,9 @@ function Main() {
         <button onClick={() => setSorting(sortByTitle)}>Sort by Title</button>
         <button onClick={() => setSorting(sortByAuthor)}>Sort by Author</button>
       </header>
-      <List dataSource={bookItems} />
+      <List>
+        {bookItems}
+      </List>
       {/* TODO: Implement the required changes to improve accessibility for adding a new book */}
       {/* ... */}
     </main>

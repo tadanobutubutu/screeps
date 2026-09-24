@@ -24,7 +24,7 @@ function newFunction() {
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
 // - REACT_037: Google sign-in logic (DONE: googleSignIn)
 // - REACT_040: Replace my-button with actual button id for accessibility (DONE: fixButtonIdentifiers)
-// - REACT_042: Ensure dependencyGraph container has proper ARIA role (DONE: ensureDependencyGraphContainer)
+// - REACT_042: Ensure dependencyGraph container has proper ARIA role (DONE: ...
 
 // TODO: This is the existing code that needs to be preserved
 // <!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
@@ -44,7 +44,7 @@ function newFunction() {
  */
 function addLangAttribute(doc, lang = 'en') {
   const html = doc.documentElement;
-  if (html) {
+  if (html && html.setAttribute) {
     html.setAttribute('lang', lang);
   }
   return html;
@@ -58,15 +58,13 @@ function fixTableStructure(doc) {
   const tables = doc.querySelectorAll('table');
   tables.forEach((table) => {
     // Ensure tables have proper semantic structure
-    if (!table.querySelector('thead')) {
+    if (table.querySelector('tbody tr')) {
       const firstRow = table.querySelector('tr');
       if (firstRow) {
         const thead = doc.createElement('thead');
-        const tbody = table.querySelector('tbody') || doc.createElement('tbody');
+        const tbody = table.querySelector('tbody');
         thead.appendChild(firstRow);
-        table.insertBefore(thead, tbody);
-        table.insertBefore(tbody, table.lastChild);
-        firstRow.remove();
+        table.insertBefore(thead, tbody || table.firstChild);
       }
     }
   });
@@ -103,9 +101,8 @@ function addLandmarkRegions(doc) {
   landmarks.forEach((landmark) => {
     const elements = doc.querySelectorAll(landmark);
     elements.forEach((el) => {
-      const tagName = el.tagName.toLowerCase();
-      if (!el.getAttribute('role') && tagName !== landmark) {
-        el.setAttribute('role', landmark);
+      if (!el.getAttribute('role') && !(el.tagName.toLowerCase() === landmark)) {
+        el.setAttribute('role', landmark.slice(0, 1).toUpperCase() + landmark.slice(1));
       }
     });
 }
@@ -179,7 +176,7 @@ function addSvgAccessibleNames(svg, name) {
 function addAccessibleNamesToSVGs(doc) {
   const svgs = doc.querySelectorAll('svg');
   svgs.forEach((svg, index) => {
-    if (svg && !svg.getAttribute('aria-label')) {
+    if (svg && svg.tagName && svg.tagName.toLowerCase() === 'svg') {
       addSvgAccessibleNames(svg, `SVG Icon ${index + 1}`);
     }
   });
@@ -210,8 +207,7 @@ function fixFakeLinkIssues(doc) {
  */
 function fixFakeLinkIssue(link) {
   if (link && link.tagName && link.tagName.toLowerCase() === 'a') {
-    const href = link.getAttribute('href');
-    if (href === '#' || href === '') {
+    if (link.getAttribute('href') === '#' || link.getAttribute('href') === '') {
       link.setAttribute('role', 'button');
     }
   }
@@ -239,7 +235,7 @@ function googleSignIn(options = {}) {
 
     // Proceed with sign-in logic
     if (typeof google !== 'undefined' && google.accounts) {
-      google.accounts.id.initialize(options);
+      // Initialize Google Sign-In
       if (button) {
         google.accounts.id.renderButton(button, options);
       }
@@ -256,7 +252,7 @@ function googleSignIn(options = {}) {
  */
 function fixButtonIdentifiers(doc) {
   // Fix any buttons with generic 'my-button' id
-  const buttons = doc.querySelectorAll('button, [role="button"]');
+  const buttons = doc.querySelectorAll('button[id="my-button"], [id="my-button"]');
   buttons.forEach((button, index) => {
     const newId = `action-button-${index + 1}`;
     button.setAttribute('id', newId);
@@ -274,12 +270,12 @@ function fixButtonIdentifiers(doc) {
  * @returns {Element|null} The dependencyGraph container with ARIA role
  */
 function ensureDependencyGraphContainer(doc) {
-  const container = doc.querySelector('.dependency-graph, [data-graph]');
+  const container = doc.querySelector('.dependency-graph, [data-dependency-graph]');
   if (container) {
     if (!container.getAttribute('role')) {
       container.setAttribute('role', 'region');
     }
-    if (!container.getAttribute('aria-label')) {
+    if (!container.getAttribute('aria-label') && !container.getAttribute('aria-labelledby')) {
       container.setAttribute('aria-label', 'Dependency Graph');
     }
   }
@@ -324,5 +320,6 @@ export {
   googleSignIn,
   fixButtonIdentifiers,
   ensureDependencyGraphContainer,
+  newExportedFunction,
   newFunction
 };

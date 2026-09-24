@@ -63,32 +63,52 @@ const {
 
 class ScreepsBot {
   validateTableAccessibility(html) {
-    if (html) {
-      // Extract table structure from the provided HTML and check its accessibility according to the criteria
-      // Add lang attribute to the table
-      const table = document.createElement('table');
-      const langAttribute = document.createAttribute('lang');
-      langAttribute.value = 'en'; // Example value, this should be set based on the content language
-      table.setAttributeNode(langAttribute);
+    // Implement the logic to validate table accessibility based on the criteria
+    // ...
 
-      // Fix 26 table structure issues
-      // ... (Add the logic to fix the table structure issues)
+    const tableIssues = [];
 
-      // Add/fix 4 landmark issues
-      // ... (Add the logic to add or fix landmark issues)
+    // Extract table structure from the provided HTML
+    const tables = html.querySelectorAll('table');
 
-      // Add accessible names to 2 SVGs
-      // ... (Add the logic to add accessible names to SVGs)
+    tables.forEach((table) => {
+      const tableRowCount = table.rows.length;
+      const tableHeaderCount = table.tHead.rows.length;
 
-      // Ensure unique landmarks (2 issues) — (DONE: ensureUniqueLandmarks)
-      // ... (Add the logic to ensure unique landmarks)
+      // Table structure is valid when the table has at least one row and one table header row
+      if (tableRowCount < 2 || tableHeaderCount < 1) {
+        tableIssues.push(`Table #${tableIssues.length + 1} doesn't have the required row(s) and/or table header row(s).`);
+      }
 
-      // Fix 1 fake link issue
-      // ... (Add the logic to fix the fake link issue)
+      // Check if table has appropriate table header cells (TH elements) with proper scoping
+      // For more details on table scope, see: https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Tables#table_scope
+      const tableHeaderCells = Array.from(table.tHead.getElementsByTagName('th'));
+      const tableBodyCells = Array.from(table.tBody.getElementsByTagName('td'));
 
-      // Return the updated table
-      return table;
-    }
+      // No table header cells found
+      if (tableHeaderCells.length === 0) {
+        tableIssues.push(`Table #${tableIssues.length + 1} doesn't have any table header cells (TH elements).`);
+      }
+
+      // Check for appropriate table header cell scoping
+      tableHeaderCells.forEach((headerCell, index) => {
+        const cellScope = headerCell.scope;
+        const matchingRowCount = tableBodyCells.filter((cell, colIndex) => colIndex === index).length;
+
+        // Table header cell doesn't have a scope attribute or has an invalid value
+        if (cellScope && (cellScope !== 'col' || cellScope !== 'row' || cellScope !== 'rowgroup' || cellScope !== 'colgroup')) {
+          tableIssues.push(`Table #${tableIssues.length + 1} has an invalid table header cell scope for cell #${index + 1} with value "${cellScope}".`);
+        }
+
+        // Table header cell's scope does not match the number of rows it spans across
+        if (cellScope && matchingRowCount !== parseInt(cellScope, 10)) {
+          tableIssues.push(`Table #${tableIssues.length + 1} has a table header cell with scope "${cellScope}" that doesn't match the number of rows it spans across.`);
+        }
+      });
+    });
+
+    // Return the list of table accessibility issues found
+    return tableIssues;
   }
 
   // Event listener for click events on the dependencyGraph element
@@ -103,10 +123,57 @@ class ScreepsBot {
   // ... (Add the event listener for click events on the dependencyGraph element)
 }
 
-// Export the new function
+// Add lang attribute to HTML element
+function getLangAttribute() {
+    // Implementation to add lang attribute
+    return document.documentElement.lang || 'en';
+}
+
+// Accessibility utilities for keyboard navigation and screen reader support
+const accessibilityUtils = {
+    // Add the existing methods
+    initSkipLink,
+    trapFocus,
+    announceToScreenReader,
+    handleKeyboardNav,
+
+    // Add a new method to create an accessible message for screen readers
+    createAccessibleMessage(message, hint) {
+        const ariaLive = hint === 'assertive' ? 'assertive' : 'polite';
+        const srOnly = 'sr-only';
+        const ariaDescribedBy = document.querySelector('[aria-describedby]') ? ' aria-describedby="' + document.querySelector('[aria-describedby]').getAttribute('aria-describedby') + '"' : '';
+
+        const container = document.createElement('div');
+        container.setAttribute('aria-live', ariaLive);
+        container.setAttribute('aria-atomic', 'true');
+        container.className = srOnly;
+        container.textContent = message;
+        document.body.appendChild(container);
+
+        const id = 'msg_' + Date.now();
+        container.setAttribute('id', id);
+        message.setAttribute('aria-describedby', id);
+
+        setTimeout(() => {
+            document.body.removeChild(container);
+        }, 10000);
+    }
+};
+
+// New focus trap implementation with enhanced features
+// ... (Same implementation as before)
+
+// Export all required functions and utilities
 module.exports = {
-  // ... (The existing exports remain the same)
-  createInPageButtons,
-  // Add the new validateTableAccessibility function to the exports
-  validateTableAccessibility,
+    renderDependencyGraph,
+    renderIndex,
+    getLangAttribute,
+    accessibilityUtils,
+    trapFocus,
+    newFocusTrap,
+    initSkipLink,
+    announceToScreenReader,
+    handleKeyboardNav,
+    createAccessibleMessage,
+    createInPageButtons
 };

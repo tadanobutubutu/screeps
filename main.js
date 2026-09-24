@@ -330,6 +330,20 @@ const accessibilityUtils = {
     if (typeof document === 'undefined') return 'en'
     const htmlElement = document.documentElement
     return htmlElement ? htmlElement.getAttribute('lang') || 'en' : 'en'
+  },
+
+  // Get full language attribute (including region if available)
+  getFullLangAttribute: () => {
+    if (typeof document === 'undefined') return 'en-US'
+    const htmlElement = document.documentElement
+    if (!htmlElement) return 'en-US'
+
+    const lang = htmlElement.getAttribute('lang') || 'en'
+    // If lang is just 'en', add default region
+    if (lang === 'en') {
+      return 'en-US'
+    }
+    return lang
   }
 }
 
@@ -482,6 +496,7 @@ module.exports = {
 
   // Accessibility-related functions
   getLangAttribute: accessibilityUtils.getLangAttribute,
+  getFullLangAttribute: accessibilityUtils.getFullLangAttribute,
   createInPageButton: accessibilityUtils.createInPageButton,
   validateTableAccessibility: accessibilityUtils.validateTableAccessibility,
   validateTableStructure: accessibilityUtils.validateTableStructure,

@@ -143,78 +143,45 @@ const accessibilityUtils = {
   },
 
   /**
-   * Focus the last focusable element within a container
-   * @param {HTMLElement} container - The container to search for focusable elements
+   * Add SVG accessibility attributes to an SVG element
+   * @param {SVGElement} svgElement - The SVG element to enhance
+   * @param {Object} options - Configuration options
+   * @param {string} [options.title] - Title for the SVG
+   * @param {string} [options.desc] - Description for the SVG
+   * @param {boolean} [options.focusable=false] - Whether the SVG should be focusable
+   * @returns {SVGElement} The enhanced SVG element
    */
-  focusLastElement: (container) => {
-    if (!container) return;
-
-    const focusableElements = container.querySelectorAll(
-      'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
-    );
-
-    if (focusableElements.length > 0) {
-      focusableElements[focusableElements.length - 1].focus();
-    }
-  },
-
-  /**
-   * Add keyboard navigation support for interactive elements
-   * @param {HTMLElement} element - The element to add keyboard support to
-   * @param {Object} handlers - The handler functions for different keys
-   */
-  addKeyboardNavigation: (element, handlers) => {
-    if (!element) return;
-
-    element.addEventListener('keydown', (e) => {
-      accessibilityUtils.handleKeyboardNav(e, handlers);
-    });
-  },
-
-  /**
-   * Ensure proper ARIA labels on dynamic content
-   * @param {HTMLElement} element - The element to add ARIA attributes to
-   * @param {string} label - The ARIA label to set
-   * @param {string} [role] - The ARIA role to set (optional)
-   */
-  ensureAriaLabel: (element, label, role) => {
-    if (!element) return;
-
-    if (label) {
-      element.setAttribute('aria-label', label);
+  addSvgAccessibility: (svgElement, options = {}) => {
+    if (!svgElement || !(svgElement instanceof SVGElement)) {
+      throw new Error('Invalid SVG element provided');
     }
 
-    if (role) {
-      element.setAttribute('role', role);
-    }
-  },
+    // Add role="img" for decorative SVGs or role="graphics-document" for complex graphics
+    svgElement.setAttribute('role', options.role || 'img');
 
-  /**
-   * Maintain focus management for modal dialogs
-   * @param {HTMLElement} modal - The modal element
-   * @param {HTMLElement} trigger - The element that triggered the modal
-   */
-  manageModalFocus: (modal, trigger) => {
-    if (!modal || !trigger) return;
-
-    // Trap focus within the modal
-    focusTrap(modal);
-
-    // Set initial focus to the first focusable element
-    const firstFocusable = modal.querySelector(
-      'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
-    );
-
-    if (firstFocusable) {
-      firstFocusable.focus();
+    // Add title if provided
+    if (options.title) {
+      const titleElement = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+      titleElement.textContent = options.title;
+      svgElement.insertBefore(titleElement, svgElement.firstChild);
     }
 
-    // Return focus to trigger when modal closes
-    modal.addEventListener('close', () => {
-      if (trigger) {
-        trigger.focus();
-      }
-    });
+    // Add description if provided
+    if (options.desc) {
+      const descElement = document.createElementNS('http://www.w3.org/2000/svg', 'desc');
+      descElement.textContent = options.desc;
+      svgElement.insertBefore(descElement, svgElement.firstChild);
+    }
+
+    // Set focusability
+    svgElement.setAttribute('focusable', options.focusable ? 'true' : 'false');
+
+    // Add aria-hidden if the SVG is purely decorative
+    if (options.decorative) {
+      svgElement.setAttribute('aria-hidden', 'true');
+    }
+
+    return svgElement;
   }
 }
 

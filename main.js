@@ -1,14 +1,9 @@
 // TODO: This is the existing code that needs to be preserved
 const config = {
   apiUrl: process.env.API_URL || 'https://api.example.com',
-  timeout: 5000,
-  debug: false,
-  version: '1.0.0',
-  dataPath: './data',
-  maxResults: 100,
-  landmarkRoles,
-  maxLandmarks,
-  allowedRoles
+  timeout: process.env.TIMEOUT || 5000,
+  debug: true,
+  version: '1.0.0'
 };
 
 const appState = {
@@ -38,6 +33,7 @@ function getLangAttribute() {
 }
 
 function getFullLangAttribute() {
+    // Implementation to get full language attribute
     return document.documentElement.lang || navigator.language || 'en-US';
 }
 
@@ -123,6 +119,43 @@ function validateTableStructure(tables) {
 }
 
 /**
+ * Validates the structure of tables for accessibility
+ * @param {Array|Object} tables - Array of table objects or single table element to validate
+ * @returns {Object} Validation result with success status and any issues found
+ */
+function validateTableStructure(tables) {
+  const allIssues = [];
+
+  // Handle both single table element and array of tables
+  const tableArray = Array.isArray(tables) ? tables : [tables];
+
+  tableArray.forEach((table, index) => {
+    // Check for rows (from origin/main)
+    const rows = table.querySelectorAll ? table.querySelectorAll('tr') : [];
+    if (rows.length === 0) {
+      allIssues.push({
+        tableIndex: index,
+        issues: ['Table has no rows']
+      });
+    }
+
+    // Validate table accessibility (from HEAD)
+    const result = validateTableAccessibility(table);
+    if (!result.success) {
+      allIssues.push({
+        tableIndex: index,
+        issues: result.issues
+      });
+    }
+  });
+
+  return {
+    success: allIssues.length === 0,
+    issues: allIssues
+  };
+}
+
+/**
  * Validates landmark elements for accessibility
  * @param {Object} element - The element to validate
  * @returns {Object} Validation result with success status and any issues found
@@ -149,7 +182,7 @@ function validateLandmark(element) {
  * @returns {Object} Validation result with success status and any issues found
  */
 function validateLandmarkStructure(landmarks) {
-    const issues = [];
+  const issues = [];
 
   // If landmarks array is provided, validate each one (from HEAD)
   if (Array.isArray(landmarks)) {
@@ -168,31 +201,35 @@ function validateLandmarkStructure(landmarks) {
     let hasMain = false;
     let hasNavigation = false;
 
-        allLandmarks.forEach(landmark => {
-            const role = landmark.getAttribute('role');
-            if (role === 'main') hasMain = true;
-            if (role === 'navigation') hasNavigation = true;
-        });
+    allLandmarks.forEach(landmark => {
+      const role = landmark.getAttribute('role');
+      if (role === 'main') hasMain = true;
+      if (role === 'navigation') hasNavigation = true;
+    });
 
-        if (!hasMain) {
-            issues.push('Missing main landmark');
-        }
-
-        if (!hasNavigation) {
-            issues.push('Missing navigation landmark');
-        }
+    if (!hasMain) {
+      issues.push('Missing main landmark');
     }
+    if (!hasNavigation) {
+      issues.push('Missing navigation landmark');
+    }
+  }
 
-    return {
-        success: issues.length === 0,
-        issues
-    };
+  return {
+    success: issues.length === 0,
+    issues
+  };
 }
 
+/**
+ * Ensures all landmarks have unique accessible names
+ * @param {Array} landmarks - Array of landmark elements to check (optional)
+ * @returns {Object} Result with success status and any duplicate names found
+ */
 function ensureUniqueLandmarks(landmarks) {
-    const names = [];
-    const duplicates = [];
-    let elementsToCheck = landmarks;
+  const names = [];
+  const duplicates = [];
+  let elementsToCheck = landmarks;
 
   // If no landmarks array provided, query the DOM (from origin/main)
   if (!Array.isArray(landmarks)) {
@@ -354,10 +391,13 @@ function setSvgAttributes(svg, accessibleName) {
   return svg;
 }
 
-function sortLandmarks(landmarks, ascending = true) {
-    return landmarks.slice().sort((a, b) => {
-        const nameA = (a.name || '').toLowerCase();
-        const nameB = (b.name || '').toLowerCase();
+/**
+ * Iterates through all SVG elements and sets accessible names
+ * @returns {Object} Result with success status and count of SVGs processed
+ */
+function addSvgAccessibleNames() {
+  const svgs = document.querySelectorAll('svg');
+  let processed = 0;
 
         if (ascending) {
             return nameA.localeCompare(nameB);
@@ -392,169 +432,5 @@ function addLandmarkRolesAndFixIssues() {
 }
 
 /**
- * REACT_017: Validate and fix landmark issues
- * Ensures proper landmark structure and accessibility
+ * Fixes landmark issues
  */
-function fixLandmarkIssues() {
-  // Ensure unique landmarks
-  ensureUniqueLandmarks(landmarks);
-
-  // Add proper landmark regions
-  addProperLandmarkRegions();
-
-  // Validate existing landmarks
-  const landmarkValidation = validateLandmark();
-  if (!landmarkValidation.valid) {
-    console.warn('Landmark validation issues:', landmarkValidation.issues);
-  }
-}
-
-/**
- * REACT_041: Add accessible names to SVGs
- * Ensures all SVGs have accessible names
- */
-function addSvgAccessibility() {
-  const svgs = document.querySelectorAll('svg');
-  svgs.forEach(svg => {
-    const name = getSvgAccessibleName(svg);
-    if (!name) {
-      setSvgAttributes(svg, 'Graphic element');
-    }
-  });
-}
-
-/**
- * REACT_036: Create accessible links
- * Creates properly accessible links and buttons
- */
-function createAccessibleLinks() {
-  // Create skip to content link
-  const skipLink = createInPageButton('main-content', 'Skip to main content');
-  document.body.insertBefore(skipLink, document.body.firstChild);
-
-  // Validate existing links
-  const links = document.querySelectorAll('a');
-  links.forEach(link => {
-    const validation = validateLinkAccessibility(link);
-    if (!validation.valid) {
-      console.warn('Link validation issues:', validation.issues);
-    }
-  });
-}
-
-/**
- * REACT_001: Implement function to handle new accessibility issues
- * Coordinates various accessibility fixes and improvements
- */
-function addressAccessibilityIssues() {
-  try {
-    // Fix table accessibility issues
-    fixTableAccessibility();
-    
-    // Fix landmark issues
-    fixLandmarkIssues();
-    
-    // Add accessible names to SVGs
-    addSvgAccessibility();
-    
-    // Create accessible links
-    createAccessibleLinks();
-    
-    // Address dependency graph accessibility from HEAD
-    const dependencyGraph = document.querySelector('.dependencyGraph') || document.querySelector('[data-testid="dependency-graph"]');
-    if (dependencyGraph) {
-      dependencyGraph.setAttribute('role', 'tree');
-      dependencyGraph.setAttribute('aria-label', 'Dependency Graph');
-    }
-    
-    return {
-      success: true,
-      message: 'Accessibility issues have been addressed',
-      fixesApplied: [
-        'table_accessibility',
-        'landmark_issues',
-        'svg_accessibility',
-        'link_accessibility',
-        'dependency_graph_accessibility'
-      ]
-    };
-  } catch (error) {
-    console.error('Error addressing accessibility issues:', error.message);
-    return {
-      success: false,
-      message: 'Failed to address accessibility issues',
-      error: error.message
-    };
-  }
-}
-
-// Render dependency graph content
-function renderDependencyGraphContent(data) {
-  const container = document.querySelector('.dependencyGraph') || document.querySelector('[data-testid="dependency-graph"]');
-  if (container) {
-    container.innerHTML = data;
-  }
-}
-
-module.exports = {
-  config: CONFIG,
-  appState,
-  initializeApp,
-  processData,
-  fetchUser,
-  clearCache,
-  initialize,
-  validateInput,
-  addressAccessibilityIssues,
-  processAccessibilityReport,
-  getLangAttribute,
-  getFullLangAttribute,
-  addLangAttribute,
-  validateTableAccessibility,
-  validateTableStructure,
-  fixTableStructure,
-  addMainLandmark,
-  validateLandmark,
-  validateLandmarkAttributes,
-  validateLandmarkStructure,
-  ensureUniqueLandmarks,
-  getSvgAccessibleName,
-  createInPageButton,
-  createAccessibleLink,
-  handleAccessibilityIssues,
-  getConfig,
-  processData,
-  addLandmarkRegions,
-  setSvgAttributes,
-  addBook,
-  getBooksList,
-  books,
-  fixAccessibilityIssues,
-  createAccessibleBookForm,
-  enhanceFormAccessibility,
-  loadLandmarks,
-  processLandmarks,
-  writeReport,
-  getUniqueLandmarks,
-  ensureElementHasId,
-  validateLinkAccessibility,
-  handleFakeLinks,
-  fixFakeLink,
-  addProperLandmarkRegions,
-  renderDependencyGraph,
-  makeAccessible,
-  addAriaSupport,
-  enhanceAddBookAccessibility,
-  generateDependencyReport,
-  getUserSafetyAdvice,
-  accessiblyHelper,
-  createAccessibleInput,
-  rotateBack,
-  fixTableAccessibility,
-  fixLandmarkIssues,
-  addSvgAccessibility,
-  createAccessibleLinks,
-  renderDependencyGraphContent,
-  generateAccessibilityReport,
-  checkLinkAndButtonAccessibility
-};

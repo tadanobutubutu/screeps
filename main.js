@@ -1,98 +1,71 @@
 /**
- * Main application entry point with accessibility features
+ * Main application entry point
  */
 
 // Import required modules
 const http = require('http');
 const path = require('path');
 
-// Functions to ensure the element has an id, add aria-label, render dependency graphs,
-// count dependencies, and address accessibility issues from insight report
-// todo-hash: 4bdb3fdb46f8c23568fe2832e296806312b7e888
-function getLangAttribute() {
-  // ... code for handling lang attribute
+// Import content modules
+const { dependencyGraphContent } = require('./dependencyGraphContent');
+const { indexContent } = require('./indexContent');
+
+// Application configuration
+const config = {
+  port: process.env.PORT || 3000,
+  env: process.env.NODE_ENV || 'development',
+  // Adding lang attribute based on content
+  lang: getLangAttribute()
+};
+
+/**
+ * Creates and starts the HTTP server
+ * @returns {http.Server} The created server instance
+ */
+function createServer() {
+  const server = http.createServer((req, res) => {
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ status: 'ok', config }));
+  });
+  return server;
 }
 
-function personName() {
-  // ... code for handling person name
+/**
+ * Starts the application
+ */
+function startApp() {
+  const server = createServer();
+  server.listen(config.port, () => {
+    console.log(`Server running on port ${config.port}`);
+  });
+  return server;
 }
 
-function validateTableAccessibility() {
-  // ... code for handling table accessibility issues
+// New function to handle logging
+function logMessage(message) {
+  console.log(`[LOG]: ${message}`);
 }
 
-function validateTableStructure() {
-  // ... code for handling table structure issues
+// New function to handle graceful shutdown
+function handleGracefulShutdown(server) {
+  server.close(() => {
+    console.log('Server closed gracefully');
+    process.exit(0);
+  });
+
+  // Forcibly close server after 5 seconds
+  setTimeout(() => {
+    console.error('Forcibly closing server after timeout');
+    process.exit(1);
+  }, 5000);
 }
 
-function validateLandmark() {
-  // ... code for handling landmark issues
+// New function to add lang attribute to HTML element
+function addLangAttribute(element, lang) {
+  element.setAttribute('lang', lang);
 }
 
-function validateLandmarkStructure() {
-  // ... code for handling landmark structure issues
-}
-
-function getSvgAccessibleName() {
-  // ... code for handling SVG accessible names
-}
-
-function createInPageButton() {
-  // ... code for handling in-page button creation
-}
-
-// ADD: New function for handling the new accessibility issues from the insight report
-function addressNewAccessibilityIssues() {
-  // Retrieve the language attribute for the HTML document
-  const lang = getLangAttribute();
-
-  // Apply the language attribute to the <body> element if not already present
-  const body = document.body;
-  if (body && typeof body !== 'undefined' && !body.getAttribute('lang')) {
-    body.setAttribute('lang', lang);
-  }
-
-  // Ensure the main content area has an appropriate ARIA role
-  const main = document.querySelector('main');
-  if (main && typeof main !== 'undefined') {
-    main.setAttribute('role', 'main');
-  }
-
-  // Attach an accessible label to the primary action button
-  const submitBtn = document.querySelector('.btn-submit');
-  if (submitBtn && typeof submitBtn !== 'undefined') {
-    submitBtn.setAttribute('aria-label', personName());
-  }
-}
-
-// ADD: Functions for testing accessibility
-function generateAccessibilityReport(accessibilityReport) {
-  // ... code for generating the report
-}
-
-function calculateAccessibilityScore(fixedIssues) {
-  // ... code for calculating the score
-}
-
-function ensureUniqueLandmarksFromString(source) {
-  // ... code for ensuring unique landmarks
-}
-
-function validateLandmark(element) {
-  // ... code for validating landmark
-}
-
-function createInPageButton(buttonId, buttonText) {
-  // ... code for creating in-page button
-}
-
-// ADD: Functions for handling new functionalities
-function newFunctionality() {
-  // Example functionality to demonstrate changes
-  console.log('New functionality has been added.');
-}
-
-// ADD: Function to handle the credential response
+// TODO: Implement the logic to handle the credential response
 function handleCredentialResponse(response) {
   // Accept a JSON string or an already parsed object
   let data;
@@ -121,79 +94,49 @@ function handleCredentialResponse(response) {
   logMessage('Credential response received, parsed, validated and stored');
 }
 
-// ADD: Helper to retrieve stored credentials (useful for tests)
+// Helper to retrieve stored credentials (useful for tests)
 function getStoredCredentials() {
   return storedCredentials;
 }
 
-// ADD: Function to handle the lang attribute for the entire HTML document
+// Add accessibility function to handle the lang attribute for the entire HTML document
 function handleAddLangAttribute(htmlDocument, lang) {
   // Get the html element and call addLangAttribute
   const htmlElement = htmlDocument.documentElement;
   addLangAttribute(htmlElement, lang);
 }
 
-// Export functions for both browser and Node.js environments
-if (typeof window !== 'undefined') {
-  // Browser environment - expose functions to window
-  const functionsToExpose = [
-    'getLangAttribute', 'personName', 'validateTableAccessibility',
-    'validateTableStructure', 'validateLandmark', 'validateLandmarkStructure',
-    'getSvgAccessibleName', 'createInPageButton', 'addressNewAccessibilityIssues',
-    'generateAccessibilityReport', 'calculateAccessibilityScore',
-    'ensureUniqueLandmarksFromString', 'validateLandmark', 'createInPageButton',
-    'handleCredentialResponse', 'getStoredCredentials', 'handleAddLangAttribute',
-    'newFunctionality'
-  ];
-  functionsToExpose.forEach(functionName => {
-    window[functionName] = window[functionName] || eval(functionName);
-  });
+// New function to handle the new functionalities
+function newFunctionality() {
+  // Example functionality to demonstrate changes
+  console.log('New functionality has been added.');
 }
 
-// Application configuration
-const config = {
-  port: process.env.PORT || 3000,
-  env: process.env.NODE_ENV || 'development',
-  // Adding lang attribute based on content
-  lang: getLangAttribute()
+/**
+ * Renders the dependency graph view
+ * @returns {string} Rendered dependency graph content
+ */
+function renderDependencyGraph() {
+  return dependencyGraphContent();
+}
+
+/**
+ * Renders the index view
+ * @returns {string} Rendered index content
+ */
+function renderIndex() {
+  return indexContent();
+}
+
+// Export functions for testing
+module.exports = {
+  createServer,
+  startApp,
+  config,
+  handleCredentialResponse,
+  getStoredCredentials,
+  handleAddLangAttribute,
+  newFunctionality,
+  renderDependencyGraph,
+  renderIndex
 };
-
-/**
- * Creates and starts the HTTP server
- * @returns {http.Server} The created server instance
- */
-function createServer() {
-  const server = http.createServer((req, res) => {
-    res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ status: 'ok', config }));
-  });
-  return server;
-}
-
-/**
- * Starts the application
- */
-function startApp() {
-  // ... (existing code)
-}
-
-/**
- * Function to count dependencies
- * @returns {number} The count of dependencies
- */
-function countDependencies() {
-  return require.main.requires.length;
-}
-
-// Additional functions to address accessibility issues from insight report
-function addressAccessibilityIssues(insightReport) {
-  // Implement function to address the reported accessibility issues
-}
-
-// Exports (if any) must be preserved
-// export ...; // Example of an existing export
-
-// Start the application if run directly
-if (require.main === module) {
-  startApp();
-}

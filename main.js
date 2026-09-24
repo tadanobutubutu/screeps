@@ -562,10 +562,22 @@ const appData = {
  * Sets the language attribute on the HTML element for better accessibility.
  * @param {string} lang - The language code to set (default: 'en')
  */
-function setLanguageAttribute(lang = 'en') {
-  const htmlElement = document.querySelector('html');
+function setLanguageAttribute() {
+  const htmlElement = document.documentElement;
   if (htmlElement) {
-    htmlElement.setAttribute('lang', lang);
+    htmlElement.setAttribute('lang', 'en');
+  }
+}
+
+function getLangAttribute() {
+  // Code for getting the language attribute
+  return document.documentElement?.getAttribute('lang') || null;
+}
+
+function addLangAttribute(element) {
+  // Code for adding the language attribute to the specified element
+  if (element && element.getAttribute('lang') === '') {
+    element.setAttribute('lang', 'en');
   }
 }
 
@@ -605,8 +617,13 @@ function ensureUniqueLandmarks(landmarks) {
     }
 
 function addMainLandmark() {
-  // Placeholder for main landmark addition
-  // Implementation depends on specific requirements
+  const mainElement = document.querySelector('main');
+  if (!mainElement) {
+    const newMain = document.createElement('main');
+    document.body.prepend(newMain);
+    return newMain;
+  }
+  return mainElement;
 }
 
 /**
@@ -655,7 +672,28 @@ function validateTableStructure(table) {
  */
 function fixTableStructure() {
   const tables = document.querySelectorAll('table');
-  tables.forEach(table => validateTableStructure(table));
+  tables.forEach(table => {
+    if (!validateTableStructure(table)) {
+      // Add missing caption if needed
+      if (!table.querySelector('caption')) {
+        const caption = document.createElement('caption');
+        caption.textContent = 'Table caption';
+        table.prepend(caption);
+      }
+
+      // Ensure headers exist
+      const firstRow = table.querySelector('tr');
+      if (firstRow && !firstRow.querySelector('th')) {
+        const cells = firstRow.querySelectorAll('td');
+        cells.forEach(cell => {
+          const th = document.createElement('th');
+          th.textContent = cell.textContent;
+          th.setAttribute('scope', 'col');
+          cell.replaceWith(th);
+        });
+      }
+    }
+  });
 }
 
 /**
@@ -668,7 +706,7 @@ function getSvgAccessibleName(svg) {
   if (!svg) return null;
 
   // Try to get accessible name from SVG
-  const name = svg.getAttribute('aria-label') || svg.getAttribute('title') || '';
+  const name = svg.getAttribute('aria-label') || svg.getAttribute('title') || svg.getAttribute('aria-labelledby') || '';
   return name || null;
 }
 
@@ -682,6 +720,11 @@ function setSvgAttributes(svg, name) {
 
   if (name) {
     svg.setAttribute('aria-label', name);
+  } else {
+    // If no name provided, ensure there's some accessible name
+    if (!getSvgAccessibleName(svg)) {
+      svg.setAttribute('aria-hidden', 'true');
+    }
   }
 }
 
@@ -721,11 +764,12 @@ function validateLinkAccessibility(link) {
  * Handles fake links by converting them to proper buttons or adding accessibility attributes.
  */
 function handleFakeLinks() {
-  const links = document.querySelectorAll('a[rel="fake"]');
+  const links = document.querySelectorAll('a[rel="fake"], a[href=""], a[href="#"]');
   links.forEach(link => {
     if (link.getAttribute('href') === '' || link.getAttribute('href') === '#') {
       link.setAttribute('role', 'button');
       link.setAttribute('tabindex', '0');
+      link.setAttribute('aria-label', link.textContent.trim() || 'Button');
     }
   });
 }

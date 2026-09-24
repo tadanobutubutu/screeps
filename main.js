@@ -254,8 +254,42 @@ if (document.readyState === 'loading') {
   validateAllTables();
 }
 
+/**
+ * Adds a language attribute to the HTML element if missing
+ * @param {string} lang - The language code to set (default 'en')
+ */
+function addLangAttribute(lang = 'en') {
+  const htmlEl = document.documentElement;
+  if (htmlEl && !htmlEl.hasAttribute('lang')) {
+    htmlEl.setAttribute('lang', lang);
+  }
+}
+
 module.exports = {
-  config,
-  XYZ,
-  calculateSum
+  // Existing exports preserved
+  newFunction,
+  implementAccessibilityFixesFromReport,
+  checkAccessibility,
+  addLangAttribute,
+  // Re-export utilities functions
+  createInPageButton,
+  createWebResourceButton,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  getLangAttribute,
+  validateAccessibilityReport,
+  exportUtils,
+  addressAccessibilityIssues,
+  handleCredentialResponse,
+  ensureElementHasId,
+  ensureElementHasIdOrigin,
+  addAriaLabel,
+  renderDependencyGraphs,
+  fixButtonIdentifiers,
+  fixDependencyGraphAria,
+  addMainLandmarkToIndex,
+  focusTrap
 };

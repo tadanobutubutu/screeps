@@ -1,8 +1,1 @@
-on
-[
-  "src",
-  "tests",
-  "README.md",
-  "package.json",
-  "main.js"
-]
+// TODO: Import required module(s) and export the new necessary function(s) here in main.js (preserving the original code)

@@ -405,47 +405,83 @@ const XYZ = function () {
     // Implementation for XYZ function
 };
 
-function initializeApp() {
-  addressInsightIssues();
-  loadConfigurations();
-  if (typeof wrapPrimaryContentInMain === 'function') {
-    wrapPrimaryContentInMain();
-  }
-}
+// New function for checking link and button accessibility
+AddressabilityIssues.checkLinkAndButtonAccessibility = function () {
+  const issues = [];
 
-// Implements the new addressNewAccessibilityIssues function
-function addressNewAccessibilityIssues(insightReport) {
-  return AddressabilityIssues.addressAccessibilityIssues(insightReport);
-}
+  // Check links for missing href attributes
+  document.querySelectorAll('a[href]').forEach(link => {
+    if (!link.hasAttribute('href')) {
+      issues.push({
+        element: link,
+        type: 'link',
+        issue: 'Missing href attribute'
+      });
+    }
+  });
 
-// New function that was added to the branch
-function newFunction() {
-  // New function implementation
-  console.log('New function executed');
-}
+  // Check buttons for proper type attribute
+  document.querySelectorAll('button[type="button"]').forEach(button => {
+    if (button.type !== 'button') {
+      issues.push({
+        element: button,
+        type: 'button',
+        issue: 'Button should have type="button"'
+      });
+    }
+  });
 
-// Express middleware
-app.use(express.json());
+  return issues;
+};
 
-// Export functions for testing and module usage
-module.exports = {
-    config: config,
-    XYZ: XYZ,
-    calculateSum: calculateSum,
-
-    fixMain,
-    createServer,
-    startApp,
-    AddressabilityIssues,
+// Ensure DOM is fully loaded before executing scripts
+if (typeof module !== 'undefined' && module.exports) {
+  // Node.js environment - setup basic exports
+  module.exports = {
+    checkTableStructure,
+    countDependencies,
+    init,
+    setupKeyboardNavigation,
+    setupAriaLiveRegions,
+    setupFocusManagement,
+    enhanceSemanticMarkup,
+    trapFocus,
+    handleKeyNavigation,
+    closeOpenDialogs,
+    announceToScreenReader,
+    calculateDifference,
+    calculateProduct,
+    isNumber,
+    clamp,
+    hello,
+    getVersion,
+    getConfig,
     addressAccessibilityIssues,
     ensureUniqueLandmarksFromString,
     spawnSomeCommand,
     addLangAttribute,
-    ensureElementHasId,
-    ensureElementId,
-    addAriaLabel,
-    handleAccessibilityIssues,
-    fixFakeLinkIssue,
-    renderDependencyGraphContent,
-    addBook
+    handleCredentialResponse,
+    AddressabilityIssues
   };
+} else {
+  // Browser environment - wait for DOM
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+}
+
+function init() {
+  setupKeyboardNavigation();
+  setupAriaLiveRegions();
+  setupFocusManagement();
+  enhanceSemanticMarkup();
+  // Add lang attribute to HTML element as per REACT_015
+  addLangAttribute(document.documentElement);
+  // Address unique landmarks and proper landmark regions
+  ensureUniqueLandmarks();
+  addProperLandmarkRegions();
+}
+
+// ... (other functions and setting up exports)

@@ -376,16 +376,12 @@ const accessibilityUtils = {
     }
   },
 
-  addLandmarkRoles: (container = document) => {
-    const main = container.querySelector('main');
-    if (main && !main.getAttribute('role')) {
-      main.setAttribute('role', 'main');
-    }
-
-    const nav = container.querySelector('nav');
-    if (nav && !nav.getAttribute('role')) {
-      nav.setAttribute('role', 'navigation');
-    }
+const ensureElementId = (element) => {
+  if (element && !element.id) {
+    element.id = `el-${Math.random().toString(36).slice(2, 9)}`;
+  }
+  return element;
+};
 
     const footer = container.querySelector('footer');
     if (footer && !footer.getAttribute('role')) {
@@ -632,24 +628,8 @@ if (typeof document !== 'undefined') {
   }
 }
 
-// Export all utilities
-module.exports = {
-  // Existing exports...
-  MyExport: function() {
-    // Existing implementation...
-  },
-
-  // Add the missing export
-  AnotherExport: function() {
-    // Implementation of the new export
-    // TODO: Implement this function for checking landmark elements
-    function checkLandmarkElement(element) {
-      // Placeholder for the actual implementation
-      // This function should check if the given element is a landmark element
-      // For example, it might check for specific attributes or classes
-      // For now, let's assume any element is a landmark element
-      return true;
-    }
+// Export the new function for REACT_043
+export { makeHeaderFocusable };
 
     return checkLandmarkElement;
   },

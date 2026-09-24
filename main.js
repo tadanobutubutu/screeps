@@ -1,6 +1,9 @@
-const http = require('http')
-const fs = require('fs')
-const path = require('path')
+// main.js
+const { createWebResourceButton, validateAccessibilityReport } = require('./utilities');
+
+const http = require('http');
+const fs = require('fs');
+const path = require('path');
 
 // Configuration
 const CONFIG = {
@@ -8,22 +11,116 @@ const CONFIG = {
   host: process.env.HOST || 'localhost',
   maxRetries: 3,
   timeout: 5000
-}
+};
 
-// New function to address REACT_015: Add lang attribute to HTML element
-function setHtmlLangAttribute(lang) {
-  if (typeof document !== 'undefined' && document.documentElement) {
-    document.documentElement.lang = lang || 'en';
+// Accessibility utilities and functions
+const accessibilityUtils = {
+  // Initialize skip link functionality for keyboard navigation
+  initSkipLink: () => {
+    const skipLink = document.querySelector('.skip-link');
+    if (skipLink) {
+      skipLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        const target = document.querySelector(skipLink.getAttribute('href'));
+        if (target) {
+          target.setAttribute('tabindex', '-1');
+          target.focus();
+        }
+      });
+    }
+  },
+
+  // Trap focus within an element (for modals, dialogs)
+  trapFocus: (element) => {
+    const focusableElements = element.querySelectorAll(
+      'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    );
+    const firstElement = focusableElements[0];
+    const lastElement = focusableElements[focusableElements.length - 1];
+
+    element.addEventListener('keydown', (e) => {
+      if (e.key === 'Tab') {
+        if (e.shiftKey && document.activeElement === firstElement) {
+          lastElement.focus();
+          e.preventDefault();
+        } else if (!e.shiftKey && document.activeElement === lastElement) {
+          firstElement.focus();
+          e.preventDefault();
+        }
+      }
+    });
+  },
+
+  // Announce message to screen readers
+  announceToScreenReader: (message, priority = 'polite') => {
+    const announcer = document.createElement('div');
+    announcer.setAttribute('aria-live', priority);
+    announcer.setAttribute('aria-atomic', 'true');
+    announcer.className = 'sr-only';
+    announcer.style.position = 'absolute';
+    announcer.style.left = '-9999px';
+    announcer.textContent = message;
+    document.body.appendChild(announcer);
+    setTimeout(() => announcer.remove(), 1000);
+  },
+
+  // Handle keyboard navigation
+  handleKeyboardNav: (e, handlers) => {
+    const key = e.key;
+    if (handlers[key]) {
+      handlers[key](e);
+    }
+  }
+};
+
+// Functions to ensure the element has an id, add aria-label, render dependency graphs
+// (Previously existing code that needs to be preserved)
+
+const ensureElementId = (element) => {
+  if (element && !element.id) {
+    element.id = `element-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  }
+  return element;
+};
+
+const addAriaLabel = (element, label) => {
+  if (element) {
+    element.setAttribute('aria-label', label);
+  }
+  return element;
+};
+
+// TODO: Add these imported modules to the relevant rendering functions in main.js
+// Imported dependencyGraphContent and indexContent for use in renderDependencyGraph and renderIndexView
+const { dependencyGraphContent, indexContent } = require('./dependencyGraphContent/indexContent');
+
+const renderDependencyGraph = (data) => {
+  // Implementation for rendering dependency graphs using dependencyGraphContent
+  return {
+    nodes: data.nodes || [],
+    edges: data.edges || [],
+    content: dependencyGraphContent(data)
+  };
+};
+
+const renderIndexView = (data) => {
+  // Implementation for rendering index views using indexContent
+  return {
+    items: data,
+    content: indexContent(data)
+  };
+};
+
+// Extended accessibility functions
+const getLangAttribute = (element, lang) {
+  if (element) {
+    element.setAttribute('lang', lang || 'en');
   }
   return lang || 'en';
-}
+};
 
-/**
- * Detects the language of the given content and sets the HTML lang attribute
- * @param {string} content - The text content to analyze
- * @returns {string} The detected language code
- */
-function detectAndSetLang(content) {
+const detectAndSetLang = (content) => {
+  // Simple language detection based on common patterns
   let lang = 'en'; // Default to English
 
   if (content) {
@@ -43,35 +140,16 @@ function detectAndSetLang(content) {
   }
 
   return lang;
-}
+};
 
-// Accessibility utilities and functions
-const accessibilityUtils = {
-  // ... existing accessibility utility functions
-
-  // New function to address more landmark issues
-  checkLandmarkElements(container) {
-    if (typeof document === 'undefined') {
-      return { valid: false, errors: ['Document not available'] };
-    }
-
-    const errors = [];
-    const root = container || document;
-    const landmarks = root.querySelectorAll('header, nav, main, aside, footer, section, article, [role="header"], [role="nav"], [role="main"], [role="aside"], [role="footer"], [role="section"], [role="article"], [role="search"]');
-
-    landmarks.forEach((landmark, index) => {
-      const result = validateLandmark(landmark);
-      if (!result.valid) {
-        errors.push(`Landmark ${index + 1}: ${result.errors.join(', ')}`);
-      }
-    });
-
-    return { valid: errors.length === 0, errors };
+const setHtmlLangAttribute = (lang) {
+  if (typeof document !== 'undefined' && document.documentElement) {
+    document.documentElement.lang = lang || 'en';
   }
-}
+  return lang || 'en';
+};
 
-// New function to address REACT_027: Fix 26 table structure issues (includes both validateTableAccessibility and validateTableStructure)
-function validateTable(tableElement) {
+const validateTableAccessibility = (tableElement) => {
   if (typeof document === 'undefined' || !tableElement) {
     return { valid: false, errors: ['Table element not found or document not available'] };
   }
@@ -103,58 +181,49 @@ function validateTable(tableElement) {
   if (!hasCaption && !hasSummary) {
     errors.push('Table is missing a caption or aria-describedby for accessibility');
   }
-
-  const tableStructureErrors = validateTableStructure(tableElement);
-  if (!tableStructureErrors.valid) {
-    errors.push(...tableStructureErrors.errors);
-  }
-
-// Existing utility functions
-function log(message, level = 'info') {
-  const timestamp = new Date().toISOString();
-  console.log(`${timestamp} [${level.toUpperCase()}]: ${message}`);
-}
-
-// ... Other existing code
-
-export {
-  setHtmlLangAttribute,
-  detectAndSetLang,
-  getLangAttribute,
-  validateTableAccessibility,
-  validateTable,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  validateSvgAccessibility,
-  ensureUniqueLandmarks,
-  personName,
-  validateLinks,
-  createFocusTrap,
-  renderDependencyGraph,
-  renderIndexView,
-  checkLandmarkElements
+  
+  return { valid: errors.length === 0, errors };
 };
 
-// Also attach to global scope for browser/standalone access
-if (typeof window !== 'undefined') {
-  window.setHtmlLangAttribute = setHtmlLangAttribute
-  window.detectAndSetLang = detectAndSetLang
-  window.getLangAttribute = getLangAttribute
-  window.validateTableAccessibility = validateTableAccessibility
-  window.validateTable = validateTable
-  window.validateLandmark = validateLandmark
-  window.validateLandmarkStructure = validateLandmarkStructure
-  window.getSvgAccessibleName = getSvgAccessibleName
-  window.validateSvgAccessibility = validateSvgAccessibility
-  window.ensureUniqueLandmarks = ensureUniqueLandmarks
-  window.personName = personName
-  window.validateLinks = validateLinks
-  window.createFocusTrap = createFocusTrap
-  window.renderDependencyGraph = renderDependencyGraph
-  window.renderIndexView = renderIndexView
-  window.checkLandmarkElements = checkLandmarkElements
-}
-```
+const validateTableStructure = (tableElement) => {
+  if (typeof document === 'undefined' || !tableElement) {
+    return { valid: false, errors: ['Table element not found'] };
+  }
+  
+  const errors = [];
+  const rows = Array.from(tableElement.querySelectorAll('tr'));
+  
+  rows.forEach((row, rowIndex) => {
+    const cells = Array.from(row.querySelectorAll('th, td'));
+    const cellCount = cells.length;
+    
+    // Check for empty cells
+    cells.forEach((cell, cellIndex) => {
+      if (!cell.textContent.trim()) {
+        errors.push(`Row ${rowIndex + 1}, Cell ${cellIndex + 1} is empty`);
+      }
+    });
+    
+    // Check that rows have consistent cell counts
+    if (rowIndex > 0) {
+      const prevRow = rows[rowIndex - 1];
+      const prevCells = Array.from(prevRow.querySelectorAll('th, td'));
+      if (cellCount !== prevCells.length) {
+        errors.push(`Row ${rowIndex + 1} has inconsistent cell count (${cellCount} vs ${prevCells.length})`);
+      }
+    }
+  });
+  
+  return { valid: errors.length === 0, errors };
+};
 
-This solution resolves Git merge conflicts between updates, integrates both changes, and preserves comments and style. It also adds a new function called `validateTable` that merges the functionality of both `validateTableAccessibility` and `validateTableStructure`. Additionally, it moves the check on common non-ASCII characters for language detection from `validateTableAccessibility` to the main detection function, `detectAndSetLang`, for consistency. The changes should work seamlessly without affecting the overall functionality.
+const validateLandmark = (element) => {
+  if (typeof document === 'undefined' || !element) {
+    return { valid: false, errors: ['Element not found'] };
+  }
+  
+  const errors = [];
+  const validLandmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article', 'search'];
+  
+  // Check if element is a valid landmark
+  const role =

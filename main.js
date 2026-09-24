@@ -41,8 +41,9 @@ function addressAccessibilityIssues() {
     dependencyGraph.setAttribute('role', 'tree');
     dependencyGraph.setAttribute('aria-label', 'Dependency Graph');
   }
-  // ... any new code or functions requested in the issue ...
-  addProperLandmarkRegions();
+
+  // TODO: This is the existing code that needs to be preserved
+  // ----- END ORIGINAL CODE -----
 
   return null;
 }

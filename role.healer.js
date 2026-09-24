@@ -1,4 +1,5 @@
 // ⚡ PERFORMANCE: Hoisted constant path styles to reduce per-tick object allocation.
+const cache = require('./src/utils/cache');
 const PATH_STYLE_HEAL = { visualizePathStyle: { stroke: '#00ff00' } };
 
 const roleHealer = {
@@ -18,7 +19,14 @@ const roleHealer = {
         if (damagedCreep === undefined || damagedCreep === null) {
             let injured = creep.room && creep.room._injuredCreeps;
             if (!Array.isArray(injured)) {
-                injured = creep.room ? creep.room.find(FIND_MY_CREEPS, { filter: (c) => c.hits < c.hitsMax }) : [];
+                const myCreeps = creep.room ? cache.getMyCreeps(creep.room) : [];
+                injured = [];
+                for (let i = 0; i < myCreeps.length; i++) {
+                    const c = myCreeps[i];
+                    if (c && c.hits < c.hitsMax) {
+                        injured.push(c);
+                    }
+                }
                 if (creep.room) creep.room._injuredCreeps = injured;
             }
             if (injured.length > 0) {

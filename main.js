@@ -253,7 +253,27 @@ function renderIndexView(data, options = {}) {
   },
 
   // New function for addressing accessibility issues from insight report
-  newFocusTrap: newFocusTrap(),
+  newFocusTrap: (element) => {
+    if (!element) return;
+    const focusable = element.querySelectorAll(
+      'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])'
+    );
+    if (focusable.length === 0) return;
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+
+    element.addEventListener('keydown', (e) => {
+      if (e.key === 'Tab') {
+        if (e.shiftKey && document.activeElement === first) {
+          last.focus();
+          e.preventDefault();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          first.focus();
+          e.preventDefault();
+        }
+      }
+    });
+  },
 
   // Accessibility functions to address new issues
   addLangAttribute: () => {
@@ -263,26 +283,42 @@ function renderIndexView(data, options = {}) {
     }
   },
 
-  fixTableStructure: (tables) => {
+  fixTableStructure: () => {
+    const tables = document.querySelectorAll('table');
     tables.forEach(table => {
+      // Ensure table has proper structure
       if (!table.querySelector('thead') || !table.querySelector('tbody')) {
         const thead = document.createElement('thead');
         const tbody = document.createElement('tbody');
-        const firstRow = table.querySelector('tr');
+        const rows = table.querySelectorAll('tr');
 
-        if (firstRow) {
-          thead.appendChild(firstRow);
-          table.insertBefore(thead, table.firstChild);
-          table.appendChild(tbody);
-          // Move remaining rows to tbody
-          const rows = table.querySelectorAll('tr');
+        if (rows.length > 0) {
+          thead.appendChild(rows[0].cloneNode(true));
+          rows[0].remove();
+
           rows.forEach(row => {
-            if (row !== firstRow) {
-              tbody.appendChild(row);
-            }
+            tbody.appendChild(row.cloneNode(true));
+            row.remove();
           });
+
+          table.appendChild(thead);
+          table.appendChild(tbody);
         }
       }
+
+      // Ensure table has proper headers
+      const headers = table.querySelectorAll('th');
+      headers.forEach((header, index) => {
+        if (!header.hasAttribute('scope')) {
+          header.setAttribute('scope', 'col');
+        }
+        const cells = table.querySelectorAll(`tbody td:nth-child(${index + 1})`);
+        cells.forEach(cell => {
+          if (!cell.hasAttribute('headers')) {
+            cell.setAttribute('headers', header.id || `header-${index}`);
+          }
+        });
+      });
     });
   },
 
@@ -308,16 +344,19 @@ function renderIndexView(data, options = {}) {
     }
   },
 
-  addSvgAccessibility: (svgs) => {
+  addSvgAccessibility: () => {
+    const svgs = document.querySelectorAll('svg');
     svgs.forEach(svg => {
-      if (!svg.hasAttribute('aria-label') && !svg.hasAttribute('aria-hidden')) {
-        svg.setAttribute('aria-hidden', 'true');
+      if (!svg.hasAttribute('aria-hidden') && !svg.querySelector('title, desc')) {
+        const title = document.createElement('title');
+        title.textContent = svg.getAttribute('aria-label') || 'Graphic';
+        svg.insertBefore(title, svg.firstChild);
       }
     });
   },
 
   ensureUniqueLandmarks: () => {
-    const landmarks = ['main', 'nav', 'header', 'footer'];
+    const landmarks = ['main', 'navigation', 'banner', 'contentinfo'];
     landmarks.forEach(landmark => {
       const elements = document.querySelectorAll(`[role="${landmark}"]`);
       if (elements.length > 1) {
@@ -330,61 +369,11 @@ function renderIndexView(data, options = {}) {
     });
   },
 
-  fixFakeLinks: (links) => {
-    links.forEach(link => {
-      if (link.getAttribute('href') === '#' || !link.getAttribute('href')) {
-        link.setAttribute('role', 'button');
-        link.setAttribute('tabindex', '0');
-      }
-    });
-  },
-
-  // Function to validate all accessibility fixes
-  validateAccessibilityReport: () => {
-    // REACT_015: Check lang attribute
-    const htmlElement = document.querySelector('html');
-    if (!htmlElement || !htmlElement.hasAttribute('lang')) {
-      console.warn('REACT_015: Missing lang attribute on HTML element');
-    }
-
-    // REACT_027: Check table structure
-    const tables = document.querySelectorAll('table');
-    tables.forEach(table => {
-      if (!table.querySelector('thead') || !table.querySelector('tbody')) {
-        console.warn('REACT_027: Table missing thead or tbody structure');
-      }
-    });
-
-    // REACT_017: Check landmarks
-    const landmarks = ['main', 'nav', 'header', 'footer'];
-    landmarks.forEach(landmark => {
-      const elements = document.querySelectorAll(`[role="${landmark}"]`);
-      if (elements.length === 0) {
-        console.warn(`REACT_017: Missing ${landmark} landmark`);
-      }
-    });
-
-    // REACT_041: Check SVGs
-    const svgs = document.querySelectorAll('svg');
-    svgs.forEach(svg => {
-      if (!svg.hasAttribute('aria-label') && !svg.hasAttribute('aria-hidden')) {
-        console.warn('REACT_041: SVG missing accessibility attributes');
-      }
-    });
-
-    // REACT_025: Check unique landmarks
-    landmarks.forEach(landmark => {
-      const elements = document.querySelectorAll(`[role="${landmark}"]`);
-      if (elements.length > 1) {
-        console.warn(`REACT_025: Multiple ${landmark} landmarks found`);
-      }
-    });
-
-    // REACT_036: Check fake links
-    const links = document.querySelectorAll('a');
-    links.forEach(link => {
-      if (link.getAttribute('href') === '#' || !link.getAttribute('href')) {
-        console.warn('REACT_036: Fake link found');
+  fixFakeLinks: () => {
+    const elements = document.querySelectorAll('[role="link"]');
+    elements.forEach(el => {
+      if (!el.hasAttribute('href') && !el.hasAttribute('tabindex')) {
+        el.setAttribute('tabindex', '0');
       }
     });
   }

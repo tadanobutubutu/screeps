@@ -65,20 +65,46 @@ function validateTableAccessibility(table) {
     }
   },
 
-  countDependencies() {
-    const packageJsonPath = path.join(__dirname, 'package.json');
-    const packageJson = fs.readFileSync(packageJsonPath, 'utf8');
-
-    const dependencies = JSON.parse(packageJson).dependencies || {};
-    const devDependencies = JSON.parse(packageJson).devDependencies || {};
-
-  if (!link.href) {
-    issues.push('Link missing href attribute');
+// TODO: Implement this function for checking link and button accessibility
+function checkLinkAndButtonAccessibility(element) {
+  if (!element) {
+    return { success: false, issues: [{ type: 'missing-element', message: 'Element is required' }] };
   }
 
-  const hasHeader = table.querySelector('thead') !== null;
-  const hasBody = table.querySelectorAll('tbody') !== null;
-  const rows = table.querySelectorAll('tr');
+  const tagName = element.tagName ? element.tagName.toLowerCase() : '';
+  const issues = [];
+
+  // Check if it's a link
+  if (tagName === 'a' || tagName === 'link') {
+    const href = element.getAttribute('href');
+    if (!href || href === '#' || href === 'javascript:void(0)') {
+      issues.push({ type: 'inaccessible-link', message: 'Link has no valid href attribute' });
+    }
+    
+    const textContent = element.textContent || element.innerText || '';
+    const ariaLabel = element.getAttribute('aria-label');
+    const ariaLabelledby = element.getAttribute('aria-labelledby');
+    
+    if (!textContent.trim() && !ariaLabel && !ariaLabelledby) {
+      issues.push({ type: 'inaccessible-link', message: 'Link is missing accessible name' });
+    }
+  }
+
+  // Check if it's a button
+  if (tagName === 'button' || tagName === 'input') {
+    const type = element.getAttribute('type');
+    if (tagName === 'input' && type !== 'button' && type !== 'submit' && type !== 'reset') {
+      return { success: true, issues: [] };
+    }
+
+    const textContent = element.textContent || element.value || '';
+    const ariaLabel = element.getAttribute('aria-label');
+    const ariaLabelledby = element.getAttribute('aria-labelledby');
+    
+    if (!textContent.trim() && !ariaLabel && !ariaLabelledby) {
+      issues.push({ type: 'inaccessible-button', message: 'Button is missing accessible name' });
+    }
+  }
 
   return {
     success: issues.length === 0,

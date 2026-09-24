@@ -398,13 +398,87 @@ function function3() {
   };
 }
 
-// New function to fix accessibility issues as per the insight report
-function fixAccessibilityIssues() {
-  var issues = [];
+// New function to address accessibility issues
+function addressNewAccessibilityIssues(insightReport) {
+  if (!insightReport || !insightReport.issues) {
+    return;
+  }
 
-  // Fix table accessibility issues
-  const tableResults = validateTableAccessibility();
-  const tableStructureResults = validateTableStructure();
+  // Process each issue in the report
+  insightReport.issues.forEach(issue => {
+    switch (issue.type) {
+      case 'REACT_015':
+        // Add lang attribute to HTML element
+        if (issue.element) {
+          addLangAttribute(issue.element);
+        }
+        break;
+      case 'REACT_027':
+        // Fix table structure issues
+        if (issue.subtype === 'structure') {
+          validateTableStructure();
+          fixTableStructure();
+        } else {
+          validateTableAccessibility();
+        }
+        break;
+      case 'REACT_017':
+        // Add/fix landmark issues
+        addMainLandmark();
+        validateLandmark();
+        validateLandmarkStructure();
+        validateLandmarkAttributes();
+        addLandmarkRegions();
+        break;
+      case 'REACT_041':
+        // Add accessible names to SVGs
+        if (issue.element) {
+          setSvgAttributes(issue.element, issue.accessibleName || getSvgAccessibleName());
+        }
+        break;
+      case 'REACT_025':
+        // Ensure unique landmarks
+        ensureUniqueLandmarks();
+        break;
+      case 'REACT_036':
+        // Fix fake link issue
+        handleFakeLinks();
+        validateLinkAccessibility();
+        break;
+      default:
+        console.log('Unknown issue type:', issue.type);
+    }
+  });
+}
+
+function getInsightReport() {
+  const issues = [];
+
+  // Check for lang attribute on HTML element
+  const langAttribute = getLangAttribute();
+  if (!langAttribute) {
+    issues.push({
+      type: 'REACT_015',
+      description: 'HTML element is missing lang attribute',
+      severity: 'critical',
+      element: 'html'
+    });
+  }
+
+  // Check table accessibility
+  const tableAccessibilityIssues = validateTableAccessibility();
+  if (tableAccessibilityIssues && tableAccessibilityIssues.length > 0) {
+    tableAccessibilityIssues.forEach(function(issue) {
+      issues.push({
+        type: 'REACT_027',
+        subtype: 'accessibility',
+        description: issue.description || 'Table accessibility issue',
+        severity: issue.severity || 'high',
+        element: issue.element,
+        table: issue.table
+      });
+    });
+  }
 
   // Check table structure
   const tableStructureIssues = validateTableStructure();
@@ -506,13 +580,24 @@ function fixAccessibilityIssues() {
     });
   }
 
-  // Return summary of fixes applied
-  return {
-    tables: tableResults,
-    tableStructure: tableStructureResults,
-    landmarks: validateLandmark(),
-    landmarkStructure: validateLandmarkStructure(),
-    links: validateLinkAccessibility()
+  // Generate the report
+  var report = {
+    issues: issues,
+    summary: {
+      totalIssues: issues.length,
+      langAttribute: issues.filter(function(i) { return i.type === 'REACT_015'; }).length,
+      tableIssues: issues.filter(function(i) { return i.type === 'REACT_027'; }).length,
+      landmarkIssues: issues.filter(function(i) { return i.type === 'REACT_017'; }).length,
+      svgIssues: issues.filter(function(i) { return i.type === 'REACT_041'; }).length,
+      uniqueLandmarkIssues: issues.filter(function(i) { return i.type === 'REACT_025'; }).length,
+      linkIssues: issues.filter(function(i) { return i.type === 'REACT_036'; }).length,
+      critical: issues.filter(function(i) { return i.severity === 'critical'; }).length,
+      high: issues.filter(function(i) { return i.severity === 'high'; }).length,
+      medium: issues.filter(function(i) { return i.severity === 'medium'; }).length,
+      low: issues.filter(function(i) { return i.severity === 'low'; }).length
+    },
+    timestamp: new Date().toISOString(),
+    generatedAt: new Date().toLocaleString()
   };
 
   return report;

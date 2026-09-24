@@ -172,4 +172,38 @@ describe('src/utils/pathfinder', () => {
         expect(roadPositions).toHaveLength(2);
         expect(roadPositions).toEqual([roadPos1, roadPos2]);
     });
+
+    test('chebyshev distance', () => {
+        expect(pathfinder.chebyshev({x: 0, y: 0}, {x: 3, y: 4})).toBe(4);
+        expect(pathfinder.chebyshev({x: 5, y: 5}, {x: 1, y: 2})).toBe(4);
+    });
+
+    test('manhattan distance', () => {
+        expect(pathfinder.manhattan({x: 0, y: 0}, {x: 3, y: 4})).toBe(7);
+        expect(pathfinder.manhattan({x: 5, y: 5}, {x: 1, y: 2})).toBe(7);
+    });
+
+    test('sortByDistance sorts correctly', () => {
+        const origin = { getRangeTo: (obj) => Math.abs(obj.x) + Math.abs(obj.y) };
+        const objs = [{x: 2, y: 2}, {x: 0, y: 1}, {x: 3, y: 4}];
+        const sorted = pathfinder.sortByDistance(origin, objs);
+        expect(sorted[0]).toEqual({x: 0, y: 1});
+        expect(sorted[1]).toEqual({x: 2, y: 2});
+        expect(sorted[2]).toEqual({x: 3, y: 4});
+
+        expect(pathfinder.sortByDistance(null, objs)).toEqual(objs);
+        expect(pathfinder.sortByDistance(origin, [])).toEqual([]);
+    });
+
+    test('closest finds closest object', () => {
+        const origin = { getRangeTo: (obj) => Math.abs(obj.x) + Math.abs(obj.y) };
+        const objs = [{x: 2, y: 2}, {x: 0, y: 1}, {x: 3, y: 4}];
+        expect(pathfinder.closest(origin, objs)).toEqual({x: 0, y: 1});
+        expect(pathfinder.closest(origin, [])).toBeNull();
+    });
+
+    test('isSafeKey works', () => {
+        const result = pathfinder.isSafeKey('W0N0');
+        expect(typeof result).toBe('boolean');
+    });
 });

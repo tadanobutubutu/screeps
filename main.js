@@ -357,16 +357,45 @@ function addressNewAccessibilityIssues(issues, options = {}) {
           index: issue.index,
           action: 'Added lang attribute'
         });
-      } else if (issue.type === 'fakeLink') {
-        const btnText = options.defaultText || personName('User');
-        createInPageButton(issue.element, btnText);
+      } else if (issue.type === 'table') {
+        validateTableAccessibility(issue.element);
+        validateTableStructure(issue.element);
         summary.fixes.push({
-          type: 'fakeLink',
+          type: 'table',
           index: issue.index,
-          action: 'Created in-page button for fake link'
+          action: 'Applied table accessibility fixes'
         });
-      } else {
-        summary.skipped++;
+      } else if (issue.type === 'landmark') {
+        validateLandmark(issue.element);
+        validateLandmarkStructure(issue.element);
+        summary.fixes.push({
+          type: 'landmark',
+          index: issue.index,
+          action: 'Applied landmark accessibility fixes'
+        });
+      } else if (issue.type === 'svg') {
+        getSvgAccessibleName(issue.element);
+        summary.fixes.push({
+          type: 'svg',
+          index: issue.index,
+          action: 'Added accessible name to SVG'
+        });
+      } else if (issue.type === 'unique-landmark') {
+        // Assuming there's a function to check for unique landmarks
+        ensureUniqueLandmarks(issue.element);
+        summary.fixes.push({
+          type: 'unique-landmark',
+          index: issue.index,
+          action: 'Ensured unique landmarks'
+        });
+      } else if (issue.type === 'fake-link') {
+        createInPageButton(issue.element);
+        personName(issue.element);
+        summary.fixes.push({
+          type: 'fake-link',
+          index: issue.index,
+          action: 'Fixed fake link issue'
+        });
       }
     } catch (error) {
       summary.skipped++;

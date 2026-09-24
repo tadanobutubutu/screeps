@@ -615,10 +615,12 @@ function validateTableAccessibility(table, index) {
 }
 
 function validateTableStructure(table) {
-  // Check table structure issues
-  if (!table) {
-    return [];
-  }
+  // Check 26 table structure issues
+  // Placeholder conditions removed - validation logic continues below
+
+  // Also check the table structure and return a boolean value indicating the result
+  const issues = [];
+  const tables = document.querySelectorAll('table');
   
   const issues = [];
   

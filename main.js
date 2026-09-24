@@ -1,19 +1,25 @@
-// main.js
-// Accessibility issues addressed as per insight report
+// Main entry point for Screeps game
+const Rendering = require('./rendering');
+const Scene = require('./scene');
 
-// Ensure all interactive elements have accessible names
-document.addEventListener('DOMContentLoaded', () => {
-  const interactiveElements = document.querySelectorAll('button, a, input, select, textarea');
-  interactiveElements.forEach(el => {
-    if (!el.getAttribute('aria-label') && !el.getAttribute('aria-labelledby')) {
-      // Fallback to visible text for accessible name
-      const accessibleName = el.textContent || el.value || '';
-      if (accessibleName) {
-        el.setAttribute('aria-label', accessibleName);
-      }
-    }
-  });
-});
+// TODO: Add these imported modules to the relevant rendering functions
+// Required imports for rendering functionality:
+// - Rendering: handles screen drawing and visual updates
+// - Scene: manages game world state and entities
 
-// Existing exports (preserved)
-module.exports = {};
+function renderFrame(scene, world) {
+  // Apply rendering using the Rendering module
+  return Rendering.render(scene, world);
+}
+
+function updateWorld(world) {
+  // Update world using the Scene module
+  return Scene.update(world);
+}
+
+module.exports = {
+  renderFrame,
+  updateWorld,
+  Rendering,
+  Scene
+};

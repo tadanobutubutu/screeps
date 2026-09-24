@@ -62,7 +62,7 @@ function fixTableStructure(doc) {
       const firstRow = table.querySelector('tr');
       if (firstRow) {
         const thead = doc.createElement('thead');
-        const tbody = table.querySelector('tbody');
+        const tbody = table.querySelector('tbody') || doc.createElement('tbody');
         thead.appendChild(firstRow.cloneNode(true));
         table.insertBefore(thead, tbody || table.firstChild);
         firstRow.remove();
@@ -77,7 +77,7 @@ function fixTableStructure(doc) {
  * @param {Document} doc - The document object
  */
 function addMainLandmark(doc) {
-  const existingMain = doc.querySelector('main');
+  const existingMain = doc.querySelector('main, [role="main"]');
   if (!existingMain) {
     const body = doc.body;
     if (body) {
@@ -90,7 +90,7 @@ function addMainLandmark(doc) {
       body.appendChild(main);
     }
   }
-  return doc.querySelector('main');
+  return existingMain || doc.querySelector('main, [role="main"]');
 }
 
 /**
@@ -103,7 +103,7 @@ function addLandmarkRegions(doc) {
     const elements = doc.querySelectorAll(landmark);
     elements.forEach((el) => {
       if (!el.getAttribute('role') && el.tagName.toLowerCase() !== landmark) {
-        el.setAttribute('role', landmark.charAt(0).toUpperCase() + landmark.slice(1));
+        el.setAttribute('role', landmark);
       }
     });
 }
@@ -114,7 +114,7 @@ function addLandmarkRegions(doc) {
  * @returns {Array} Array of duplicate landmarks
  */
 function ensureUniqueLandmarks(doc) {
-  const landmarks = doc.querySelectorAll('[role], header, nav, main, aside, footer');
+  const landmarks = doc.querySelectorAll('header, nav, main, aside, footer');
   const seen = new Map();
   const duplicates = [];
 
@@ -181,12 +181,12 @@ export function newExportedFunction() {
  * @param {Document} doc - The document object
  */
 function fixFakeLinkIssues(doc) {
-  const links = doc.querySelectorAll('a[href="#"], a[href=""], a:not([href])');
+  const links = doc.querySelectorAll('a[href="#"], a:not([href])');
   links.forEach((link) => {
     const onclick = link.getAttribute('onclick');
     const role = link.getAttribute('role');
     // If it's a fake link (using onclick as navigation), add button role or make it a button
-    if ((onclick && !link.hasAttribute('href')) || role === 'link') {
+    if ((onclick || role === 'link') && !link.getAttribute('href')) {
       // Convert to button if appropriate
       link.setAttribute('role', 'button');
     }
@@ -245,7 +245,7 @@ function googleSignIn(options = {}) {
  */
 function fixButtonIdentifiers(doc) {
   // Fix any buttons with generic 'my-button' id
-  const buttons = doc.querySelectorAll('button[id="my-button"], [role="button"][id="my-button"]');
+  const buttons = doc.querySelectorAll('button#my-button, [id="my-button"]');
   buttons.forEach((button, index) => {
     const newId = `action-button-${index + 1}`;
     button.setAttribute('id', newId);
@@ -263,7 +263,7 @@ function fixButtonIdentifiers(doc) {
  * @returns {Element|null} The dependencyGraph container with ARIA role
  */
 function ensureDependencyGraphAriaRole(doc) {
-  const container = doc.querySelector('#dependencyGraph, .dependency-graph, [data-dependency-graph]');
+  const container = doc.querySelector('.dependency-graph, [data-graph]');
   if (container) {
     if (!container.getAttribute('role')) {
       container.setAttribute('role', 'region');

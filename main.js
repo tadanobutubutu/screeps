@@ -33,25 +33,23 @@ function addLangAttribute(lang) {
  * REACT_017: Add landmark roles and fix landmark issues
  */
 function addLandmarkRoles() {
-    const header = document.querySelector('header:not([role])');
-    if (header && !header.closest('section') && !header.closest('article')) {
+    const header = document.querySelector('header');
+    if (header && !header.getAttribute('role')) {
         header.setAttribute('role', 'banner');
     }
 
-    const nav = document.querySelectorAll('nav');
-    nav.forEach((navElement) => {
-        if (navElement && !navElement.hasAttribute('role')) {
-            navElement.setAttribute('role', 'navigation');
-        }
-    });
+    const nav = document.querySelector('nav');
+    if (nav && !nav.getAttribute('role')) {
+        nav.setAttribute('role', 'navigation');
+    }
 
-    const main = document.querySelector('main:not([role])');
-    if (main) {
+    const main = document.querySelector('main');
+    if (main && !main.getAttribute('role')) {
         main.setAttribute('role', 'main');
     }
 
-    const footer = document.querySelector('footer:not([role])');
-    if (footer && !footer.closest('section') && !footer.closest('article')) {
+    const footer = document.querySelector('footer');
+    if (footer && !footer.getAttribute('role')) {
         footer.setAttribute('role', 'contentinfo');
     }
 }
@@ -70,7 +68,7 @@ function ensureUniqueLandmarks() {
 
         if (labelCounts[tag] > 1) {
             if (!landmark.getAttribute('aria-label') && !landmark.getAttribute('aria-labelledby')) {
-                landmark.setAttribute('aria-label', tag.charAt(0).toUpperCase() + tag.slice(1) + ' ' + labelCounts[tag]);
+                landmark.setAttribute('aria-label', landmark.tagName.charAt(0).toUpperCase() + landmark.tagName.slice(1).toLowerCase() + ' ' + labelCounts[tag]);
             }
         }
     });
@@ -84,7 +82,7 @@ function ensureUniqueLandmarks() {
 function addAccessibleNamesToSVGs() {
     const svgs = document.querySelectorAll('svg');
     svgs.forEach((svg, index) => {
-        if (!svg.getAttribute('role') && !svg.getAttribute('aria-label') && !svg.querySelector('title')) {
+        if (!svg.getAttribute('role') || svg.getAttribute('role') !== 'img') {
             const title = document.createElement('title');
             title.textContent = 'Graphic ' + (index + 1);
             svg.insertBefore(title, svg.firstChild);
@@ -122,7 +120,7 @@ function addScopeToTableHeaders() {
     const thElements = document.querySelectorAll('th');
     thElements.forEach((th) => {
         if (!th.hasAttribute('scope')) {
-            const isInHead = th.closest('thead') || th.parent.tagName.toLowerCase() === 'thead';
+            const isInHead = th.closest('thead') || th.parentElement.tagName.toLowerCase() === 'thead';
             th.setAttribute('scope', isInHead ? 'col' : 'row');
         }
     });
@@ -197,7 +195,9 @@ function renderDependencyGraph(data, container) {
 
   const graphContainer = container || document.createElement('div');
   graphContainer.className = 'dependency-graph';
-
+  graphContainer.setAttribute('role', 'img');
+  graphContainer.setAttribute('aria-label', 'Dependency graph visualization');
+  
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   svg.setAttribute('width', '100%');
   svg.setAttribute('height', '100%');
@@ -242,44 +242,54 @@ function renderDependencyGraph(data, container) {
   }
 
   graphContainer.appendChild(svg);
-  graphContainer.setAttribute('role', 'img');
   graphContainer.setAttribute('aria-label', 'Dependency graph visualization');
   
   return graphContainer;
 }
 
 /**
- * Implement new function3 logic here
+ * REACT_042: Ensure dependencyGraph container has proper ARIA role
  */
-function function3() {
-  // Your new function3 implementation goes here
-
-  // Example usage of function3 within the application:
-  // Some code line that calls function3
+function ensureDependencyGraphAriaRole() {
+    const containers = document.querySelectorAll('.dependency-graph');
+    containers.forEach(container => {
+        if (!container.getAttribute('role')) {
+            container.setAttribute('role', 'img');
+        }
+        if (!container.getAttribute('aria-label')) {
+            container.setAttribute('aria-label', 'Dependency graph visualization');
+        }
+    });
 }
 
-// New function to render index views
-function renderIndexView(viewData, container) {
-  if (!container) {
-    throw new Error('Container element is required');
-  }
-  
-  const indexViewContainer = document.createElement('div');
-  indexViewContainer.className = 'index-view';
-  
-  // Render the view based on viewData
-  // Placeholder for actual rendering logic
-  
-  container.appendChild(indexViewContainer);
-  ensureElementHasId(indexViewContainer);
-  addAriaLabel(indexViewContainer, 'Index view');
-  
-  return indexViewContainer;
+/**
+ * REACT_040: Replace my-button with actual button id for accessibility
+ */
+function fixButtonIdentifiers() {
+    const buttons = document.querySelectorAll('[class*="my-button"], [id*="my-button"]');
+    buttons.forEach((button, index) => {
+        const actualId = button.id || `accessible-button-${index + 1}`;
+        if (!button.id) {
+            button.id = actualId;
+        }
+        if (!button.getAttribute('aria-label') && !button.textContent.trim()) {
+            button.setAttribute('aria-label', `Button ${index + 1}`);
+        }
+    });
 }
 
-// New function to be added after the existing code
-function newFunction() {
-  console.log('New function logic here');
+/**
+ * Apply all accessibility fixes
+ */
+function applyAccessibilityFixes() {
+  addLangAttribute('en');
+  addLandmarkRoles();
+  ensureUniqueLandmarks();
+  addAccessibleNamesToSVGs();
+  fixFakeLinks();
+  addScopeToTableHeaders();
+  ensureDependencyGraphAriaRole();
+  fixButtonIdentifiers();
 }
 
 /**
@@ -302,5 +312,7 @@ module.exports = {
   addAriaLabel,
   renderDependencyGraph,
   myFunction,
-  createNewFunction
+  newExportedFunction,
+  ensureDependencyGraphAriaRole,
+  fixButtonIdentifiers
 };

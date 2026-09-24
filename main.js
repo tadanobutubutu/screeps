@@ -676,10 +676,8 @@ function functionC() {
 // Assuming the new function is called `renderGraphIndex` and it should replace or integrate with the existing `renderDependencyGraphs` function.
 const renderGraphIndex = (graphData) => {
   // Enhanced rendering logic using new accessibility functions
-  // Placeholder for enhanced rendering
-  if (graphData) {
-    renderDependencyGraphs(graphData);
-  }
+  // ... placeholder for enhanced logic
+  renderDependencyGraphs(graphData);
 };
 
 // Accessibility-related function to be added
@@ -706,28 +704,18 @@ function detectAndSetLang(content) {
 
   if (content) {
     // Check for common non-ASCII characters to help detect language
-    const nonAsciiPattern = /[^\x00-\x7F]/;
-    const chinesePattern = /[\u4e00-\u9fff]/;
-    const japanesePattern = /[\u3040-\u309f\u30a0-\u30ff]/;
-    const cyrillicPattern = /[\u0400-\u04ff]/;
-    const arabicPattern = /[\u0600-\u06ff]/;
-    const frenchPattern = /[àâäéèêëïîôùûüç]/i;
-    const germanPattern = /[äöüß]/i;
-
-    if (nonAsciiPattern.test(content)) {
-      if (chinesePattern.test(content)) {
-        lang = 'zh';
-      } else if (japanesePattern.test(content)) {
-        lang = 'ja';
-      } else if (cyrillicPattern.test(content)) {
-        lang = 'ru';
-      } else if (arabicPattern.test(content)) {
-        lang = 'ar';
-      } else if (frenchPattern.test(content)) {
-        lang = 'fr';
-      } else if (germanPattern.test(content)) {
-        lang = 'de';
-      }
+    if (/[\u4e00-\u9fa5]/.test(content)) {
+      lang = 'zh'; // Chinese
+    } else if (/[\u3040-\u30ff]/.test(content)) {
+      lang = 'ja'; // Japanese
+    } else if (/[\u0400-\u04ff]/.test(content)) {
+      lang = 'ru'; // Russian/Cyrillic
+    } else if (/[\u0600-\u06ff]/.test(content)) {
+      lang = 'ar'; // Arabic
+    } else if (/[àâçéèêëîïôùûüÿæœ]/i.test(content)) {
+      lang = 'fr'; // French
+    } else if (/[äöüß]/i.test(content)) {
+      lang = 'de'; // German
     }
   }
 
@@ -794,132 +782,70 @@ function getSvgAccessibleName() {
 }
 
 // New function to validate unique landmarks
-function ... {
+function uniqueLandmarks() {
   // Implementation for validating unique landmark roles
   // Ensures each landmark has a unique identifier for accessibility
   return [];
 }
 
 /**
- * Creates a focus trap for keyboard navigation within a given container element.
- * Prevents focus from leaving the container when Tab key is pressed.
- * @param {HTMLElement} container - The container element to trap focus within
- * @returns {Object} An object with a detach method to remove the focus trap
+ * Checks for unique landmark roles and ensures only one main landmark exists.
+ * This function addresses REACT_025: React Unique Landmarks issue.
+ * When multiple main landmarks are found in conditional rendering (mutually exclusive branches),
+ * this function provides guidance on proper landmark usage.
+ * @param {Document|Element} root - The root element to check (default: document)
+ * @returns {Object} Report containing landmark validation results
  */
-function newFocusTrap(container) {
-  if (!container || typeof document === 'undefined') {
-    return { detach: function() {} };
+function ensureUniqueLandmarks(root = typeof document !== 'undefined' ? document : null) {
+  const issues = [];
+  
+  if (!root) {
+    return { valid: true, issues: [] };
   }
 
-  const focusableSelectors = [
-    ...
-    'a[href]',
-    'input:not([disabled])',
-    'select:not([disabled])',
-    'textarea:not([disabled])',
-    '[tabindex]:not([tabindex="-1"])',
-    '.focusable'
-  ].join(', ');
-
-  let previousActiveElement = document.activeElement;
-
-  const handleKeyDown = function(event) {
-    if (event.key !== 'Tab') {
-      return;
-    }
-
-    const focusableElements = Array.from(
-      container.querySelectorAll(focusableSelectors)
-    ).filter(function(el) { return el.offsetParent !== null; });
-
-    if (focusableElements.length === 0) {
-      event.preventDefault();
-      return;
-    }
-
-    const firstElement = ...
-    const lastElement = focusableElements[focusableElements.length - 1];
-
-    if (event.shiftKey && document.activeElement === firstElement) {
-      event.preventDefault();
-      ...
-    } else if (!event.shiftKey && document.activeElement === lastElement) {
-      event.preventDefault();
-      ...
-    }
-  };
-
-  ... handleKeyDown);
-
-  // Optionally focus the first focusable element in the trap
-  const focusableElements = Array.from(
-    container.querySelectorAll(focusableSelectors)
-  ).filter(function(el) { return el.offsetParent !== null; });
-
-  if (focusableElements.length > 0) {
-    ...
+  // Find all main landmarks
+  const mainLandmarks = root.querySelectorAll('main');
+  
+  if (mainLandmarks.length > 1) {
+    issues.push({
+      type: 'REACT_025',
+      message: `Found ${mainLandmarks.length} <main> landmarks. Only one <main> landmark should exist per page.`,
+      severity: 'warning',
+      suggestion: 'Use <section> or <article> with appropriate ARIA labels instead of additional <main> elements.',
+      elements: Array.from(mainLandmarks).map(el => ({
+        tag: el.tagName,
+        id: el.id || null,
+        ariaLabel: el.getAttribute('aria-label') || null
+      }))
+    });
   }
 
   return {
-    detach: function() {
-      container.removeEventListener('keydown', handleKeyDown);
-      if (previousActiveElement && typeof previousActiveElement.focus === 'function') {
-        previousActiveElement.focus();
-      }
-    }
+    valid: issues.length === 0,
+    issues,
+    mainLandmarkCount: mainLandmarks.length
   };
 }
 
-// TODO: Implement the new function as per the issue requirements
-/**
- * Creates an accessible modal dialog with proper ARIA attributes
- * @param {Object} options - Configuration options for the modal
- * @param {string} options.title - The title of the modal
- * @param {string} options.content - The content of the modal
- * @param {HTMLElement} options.parent - The parent element to append the modal to
- * @returns {Object} The modal element with close method
- */
-function createAccessibleModal(options) {
-  var opts = options || {};
-  var title = opts.title || 'Modal Title';
-  var content = opts.content || '';
-  var parent = opts.parent;
-
-  if (typeof document === 'undefined') {
-    return null;
+// New function to validate accessibility report
+function validateAccessibilityReport(doc = typeof document !== 'undefined' ? document : null) {
+  const issues = [];
+  
+  if (!doc) {
+    return { valid: true, issues: [] };
   }
 
-  if (!parent) {
-    parent = document.body;
+  // Check for lang attribute (REACT_015)
+  const htmlElement = doc.querySelector('html');
+  if (htmlElement && !htmlElement.hasAttribute('lang')) {
+    issues.push({
+      type: 'REACT_015',
+      message: 'HTML element missing lang attribute',
+      severity: 'warning'
+    });
   }
 
-  // Create modal container
-  var modal = document.createElement('div');
-  modal.setAttribute('role', 'dialog');
-  modal.setAttribute('aria-modal', 'true');
-  modal.setAttribute('aria-labelledby', 'modal-title');
-  modal.setAttribute('aria-describedby', 'modal-content');
-  modal.className = 'modal';
-
-  // Create modal header
-  var header = document.createElement('div');
-  header.className = 'modal-header';
-
-  var titleElement = document.createElement('h2');
-  titleElement.id = 'modal-title';
-  titleElement.textContent = title;
-  header.appendChild(titleElement);
-
-  var closeButton = document.createElement('button');
-  closeButton.type = 'button';
-  ... 'Close modal');
-  closeButton.textContent = '×';
-  closeButton.className = 'modal-close';
-  closeButton.addEventListener('click', function() {
-    modal.remove();
-  });
-  ...
-
-  // Create modal content
-  var contentElement = document.createElement('div');
-  contentElement.id = 'modal-content';
+  // Check table structure issues (REACT_027)
+  const tables = doc.querySelectorAll('table');
+  tables.forEach((table, index) => {
+    const hasCaption = table.querySelector('caption') !==

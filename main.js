@@ -1,10 +1,12 @@
-Here is the resolved file content with both changes merged and syntax errors removed:
-
-```javascript
 // main.js - Accessibility-focused implementation
 
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
-// DONE: ensureUniqueLandmarks, uniqueLandmarks
+// REACT_015: Add lang attribute
+// REACT_027: Fix 26 table structure issues
+// REACT_017: Add/fix 4 landmark issues
+// REACT_041: Add accessible names to 2 SVGs
+// REACT_025: Ensure unique landmarks (2 issues) — (DONE: ensureUniqueLandmarks)
+// REACT_036: Fix 1 fake link issue
 
 /**
  * Main application entry point with accessibility features
@@ -91,11 +93,13 @@ const AddressabilityIssues = {
       return [];
     }
 
-    const report = accessibilityReport.issues.map(issue => ({
-      issueType: issue.type,
-      status: issue.status || 'pending',
-      fixApplied: issue.fixApplied || ''
-    }));
+    const report = accessibilityReport.issues.map(function(issue) {
+      return {
+        issueType: issue.type,
+        status: issue.status || 'pending',
+        fixApplied: issue.fixApplied || ''
+      };
+    });
 
     return report;
   },
@@ -113,7 +117,7 @@ const AddressabilityIssues = {
       'other': 1
     };
 
-    return fixedIssues.reduce((score, issue) => {
+    return fixedIssues.reduce(function(score, issue) {
       const points = scorePoints[issue.type] || scorePoints['other'];
       return score + points;
     }, 0);
@@ -178,8 +182,8 @@ const AddressabilityIssues = {
     }
 
     if (!landmarkRole) {
-      return { 
-        valid: false, 
+      return {
+        valid: false,
         error: 'Element does not have a valid landmark role',
         element: tagName
       };
@@ -253,14 +257,6 @@ function ensureUniqueLandmarksFromString(source) {
   }
 
   return result;
-}
-
-function ensureUniqueLandmarks(source) {
-  return ensureUniqueLandmarksFromString(source);
-}
-
-function uniqueLandmarks(source) {
-  return ensureUniqueLandmarksFromString(source);
 }
 
 function validateLandmark(element) {
@@ -424,8 +420,6 @@ if (typeof module !== 'undefined' && module.exports) {
     generateAccessibilityReport,
     calculateAccessibilityScore,
     ensureUniqueLandmarksFromString,
-    ensureUniqueLandmarks,
-    uniqueLandmarks,
     validateLandmark,
     spawnSomeCommand,
     addLangAttribute,
@@ -505,9 +499,9 @@ function enhanceSemanticMarkup() {
   // Ensure form inputs have associated labels
   const inputs = document.querySelectorAll('input, select, textarea');
   inputs.forEach((input) => {
-    const id = input.id || `input-${Math.random().toString(36).slice(2, 9)}`;
+    const id = input.id || 'input-' + Math.random().toString(36).slice(2, 9);
     input.id = id;
-    if (!input.hasAttribute('aria-label') && !document.querySelector(`label[for="${id}"]`)) {
+    if (!input.hasAttribute('aria-label') && !document.querySelector('label[for="' + id + '"]')) {
       input.setAttribute('aria-label', input.name || 'Input field');
     }
   });
@@ -557,8 +551,108 @@ function handleFakeLinks(issues) {
 }
 
 // Accessibility utilities
-const hello = () => {
+function hello() {
   return 'Hello from main.js';
-};
+}
 
 // Utilities for addressing accessibility issues
+function addressAccessibilityIssues(insightReport) {
+  if (!insightReport || !insightReport.sections) {
+    return [];
+  }
+
+  const issues = [];
+
+  insightReport.sections.forEach((section, index) => {
+    // Check for missing headings
+    if (!section.heading) {
+      issues.push({
+        type: 'missing-heading',
+        severity: 'high',
+        message: `Section ${index} is missing a heading`,
+        suggestedFix: 'Add a descriptive heading to each section'
+      });
+    }
+
+    // Check for empty content
+    if (!section.content || section.content.trim() === '') {
+      issues.push({
+        type: 'empty-content',
+        severity: 'medium',
+        message: `Section "${section.heading}" has no content`,
+        suggestedFix: 'Add meaningful content to the section'
+      });
+    }
+
+    // Check for potentially inaccessible language
+    if (section.content && section.content.toLowerCase().includes('click here')) {
+      issues.push({
+        type: 'inaccessible-link-text',
+        severity: 'low',
+        message: `Section "${section.heading}" contains "click here" text which is not accessible`,
+        suggestedFix: 'Use descriptive link text instead of "click here"'
+      });
+    }
+  });
+
+  return issues;
+}
+
+function generateAccessibilityReport(accessibilityReport) {
+  if (!accessibilityReport || !Array.isArray(accessibilityReport.issues) || accessibilityReport.issues.length === 0) {
+    return [];
+  }
+
+  const report = accessibilityReport.issues.map(function(issue) {
+    return {
+      issueType: issue.type,
+      status: issue.status || 'pending',
+      fixApplied: issue.fixApplied || ''
+    };
+  });
+
+  return report;
+}
+
+function calculateAccessibilityScore(fixedIssues) {
+  if (!Array.isArray(fixedIssues)) {
+    return 0;
+  }
+
+  const scorePoints = {
+    'color-contrast': 5,
+    'missing-alt-text': 3,
+    'missing-aria-label': 5,
+    'heading-order': 2,
+    'other': 1
+  };
+
+  return fixedIssues.reduce(function(score, issue) {
+    const points = scorePoints[issue.type] || scorePoints['other'];
+    return score + points;
+  }, 0);
+}
+
+function ensureUniqueLandmarks(source) {
+  const mainBlockRegex = /<main[^>]*>.*?<\/main>/gs;
+
+  const matches = Array.from(source.matchAll(mainBlockRegex));
+  if (matches.length <= 1) {
+    return source;
+  }
+
+  let result = source;
+  for (let i = 1; i < matches.length; i++) {
+    const block = matches[i][0];
+    const fixedBlock = block
+      .replace(/<main([^>]*)>/, '<section$1>')
+      .replace(/<\/main>/, '</section>');
+    result = result.replace(block, fixedBlock);
+  }
+
+  return result;
+}
+
+const getVersion = () => '1.0.0';
+
+const getConfig = () => ({ debug: false });

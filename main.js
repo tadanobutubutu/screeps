@@ -118,50 +118,43 @@ function addressAccessibilityIssues() {
       }
     });
   }
-}
 
-// New function to render dependency graphs
-function renderDependencyGraph(moduleName) {
-  // Placeholder for actual implementation
-  console.log(`Rendering dependency graph for module: ${moduleName}`);
-  // Assume some logic here to actually render the graph
-}
-
-// New function to display module structure
-function displayModuleStructure(moduleName) {
-  // Placeholder for actual implementation
-  console.log(`Displaying module structure for module: ${moduleName}`);
-  // Assume some logic here to actually display the structure
-}
-
-// TODO: This is the new function request
-function countDependencies(dependencies) {
-  return dependencies.reduce((acc, dep) => acc + (dep ? 1 : 0), 0);
-}
-
-// New function to implement the count of dependencies
-function newFunction() {
-  // Implement the new function here
-  const dependencies = // ... (dependencies would be determined based on your application's structure)
-  console.log(`New Function has been called with ${countDependencies(dependencies)} dependencies`);
-}
-
-// Function for accessibility checks on tables
-function checkTableAccessibility() {
-  const tables = document.querySelectorAll('table');
-  tables.forEach(table => {
-    // Ensure table has an accessible name via caption or aria-label
-    if (!table.querySelector('caption') && !table.getAttribute('aria-label')) {
-      table.setAttribute('aria-label', 'Table');
+  // New function to add id and aria-label property
+  function addIdAndAriaLabel(element) {
+    if (!element.id) {
+      element.id = `landmark-${Date.now()}`;
     }
-    // Ensure header cells have a scope attribute
-    const headers = table.querySelectorAll('th');
-    headers.forEach(th => {
-      if (!th.getAttribute('scope')) {
-        th.setAttribute('scope', 'col');
-      }
-    });
-  });
+
+    if (!element.getAttribute('aria-label')) {
+      element.setAttribute('aria-label', 'Landmark');
+    }
+  }
+
+  // New function to render dependency graphs
+  function renderDependencyGraph(moduleName) {
+    // Placeholder for actual implementation
+    console.log(`Rendering dependency graph for module: ${moduleName}`);
+    // Assume some logic here to actually render the graph
+  }
+
+  // New function to display module structure
+  function displayModuleStructure(moduleName) {
+    // Placeholder for actual implementation
+    console.log(`Displaying module structure for module: ${moduleName}`);
+    // Assume some logic here to actually display the structure
+  }
+
+  // TODO: This is the new function request
+  function newFunction() {
+    // Implement the new function here
+    console.log("New Function has been called!");
+  }
+
+  // Execute the functions for accessibility and new functions
+  addressAccessibilityIssues();
+  newFunction();
+  renderDependencyGraph('Module-1');
+  displayModuleStructure('Module-2');
 }
 
 // Export functions for testing
@@ -173,5 +166,5 @@ module.exports = {
   renderDependencyGraph,
   displayModuleStructure,
   newFunction,
-  countDependencies // Added this new export
+  addIdAndAriaLabel // New exported function
 };

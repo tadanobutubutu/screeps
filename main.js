@@ -255,62 +255,85 @@ function renderIndexView(data, options = {}) {
   // New function for addressing accessibility issues from insight report
   newFocusTrap: newFocusTrap(),
 
-  // Accessibility functions to address new issues (TODO: Implement)
-  // - REACT_015: Add lang attribute to HTML element
-  addLangAttribute: (lang = 'en') => {
+  // Accessibility functions to address new issues
+  addLangAttribute: () => {
     const htmlElement = document.querySelector('html');
-    if (htmlElement) {
-      htmlElement.setAttribute('lang', lang);
+    if (htmlElement && !htmlElement.hasAttribute('lang')) {
+      htmlElement.setAttribute('lang', 'en');
     }
   },
 
-  // - REACT_027: Fix 26 table structure issues
-  // - REACT_017: Add/fix 4 landmark issues
-  // - REACT_041: Add accessible names to 2 SVGs
-  // - REACT_025: Ensure unique landmarks
-  // - REACT_036: Fix 1 fake link issue
+  fixTableStructure: (tables) => {
+    tables.forEach(table => {
+      if (!table.querySelector('thead') || !table.querySelector('tbody')) {
+        const thead = document.createElement('thead');
+        const tbody = document.createElement('tbody');
+        const rows = table.querySelectorAll('tr');
 
-  // New function for generating accessibility report
-  generateAccessibilityReport: async (options = {}) => {
-    const { axe } = await import('axe-core');
-    const results = await axe.run(options.selector || document, {
-      runOnly: options.rules || {
-        type: 'tag',
-        values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']
+        if (rows.length > 0) {
+          thead.appendChild(rows[0]);
+          rows.forEach((row, index) => {
+            if (index > 0) tbody.appendChild(row);
+          });
+          table.insertBefore(thead, table.firstChild);
+          table.appendChild(tbody);
+        }
       }
     });
+  },
 
-    const report = {
-      timestamp: new Date().toISOString(),
-      url: window.location.href,
-      violations: results.violations.map(violation => ({
-        id: violation.id,
-        description: violation.description,
-        help: violation.help,
-        helpUrl: violation.helpUrl,
-        nodes: violation.nodes.length,
-        impact: violation.impact
-      })),
-      passes: results.passes.length,
-      incomplete: results.incomplete.length,
-      totalViolations: results.violations.length
-    };
-
-    if (options.output === 'console') {
-      console.log('Accessibility Report:', report);
-    } else if (options.output === 'json') {
-      return JSON.stringify(report, null, 2);
+  addLandmarks: () => {
+    const main = document.querySelector('main');
+    if (main && !main.hasAttribute('role')) {
+      main.setAttribute('role', 'main');
     }
 
-    return report;
-  }
-};
+    const nav = document.querySelector('nav');
+    if (nav && !nav.hasAttribute('role')) {
+      nav.setAttribute('role', 'navigation');
+    }
 
-// Function to add language attribute to HTML element
-const addHtmlLangAttribute = (lang = 'en') => {
-  const htmlElement = document.querySelector('html');
-  if (htmlElement) {
-    htmlElement.setAttribute('lang', lang);
+    const header = document.querySelector('header');
+    if (header && !header.hasAttribute('role')) {
+      header.setAttribute('role', 'banner');
+    }
+
+    const footer = document.querySelector('footer');
+    if (footer && !footer.hasAttribute('role')) {
+      footer.setAttribute('role', 'contentinfo');
+    }
+  },
+
+  addSvgAccessibleNames: (svgs) => {
+    svgs.forEach(svg => {
+      if (!svg.hasAttribute('aria-label') && !svg.querySelector('title, desc')) {
+        const title = document.createElement('title');
+        title.textContent = 'Graphic element';
+        svg.insertBefore(title, svg.firstChild);
+      }
+    });
+  },
+
+  ensureUniqueLandmarks: () => {
+    const landmarks = ['main', 'navigation', 'banner', 'contentinfo'];
+    landmarks.forEach(role => {
+      const elements = document.querySelectorAll(`[role="${role}"]`);
+      if (elements.length > 1) {
+        elements.forEach((el, index) => {
+          if (index > 0) {
+            el.removeAttribute('role');
+          }
+        });
+      }
+    });
+  },
+
+  fixFakeLinks: (links) => {
+    links.forEach(link => {
+      if (link.getAttribute('href') === '#' && !link.hasAttribute('role')) {
+        link.setAttribute('role', 'button');
+      }
+    });
   }
 };
 

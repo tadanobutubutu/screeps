@@ -25,64 +25,22 @@ const config = {
 
 const expressApp = express();
 
-// Helper function
-function initialize() {
-  console.log('Initializing application...');
-  return true;
-}
-
-// System Information function
-function systemInfo() {
-  // Add system information such as OS, browser, etc.
-  // ...
-  return 'System info not implemented';
-}
-
-// Landmark configuration
-const CONFIG = {
-  landmarkRoles: ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region'],
-  requiredLandmarks: ['banner', 'navigation', 'main']
-};
-
-// Ensure an element has an id attribute
-function ensureElementHasId(element, prefix = 'element') {
-  if (!element) return null;
-
-  if (!element.id) {
-    const id = `${prefix}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-    element.id = id;
+// Spawning logic implementation
+function spawn(entityType, options) {
+  if (!entityType) {
+    return null;
   }
-  return element.id;
+  const spawnedEntity = {
+    type: entityType,
+    options: options || {},
+    createdAt: new Date().toISOString(),
+    id: `${entityType}-${Date.now()}`
+  };
+  fastMap.set(spawnedEntity.id, spawnedEntity);
+  return spawnedEntity;
 }
 
-// Adds an aria-label to an element if it doesn't already have one
-function addAriaLabel(element, label) {
-  if (!element || !label) return false;
-
-  if (!element.getAttribute('aria-label')) {
-    element.setAttribute('aria-label', label);
-    return true;
-  }
-  return false;
-}
-
-// Ensures the dependencyGraph container has a proper ARIA role
-function setContainerRole(container) {
-  if (!container) return;
-  if (!container.getAttribute('role')) {
-    container.setAttribute('role', 'main');
-  }
-  if (!container.getAttribute('aria-label')) {
-    container.setAttribute('aria-label', 'Dependency graph');
-  }
-}
-
-// Gets the dependency graph container element
-function getDependencyGraphContainer() {
-  return document.querySelector('#dependency-graph');
-}
-
-async function renderDependencyGraph(container, dependencies = [], options = {}) {
+async function renderFunction1() {
   // Existing functionality
 
   // Using accessible utilities instead of undefined modules
@@ -464,4 +422,240 @@ function checkLinkAccessibilityHTTP(linkUrl) {
 
 // New function3 logic
 function function3() {
-  console.log
+  console.log('Function3 is running.');
+}
+
+// Function to scan pages for accessibility issues and generate a report
+async function scanAccessibility() {
+  const pagesDir = path.join(__dirname, 'pages');
+  const filePaths = await fs.promises.readdir(pagesDir);
+  const issues = [];
+
+  for (const filePath of filePaths) {
+    const fileEmitted = path.join(pagesDir, filePath);
+    const { violations } = await axe.analyze(fileEmitted);
+
+    if (violations.length > 0) {
+      issues.push({
+        file: filePath,
+        issues: violations,
+      });
+    }
+  }
+
+  return issues;
+}
+
+/**
+ * Adds accessibility properties to SVG elements
+ * @param {SVGElement} svgElement - The SVG element to enhance
+ */
+function addSvgAccessibilityProps(svgElement) {
+  if (!svgElement.getAttribute('role')) {
+    svgElement.setAttribute('role', 'img');
+  }
+  if (!svgElement.getAttribute('aria-hidden') && !svgElement.getAttribute('aria-label')) {
+    svgElement.setAttribute('aria-hidden', 'true');
+  }
+}
+
+function checkLinkAccessibility () {
+  // Implementation for checking link accessibility
+  // This function will be used to validate the accessibility of links
+  const links = document.querySelectorAll('a[href]')
+  const issues = []
+
+  links.forEach((link) => {
+    const href = link.getAttribute('href')
+    const text = link.textContent.trim()
+
+    if (!text) {
+      issues.push(`Link with href "${href}" has no accessible text`)
+    }
+  })
+
+  return issues
+}
+
+// TODO: Implement wrapPrimaryContentInMain function, including the added logic
+/**
+ * Wraps the primary content of the page in a <main> element for improved accessibility.
+ * This function checks if a <main> element already exists; if not, it creates one
+ * and moves all body content into it.
+ * @returns {Element|null} The <main> element if successfully created/wrapped, or null if body is not available
+ */
+function wrapPrimaryContentInMain () {
+  const body = document.body
+
+  // Return null if body element is not available
+  if (!body) {
+    return null
+  }
+
+  // Check if a <main> element already exists to avoid duplication
+  const existingMain = document.querySelector('main')
+  if (existingMain) {
+    return existingMain
+  }
+
+  // Create a new <main> element
+  const main = document.createElement('main')
+
+  // Move all existing body children into the <main> element
+  while (body.firstChild) {
+    main.appendChild(body.firstChild)
+  }
+
+  // Append the <main> element to the body
+  body.appendChild(main)
+
+  return main
+}
+
+// REACT_025: Ensure unique landmarks
+function ensureUniqueLandmarks (html) {
+  if (typeof html !== 'string') return html
+
+  const landmarkRoles = [
+    'banner',
+    'navigation',
+    'main',
+    'complementary',
+    'contentinfo',
+    'search',
+    'form'
+  ]
+
+  landmarkRoles.forEach((role) => {
+    const pattern = new RegExp(`role=["']${role}["']`, 'gi')
+    const matches = html.match(pattern)
+    if (matches && matches.length > 1) {
+      // Keep first occurrence, change subsequent ones
+      let count = 0
+      html = html.replace(pattern, (match) => {
+        count++
+        if (count === 1) return match
+        return 'role="region"'
+      })
+    }
+  })
+
+  // Also check for duplicate HTML5 landmark elements (header, nav, main, aside, footer)
+  const html5Landmarks = ['header', 'nav', 'main', 'aside', 'footer']
+  html5Landmarks.forEach((tag) => {
+    const pattern = new RegExp(`<${tag}[^>]*>`, 'gi')
+    const matches = html.match(pattern)
+    if (matches && matches.length > 1) {
+      // Keep first, add role="region" to others
+      let count = 0
+      html = html.replace(pattern, (match) => {
+        count++
+        if (count === 1) return match
+        return match.replace(new RegExp(`<${tag}`, 'i'), `<${tag} role="region"`)
+      })
+    }
+  })
+
+  return html
+}
+
+// REACT_036: Fix fake link issues
+function fixFakeLinks (html) {
+  if (typeof html !== 'string') return html
+
+  // Find spans or divs with onclick that act as links and convert to <a>
+  html = html.replace(
+    /<span([^>]*)onclick=["']([^"']*)["']([^>]*)>/gi,
+    (match, before, onclick, after) => {
+      const hrefMatch = onclick.match(/window\.location\s*=\s*['"]([^'"]+)['"]/)
+      if (hrefMatch) {
+        return `<a href="${hrefMatch[1]}"${before}${after}>`
+      }
+      return match
+    }
+  )
+
+  html = html.replace(/<\/span>/gi, '</a>')
+
+  return html
+}
+
+// Main function that applies all accessibility fixes
+function applyAccessibilityFixes (html) {
+  let result = html
+  result = addLangAttribute(result)
+  result = fixTableStructure(result)
+  result = fixLandmarks(result)
+  result = addSvgAccessibleNames(result)
+  result = ensureUniqueLandmarks(result)
+  result = fixFakeLinks(result)
+  return result
+}
+
+function addressAccessibilityIssues (insightReport) {
+  // Apply accessibility fixes to HTML content based on insight report
+  if (insightReport && insightReport.html) {
+    insightReport.html = applyAccessibilityFixes(insightReport.html)
+  }
+  console.log('Addressing accessibility issues from insight report:', insightReport)
+}
+
+function createInPageButton (buttonId, buttonText, buttonClass) {
+  const button = document.createElement('button')
+  button.id = buttonId
+  button.textContent = buttonText
+  button.className = buttonClass
+  document.body.appendChild(button)
+}
+
+// Don't forget to test your new additions in the test file
+
+// Export accessibility utility functions
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    addLangAttribute,
+    fixTableStructure,
+    analyzeAccessibility,
+    generateAccessibilityReport,
+    landmarkConfig: CONFIG,
+    isValidLandmark,
+    loadLandmarks,
+    processLandmarks,
+    sortLandmarks,
+    getLandmarkById,
+    analyzeModuleDependencies,
+    divide,
+    fixLandmarks,
+    addSvgAccessibleNames,
+    validateLandmarkStructure,
+    validateLandmarkAttributes,
+    addProperLandmarkRegions,
+    validateLinkAccessibility,
+    handleFakeLinks,
+    checkLinkAccessibilityHTTP,
+    function3,
+    scanAccessibility,
+    addSvgAccessibilityProps,
+    checkLinkAccessibility,
+    wrapPrimaryContentInMain,
+    ensureUniqueLandmarks,
+    fixFakeLinks,
+    applyAccessibilityFixes,
+    addressAccessibilityIssues,
+    createInPageButton,
+    makeAddBookFormAccessible,
+    spawn
+  };
+}
+
+// Run if executed directly
+if (require.main === module) {
+  main()
+}
+
+function main() {
+  // Main entry point - can be extended to run accessibility scans or other tasks
+  console.log('Main function executed');
+  // Example: addressAccessibilityIssues({ html: '<html><body>Test</body></html>' });
+  return;
+}

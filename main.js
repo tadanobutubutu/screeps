@@ -1,5 +1,5 @@
-// TODO: This is the existing code that needs to be preserved (This comment remains as-is)
-// main.js - Main application entry point
+// TODO: This is the existing code that needs to be preserved
+// (This comment remains as-is)
 
 // TODO: This is the existing code that needs to be preserved
 // Main module

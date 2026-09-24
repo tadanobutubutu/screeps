@@ -1,14 +1,48 @@
-const accessibilityUtils = {
-    // Utility functions for accessibility
-    initSkipLink: () => {},
-    trapFocus: (element) => {},
-    announceToScreenReader: (message, priority = 'polite') => {},
-    handleKeyboardNav: (e, handlers) => {},
+const main = require('./utilities');
+const {
+  createInPageButton,
+  createWebResourceButton,
+  validateLandmark,
+  validateLandmarkStructure,
+  validateAccessibilityReport,
+  validateTableStructure,
+  getSvgAccessibleName,
+  getLangAttribute,
+  exportUtils,
+  addressAccessibilityIssues,
+  handleCredentialResponse,
+  ensureElementHasId,
+  addAriaLabel,
+  renderDependencyGraphs,
+  fixButtonIdentifiers,
+  fixDependencyGraphAria,
+  addMainLandmarkToIndex,
+  focusTrap
+} = require('./utilities');
 
-    // Functions provided in both branches (merge)
-    ensureElementId: ensureElementId,
-    addAriaLabel: addAriaLabel,
-    renderDependencyGraph: renderDependencyGraphs,
+const { dependencyGraphContent } = require('./dependencyGraphContent');
+const { indexContent } = require('./indexContent');
+const {
+  addLangAttribute,
+  fixTableStructureIssues,
+  addMainLandmark,
+  ensureUniqueLandmarks,
+  setSvgAccessibilityProps,
+  addSvgAccessibleNames,
+  addAccessibleNamesToSVGs,
+  fixFakeLinkIssue,
+  fixFakeLinkIssues,
+  fixLandmarkIssues,
+  addLandmarkRegions,
+  uniqueLandmarks,
+  fixImageAltTexts,
+  googleSignIn,
+  renderDependencyGraphs,
+  fixButtonIdentifiers,
+  fixDependencyGraphAria,
+  addMainLandmarkToIndex,
+  addressAccessibilityIssues
+} = require('./utilities');
 
     // Functions from the 'HEAD' branch
     newFocusTrap: focusTrap,
@@ -544,7 +578,6 @@ module.exports = {
   implementAccessibilityFixesFromReport,
   addressAccessibilityIssues,
   ensureElementHasId,
-  ensureElementHasIdOrigin,
   addAriaLabel,
   renderDependencyGraphs,
   fixButtonIdentifiers,

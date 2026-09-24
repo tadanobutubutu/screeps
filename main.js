@@ -23,10 +23,10 @@ export function myNewFunction() {
 }
 
 // REACT_015: Add lang attribute to the <html> element
-function addLangAttribute(html) {
+function ... {
   if (typeof html !== 'string') return html;
-  return html.replace(/<html([^>]*)>/i, (match, attrs) => {
-    if (/\blang=/i.test(match)) return match;
+  return ... (match, attrs) => {
+    if ... return match;
     return `<html${attrs} lang="en">`;
   });
 }
@@ -42,6 +42,9 @@ import a11y from './AccessibilityUtilities';
 
 const root = ...
 
+// DOM Elements
+const dependencyGraph = ...
+
 // TODO: This is the existing code that needs to be preserved
 // Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and addLangAttribute())
@@ -51,6 +54,18 @@ const root = ...
 // - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
 // - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
+
+// TODO: This is the existing code that needs to be preserved
+//_Commit: 18ddb6408a2b2823efa22f0a77964bb5d6737f93_
+//<!-- todo-hash: 6c02eea5ebc55ce1d03924617c86b97c69d7d9d6 -->
+// Address accessibility issues from insight report:
+// Ensure the dependencyGraph container has a proper ARIA role
+// (This comment remains as-is)
+//_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
+//<!-- todo-hash: f8051b788bad4952d8493f08d3c7d22a06ff80d3_ -->
+//<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
+//_Commit: ...
+//<!-- todo-hash: c87b573b0860b150bcfdfdff7be68c9f7779afde -->
 
 /**
  * Adds lang attribute to HTML element
@@ -76,7 +91,7 @@ function addLangAttribute() {
  */
 function validateTableAccessibility(table) {
   // Check for caption or aria-label
-  return ... || 
+  return ... ||
            table.getAttribute('aria-label') ||
            table.getAttribute('aria-labelledby');
 }
@@ -137,11 +152,6 @@ function validateLandmark(landmark) {
   return ...
 }
 
-/**
- * Validates landmark attributes
- * @param {HTMLElement} landmark - The landmark element to validate
- * @returns {boolean} True if landmark attributes are valid
- */
 function ... {
   const ariaLabel = ...
   const ariaLabelledBy = ...
@@ -361,7 +371,7 @@ function ... {
   });
 
   // Check for buttons without accessible name
-  const buttons = ... 
+  const buttons = ...
   buttons.forEach((btn, index) => {
     const accessibleName = btn.textContent.trim() || btn.getAttribute('aria-label') || ...
     if (!accessibleName) {
@@ -377,4 +387,44 @@ function ... {
   // Check for links without accessible names
   const links = ...
   links.forEach((link, index) => {
-    const accessibleName = link.textContent.trim() || link.getAttribute('aria-label
+    const accessibleName = link.textContent.trim() || link.getAttribute('aria-label') || ...
+    if (!accessibleName) {
+      issues.push({
+        type: 'missing-name',
+        element: 'a',
+        index: index,
+        message: `Link at index ${index} is missing an accessible name`
+      });
+    }
+  });
+
+  // Check for form inputs without labels
+  const inputs = ...
+  ... index) => {
+    const inputType = input.getAttribute('type');
+    if (inputType && inputType !== 'hidden' && inputType !== 'submit' && inputType !== 'button' && inputType !== 'reset') {
+      const labelId = ...
+      const labelText = ...
+      const hasLabel = ... || labelId || labelText;
+      if (!hasLabel) {
+        issues.push({
+          type: 'missing-label',
+          element: 'input',
+          index: index,
+          message: `Input at index ${index} is missing an associated label`
+        });
+      }
+    }
+  });
+
+  // Check for empty headings
+  const headings = ... h2, h3, h4, h5, h6');
+  headings.forEach((heading, index) => {
+    if (!heading.textContent.trim()) {
+      issues.push({
+        type: 'empty-heading',
+        element: 'heading',
+        index: index,
+        message: `Heading at index ${index} has no text content`
+      });
+    }

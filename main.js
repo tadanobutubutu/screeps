@@ -1,12 +1,15 @@
 /* ==========================================================================
  * main.js - Screeps / Node.js – merged entry point
+ * ============================================================================
+ * This file hosts two independent feature sets:
  *
- * 1️⃣  Configuration helpers (original HEAD content)
- * 2️⃣  User‑management helpers + accessibility/UI utilities
+ * 1️⃣  Configuration helpers and app state
+ * 2️⃣  User-management helpers + accessibility/UI utilities
  *
- * All public symbols are exported via `module.exports` so the rest of the
- * Screeps codebase can pick and choose.
- * ------------------------------------------------------------------------ */
+ * All key symbols are exported via `module.exports` so other modules can
+ * consume them without breaking.
+ * ========================================================================= */
+'use strict';
 
 // Set default language – updated by the HEAD change request
 document.documentElement.lang = 'en';  // <-- replace this if you prefer another locale
@@ -89,6 +92,34 @@ function handleFakeLinks(link) {
   link.addEventListener('click', (e) => e.preventDefault());
 }
 
+function getLangAttribute() {
+  return 'en';
+}
+
+function getFullLangAttribute() {
+  return 'en-US';
+}
+
+function addLangAttribute(element) {
+  element.lang = getFullLangAttribute();
+  return element;
+}
+
+function validateTableAccessibility(table) {
+  const issues = [];
+
+  if (!(table instanceof HTMLTableElement)) {
+    issues.push('Not an HTMLTableElement');
+    return { success: false, issues };
+  }
+
+  if (!table.querySelector('thead')) {
+    issues.push('Missing thead');
+  }
+
+  return { success: issues.length === 0, issues };
+}
+
 /**
  * Renders dependency graphs with optional accessibility support.
  *
@@ -105,6 +136,73 @@ function renderDependencyGraphs(svgElements) {
       console.log('Rendering unnamed graph (accessibility hint missing)');
     }
   });
+}
+
+// ---------------------------- UI Utilities -------------------------------
+
+function createUnrotateButton() {
+  const button = document.createElement('button');
+  button.id = 'unrotate';
+  button.setAttribute('role', 'button');
+  button.setAttribute('aria-label', 'rotate back');
+  button.textContent = 'rotate back';
+  button.addEventListener('click', rotateBack);
+  return button;
+}
+
+function createInPageButton(buttonText, onClickHandler) {
+  const button = document.createElement('button');
+  button.textContent = buttonText;
+  if (typeof onClickHandler === 'function') {
+    button.addEventListener('click', onClickHandler);
+  }
+  return button;
+}
+
+function getAppConfig() {
+  return {
+    featureFlags: {
+      enableExperimental: false,
+    },
+    apiEndpoints: {
+      users: '/api/users',
+    },
+  };
+}
+
+// DOM Initialization
+if (typeof document !== 'undefined') {
+  document.documentElement.lang = 'en-US';
+  
+  const fakeLink = document.querySelector('selector');
+  if (fakeLink && fakeLink.tagName === 'A') {
+    const parent = fakeLink.parentElement;
+    const newButton = createUnrotateButton();
+    parent.replaceChild(newButton, fakeLink);
+  }
+}
+
+// ---------------------------- user‑management -----------------------------
+
+class User {
+  constructor(name, age) {
+    this.name = name;
+    this.age = age;
+  }
+}
+
+class UserManager {
+  constructor() {
+    this.users = new Map();
+  }
+
+  addUser(id, data) {
+    if (!this.users.has(id)) {
+      this.users.set(id, data);
+      return true;
+    }
+    return false;
+  }
 }
 
 /**
@@ -149,4 +247,17 @@ module.exports = {
   handleFakeLinks,
   renderDependencyGraphs,
   validateLinkAccessibility,
+
+  // accessibility & UI
+  getLangAttribute,
+  getFullLangAttribute,
+  addLangAttribute,
+  validateTableAccessibility,
+  createUnrotateButton,
+  createInPageButton,
+  getAppConfig,
+
+  // user management
+  User,
+  UserManager,
 };

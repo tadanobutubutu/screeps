@@ -1,4 +1,6 @@
-// main.js - Accessibility-focused implementation
+/**
+ * Main application entry point
+ */
 
 // Import required modules
 const http = require('http');

@@ -13,6 +13,30 @@ function existingFunction() {
 }
 
 /**
+ * Counts the total number of dependencies.
+ * @param {Object} dependencies - An object containing dependencies (e.g., { dep1: version, dep2: version })
+ * @param {boolean} [includeDev=false] - Whether to include dev dependencies in the count
+ * @returns {number} The total count of dependencies
+ */
+function countDependencies(dependencies, includeDev = false) {
+  if (!dependencies || typeof dependencies !== 'object') {
+    return 0;
+  }
+  
+  let count = 0;
+  
+  if (dependencies.dependencies) {
+    count += Object.keys(dependencies.dependencies).length;
+  }
+  
+  if (includeDev && dependencies.devDependencies) {
+    count += Object.keys(dependencies.devDependencies).length;
+  }
+  
+  return count;
+}
+
+/**
  * Checks link accessibility.
  * @returns {string[]}
  */
@@ -21,10 +45,10 @@ function checkLinkAccessibility() {
   // This function will be used to validate the accessibility of links
   const links = ...
   const issues = [];
-  links.foreach(link => {
+  links.forEach(link => {
     const href = ...
     const text = link.textContent.trim();
-    if (!text) {
+    if (!text && ... {
       issues.push(`Link with href "${href}" has no accessible text`);
     }
   });
@@ -50,5 +74,5 @@ export {
   validateLinkAccessibility,
   handleFakeLinks,
   checkLinkAccessibility,
-  addBook, // Exporting the new function
+  countDependencies,
 };

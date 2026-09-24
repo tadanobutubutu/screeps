@@ -252,7 +252,9 @@ function ensureElementsHaveIds (elements) {
 function ensureUniqueLandmarks () {
   // Implementation for ensuring unique landmarks
   // Remove duplicate landmarks
-  const landmarks = document.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="contentinfo"], footer[role="contentinfo"]');
+  const landmarks = ... [role="banner"], [role="navigation"], [role="main"], [role="contentinfo"],
+  'footer[role="contentinfo"]'
+  .join(', ')
 
   // Logic to handle duplicate landmarks
   // For example, remove role attributes from non-unique landmarks except the first occurrence
@@ -445,3 +447,36 @@ addAriaLabel('myMenu', 'Accessibility menu');
 fixAccessibilityIssues();
 
 // End of file
+
+// TODO: Create or update the affected functions to be accessible
+// The functions below have been created to match the exported names
+
+// Export all functions to make them accessible in main.js
+export {
+  createLandmarkId,
+  uniqueLandmarks,
+  addAriaLabel,
+  addLangAttribute,
+  ensureElementHasId,
+  outputSafetyClassification,
+  classifyUserSafety,
+  classifyResponseSafety,
+  getFullLangAttribute,
+  getLangAttribute,
+  personName,
+  validateLandmark,
+  validateLandmarkStructure,
+  validateTableAccessibility,
+  validateTableStructure,
+  ensureElementsHaveIds,
+  ensureUniqueLandmarks,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  createInPageButton,
+  createAccessibleLink,
+  handleAccessibilityIssues,
+  fixAccessibilityIssues,
+  calculateSum,
+  validateLinkAccessibility,
+  handleFakeLinks
+};

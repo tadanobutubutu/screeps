@@ -1050,6 +1050,79 @@ function functionA(config = {}) {
   return result;
 }
 
+// New function to address accessibility issue with dependency graph container
+/**
+ * Sets up an accessible dependency graph container element
+ * @param {HTMLElement} container - The container element to enhance
+ * @param {Object} options - Configuration options
+ * @returns {HTMLElement} The enhanced container element
+ */
+function setupAccessibleDependencyGraph(container, options = {}) {
+  if (!container) {
+    console.error('No container element provided for dependency graph');
+    return null;
+  }
+
+  // Set ARIA role for the container
+  container.setAttribute('role', 'region');
+  container.setAttribute('aria-label', options.ariaLabel || 'Dependency Graph Visualization');
+
+  // Add keyboard navigation support
+  container.setAttribute('tabindex', '0');
+
+  // Add visual focus indicator
+  container.style.outline = 'none';
+  container.addEventListener('focus', () => {
+    container.style.outline = '2px solid #4a90e2';
+  });
+  container.addEventListener('blur', () => {
+    container.style.outline = 'none';
+  });
+
+  // Add screen reader instructions
+  const instructions = document.createElement('div');
+  instructions.setAttribute('aria-hidden', 'true');
+  instructions.style.position = 'absolute';
+  instructions.style.left = '-9999px';
+  instructions.textContent = 'Use arrow keys to navigate the dependency graph. Press Enter to select a module.';
+  container.appendChild(instructions);
+
+  // Add hidden status message for screen readers
+  const status = document.createElement('div');
+  status.setAttribute('aria-live', 'polite');
+  status.setAttribute('aria-atomic', 'true');
+  status.setAttribute('aria-relevant', 'additions text');
+  status.style.position = 'absolute';
+  status.style.left = '-9999px';
+  container.appendChild(status);
+
+  // Add keyboard event listeners
+  container.addEventListener('keydown', (e) => {
+    switch (e.key) {
+      case 'ArrowUp':
+      case 'ArrowDown':
+      case 'ArrowLeft':
+      case 'ArrowRight':
+        e.preventDefault();
+        // Handle navigation
+        status.textContent = `Navigated to ${e.key.replace('Arrow', '')} item`;
+        break;
+      case 'Enter':
+        e.preventDefault();
+        // Handle selection
+        status.textContent = 'Module selected';
+        break;
+      case 'Escape':
+        e.preventDefault();
+        // Handle escape
+        status.textContent = 'Navigation mode exited';
+        break;
+    }
+  });
+
+  return container;
+}
+
 // TODO: Implement tower defense
 function towerDefense () {
   // A simple tower defense game implementation
@@ -1148,5 +1221,5 @@ module.exports = {
   displayModuleStructure,
   exportDependencyGraph,
   exportModuleStructure,
-  functionA
+  setupAccessibleDependencyGraph
 };

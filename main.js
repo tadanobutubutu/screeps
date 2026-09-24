@@ -27,6 +27,51 @@ function toRad(deg) {
   return deg * (Math.PI / 180);
 }
 
+// Function for checking landmark elements
+function checkLandmarkElements(landmarks) {
+  if (!Array.isArray(landmarks)) {
+    return false;
+  }
+
+  if (landmarks.length === 0) {
+    return false;
+  }
+
+  return landmarks.every(landmark => {
+    if (!landmark) return false;
+    return landmark.id || landmark.name || landmark.ariaLabel;
+  });
+}
+
+// Function for ensuring unique landmarks
+function ensureUniqueLandmarks(insightReport) {
+  if (!Array.isArray(landmarks)) {
+    return [];
+  }
+
+  const seen = new Set();
+  return landmarks.filter(landmark => {
+    if (!landmark) return false;
+
+    const identifier = landmark.id || landmark.name || landmark.ariaLabel;
+
+    if (seen.has(identifier)) {
+      return false;
+    }
+    seen.add(identifier);
+    return true;
+  });
+}
+
+// Function for adding an id and aria-label to an element
+function addIdAndAriaLabel(element, id, ariaLabel) {
+  if (!element) return;
+
+  element.id = id;
+  element.setAttribute('aria-label', ariaLabel);
+}
+
+// Address accessibility issues
 function addressAccessibilityIssues() {
   // REACT_015: Add lang attribute to HTML element
   const htmlElement = document.documentElement;
@@ -64,8 +109,13 @@ function addressAccessibilityIssues() {
     });
   }
 
-  function ensureUniqueLandmarks() {
-    const landmarks = [...new Set([...document.querySelectorAll('[role]')].map(el => el.getAttribute('role')))];
+  function ensureUniqueLandmarks(insightReport) {
+    const landmarks = [];
+
+    insightReport.issues.forEach(issue => {
+      if (!issue.ariaRole) return;
+      landmarks.push(issue.ariaRole);
+    });
 
     // Check if all landmarks exist, re-add if necessary
     landmarks.forEach(uniqueLandmark => {
@@ -77,66 +127,28 @@ function addressAccessibilityIssues() {
           let element = elements.filter(el => el.getAttribute('role') === uniqueLand);
           if (!element[0]) {
             element = document.createElement('div');
-            element.setAttribute('role', uniqueLand);
-            if (!element.id) {
-              const id = uniqueLand;
-              element.setAttribute('id', id);
+            addIdAndAriaLabel(element, uniqueLandmark, uniqueLandmark);
+            if (!document.querySelector(`#${uniqueLandmark}`)) {
+              document.body.appendChild(element);
             }
-            element = element[0] || element;
+            uniqueLandmarkMap[uniqueLandmark] = element;
           }
-          uniqueLandmarkMap[uniqueLand] = element[0];
         });
       }
+
+      // Refresh landmarks for existing elements
+      elements.forEach(el => {
+        addIdAndAriaLabel(el, el.getAttribute('role'), el.getAttribute('role'));
+      });
     });
   }
 }
 
-// TODO: Implement renderIndexView functionality
-function renderIndexView() {
-  const container = document.querySelector('[data-dependency-graph]') ||
-    document.querySelector('.dependency-graph') ||
-    document.querySelector('#dependency-graph') ||
-    document.querySelector('main') ||
-    document.body;
-
-  container.innerHTML = '';
-
-  const indexView = document.createElement('div');
-  indexView.className = 'index-view';
-  indexView.setAttribute('role', 'main');
-  indexView.setAttribute('aria-label', 'Index View');
-
-  const header = document.createElement('header');
-  header.setAttribute('role', 'banner');
-  header.innerHTML = '<h1>Dependency Graph Index</h1>';
-
-  const mainContent = document.createElement('div');
-  mainContent.className = 'index-content';
-  mainContent.setAttribute('role', 'region');
-  mainContent.setAttribute('aria-label', 'Main Content');
-
-  const description = document.createElement('p');
-  description.textContent = 'Welcome to the dependency graph visualization.';
-  description.setAttribute('aria-label', 'Welcome message');
-
-  mainContent.appendChild(description);
-
-  const graphContainer = document.createElement('div');
-  graphContainer.className = 'graph-container';
-  graphContainer.setAttribute('role', 'tree');
-  graphContainer.setAttribute('aria-label', 'Dependency Graph');
-
-  mainContent.appendChild(graphContainer);
-
-  indexView.appendChild(header);
-  indexView.appendChild(mainContent);
-  container.appendChild(indexView);
-
-  // Apply accessibility improvements
-  addressAccessibilityIssues();
-
-  logger.info('Index view rendered successfully');
-  return indexView;
+// New function to render dependency graphs
+function renderDependencyGraph(moduleName, data) {
+  // Placeholder for actual implementation
+  console.log(`Rendering dependency graph for module: ${moduleName}`);
+  // Assume some logic here to actually render the graph based on the data received
 }
 
 // New function to display module structure
@@ -165,5 +177,5 @@ module.exports = {
   renderDependencyGraph,
   displayModuleStructure,
   newFunction,
-  requestFunction // Export the new function request here
+  addIdAndAriaLabel
 };

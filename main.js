@@ -935,6 +935,24 @@ function exportModuleStructure (moduleStructure) {
   }
 }
 
+/**
+ * Sets ARIA role for dependency graph container
+ * @param {HTMLElement} container - The container element for the dependency graph
+ * @returns {HTMLElement} The container with ARIA role set
+ */
+function setDependencyGraphContainerRole(container) {
+  if (!container) return null;
+
+  // Set appropriate ARIA role for the graph container
+  container.setAttribute('role', 'application');
+  container.setAttribute('aria-label', 'Dependency graph visualization');
+
+  // Add keyboard navigation support
+  container.setAttribute('tabindex', '0');
+
+  return container;
+}
+
 // TODO: Implement tower defense
 function towerDefense () {
   // A simple tower defense game implementation
@@ -1032,5 +1050,6 @@ module.exports = {
   getModuleStructure,
   displayModuleStructure,
   exportDependencyGraph,
-  exportModuleStructure
-}
+  exportModuleStructure,
+  setDependencyGraphContainerRole
+};

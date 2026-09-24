@@ -989,25 +989,41 @@ function validateTableStructureComprehensive () {
 }
 
 /**
- * Harvests resources or data from available sources.
+ * Addresses accessibility issues based on an insight report.
+ * The report is expected to have an `issues` array, where each issue
+ * contains at least a `type` and optionally an `elementId` and `description`.
+ * This function applies appropriate fixes using the available utilities.
  *
- * @param {Array} sources - An array of source objects, each with a 'type' and 'amount' property.
- * @returns {Object} An object mapping resource types to total amounts.
+ * @param {Object} report - The insight report containing accessibility issues.
  */
-function harvestResources (sources) {
-  if (!Array.isArray(sources)) {
-    throw new Error('Sources must be an array')
-  }
+function addressAccessibilityIssuesFromInsightReport (report) {
+  if (!report || !Array.isArray(report.issues)) return
 
-  const totals = {}
+  report.issues.forEach((issue) => {
+    if (!issue.type) return
 
-  sources.forEach(source => {
-    if (!source || typeof source.type !== 'string') return
-    const amount = Number(source.amount) || 0
-    totals[source.type] = (totals[source.type] || 0) + amount
+    switch (issue.type) {
+      case 'missing-alt': {
+        const target = issue.elementId ? document.getElementById(issue.elementId) : null
+        if (target && target.tagName === 'IMG') {
+          target.setAttribute('alt', issue.description || '')
+        }
+        break
+      }
+      case 'missing-caption': {
+        const target = issue.elementId ? document.getElementById(issue.elementId) : null
+        if (target && target.tagName === 'TABLE') {
+          const caption = document.createElement('caption')
+          caption.textContent = issue.description || ''
+          target.prepend(caption)
+        }
+        break
+      }
+      // Additional issue types can be handled here
+      default:
+        console.log(`No handler for issue type: ${issue.type}`)
+    }
   })
-
-  return totals
 }
 
 // Export functions for use in other modules
@@ -1026,13 +1042,5 @@ module.exports = {
   renderDependencyGraphs,
   validateTableStructure,
   validateTableStructureComprehensive,
-  getLangAttribute,
-  getFullLangAttribute,
-  validateTableAccessibility,
-  validateLandmark,
-  validateLandmarkStructure,
-  ensureUniqueLandmarks,
-  getSvgAccessibleName,
-  createInPageButton,
-  createAccessibleLink
+  addressAccessibilityIssuesFromInsightReport
 }

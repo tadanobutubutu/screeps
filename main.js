@@ -127,10 +127,10 @@ function renderDependencyGraph(data) {
     if (!dependencyGraph.id) {
       dependencyGraph.id = 'dependencyGraph';
     }
-    
+
     // New feature: Priority-based task scheduling
     addTaskWithPriority = function(taskFn, priority = 'medium') {
-      const taskId = generateTaskId();
+      const taskId = this.generateTaskId();
       this.tasks.push({ task: taskFn, priority, id: taskId });
       scheduleTasks();
       return taskId;
@@ -298,7 +298,7 @@ function handleTabNavigation(event, activeElement) {
 }
 
 // Required changes to fix the React SVG Accessible Name issue
-function addAccessibleName (svgString) {
+function addAccessibleName(svgString) {
   // This function adds an `aria-label` attribute to the SVG if it doesn't already have one
   // and returns the modified SVG string.
   // Note: This is a simplified example and might need adjustments based on the actual SVG structure.
@@ -321,13 +321,13 @@ const modifiedSvgString = addAccessibleName(originalSvgString)
  * @param {Array} tableData - Table data to validate
  * @returns {boolean} True if table is accessible, false otherwise
  */
-function validateTableAccessibility (tableData) {
+function validateTableAccessibility(tableData) {
   // Implementation placeholder - function to be implemented
   return true
 }
 
 // Implement the function for addressing accessibility issues from insight report
-function implementAccessibilityFixesFromReport (container, report) {
+function implementAccessibilityFixesFromReport(container, report) {
   const fixes = {
     langAdded: false,
     mainLandmarkAdded: false,
@@ -337,9 +337,7 @@ function implementAccessibilityFixesFromReport (container, report) {
   }
 
   // Add lang attribute to HTML element if missing
-  const htmlEl =
-    container.querySelector('html') ||
-    (container.ownerDocument && container.ownerDocument.querySelector('html'))
+  const htmlEl = document.querySelector('html') || (document.ownerDocument && document.ownerDocument.querySelector('html'))
   if (htmlEl && !htmlEl.hasAttribute('lang')) {
     htmlEl.setAttribute('lang', 'en')
     fixes.langAdded = true
@@ -373,11 +371,7 @@ function implementAccessibilityFixesFromReport (container, report) {
   const svgElements = container.querySelectorAll('svg')
   svgElements.forEach((svg) => {
     const accessibleName = getSvgAccessibleName(svg)
-    if (
-      accessibleName &&
-            !svg.getAttribute('aria-label') &&
-      !svg.getAttribute('aria-labelledby')
-    ) {
+    if (accessibleName && !svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
       svg.setAttribute('aria-label', accessibleName)
       fixes.svgNamesAdded++
     }
@@ -394,39 +388,39 @@ function implementAccessibilityFixesFromReport (container, report) {
   // Validate accessibility report
   const accessibilityReport = validateAccessibilityReport(container)
   if (accessibilityReport && accessibilityReport.issues && accessibilityReport.issues.length > 0) {
-    log(`Accessibility report contains ${accessibilityReport.issues.length} remaining issues`, 'warn')
+    console.log(`Accessibility report contains ${accessibilityReport.issues.length} remaining issues`)
   }
 
   // Implement focus trap for keyboard navigation
-  focusTrap(container)
+  trapFocus(container)
 
   if (fixes.langAdded) {
-    log('Lang attribute added to HTML element', 'info')
+    console.log('Lang attribute added to HTML element')
   }
 
   if (fixes.mainLandmarkAdded) {
-    log('Main landmark added', 'info')
+    console.log('Main landmark added')
   }
 
   // Check for new accessibility issues
   const newAccessibilityIssues = checkAccessibility(container)
   if (newAccessibilityIssues.length > 0) {
-    log(`New accessibility issues found: ${newAccessibilityIssues.join(', ')}`, 'error')
+    console.log(`New accessibility issues found: ${newAccessibilityIssues.join(', ')}`)
   }
 
   const landmarkFixesCount = fixes.landmarksFixed || 0
   if (landmarkFixesCount > 0) {
-    log(`Fixed ${landmarkFixesCount} unique landmarks`, 'info')
+    console.log(`Fixed ${landmarkFixesCount} unique landmarks`)
   }
 
   const svgFixes = fixes.svgNamesAdded || 0
   if (svgFixes > 0) {
-    log(`Fixed accessible names for ${svgFixes} SVGs`, 'info')
+    console.log(`Fixed accessible names for ${svgFixes} SVGs`)
   }
 
   const fakeLinkFixes = fixes.fakeLinksFixed || 0
   if (fakeLinkFixes > 0) {
-    log(`Fixed fake link issues for ${fakeLinkFixes} elements`, 'error')
+    console.log(`Fixed fake link issues for ${fakeLinkFixes} elements`)
   }
 
   return fixes
@@ -516,382 +510,26 @@ function createInPageButton(targetId, label, options = {}) {
   button.type = 'button';
   button.setAttribute('aria-label', label || `Navigate to ${targetId}`);
 
-  // Default to a button-styled element rather than a fake link
-  button.className = options.className || 'in-page-button';
+export function fixTableStructure(tableElement) {
+  if (!tableElement) return null
 
-  button.addEventListener('click', (e) => {
-    e.preventDefault();
-    const target = document.getElementById(targetId);
-    if (target) {
-      target.scrollIntoView({ behavior: options.behavior || 'smooth', block: 'start' });
-      // Move focus to the target if possible for accessibility
-      if (target.setAttribute && typeof target.focus === 'function') {
-        const previousTabIndex = target.getAttribute('tabindex');
-        if (!target.hasAttribute('tabindex')) {
-          target.setAttribute('tabindex', '-1');
-        }
-        target.focus();
-        if (previousTabIndex === null && options.restoreTabIndex !== false) {
-          // Remove the temporary tabindex after focus
-          target.addEventListener('blur', () => {
-            target.removeAttribute('tabindex');
-          }, { once: true });
-        }
-      }
+  const headers = tableElement.querySelectorAll('th')
+  headers.forEach(th => {
+    if (!th.hasAttribute('scope')) {
+      const row = th.closest('tr')
+      const cellIndex = Array.from(row.children).indexOf(th)
+      th.setAttribute('scope', 'col')
     }
-  });
+  })
 
-  // Provide visible text content if supplied
-  if (options.text) {
-    button.textContent = options.text;
+  const existingCaption = tableElement.querySelector('caption')
+  if (!existingCaption) {
+    const caption = document.createElement('caption')
+    caption.textContent = 'Data table'
+    tableElement.insertBefore(caption, tableElement.firstChild)
   }
 
-  return button;
-}
-
-/**
- * Validates that links and interactive elements have accessible names,
- * addressing REACT_036 fake link issues.
- * @param {HTMLElement} container - Optional container to scan within
- * @returns {object} Validation result with valid flag and errors array
- */
-function validateLinks(container) {
-  if (typeof document === 'undefined') {
-    return { valid: true, errors: [] };
-  }
-  
-  const errors = [];
-  const root = container || document;
-  const links = root.querySelectorAll('a, button, [role="link"], [role="button"]');
-  
-  links.forEach((el, index) => {
-    const name = personName(el);
-    if (!name || !name.trim()) {
-      errors.push(`Interactive element ${index + 1} is missing an accessible name`);
-    }
-  });
-  
-  return { valid: errors.length === 0, errors };
-}
-
-/**
- * Creates a focus trap within a container element for keyboard navigation.
- * Keeps focus within the trapped area and cycles focus between focusable elements.
- * @param {HTMLElement} container - The container element to trap focus within
- * @param {Object} options - Configuration options for the focus trap
- * @param {boolean} options.escapeDeactivates - If true, Escape key will deactivate the trap (default: true)
- * @param {boolean} options.returnFocusOnDeactivate - If true, returns focus to the previously focused element (default: true)
- * @param {Function} options.onEscape - Callback function when Escape key is pressed
- * @param {Function} options.onActivate - Callback function when trap is activated
- * @param {Function} options.onDeactivate - Callback function when trap is deactivated
- * @returns {Object} Focus trap controller with activate, deactivate, and update methods
- */
-function createFocusTrap(container, options = {}) {
-  if (typeof document === 'undefined' || !container) {
-    return null;
-  }
-
-  const config = {
-    escapeDeactivates: options.escapeDeactivates !== false,
-    returnFocusOnDeactivate: options.returnFocusOnDeactivate !== false,
-    onEscape: options.onEscape || null,
-    onActivate: options.onActivate || null,
-    onDeactivate: options.onDeactivate || null
-  };
-
-  let active = false;
-  let previousActiveElement = null;
-
-  const getFocusableElements = () => {
-    return Array.from(container.querySelectorAll(
-      'a[href], button, input, select, textarea, [tabindex]:not([tabindex="-1"])'
-    )).filter(el => !el.disabled);
-  };
-
-  const handleKeyDown = (e) => {
-    if (!active) return;
-    
-    // Fix table structure issues
-    if (issues.tableStructure) {
-        fixTableStructure(document);
-    }
-    
-    if (e.key === 'Tab') {
-      const focusableElements = getFocusableElements();
-      if (focusableElements.length === 0) return;
-      
-      const firstElement = focusableElements[0];
-      const lastElement = focusableElements[focusableElements.length - 1];
-      
-      if (e.shiftKey) {
-        if (document.activeElement === firstElement) {
-          e.preventDefault();
-          lastElement.focus();
-        }
-      } else {
-        if (document.activeElement === lastElement) {
-          e.preventDefault();
-          firstElement.focus();
-        }
-      }
-    }
-  };
-
-  const activate = () => {
-    if (active) return;
-    active = true;
-    deactivateHandler = document.activeElement;
-    document.addEventListener('keydown', handleKeyDown);
-    const focusableElements = getFocusableElements();
-    if (focusableElements.length > 0) {
-      focusableElements[0].focus();
-    }
-    if (config.onActivate) config.onActivate();
-  };
-
-  const deactivate = () => {
-    if (!active) return;
-    active = false;
-    document.removeEventListener('keydown', handleKeyDown);
-    if (config.returnFocusOnDeactivate && previousActiveElement) {
-      previousActiveElement.focus();
-      previousActiveElement = null;
-    }
-    if (config.onDeactivate) config.onDeactivate();
-  };
-
-  const update = (newOptions) => {
-    Object.assign(config, newOptions);
-  };
-
-  return {
-    activate,
-    deactivate,
-    update,
-    destroy: deactivate
-  };
-}
-
-/**
- * Creates a new focus trap for keyboard navigation. (NEW function requested by issue)
- * This is an alternative instantiation of a focus trap using a constructor pattern.
- * Returns a controller object exposing activate/deactivate/update methods.
- * @param {HTMLElement} container - The container element to trap focus within
- * @param {Object} options - Configuration options for the focus trap
- * @returns {Object|null} Focus trap controller or null if unavailable
- */
-function newFocusTrap(container, options = {}) {
-  if (typeof document === 'undefined' || !container) {
-    return null;
-  }
-
-  const config = Object.assign({
-    escapeDeactivates: true,
-    returnFocusOnDeactivate: true,
-    initialFocus: null,
-    onActivate: null,
-    onDeactivate: null
-  }, options);
-
-  let active = false;
-  let previouslyFocusedElement = null;
-  let keyDownHandler = null;
-
-  const getFocusableElements = () => {
-    const focusableSelectors = [
-      'a[href]',
-      'area[href]',
-      'input:not([disabled])',
-      'select:not([disabled])',
-      'textarea:not([disabled])',
-      'button:not([disabled])',
-      'iframe',
-      'object',
-      'embed',
-      '[tabindex]:not([tabindex="-1"])',
-      '[contenteditable="true"]'
-    ].join(',');
-
-    return Array.from(container.querySelectorAll(focusableSelectors))
-      .filter(el => {
-        if (el.disabled) return false;
-        const style = typeof window !== 'undefined' && window.getComputedStyle ? window.getComputedStyle(el) : null;
-        if (style && (style.visibility === 'hidden' || style.display === 'none')) return false;
-        return true;
-      });
-  };
-
-  const handleKeyDown = (e) => {
-    if (!active) return;
-
-    if (e.key === 'Escape' && config.escapeDeactivates) {
-      e.preventDefault();
-      deactivate();
-      return;
-    }
-
-    if (e.key !== 'Tab') return;
-
-    const focusableElements = getFocusableElements();
-    if (focusableElements.length === 0) {
-      e.preventDefault();
-      return;
-    }
-
-    const firstElement = focusableElements[0];
-    const lastElement = focusableElements[focusableElements.length - 1];
-    const currentElement = document.activeElement;
-
-    if (e.shiftKey) {
-      if (currentElement === firstElement || !container.contains(currentElement)) {
-        e.preventDefault();
-        lastElement.focus();
-      }
-    } else {
-      if (currentElement === lastElement || !container.contains(currentElement)) {
-        e.preventDefault();
-        firstElement.focus();
-      }
-    }
-  };
-
-  const activate = () => {
-    if (active) return;
-    active = true;
-
-    if (typeof document !== 'undefined') {
-      previouslyFocusedElement = document.activeElement;
-
-      keyDownHandler = (e) => handleKeyDown(e);
-      document.addEventListener('keydown', keyDownHandler, true);
-
-      // Focus initial element
-      const focusableElements = getFocusableElements();
-      let initialFocusElement = null;
-
-      if (typeof config.initialFocus === 'string') {
-        initialFocusElement = container.querySelector(config.initialFocus);
-      } else if (config.initialFocus instanceof HTMLElement) {
-        initialFocusElement = config.initialFocus;
-      } else if (focusableElements.length > 0) {
-        initialFocusElement = focusableElements[0];
-      }
-
-      if (initialFocusElement && typeof initialFocusElement.focus === 'function') {
-        initialFocusElement.focus();
-      } else if (typeof container.focus === 'function') {
-        container.setAttribute('tabindex', '-1');
-        container.focus();
-      }
-    }
-
-    if (typeof config.onActivate === 'function') {
-      config.onActivate();
-    }
-  };
-
-  const deactivate = () => {
-    if (!active) return;
-    active = false;
-
-    if (typeof document !== 'undefined' && keyDownHandler) {
-      document.removeEventListener('keydown', keyDownHandler, true);
-      keyDownHandler = null;
-    }
-
-    if (config.returnFocusOnDeactivate && previouslyFocusedElement && typeof previouslyFocusedElement.focus === 'function') {
-      previouslyFocusedElement.focus();
-    }
-
-    if (typeof config.onDeactivate === 'function') {
-      config.onDeactivate();
-    }
-  };
-
-  const update = (newOptions = {}) => {
-    Object.assign(config, newOptions);
-  };
-
-  const destroy = () => {
-    deactivate();
-    previouslyFocusedElement = null;
-  };
-
-  return {
-    activate,
-    deactivate,
-    update,
-    destroy,
-    isActive: () => active
-  };
-}
-
-function checkLandmarkElements(container) {
-  if (typeof document === 'undefined') {
-    return { valid: false, errors: ['Document not available'] };
-  }
-
-  const errors = [];
-  const root = container || document;
-  // Use template literals to avoid quote escaping issues
-  const selector = 'header, nav, main, aside, footer, section, article, ' +
-                  '[role="header"], [role="nav"], [role="main"], [role="aside"], ' +
-                  '[role="footer"], [role="section"], [role="article"], [role="search"]';
-  
-  const landmarks = Array.from(root.querySelectorAll(selector));
-
-  landmarks.forEach((landmark, index) => {
-    const result = validateLandmark(landmark);
-    if (!result.valid) {
-      errors.push(`Landmark ${index + 1}: ${result.errors.join(', ')}`);
-    }
-  });
-
-  return { valid: errors.length === 0, errors };
-}
-
-/**
- * Harvests resources from the game world.
- * Collects available resources, items, or commodities.
- * 
- * @param {Object} playerState - The current player state
- * @param {Array} resources - Available resources in the world
- * @returns {Object} Updated player state with harvested resources
- */
-function harvest(playerState, resources) {
-  // Initialize harvested resources if not present
-  if (!playerState.harvestedResources) {
-    playerState.harvestedResources = {
-      food: 0,
-      wood: 0,
-      stone: 0,
-      gold: 0,
-      rare: 0
-    };
-  }
-  
-  // Simulate harvesting logic
-  const harvested = {};
-  resources.forEach(resource => {
-    const amount = Math.floor(Math.random() * (resource.maxYield - resource.minYield + 1)) + resource.minYield;
-    if (amount > 0) {
-      harvested[resource.type] = (harvested[resource.type] || 0) + amount;
-      playerState.harvestedResources[resource.type] += amount;
-      playerState.totalHarvested = (playerState.totalHarvested || 0) + amount;
-    }
-  });
-  
-  // Update player state with harvested amounts
-  Object.keys(harvested).forEach(resourceType => {
-    playerState[resourceType] = (playerState[resourceType] || 0) + harvested[resourceType];
-  });
-  
-  return {
-    ...playerState,
-    harvestedResources: playerState.harvestedResources,
-    lastHarvestTime: Date.now(),
-    harvestCount: (playerState.harvestCount || 0) + 1
-  };
+  return tableElement
 }
 
 // Call the functions to address the accessibility issues
@@ -907,8 +545,6 @@ fixFakeLinkIssues()
 googleSignIn()
 fixButtonIdentifiers()
 
-// Other code...
-
 // Preserve all existing exports
 module.exports = {
   affectedFunction,
@@ -918,12 +554,9 @@ module.exports = {
   newFunction2,
   main,
   ensureDependencyGraphARIA,
-  implementAccessibilityFixesFromReport
+  implementAccessibilityFixesFromReport,
+  renderAdditionalContent, // NEW
+  checkAccessibilityForReport, // NEW
+  renderGraphIndex, // NEW
+  trapFocus // NEW
 };
-
-// Add the new function to the exports
-module.exports.renderAdditionalContent = renderAdditionalContent
-module.exports.implementAccessibilityFixesFromReport = implementAccessibilityFixesFromReport
-module.exports.checkAccessibilityForReport = checkAccessibilityForReport
-module.exports.renderGraphIndex = renderGraphIndex
-module.exports.trapFocus = trapFocus

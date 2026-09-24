@@ -534,7 +534,215 @@ function handleAccessibilityIssues(container, report) {
     return results;
 }
 
-// Export all utilities
+/**
+ * Renders a dependency graph inside the given container.
+ *
+ * @param {HTMLElement} container - The DOM element that will hold the graph.
+ * @param {Object} dependencies - The dependency data to visualize.
+ * @param {Object} [options={}] - Optional rendering options.
+ * @returns {HTMLElement} The container element.
+ */
+function renderDependencyGraphs (container, dependencies, options = {}) {
+  if (!container) {
+    throw new Error('Container element is required')
+  }
+
+  if (!dependencies) {
+    throw new Error('Dependencies data is required')
+  }
+
+  // Ensure container has an id for graph references
+  const containerId = ensureElementHasId(container, 'graph-container')
+
+  // Add accessibility label if not present
+  addAriaLabel(container, `Dependency graph: ${containerId}`)
+
+  // Render logic placeholder
+  container.innerHTML = `<div id="${containerId}">Graph not implemented</div>`
+
+  return container
+}
+
+/**
+ * Validates the table structure for accessibility issues.
+ * Checks for:
+ *   - Presence of captions.
+ *   - Proper use of `<th>` elements with `scope` attributes.
+ *   - Consistent cell counts across rows.
+ *   - Absence of problematic colspan/rowspan in data cells (basic check).
+ *
+ * @returns {boolean} True if all tables pass checks, otherwise false.
+ */
+function validateTableStructure () {
+  const tables = document.querySelectorAll('table')
+  const issues = []
+
+  tables.forEach((table, index) => {
+    // Check if table has a caption
+    const caption = table.querySelector('caption')
+    if (!caption) {
+      issues.push({ tableIndex: index, issue: 'Missing caption' })
+    }
+
+    // Check for header scope
+    const headers = table.querySelectorAll('th')
+    if (headers.length === 0) {
+      issues.push({ tableIndex: index, issue: 'No header cells found' })
+    } else {
+      headers.forEach((th) => {
+        if (!th.hasAttribute('scope')) {
+          issues.push({
+            tableIndex: index,
+            issue: 'Header cell missing scope attribute',
+            element: th
+          })
+        }
+      })
+    }
+
+    // Check for consistent row cell counts
+    const rows = table.querySelectorAll('tr')
+    const cellCounts = new Set()
+    rows.forEach((row) => {
+      cellCounts.add(row.children.length)
+    })
+    if (cellCounts.size > 1) {
+      issues.push({ tableIndex: index, issue: 'Inconsistent number of cells across rows' })
+    }
+
+    // Ensure data cells have proper headers (simple check)
+    const firstRow = rows[0]
+    if (firstRow) {
+      rows.forEach((row, rowIndex) => {
+        if (rowIndex === 0) return // skip header row
+        const cells = row.querySelectorAll('td')
+        cells.forEach((td) => {
+          // For simplicity, just check if the table has headers and the cell has a colspan/rowspan that may cause confusion
+          if (td.hasAttribute('colspan') || td.hasAttribute('rowspan')) {
+            issues.push({
+              tableIndex: index,
+              issue: `Data cell at row ${rowIndex} has colspan/rowspan`,
+              element: td
+            })
+          }
+        })
+      })
+    }
+  })
+
+  if (issues.length > 0) {
+    console.warn('Table accessibility issues found:', issues)
+    return false
+  }
+
+  console.log('All tables passed accessibility checks.')
+  return true
+}
+
+/**
+ * Validates the structure of tables on the page for accessibility best practices.
+ * This is a more comprehensive version of validateTableStructure that includes additional checks.
+ *
+ * @returns {boolean} True if all tables pass checks, otherwise false.
+ */
+function validateTableStructureComprehensive () {
+  const tables = document.querySelectorAll('table')
+  const issues = []
+
+  tables.forEach((table, tableIndex) => {
+    // Check if table has a caption
+    const caption = table.querySelector('caption')
+    if (!caption) {
+      issues.push({ tableIndex, issue: 'Missing caption' })
+    }
+
+    // Check for headers
+    const headers = table.querySelectorAll('th')
+    if (headers.length === 0) {
+      issues.push({ tableIndex, issue: 'No header cells found' })
+    } else {
+      // Check header scope attributes
+      headers.forEach((th, headerIndex) => {
+        if (!th.hasAttribute('scope')) {
+          issues.push({
+            tableIndex,
+            issue: `Header cell at index ${headerIndex} missing scope attribute`,
+            element: th
+          })
+        }
+      })
+    }
+
+    // Check row consistency
+    const rows = table.querySelectorAll('tr')
+    const cellCounts = new Set()
+    rows.forEach((row) => {
+      cellCounts.add(row.children.length)
+    })
+
+    if (cellCounts.size > 1) {
+      issues.push({
+        tableIndex,
+        issue: 'Inconsistent number of cells across rows',
+        details: `Found ${cellCounts.size} different cell counts`
+      })
+    }
+
+    // Check for complex table structures
+    const complexCells = table.querySelectorAll('td[colspan], td[rowspan]')
+    if (complexCells.length > 0) {
+      complexCells.forEach((cell, cellIndex) => {
+        issues.push({
+          tableIndex,
+          issue: 'Complex table structure detected',
+          details: `Cell at index ${cellIndex} has colspan/rowspan`,
+          element: cell
+        })
+      })
+    }
+
+    // Check for missing summary (deprecated but still sometimes used)
+    if (table.hasAttribute('summary')) {
+      issues.push({
+        tableIndex,
+        issue: 'Deprecated summary attribute used',
+        details: 'Use caption instead'
+      })
+    }
+  })
+
+  if (issues.length > 0) {
+    console.warn('Comprehensive table accessibility issues found:', issues)
+    return false
+  }
+
+  console.log('All tables passed comprehensive accessibility checks.')
+  return true
+}
+
+/**
+ * Harvests resources or data from available sources.
+ *
+ * @param {Array} sources - An array of source objects, each with a 'type' and 'amount' property.
+ * @returns {Object} An object mapping resource types to total amounts.
+ */
+function harvestResources (sources) {
+  if (!Array.isArray(sources)) {
+    throw new Error('Sources must be an array')
+  }
+
+  const totals = {}
+
+  sources.forEach(source => {
+    if (!source || typeof source.type !== 'string') return
+    const amount = Number(source.amount) || 0
+    totals[source.type] = (totals[source.type] || 0) + amount
+  })
+
+  return totals
+}
+
+// Export functions for use in other modules
 module.exports = {
   initSkipLink: accessibilityUtils.initSkipLink,
   trapFocus: accessibilityUtils.trapFocus,
@@ -549,5 +757,6 @@ module.exports = {
   addAriaLabel,
   renderDependencyGraphs,
   validateTableStructure,
-  validateTableStructureComprehensive
+  validateTableStructureComprehensive,
+  harvestResources
 }

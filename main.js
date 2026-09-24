@@ -279,5 +279,4 @@ function Main() {
 
 // Export the Main component and the BookForm component
 export default Main;
-export { BookForm };
-export { sortByTitle, sortByAuthor, generateKey, BookItem, AddBookForm, onTitleSort, onAuthorSort };
+export { BookForm, sortByTitle, sortByAuthor, generateKey, BookItem, AddBookForm };

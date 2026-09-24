@@ -1,12 +1,12 @@
-// TODO: This is the existing code that needs to be preserved
-// Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 2 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and validateLandmarkAttributes())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
-// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
-// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
-// main.js - Combined utility and accessibility features
+// Existing code from main.js
+
+// TODO: Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
+// - REACT_025: Add other accessibility changes as per the insight report
+// - [NEW] ADD YOUR CODE HERE if any other issues need to be addressed
+
+const fs = require('fs')
+const path = require('path')
 
 const fs = require('fs')
 const path = require('path')
@@ -15,10 +15,11 @@ const path = require('path')
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
 // (Previously existing code that needs to be preserved)
 
-// TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
-// - REACT_025: Add other accessibility changes as per the insight report
-// - [NEW] ADD YOUR CODE HERE if any other issues need to be addressed
+// Import a11y store configuration
+const a11yStore = require('./a11yStore');
+
+// Landmark elements that should be checked for proper usage
+const LANDMARK_ELEMENTS = ['main', 'nav', 'aside', 'header', 'footer', 'section', 'article'];
 
 // Assuming 'addLangAttribute' is a function that has already been implemented
 function addLangAttribute () {
@@ -73,6 +74,63 @@ function isLinkAccessible (link) {
   // Must have an accessible name
   const hasText = text.trim().length > 0
   const hasAriaLabel = ariaLabel && ariaLabel.trim().length > 0
+  const hasAriaLabelledby = link.getAttribute ? link.getAttribute('aria-labelledby') : false
+
+  if (!hasText && !hasAriaLabel && !hasAriaLabelledby) {
+    return false
+  }
+
+  return true
+}
+
+/**
+ * Checks landmark elements in HTML content for accessibility compliance.
+ * @param {string} htmlContent - The HTML content to check
+ * @returns {Object} - Object containing landmark element information and any warnings
+ */
+function checkLandmarkElements(htmlContent) {
+  // Validate input
+  if (typeof htmlContent !== 'string') {
+    throw new Error('HTML content must be a string');
+  }
+
+  if (!lang) {
+    lang = 'en'
+    htmlElement.setAttribute('lang', lang)
+  }
+
+  return lang
+}
+
+function isLinkAccessible (link) {
+  if (!link) {
+    return false
+  }
+
+  const tagName = link.tagName ? link.tagName.toUpperCase() : ''
+  const role = link.getAttribute ? link.getAttribute('role') : null
+  const href = link.getAttribute ? link.getAttribute('href') : null
+  const text = link.textContent || ''
+  const ariaLabel = link.getAttribute ? link.getAttribute('aria-label') : null
+
+  // Must be an anchor or have a link role
+  if (tagName !== 'A' && role !== 'link') {
+    return false
+  }
+
+  // Must have a valid href (not missing, empty, or just a hash)
+  if (!href || typeof href !== 'string' || href.trim() === '' || href.trim() === '#') {
+    return false
+  }
+
+  // Must not be a button disguised as a link
+  if (role === 'button') {
+    return false
+  }
+
+  // Must have an accessible name
+  const hasText = text.trim().length > 0
+  const hasAriaLabel = ariaLabel && ariaLabel.trim().length > 0
   const hasAriaLabelledby = link.getAttribute ? !!link.getAttribute('aria-labelledby') : false
 
   if (!hasText && !hasAriaLabel && !hasAriaLabelledby) {
@@ -88,6 +146,61 @@ function isLinkAccessible (link) {
  * @param {string} [prefix] - Optional prefix for the generated id
  * @returns {string} The element's id (existing or newly generated)
  */
+function createInPageButton(options) {
+  const { id, text, onClick, title, className = 'in-page-button', ariaLabel, lang } = options || {};
+
+  // Validate required options
+  if (!text) {
+    throw new Error('Button text is required');
+  }
+  if (typeof onClick !== 'function') {
+    throw new Error('onClick callback must be a function');
+  }
+
+  const button = {
+    id: id || `btn_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+    text: String(text),
+    title: title || '',
+    className: className || 'default-button',
+    onClick,
+    disabled: false,
+    visible: true,
+    element: null
+  };
+
+  // Attach DOM properties when document is available
+  if (typeof document !== 'undefined') {
+    const domButton = document.createElement('button');
+    domButton.id = button.id;
+    domButton.type = 'button';
+    domButton.className = button.className;
+    domButton.textContent = button.text;
+
+    if (ariaLabel) {
+      domButton.setAttribute('aria-label', ariaLabel);
+    } else {
+      domButton.setAttribute('aria-label', button.text);
+    }
+
+    if (lang) {
+      domButton.setAttribute('lang', lang);
+    }
+
+    if (typeof onClick === 'function') {
+      domButton.addEventListener('click', onClick);
+    }
+
+    button.element = domButton;
+  }
+
+  // Store button reference
+  if (!createInPageButton.buttons) {
+    createInPageButton.buttons = {};
+  }
+
+  return button;
+}
+
 function ensureElementHasId (element, prefix = 'element') {
   if (!element) {
     throw new Error('Element is required')
@@ -100,6 +213,193 @@ function ensureElementHasId (element, prefix = 'element') {
   const generatedId = `${prefix}-${Math.random().toString(36).substr(2, 9)}`
   element.id = generatedId
   return generatedId
+}
+
+/**
+ * Adds an aria-label to an element if one doesn't exist
+ * @param {HTMLElement} element - The element to modify
+ * @param {string} label - The aria-label text
+ * @returns {HTMLElement} The modified element
+ */
+function addAriaLabel (element, label) {
+  if (!element) {
+    throw new Error('Element is required')
+  }
+
+  if (!element.getAttribute('aria-label')) {
+    element.setAttribute('aria-label', label)
+  }
+
+  return element
+}
+
+/**
+ * Renders a dependency graph visualization
+ * @param {HTMLElement} container - The container element for the graph
+ * @param {Object} dependencies - The dependency data to render
+ * @returns {HTMLElement} The rendered graph element
+ */
+function renderDependencyGraph (container, dependencies = {}) {
+  if (!container) {
+    throw new Error('Container element is required')
+  }
+
+  const graphElement = document.createElement('div')
+  graphElement.className = 'dependency-graph'
+  const img = document.createElement('img')
+  img.setAttribute('alt', 'Dependency graph visualization')
+
+  const nodes = dependencies.nodes || []
+  const edges = dependencies.edges || []
+
+  // Create SVG for graph rendering
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
+  svg.setAttribute('width', '100%')
+  svg.setAttribute('height', '100%')
+  svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg')
+
+  // Render edges
+  edges.forEach((edge, index) => {
+    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line')
+    line.setAttribute('x1', edge.source?.x || 0)
+    line.setAttribute('y1', edge.source?.y || 0)
+    line.setAttribute('x2', edge.target?.x || 0)
+    line.setAttribute('y2', edge.target?.y || 0)
+    line.setAttribute('stroke', '#666')
+    line.setAttribute('stroke-width', '2')
+    line.setAttribute('id', `edge-${index}`)
+    svg.appendChild(line)
+  })
+
+  // Render nodes
+  nodes.forEach((node, index) => {
+    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle')
+    circle.setAttribute('cx', node.x || 0)
+    circle.setAttribute('cy', node.y || 0)
+    circle.setAttribute('r', node.size || 20)
+    circle.setAttribute('fill', node.color || '#4A90E2')
+    circle.setAttribute('id', `node-${index}`)
+
+    const nodeId = ensureElementHasId(circle, 'graph-node')
+    if (node.label) {
+      addAriaLabel(circle, node.label)
+    }
+
+    svg.appendChild(circle)
+  })
+
+  graphElement.appendChild(img)
+  graphElement.appendChild(svg)
+  container.appendChild(graphElement)
+  return graphElement
+}
+
+// Original content from main.js
+function existingFunction () {
+  // existing code
+}
+
+// New function implementation as per the issue requirements
+function personName () {
+  // Implementation details go here
+  // For example:
+  return 'New function result'
+}
+
+// TODO: Implement a function to count dependencies
+function countDependencies() {
+  // Existing function implementation
+
+  // New implementation to count dependencies using dependencyGraphContent and regex
+  const importCommentRegExp = /\/\/\s*require\s*\(\)|import\s+.*\s+from\s+['"`]/;
+  const importCount = (dependencyGraphContent || '').match(importCommentRegExp) || [];
+  return importCount.length;
+}
+
+// Render index view content using indexContent
+function renderIndexView() {
+  return indexContent;
+}
+
+// New function to handle adding landmark regions
+function addLandmarkRegions() {
+  const landmarks = {
+    main: true,
+    nav: false,
+    aside: false
+  };
+
+  return {
+    landmarks,
+    regions: Object.keys(landmarks).filter(key => landmarks[key])
+  };
+}
+
+// Standalone function to address accessibility issues from insight report
+function addressAccessibilityIssues(report) {
+  if (!report) return;
+  a11yStore.addressAccessibilityIssues(report);
+}
+
+// Get person name for accessible labeling
+function personNameLocal() {
+  return a11yStore.personName();
+}
+
+// Validate and fix table accessibility
+function validateTableAccessibility() {
+  a11yStore.validateTableAccessibility();
+}
+
+// Validate and fix table structure
+function validateTableStructure() {
+  a11yStore.validateTableStructure();
+}
+
+// Validate landmark elements
+function validateLandmark() {
+  a11yStore.validateLandmark();
+}
+
+// Validate landmark structure
+function validateLandmarkStructure() {
+  a11yStore.validateLandmarkStructure();
+}
+
+// Get accessible name for SVG
+function getSvgAccessibleName(svg) {
+  return a11yStore.getSvgAccessibleName(svg);
+}
+
+// Ensure unique landmark IDs
+function ensureUniqueLandmarks() {
+  a11yStore.ensureUniqueLandmarks();
+}
+
+// New function to handle dynamic content updates
+function updateLiveRegion(message, priority = 'polite') {
+  a11yStore.updateLiveRegion(message, priority);
+}
+
+// New function to check landmark elements in the DOM
+function checkLandmarkElementsInDom() {
+  a11yStore.checkLandmarkElements();
+}
+
+// New function to add SVG accessibility props
+function addSVGAccessibilityProps() {
+  a11yStore.addSVGAccessibilityProps();
+}
+
+// Preserve existing code functionality
+function preserveExistingCode() {
+  a11yStore.preserveExistingCode();
+}
+
+// New function to address new accessibility issues from insight report
+function newFunction() {
+  // Placeholder for new accessibility issue fixes
+  // Implement specific fixes based on insight report when available
 }
 
 /**
@@ -760,5 +1060,23 @@ module.exports = {
   addAriaLabel,
   renderDependencyGraph,
   existingFunction,
-  personName
-}
+  personName,
+  countDependencies,
+  a11yStore,
+  addLandmarkRegions,
+  addressAccessibilityIssues,
+  LANDMARK_ELEMENTS,
+  getLangAttribute: a11yStore.getLangAttribute.bind(a11yStore),
+  updateLiveRegion,
+  addSVGAccessibilityProps,
+  preserveExistingCode,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  ensureUniqueLandmarks,
+  checkLandmarkElementsInDom,
+  renderIndexView,
+  generateAccessibilityReport
+};

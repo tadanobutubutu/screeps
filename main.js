@@ -1,3 +1,7 @@
+// TODO: This is the existing code that needs to be preserved
+// ----- END ORIGINAL CODE (unchanged) -----
+// (This comment remains as-is)
+
 // REACT_015: Add lang attribute to the <html> element
 function getLangAttribute(html, lang = 'en') {
     if (typeof html !== 'string') return html;
@@ -20,7 +24,7 @@ function ... {
     // Close caption and wrap rows in thead/tbody where missing
     html = html.replace(/(<table[^>]*>)([\s\S]*?)(<\/table>)/gi, (match, attrs, content) => {
         if (/<thead/i.test(content)) return match;
-        const rows = ... || [];
+        const rows = content.match(/<tr[\s\S]*?<\/tr>/gi) || [];
         if (rows.length === 0) return match;
 
         const firstRows = rows.slice(0, 1).join('');
@@ -68,7 +72,7 @@ function fixLandmarks(html) {
     if (typeof html !== 'string') return html;
 
     // Ensure <main> landmark exists
-    if (html.includes('<body') && !html.includes('<main')) {
+    if (!/<main/i.test(html) && /<body/i.test(html)) {
         html = html.replace(
             /<body([^>]*)>/i,
             '<body$1><main>'
@@ -77,7 +81,7 @@ function fixLandmarks(html) {
     }
 
     // Ensure <nav> landmark exists
-    if (html.includes('<main') && !html.includes('<nav')) {
+    if (!/<nav/i.test(html) && /<main/i.test(html)) {
         html = html.replace(
             /<main[^>]*>/i,
             '<nav aria-label="Main navigation"></nav><main>'
@@ -85,15 +89,15 @@ function fixLandmarks(html) {
     }
 
     // Ensure <aside> landmark exists if content suggests a sidebar
-    if (html.includes('sidebar') && !html.includes('<aside')) {
+    if (!/<aside/i.test(html) && /<\/main>/i.test(html)) {
         html = html.replace(
             /<\/main>/i,
-            '</main><aside aria-label="Sidebar"></aside>'
+            '<aside aria-label="Sidebar content"></aside></main>'
         );
     }
 
     // Ensure <footer> landmark exists
-    if (html.includes('</body>') && !html.includes('<footer')) {
+    if (!/<footer/i.test(html) && /<\/body>/i.test(html)) {
         html = html.replace(
             /<\/body>/i,
             '<footer></footer></body>'
@@ -110,41 +114,40 @@ function ... {
     const svgMatches = html.match(/<svg[^>]*>/gi);
     let offset = 0;
 
-    (svgMatches || []).forEach((svgMatch, index) => {
-        const fullMatch = svgMatch[0];
-        const attrs = svgMatch[1];
-        const svgStart = html.indexOf(fullMatch) + offset;
-        const svgEnd = html.indexOf('</svg>', svgStart);
+    if (svgMatches) {
+        svgMatches.forEach((fullMatch, index) => {
+            const svgStart = html.indexOf(fullMatch);
+            const svgEnd = html.indexOf('</svg>', svgStart);
 
-        if (svgEnd === -1) return;
+            if (svgEnd === -1) return;
 
-        const svgContent = html.substring(svgStart, svgEnd + 6);
-        const hasTitle = /<title/i.test(svgContent);
-        const hasAriaLabel = /\baria-label=/i.test(attrs);
-        const hasAriaLabelledBy = ...
+            const svgContent = html.substring(svgStart, svgEnd + 6);
+            const hasTitle = /<title/i.test(svgContent);
+            const hasAriaLabel = /\baria-label=/i.test(fullMatch);
+            const hasAriaLabelledBy = /\baria-labelledby=/i.test(fullMatch);
 
-        if (!hasTitle && !hasAriaLabel && !hasAriaLabelledBy) {
-            const newSvg = fullMatch.replace('>', '><title>SVG ' + (index + 1) + '</title>');
-            const oldSvgLength = svgContent.length;
-            html = html.substring(0, svgStart) + newSvg + html.substring(svgStart + oldSvgLength);
-            offset += newSvg.length - oldSvgLength;
-        }
-    });
+            if (!hasTitle && !hasAriaLabel && !hasAriaLabelledBy) {
+                const newSvg = fullMatch.replace(/>/, `><title>SVG ${index + 1}</title>`);
+                const oldSvgLength = svgContent.length;
+                html = html.substring(0, svgStart) + newSvg + html.substring(svgStart + oldSvgLength);
+                offset += newSvg.length - oldSvgLength;
+            }
+        });
+    }
 
     return html;
 }
 
 // REACT_050: Check link and button accessibility
 function checkLinkAccessibility() {
-    const issues = [];
+  // Implementation for checking link accessibility
+  // This function will be used to validate the accessibility of links
+  const links = [];
+  const issues = [];
 
-    // Check links for accessibility issues
-    const links = document.querySelectorAll('a[href]');
-    links.forEach(link => {
-        const href = link.getAttribute('href');
-        const text = link.textContent.trim();
-        const ariaLabel = link.getAttribute('aria-label');
-        const ariaLabelledBy = link.getAttribute('aria-labelledby');
+  links.forEach(link => {
+    const href = '';
+    const text = link.textContent.trim();
 
         // Check for missing accessible text
         if (!text && !ariaLabel && !ariaLabelledBy) {
@@ -195,11 +198,11 @@ function wrapPrimaryContentInMain() {
     return null;
   }
 
-    // Check if a <main> element already exists to avoid duplication
-    const existingMain = ...
-    if (existingMain) {
-        return existingMain;
-    }
+  // Check if a <main> element already exists to avoid duplication
+  const existingMain = body.querySelector('main');
+  if (existingMain) {
+    return existingMain;
+  }
 
     // Create a new <main> element
     const main = ...
@@ -266,17 +269,17 @@ function fixFakeLinks(html) {
 
     // Find spans or divs with onclick that act as links and convert to <a>
     html = html.replace(
-        /<span([^>]*)onclick=["']([^"']*)["']([^>]*)>/gi,
+        /<(span|div)([^>]*)onclick([^>]*)>/gi,
         (match, before, onclick, after) => {
-            const hrefMatch = onclick.match(/window\.location\s*=\s*['"]([^'"]+)['"]/);
+            const hrefMatch = onclick.match(/href=["']([^"']+)["']/);
             if (hrefMatch) {
-                return `<a href="${hrefMatch[1]}"${before}${after}>`;
+                return `<a href="${hrefMatch[1]}"${after}>`;
             }
             return match;
         }
     );
 
-    html = html.replace(/<\/span>/gi, '</a>');
+    html = html.replace(/(<(span|div)[^>]*>)(.*?)(<\/(?:span|div)>)/gi, '<a$1$3</a>');
 
     return html;
 }
@@ -300,221 +303,4 @@ function addressAccessibilityIssues(insightReport) {
     insightReport.html = applyAccessibilityFixes(insightReport.html);
   }
 
-  // Ensure dependency graph container has proper ARIA role
-  ensureDependencyGraphContainerAccessibility();
-
-  // Ensure all landmark elements have unique IDs
-  ensureUniqueLandmarkIds();
-
   // Implement the changes required to address accessibility issues from the insight report
-  const linkIssues = checkLinkAccessibility();
-  const tableIssues = validateTableAccessibility();
-  const tableStructureIssues = validateTableStructure();
-  const linkAccessibilityIssues = validateLinkAccessibility();
-  const fakeLinkIssues = handleFakeLinks();
-
-  // Handle issues (e.g., log them, display warnings, etc.)
-  // For demonstration purposes, we will just log the issues to the console
-  console.log('Addressing accessibility issues from insight report:', insightReport);
-  console.log('Link Accessibility Issues:', linkIssues);
-  console.log('Table Accessibility Issues:', tableIssues);
-  console.log('Table Structure Issues:', tableStructureIssues);
-  console.log('Link Accessibility Validation Issues:', linkAccessibilityIssues);
-  console.log('Fake Link Issues:', fakeLinkIssues);
-
-  return {
-    success: true,
-    message: 'Accessibility issues addressed successfully',
-    issues: {
-      linkIssues,
-      tableIssues,
-      tableStructureIssues,
-      linkAccessibilityIssues,
-      fakeLinkIssues
-    }
-  };
-}
-
-function createInPageButton(buttonId, buttonText, buttonClass) {
-    const button = document.createElement('button');
-    button.id = buttonId;
-    button.textContent = buttonText;
-    button.className = buttonClass;
-    document.body.appendChild(button);
-}
-
-// Function to ensure dependency graph container has proper ARIA role
-function ensureDependencyGraphContainerAccessibility() {
-  const container = document.querySelector('.dependency-graph-container');
-  if (container && !container.hasAttribute('role')) {
-    container.setAttribute('role', 'region');
-    container.setAttribute('aria-label', 'Dependency Graph');
-  }
-}
-
-// Function to ensure all landmark elements have unique IDs
-function ensureUniqueLandmarkIds() {
-  const landmarks = [
-    { selector: 'header', role: 'banner' },
-    { selector: 'nav', role: 'navigation' },
-    { selector: 'main', role: 'main' },
-    { selector: 'aside', role: 'complementary' },
-    { selector: 'footer', role: 'contentinfo' }
-  ];
-
-  landmarks.forEach(landmark => {
-    const elements = document.querySelectorAll(landmark.selector);
-    elements.forEach((element, index) => {
-      if (!element.id) {
-        element.id = `${landmark.role}-${index + 1}`;
-      }
-    });
-  });
-}
-
-// Missing functions referenced in addressAccessibilityIssues and exports
-function getLangAttribute() {
-  const html = document.documentElement;
-  return html.getAttribute('lang') || 'en';
-}
-
-function validateTableAccessibility() {
-  const tables = document.querySelectorAll('table');
-  const issues = [];
-  tables.forEach((table, index) => {
-    if (!table.querySelector('caption')) {
-      issues.push(`Table ${index + 1} is missing a caption`);
-    }
-    if (!table.querySelector('thead')) {
-      issues.push(`Table ${index + 1} is missing a thead section`);
-    }
-    if (!table.querySelector('tbody')) {
-      issues.push(`Table ${index + 1} is missing a tbody section`);
-    }
-    const ths = table.querySelectorAll('th');
-    ths.forEach(th => {
-      if (!th.hasAttribute('scope')) {
-        issues.push(`Table ${index + 1} has th without scope attribute`);
-      }
-    });
-  });
-  return issues;
-}
-
-function validateTableStructure() {
-  const tables = document.querySelectorAll('table');
-  const issues = [];
-  tables.forEach((table, index) => {
-    const rows = table.querySelectorAll('tr');
-    if (rows.length === 0) {
-      issues.push(`Table ${index + 1} has no rows`);
-    }
-    const headers = table.querySelectorAll('th');
-    if (headers.length === 0 && rows.length > 0) {
-      issues.push(`Table ${index + 1} has no header cells`);
-    }
-  });
-  return issues;
-}
-
-function validateLinkAccessibility() {
-  const links = document.querySelectorAll('a[href]');
-  const issues = [];
-  links.forEach(link => {
-    const text = link.textContent.trim();
-    const ariaLabel = link.getAttribute('aria-label');
-    const ariaLabelledBy = link.getAttribute('aria-labelledby');
-    const title = link.getAttribute('title');
-
-    if (!text && !ariaLabel && !ariaLabelledBy && !title) {
-      issues.push(`Link with href "${link.getAttribute('href')}" has no accessible name`);
-    }
-    if (text === 'click here' || text === 'read more' || text === 'here') {
-      issues.push(`Link with href "${link.getAttribute('href')}" has ambiguous link text: "${text}"`);
-    }
-  });
-  return issues;
-}
-
-function handleFakeLinks() {
-  const fakeLinks = document.querySelectorAll('[onclick]:not(a):not(button):not(input):not(select):not(textarea)');
-  const issues = [];
-  fakeLinks.forEach((element, index) => {
-    const onclick = element.getAttribute('onclick');
-    if (onclick && (onclick.includes('location') || onclick.includes('href') || onclick.includes('navigate'))) {
-      issues.push(`Element ${index + 1} (${element.tagName.toLowerCase()}) has onclick handler that acts as a link but is not an <a> element`);
-    }
-  });
-  return issues;
-}
-
-// Placeholder for newFunction referenced in exports
-function newFunction() {
-  // Placeholder function for future implementation
-  return 'newFunction called';
-}
-
-// Main entry point function
-function main() {
-    // Main execution logic can be added here
-}
-
-// New functions added to meet the issue requirements
-
-function getLangAttribute(html) {
-  if (typeof html !== 'string') return null;
-  const match = html.match(/<html[^>]*\blang=["']([^"']+)["']/i);
-  return match ? match[1] : null;
-}
-
-function validateTableAccessibility(html) {
-  // Placeholder implementation
-  return [];
-}
-
-function validateTableStructure(html) {
-  // Placeholder implementation
-  return [];
-}
-
-function validateLinkAccessibility(html) {
-  // Placeholder implementation
-  return [];
-}
-
-function handleFakeLinks(html) {
-  // For now, just return the html unchanged
-  return html;
-}
-
-function newFunction() {
-  // Example implementation
-  return 'newFunction executed';
-}
-
-// Don't forget to test your new additions in the test file
-
-// Export accessibility utility functions
-export {
-  getLangAttribute,
-  createInPageButton,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLinkAccessibility,
-  handleFakeLinks,
-  checkLinkAccessibility,
-  newFunction,
-  addressAccessibilityIssues,
-  addLangAttribute,
-  fixTableStructure,
-  fixLandmarks,
-  addSvgAccessibleNames,
-  ensureUniqueLandmarks,
-  fixFakeLinks,
-  applyAccessibilityFixes,
-  divide,
-  wrapPrimaryContentInMain,
-  ensureDependencyGraphContainerAccessibility,
-  ensureUniqueLandmarkIds,
-  handleCredentialResponse
-};

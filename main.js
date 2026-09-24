@@ -340,63 +340,21 @@ function validateLandmarkStructure(element) {
  * @returns {Array} - List of duplicate landmarks found
  */
 function ensureUniqueLandmarks() {
+  const validLandmarks = ['header', 'nav', 'main', 'aside', 'footer', 'section', 'article'];
+  const landmarkCounts = {};
   const duplicates = [];
-  const landmarkTypes = {};
   
-  // Find all landmarks
-  const landmarkSelectors = [
-    'header[role="banner"]',
-    'nav',
-    'main',
-    'article',
-    'aside',
-    'footer[role="contentinfo"]',
-    '[role="banner"]',
-    '[role="navigation"]',
-    '[role="main"]',
-    '[role="article"]',
-    '[role="complementary"]',
-    '[role="form"]'
-  ];
-  
-  landmarkSelectors.forEach(selector => {
-    const elements = document.querySelectorAll(selector);
-    elements.forEach(element => {
-      const role = element.getAttribute('role') || element.tagName.toLowerCase();
-      if (element.tagName === 'HEADER' && !element.hasAttribute('role')) {
-        // Could be banner or generic header
-        if (element.parentElement === document.body) {
-          return; // This is likely a banner
-        }
-      }
-      
-      const key = role;
-      if (!landmarkTypes[key]) {
-        landmarkTypes[key] = [];
-      }
-      landmarkTypes[key].push(element);
-    });
-  });
-  
-  // Check for duplicates
-  Object.keys(landmarkTypes).forEach(role => {
-    if (landmarkTypes[role].length > 1) {
-      duplicates.push({
-        role: role,
-        count: landmarkTypes[role].length,
-        elements: landmarkTypes[role]
-      });
-      
-      // Make duplicates unique by removing role and adding aria-label
-      landmarkTypes[role].slice(1).forEach((el, index) => {
-        el.removeAttribute('role');
-        el.setAttribute('aria-label', `${role} region ${index + 2}`);
-        el.setAttribute('tabindex', '-1');
-      });
+  validLandmarks.forEach(landmark => {
+    const elements = document.querySelectorAll(landmark);
+    if (elements.length > 1) {
+      duplicates.push({ landmark, count: elements.length });
     }
   });
   
-  return duplicates;
+  return {
+    isValid: duplicates.length === 0,
+    duplicates: duplicates
+  };
 }
 
 /**

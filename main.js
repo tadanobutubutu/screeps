@@ -146,8 +146,8 @@ function generateLandmarkId(baseName) {
     let candidate = baseName;
     if (_usedLandmarkIds.has(candidate)) {
         // Collision handling: add random suffix
-        const suffix = Math.floor(Math.random() * 9);
-        candidate = `${baseName}-${suffix}`;
+        const suffix = Math.floor(Math.random() * 900) + 100;
+        candidate = baseName + '-' + suffix;
     }
     _usedLandmarkIds.add(candidate);
     return candidate;
@@ -270,9 +270,9 @@ function formatProductName(product) {
 }
 
 function renderProductList(products) {
-    const container = document.createElement('div');
-    container.innerHTML = products.map(p => `<div>${p.name}</div>`).join('');
-    return container;
+  const container = document.createElement('div');
+  container.innerHTML = products.map(p => `<div>${p.name}</div>`).join('');
+  return container;
 }
 
 function calculateTotalPrice(cart) {
@@ -313,20 +313,10 @@ function renderProductCard(product) {
 }
 
 function renderPage(data) {
-    const header = renderHeader(data.title);
-    const content = `<div>${data.content}</div>`;
-    const footer = renderFooter();
-    return `${header}${content}${footer}`;
-}
-
-// State management
-const state = {
-  cart: [],
-  products: []
-};
-
-function updateState(newState) {
-  Object.assign(state, newState);
+  const header = renderHeader(data.title);
+  const content = data.content || '';
+  const footer = renderFooter();
+  return `${header}${content}${footer}`;
 }
 
 /**
@@ -342,9 +332,8 @@ function checkLandmarkElements() {
     // Convert NodeList to array and extract landmark information
     const landmarks = Array.from(landmarkElements).map((element, index) => {
         const tagName = element.tagName.toLowerCase();
-        const defaultRoles = ['nav', 'main', 'header', 'footer', 'aside', 'section'];
-        const role = element.getAttribute('role') || (defaultRoles.includes(tagName) ? tagName : null);
-        
+        const role = element.getAttribute('role') || (['nav', 'main', 'header', 'footer', 'aside', 'section'].includes(tagName) ? tagName : null);
+
         return {
             id: element.id || 'landmark-' + index,
             element: element,
@@ -380,16 +369,28 @@ function checkLandmarkElements() {
 
 // New function or change requested in the issue
 function checkLinkAccessibility() {
-    // Implementation for checking link accessibility
-    // This function will be used to validate the accessibility of links
-    const links = document.querySelectorAll('a');
-    const issues = [];
-    links.forEach(link => {
-        if (!link.getAttribute('aria-label') && !link.textContent.trim()) {
-            issues.push(link);
-        }
+  // Implementation for checking link accessibility
+  // This function will be used to validate the accessibility of links
+  const links = document.querySelectorAll('a[href], area[href]');
+  const results = [];
+  
+  links.forEach((link, index) => {
+    const href = link.getAttribute('href');
+    const isAccessible = href && href.length > 0;
+    const hasText = link.textContent.trim().length > 0 || link.getAttribute('aria-label');
+    const hasUniqueText = checkUniqueLinkText(link);
+    
+    results.push({
+      index,
+      url: href,
+      isAccessible,
+      hasText,
+      hasUniqueText,
+      element: link
     });
-    return issues;
+  });
+  
+  return results;
 }
 
 /**
@@ -398,12 +399,12 @@ function checkLinkAccessibility() {
  * @returns {boolean} True if link text is unique
  */
 function checkUniqueLinkText(link) {
-  const siblings = link.parentElement ? link.parentElement.querySelectorAll('a') : [];
-  const linkText = link.textContent.trim().toLowerCase();
+  const siblings = link.parentElement ? Array.from(link.parentElement.children) : [];
+  const linkText = link.textContent.trim();
   
   let count = 0;
   siblings.forEach(sibling => {
-    if (sibling.textContent.trim().toLowerCase() === linkText) {
+    if (sibling.textContent.trim() === linkText) {
       count++;
     }
   });
@@ -510,111 +511,4 @@ function ensureUniqueLandmarks(landmarksList) {
     }
 
     const name = landmark.name;
-    if (!landmarkNames.has(name)) {
-      landmarkNames.set(name, []);
-      uniqueLandmarks.push(landmark);
-    }
-  }
-
-  return uniqueLandmarks;
-}
-
-// New function to render dependency graphs or display module structure
-function renderDependencyGraph(module) {
-    // Implementation to render the dependency graph for a given module
-    // This is a placeholder function and should be replaced with actual logic
-    console.log('Rendering dependency graph for:', module);
-    // Example output: 'Rendering dependency graph for: ModuleName'
-}
-
-// New function to display module structure
-function displayModuleStructure(module) {
-    // Implementation to display the module structure for a given module
-    // This is a placeholder function and should be replaced with actual logic
-    console.log('Displaying module structure for:', module);
-    // Example output: 'Displaying module structure for: ModuleName'
-}
-
-// Additional utility functions (required for exports)
-function formatCurrency(amount) {
-    return `$${amount.toFixed(2)}`;
-}
-
-function formatDate(date) {
-    return date.toISOString().split('T')[0];
-}
-
-function calculateDiscount(subtotal) {
-    return subtotal > 100 ? 10 : 0;
-}
-
-function validateInput(input) {
-    return input && input.length > 0;
-}
-
-// Missing function that is exported
-function getDependencyDepth(dependencyTree) {
-  if (!dependencyTree || !dependencyTree.dependencies) {
-    return 0;
-  }
-  
-  const depths = dependencyTree.dependencies.map(dep => getDependencyDepth(dep));
-  return 1 + Math.max(0, ...depths);
-}
-
-// Missing function that is exported  
-function greet(name) {
-  return `Hello, ${name}!`;
-}
-
-// Missing function that is exported
-function newAccessibleFunction() {
-  // Accessibility focused function implementation
-  return true;
-}
-
-// Missing function that is exported
-function addLandmarkRegionToElement(element, role) {
-  if (!element || !role) {
-    return false;
-  }
-  
-  const validRoles = ['main', 'nav', 'aside', 'header', 'footer', 'section', 'article'];
-  if (!validRoles.includes(role)) {
-    return false;
-  }
-  
-  element.setAttribute('role', role);
-  return true;
-}
-
-// Resolve function name conflicts by using the first definition
-const _displayModuleStructure = displayModuleStructure;
-
-// For module exports with CommonJS
-module.exports = {
-  main,
-  getDependencyDepth,
-  renderDependencyGraph,
-  newFunction,
-  greet,
-  newAccessibleFunction,
-  addLandmarkRegionToElement,
-  addLandmark,
-  getLandmarks,
-  removeLandmark,
-  isLatitudeValid,
-  isLongitudeValid,
-  getLangAttribute,
-  createInPageButton,
-  validateTableAccessibility,
-  validateTableStructure,
-  getSvgAccessibleName,
-  setSvgAttributes,
-  ensureUniqueLandmarks,
-  validateLinkAccessibility,
-  handleFakeLinks,
-  addProperLandmarkRegions,
-  displayModuleStructure: _displayModuleStructure,
-  calculateSum
-};
+    if (!landmark

@@ -720,114 +720,107 @@ function addLangAttribute (lang) {
   return setHtmlLangAttribute(lang)
 }
 
-// New function to ensure element has an id
-function ensureElementHasId (element, idPrefix = 'element') {
-  if (!element) {
-    return { valid: false, error: 'Element is required' }
+/**
+ * Function to handle focus trap for keyboard navigation
+ * @param {HTMLElement} container - The container element that should trap focus
+ * @param {Object} options - Configuration options
+ * @param {boolean} options.initialFocus - Whether to focus the first focusable element initially
+ * @param {boolean} options.returnFocus - Whether to return focus to the previously focused element when trap is released
+ * @returns {Object} An object with methods to manage the focus trap
+ */
+function createFocusTrap (container, options = {}) {
+  const { initialFocus = true, returnFocus = true } = options
+  let previouslyFocusedElement = null
+  let isActive = false
+
+  // Get all focusable elements within the container
+  function getFocusableElements () {
+    if (!container) return []
+
+    return Array.from(
+      container.querySelectorAll(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      )
+    ).filter((el) => !el.hasAttribute('disabled') && el.offsetParent !== null)
   }
 
-  // If element already has an id, return it
-  if (element.id) {
-    return { valid: true, id: element.id }
-  }
+  // Handle keyboard events
+  function handleKeyDown (event) {
+    if (!isActive) return
 
-  // Generate a unique id
-  let id = idPrefix
-  let counter = 1
+    const focusableElements = getFocusableElements()
+    const firstElement = focusableElements[0]
+    const lastElement = focusableElements[focusableElements.length - 1]
 
-  // Find a unique id that doesn't already exist in the document
-  while (document.getElementById(id)) {
-    id = `${idPrefix}-${counter}`
-    counter++
-  }
-
-  element.id = id
-  return { valid: true, id }
-}
-
-// New function to add aria-label to an element
-function addAriaLabel (element, label) {
-  if (!element) {
-    return { valid: false, error: 'Element is required' }
-  }
-
-  if (!label) {
-    return { valid: false, error: 'Label is required' }
-  }
-
-  element.setAttribute('aria-label', label)
-  return { valid: true, label }
-}
-
-// New function to render dependency graphs
-function renderDependencyGraph (container, data) {
-  if (!container) {
-    return { valid: false, error: 'Container element is required' }
-  }
-
-  if (!data || !Array.isArray(data)) {
-    return { valid: false, error: 'Data must be an array of dependencies' }
-  }
-
-  // Clear the container
-  container.innerHTML = ''
-
-  // Create a graph container
-  const graphContainer = document.createElement('div')
-  graphContainer.className = 'dependency-graph'
-  container.appendChild(graphContainer)
-
-  // Create nodes for each dependency
-  const nodes = {}
-  data.forEach((dep, index) => {
-    const node = document.createElement('div')
-    node.className = 'dependency-node'
-    node.textContent = dep.name || `Dependency ${index + 1}`
-
-    // Add unique id to each node
-    ensureElementHasId(node, 'dep-node')
-
-    // Add aria-label for accessibility
-    addAriaLabel(node, `Dependency: ${dep.name || `Dependency ${index + 1}`}`)
-
-    graphContainer.appendChild(node)
-    nodes[dep.name || index] = node
-  })
-
-  // Create connections between dependencies
-  data.forEach((dep) => {
-    if (dep.dependencies && Array.isArray(dep.dependencies)) {
-      dep.dependencies.forEach((depName) => {
-        if (nodes[depName]) {
-          const sourceNode = nodes[dep.name || dep.id]
-          const targetNode = nodes[depName]
-
-          if (sourceNode && targetNode) {
-            // Create a connection line between nodes
-            const connection = document.createElement('div')
-            connection.className = 'dependency-connection'
-
-            // Position the connection (simplified - in a real implementation you'd use a proper graph library)
-            const sourceRect = sourceNode.getBoundingClientRect()
-            const targetRect = targetNode.getBoundingClientRect()
-
-            // This is a simplified approach - a real implementation would need more sophisticated positioning
-            connection.style.position = 'absolute'
-            connection.style.left = `${sourceRect.left + sourceRect.width}px`
-            connection.style.top = `${sourceRect.top + sourceRect.height / 2}px`
-            connection.style.width = `${targetRect.left - (sourceRect.left + sourceRect.width)}px`
-            connection.style.height = '2px'
-            connection.style.backgroundColor = '#666'
-            connection.style.transform = 'translateY(-50%)'
-
-            graphContainer.appendChild(connection)
-          }
+    // Tab key
+    if (event.key === 'Tab') {
+      if (event.shiftKey) {
+        // Shift+Tab: move focus to previous element or last if at first
+        if (document.activeElement === firstElement) {
+          event.preventDefault()
+          lastElement.focus()
         }
-      })
+      } else {
+        // Tab: move focus to next element or first if at last
+        if (document.activeElement === lastElement) {
+          event.preventDefault()
+          firstElement.focus()
+        }
+      }
     }
-  })
 
-  return { valid: true, graph: graphContainer }
+    // Escape key
+    if (event.key === 'Escape') {
+      deactivate()
+    }
+  }
+
+  // Activate the focus trap
+  function activate () {
+    if (isActive) return
+
+    const focusableElements = getFocusableElements()
+
+    if (focusableElements.length === 0) {
+      console.warn('No focusable elements found in container')
+      return
+    }
+
+    // Store the currently focused element
+    previouslyFocusedElement = document.activeElement
+
+    // Add event listener for keyboard navigation
+    document.addEventListener('keydown', handleKeyDown)
+
+    // Focus the first element if requested
+    if (initialFocus) {
+      focusableElements[0].focus()
+    }
+
+    isActive = true
+  }
+
+  // Deactivate the focus trap
+  function deactivate () {
+    if (!isActive) return
+
+    // Remove event listener
+    document.removeEventListener('keydown', handleKeyDown)
+
+    // Return focus to the previously focused element if requested
+    if (returnFocus && previouslyFocusedElement) {
+      previouslyFocusedElement.focus()
+    }
+
+    isActive = false
+  }
+
+  // Public API
+  return {
+    activate,
+    deactivate,
+    isActive: () => isActive
+  }
 }
 
 // Export all functions to maintain current exports
@@ -862,7 +855,5 @@ module.exports = {
   isLinkAccessible,
   towerDefense,
   personName, // Add back personName export
-  ensureElementHasId, // New export
-  addAriaLabel, // New export
-  renderDependencyGraph // New export
+  createFocusTrap // Add new focus trap function export
 }

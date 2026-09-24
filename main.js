@@ -1,5 +1,17 @@
-// Main entry point for the application – contains all required accessibility helpers
-// and exports them for the rest of the build pipeline.
+// Import necessary dependencies
+import React, { useState, useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { List } from 'antd';
+
+// Function to count dependencies
+function countDependencies() {
+  const dependencies = [
+    'react',
+    'react-redux',
+    'antd'
+  ];
+  return dependencies.length;
+}
 
 // ------------------------------------------------------------
 // Helper functions (required by the issue)
@@ -34,7 +46,7 @@ function validateTableAccessibility(table) {
 }
 
 // Function to render a single book item
-function BookItem({ book }) {
+function BookItem(book) {
   return (
     <List.Item key={generateKey(book)} role="listitem">
       <List.Item.Meta
@@ -45,154 +57,62 @@ function BookItem({ book }) {
   );
 }
 
-// Functions from HEAD for dependency management
-async function fetchBookDependencies(bookId, dispatch) {
-  // Fetch dependencies for the specified book
-  // ... (Assuming you have an API endpoint to fetch book dependencies or implementing this logic)
+// Function to create a new book entry in the Redux store
+function addBook(book) {
+  // Perform any necessary validation or processing before adding the book
+  // ...
 
-  // Dispatch an action to update the book's dependencies in the Redux store
-  dispatch(setDependencyGraph({ bookId, dependencies: /* The fetched dependencies */ }));
+  // Dispatch an action to add the book to the books list in the Redux store
+  dispatch({ type: 'ADD_BOOK', payload: book });
 }
 
-/**
- * Validates a single landmark element for accessibility attributes.
- */
-function validateLandmark(landmark) {
-  return landmark.getAttribute('aria-label') !== undefined;
-}
-
-// Action creator for setDependencyGraph
-function setDependencyGraph({ bookId, dependencies }) {
-  return { type: 'SET_DEPENDENCY_GRAPH', payload: { bookId, dependencies } };
-}
-
-// Components from origin/main
-function DependencyGraph({ nodes, edges }) {
-  return (
-    <div 
-      className="dependency-graph"
-      role="img"
-      aria-label="Dependency graph showing relationships between books and authors"
-      tabIndex={0}
-    >
-      {/* Render graph nodes and edges */}
-      {/* ... */}
-    </div>
-  );
-}
-
-// Function to generate a report based on accessibility issues
-function generateAccessibilityReport(issues) {
-  if (!issues || issues.length === 0) {
-    return 'No accessibility issues found.';
-  }
-
-  const report = issues.map((issue, index) => {
-    const severityLabel = issue.severity ? issue.severity.toUpperCase() : 'INFO';
-    const lineInfo = issue.line ? `Line ${issue.line}` : 'Unknown location';
-    const description = issue.message || issue.description || 'No description provided';
-    return `${index + 1}. [${severityLabel}] ${description} (${lineInfo})`;
-  }).join('\n');
-
-  return `Accessibility Report (${issues.length} issue(s) found):\n${report}`;
-}
+// TODO: Implement the required changes to improve accessibility for the addBook function or form
+// ...
 
 // Default sorting function for the book list
 const defaultSorting = sortByTitle;
 
 // Function to handle sorting the book list by title (ascending)
-function onTitleSort(dispatch, books) {
-  const sortedList = [...books].sort(sortByTitle);
+function onTitleSort() {
+  const sortedList = [...getBooksList].sort(sortByTitle);
   // Dispatch an action to update the sorted book list in the Redux store
-  dispatch({ type: SORT_BY_TITLE, payload: sortedList });
+  dispatch({ type: 'SORT_BY_TITLE', payload: sortedList });
 }
 
 // Function to handle sorting the book list by author (descending)
-function onAuthorSort(dispatch, books) {
-  const sortedList = [...books].sort(sortByAuthor);
+function onAuthorSort() {
+  const sortedList = [...getBooksList].sort(sortByAuthor);
   // Dispatch an action to update the sorted book list in the Redux store
-  dispatch({ type: SORT_BY_AUTHOR, payload: sortedList });
+  dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
 }
 
-// Action creator for addBook
-function addBook(book) {
-  return { type: ADD_BOOK, payload: book };
-}
+// Render the main component containing the book list and sorting controls
+function Main() {
+  const [sorting, setSorting] = useState(defaultSorting);
 
-// AddBookForm component
-function AddBookForm({ onAdd }) {
-  const formId = useId();
-  const [title, setTitle] = useState('');
-  const [author, setAuthor] = useState('');
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (title.trim() && author.trim()) {
-      const newBook = {
-        title: title.trim(),
-        author: author.trim(),
-        id: UUID.generate()
-      };
-      onAdd(newBook);
-      setTitle('');
-      setAuthor('');
+  // UseEffect hook to handle sorting book list updates
+  useEffect(() => {
+    if (sorting === sortByTitle) {
+      onTitleSort();
+    } else if (sorting === sortByAuthor) {
+      onAuthorSort();
     }
-    seen.add(lm.id);
-  }
-  return true;
+  }, [sorting]);
+
+  // Map the book list to the BookItem function to create book items
+  const bookItems = getBooksList.map((book) => BookItem(book));
+
+  // Render the list of book items and sorting controls
+  return (
+    <div>
+      <button onClick={() => setSorting(sortByTitle)}>Sort by Title</button>
+      <button onClick={() => setSorting(sortByAuthor)}>Sort by Author</button>
+      <List ... />
+      {/* TODO: Implement the required changes to improve accessibility for adding a new book */}
+      {/* ... */}
+    </div>
+  );
 }
 
-/**
- * Retrieves an accessible name for an SVG element (e.g., from its title attribute).
- */
-function getSvgAccessibleName(svgElement) {
-  return svgElement.getAttribute('title') || '';
-}
-
-/**
- * Applies arbitrary key/value pairs to an SVG element.
- */
-function setSvgAttributes(svgElement, attributes) {
-  Object.keys(attributes).forEach(key => {
-    svgElement.setAttribute(key, attributes[key]);
-  });
-}
-
-/**
- * Guarantees that all landmarks in the list have distinct IDs.
- */
-function ensureUniqueLandmarks(landmarks) {
-  const idSet = new Set();
-  for (const lm of landmarks) {
-    if (idSet.has(lm.id)) {
-      throw new Error(`Duplicate landmark ID: ${lm.id}`);
-    }
-    idSet.add(lm.id);
-  }
-  return true;
-}
-
-/**
- * Filters out fake links from a list of anchor elements.
- */
-function handleFakeLinks(links) {
-  // Simple filter – replace any link flagged as fake.
-  return links.filter(link => !link.isFake);
-}
-
-// ------------------------------------------------------------
-// Exports – makes all helpers available to the rest of the codebase
-// ------------------------------------------------------------
-
-module.exports = {
-  getLangAttribute,
-  createInPageButton,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  setSvgAttributes,
-  ensureUniqueLandmarks,
-  handleFakeLinks,
-};
+// Export the Main component
+export default Main;

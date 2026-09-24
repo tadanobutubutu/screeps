@@ -109,11 +109,8 @@ const AddressabilityIssues = {
     return accessibilityReport;
   },
 
-  calculateAccessibilityScore(fixedIssues) {
-    if (!fixedIssues || fixedIssues.length === 0) {
-      return 100;
-    }
-    return Math.max(0, 100 - (fixedIssues.length * 5));
+  calculateAccessibilityScore(fixedIsses) {
+    // ... (existing code)
   },
 
   fixMainLandmarkIssues(source) {
@@ -808,3 +805,16 @@ module.exports = {
   setSvgAttributes,
   addressAccessibilityIssuesFromInsightReport
 };
+// ... (other functions and setting up exports)
+// Add back missing exports
+module.exports.fixTableStructureIssues = fixTableStructureIssues;
+module.exports.fixTableHeaderCellScope = fixTableHeaderCellScope;
+module.exports.addMainLandmark = addMainLandmark;
+module.exports.addLandmarkRolesAndFixIssues = addLandmarkRolesAndFixIssues;
+module.exports.fixLandmarkIssues = fixLandmarkIssues;
+module.exports.addSvgAccessibleNames = addSvgAccessibleNames;
+module.exports.ensureUniqueLandmarks = ensureUniqueLandmarks;
+module.exports.fixFakeLinks = fixFakeLinks;
+module.exports.addProperLandmarkRegions = addProperLandmarkRegions;
+module.exports.checkLandmarkElements = checkLandmarkElements;
+module.exports.generateAccessibilityReport = generateAccessibilityReport;

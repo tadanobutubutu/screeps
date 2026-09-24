@@ -13,20 +13,20 @@
 // Dependency imports
 const http = require('http');
 const url = require('url');
-const { dependencyGraphContent } = require('./dependencyGraphContent');
-const { indexContent } = require('./indexContent');
+const { dependencyGraphContent } = require('./utilities');
+const { indexContent } = require('./utilities');
 const { addLangAttribute, fixTableStructureIssues, addMainLandmark, ensureUniqueLandmarks, setSvgAccessibilityProps, addAccessibleNamesToSVGs, fixFakeLinkIssue, fixFakeLinkIssues, fixLandmarkIssues, addLandmarkRegions, uniqueLandmarks, fixImageAltTexts, googleSignIn, handleCredentialResponse, ensureElementHasId, ensureElementHasIdOrigin, addAriaLabel, renderDependencyGraphs, fixButtonIdentifiers, fixDependencyGraphAria, addMainLandmarkToIndex, addressAccessibilityIssues } = require('./utilities');
 const { createInPageButton, createWebResourceButton, validateLandmark, validateLandmarkStructure, validateAccessibilityReport } = require('./utilities');
 
 const { main } = require('./utilities');
-const { functionA, functionB } = require('./functionModule');
+const { functionA, functionB } = require('./utilities');
 
 // Function to validate table accessibility
 const validateTableAccessibility = (html) => {
   const issues = [];
 
   // Check if HTML contains tables
-  const tableRegex = /<table[\s\S]*?>[\s\S]*?<\/table>/gi;
+  const tableRegex = /<table[^>]*>[\s\S]*?<\/table>/gi;
   let match;
 
   while ((match = tableRegex.exec(html)) !== null) {
@@ -56,9 +56,9 @@ const validateTableAccessibility = (html) => {
     }
 
     // Check for scope attributes on th elements
-    const thMatches = (tableContent.match(/<th[\s\S]*?>[\s\S]*?<\/th>/gi) || []);
+    const thMatches = (tableContent.match(/<th[^>]*>/gi) || []);
     thMatches.forEach((thTag, index) => {
-      if (!/scope\s*=/i.test(thTag)) {
+      if (!/scope=/i.test(thTag)) {
         issues.push({
           type: 'table',
           severity: 'info',
@@ -91,11 +91,12 @@ const validateTableAccessibility = (html) => {
     }
 
     // Check for id and headers attributes for complex tables
-    const hasMultipleHeaders = (thMatches || []).length > 1;
+    const thElements = (tableContent.match(/<th[^>]*>/gi) || []);
+    const hasMultipleHeaders = thElements.length > 1;
     if (hasMultipleHeaders) {
-      const hasHeadersAttr = /headers=["'][^"']+["']/.test(tableContent);
-      const hasIdAttr = /id=["'][^"']+["']/.test(tableContent.replace(/<th/gi, '<td'));
-
+      const hasHeadersAttr = /headers=/i.test(tableContent);
+      const hasIdAttr = /<th[^>]*id=["'][^"']+["'][^>]*>/i.test(tableContent) || /<td[^>]*id=["'][^"']+["'][^>]*>/i.test(tableContent);
+      
       if (!hasIdAttr && !hasHeadersAttr) {
         issues.push({
           type: 'table',
@@ -140,19 +141,58 @@ const a11yStore = {
 
   checkLandmarkElements() {
     const landmarkElements = ['main', 'nav', 'header', 'footer', 'aside'];
-    landmarkElements.forEach((element, index) => {
-      const landmarks = document.querySelectorAll(`[role="${element}"]`);
-      landmarks.forEach((landmark) => {
+    landmarkElements.forEach((element) => {
+      const landmarks = document.querySelectorAll(element);
+      landmarks.forEach((landmark, index) => {
         if (landmark.id === '') {
           landmark.id = `${element}-${index}`;
         }
 
         if (landmarks.length > 1) {
-          if (!landmark.hasAttribute('aria-label') && !landmark.hasAttribute('aria-labelledby')) {
-            landmark.setAttribute('aria-label', `${element} ${index + 1}`);
+          if (!landmark.getAttribute('aria-label') && !landmark.getAttribute('aria-labelledby')) {
+            landmark.setAttribute('aria-label', `${element} section ${index + 1}`);
           }
         }
       });
     });
   }
+};
+
+module.exports = {
+  validateTableAccessibility,
+  getActiveSessionsCount,
+  validateSession,
+  a11yStore,
+  functionA,
+  functionB,
+  handleCredentialResponse,
+  main,
+  createInPageButton,
+  createWebResourceButton,
+  validateLandmark,
+  validateLandmarkStructure,
+  validateAccessibilityReport,
+  addLangAttribute,
+  fixTableStructureIssues,
+  addMainLandmark,
+  ensureUniqueLandmarks,
+  setSvgAccessibilityProps,
+  addAccessibleNamesToSVGs,
+  fixFakeLinkIssue,
+  fixFakeLinkIssues,
+  fixLandmarkIssues,
+  addLandmarkRegions,
+  uniqueLandmarks,
+  fixImageAltTexts,
+  googleSignIn,
+  ensureElementHasId,
+  ensureElementHasIdOrigin,
+  addAriaLabel,
+  renderDependencyGraphs,
+  fixButtonIdentifiers,
+  fixDependencyGraphAria,
+  addMainLandmarkToIndex,
+  addressAccessibilityIssues,
+  dependencyGraphContent,
+  indexContent
 };

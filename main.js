@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { renderGraph } from './path-to-your-new-graph-function'; // Replace this path with the actual path to your new graph function.
 
 const Main = ({ children, title, lang = 'en' }) => {
   return (
@@ -36,5 +35,20 @@ const countDependencies = (dependencies) => {
 };
 
 export { countDependencies };
+
+// TODO: Implement a function to count dependencies
+const countDependencies = (code) => {
+  const dependencyRegex = /import\s+[\w.]+ from\s+['"]([\w.]+)['"];/g;
+  let match;
+  let dependencyCount = 0;
+
+  while ((match = dependencyRegex.exec(code)) !== null) {
+    if (!dependencyRegex.test(code.slice(match.index))) {
+      dependencyCount++;
+    }
+  }
+
+  return dependencyCount;
+};
 
 export default Main;

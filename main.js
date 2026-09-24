@@ -11,6 +11,13 @@ function setLangAttribute(lang) {
   }
 }
 
+// New function3 logic
+function function3() {
+  // Placeholder logic for function3
+  // Replace with actual implementation as needed
+  return "Function3 executed";
+}
+
 // Exported functions
 export function calculateSum (a, b) {
   return a + b
@@ -31,6 +38,6 @@ export function getAccessibleGreeting (name) {
 export function calculateProduct(a, b) {
   return a * b;
 }
-
-// Add export for the new function
-export { setLangAttribute };
+export function function3Exported() {
+  return function3();
+}

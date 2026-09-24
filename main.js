@@ -421,7 +421,7 @@ const accessibilityUtils = {
      */
     initSkipLink(skipLink) {
         if (!skipLink) return;
-        
+
         skipLink.addEventListener('click', (e) => {
             e.preventDefault();
             const target = document.querySelector(skipLink.getAttribute('href'));
@@ -438,16 +438,50 @@ const accessibilityUtils = {
         const srOnly = 'sr-only';
         const ariaDescribedBy = document.querySelector('[aria-describedby]') ? ' aria-describedby="' + document.querySelector('[aria-describedby]').getAttribute('aria-describedby') + '"' : '';
 
-        const container = document.createElement('div');
-        container.setAttribute('aria-live', ariaLive);
-        container.setAttribute('aria-atomic', 'true');
-        container.className = srOnly;
-        container.textContent = message;
-        document.body.appendChild(container);
+        const focusableElements = element.querySelectorAll(
+            'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        );
+
+        if (focusableElements.length === 0) return () => {};
 
         const id = 'msg_' + Date.now();
         container.setAttribute('id', id);
         message.setAttribute('aria-describedby', id);
+
+        const handleKeyboard = (e) => {
+            if (e.key === 'Tab') {
+                if (e.shiftKey && document.activeElement === first) {
+                    last.focus();
+                    e.preventDefault();
+                } else if (!e.shiftKey && document.activeElement === last) {
+                    first.focus();
+                    e.preventDefault();
+                }
+            }
+        };
+
+        element.addEventListener('keydown', handleKeyboard);
+
+        // Return cleanup function
+        return () => {
+            element.removeEventListener('keydown', handleKeyboard);
+        };
+    },
+
+    /**
+     * Announce message to screen readers
+     * @param {string} message - Message to announce
+     * @param {string} priority - 'polite' or 'assertive'
+     */
+    announceToScreenReader(message, priority = 'polite') {
+        const announcer = document.createElement('div');
+        announcer.setAttribute('aria-live', priority);
+        announcer.setAttribute('aria-atomic', 'true');
+        announcer.className = 'sr-only';
+        announcer.style.position = 'absolute';
+        announcer.style.left = '-9999px';
+        announcer.textContent = message;
+        document.body.appendChild(announcer);
 
         setTimeout(() => {
             if (document.body.contains(announcer)) {
@@ -463,7 +497,7 @@ const accessibilityUtils = {
      */
     handleKeyboardNav(e, options = {}) {
         const { onEscape, onEnter, onArrowUp, onArrowDown } = options;
-        
+
         switch (e.key) {
             case 'Escape':
                 if (onEscape) onEscape(e);
@@ -485,102 +519,102 @@ const accessibilityUtils = {
                 break;
         }
     },
+
+    // NEW FUNCTION: New focus trap implementation with enhanced features
+    newFocusTrapWithEnhancedFeatures(element, options = {}) {
+        const {
+            initialFocus = true,
+            returnFocusOnDeactivate = true,
+            escapeDeactivates = true
+        } = options;
+
+        const focusableElements = element.querySelectorAll(
+            'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        );
+
+        // If no focusable elements, delegate to original trapFocus
+        if (focusableElements.length === 0) {
+            return this.trapFocus(element);
+        }
+
+        const first = focusableElements[0];
+        const last = focusableElements[focusableElements.length - 1];
+        let previouslyFocused = document.activeElement;
+
+        const handleTabKey = (e) => {
+            if (e.key !== 'Tab') return;
+
+            if (e.shiftKey && document.activeElement === first) {
+                last.focus();
+                e.preventDefault();
+            } else if (!e.shiftKey && document.activeElement === last) {
+                first.focus();
+                e.preventDefault();
+            }
+        };
+
+        const handleEscape = (e) => {
+            if (e.key === 'Escape' && escapeDeactivates) {
+                deactivate();
+            }
+        };
+
+        let active = false;
+        let isActivating = false;
+
+        const activate = () => {
+            if (isActivating) return;
+            isActivating = true;
+
+            element.addEventListener('keydown', handleTabKey);
+            element.addEventListener('keydown', handleEscape);
+
+            if (initialFocus && first) {
+                first.focus();
+            }
+
+            active = true;
+            isActivating = false;
+        };
+
+        const deactivate = () => {
+            if (!active) return;
+            active = false;
+
+            element.removeEventListener('keydown', handleTabKey);
+            element.removeEventListener('keydown', handleEscape);
+
+            if (returnFocusOnDeactivate && previouslyFocused && typeof previouslyFocused.focus === 'function') {
+                previouslyFocused.focus();
+            }
+        };
+
+        const updatePreviouslyFocused = (el) => {
+            previouslyFocused = el;
+        };
+
+        activate();
+
+        return {
+            activate,
+            deactivate,
+            updatePreviouslyFocused
+        };
+    }
 };
 
-// New focus trap implementation with enhanced features
-// ... (Same implementation as before)
+// Utility functions for ensuring elements have IDs and adding labels
+const ensureElementIdLocal = (element) => {
+  if (element && !element.id) {
+    element.id = `element-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  }
+  return element;
+};
 
-// Render index page
-function renderIndex(options = {}) {
-    // Use indexContent to generate the index page
-    return indexContent;
-}
-
-// Create in-page buttons for navigation
-function createInPageButtons(container, buttons = []) {
-    // Create button elements and append to container
-    buttons.forEach(btnConfig => {
-        const btn = document.createElement('button');
-        btn.textContent = btnConfig.label;
-        btn.addEventListener('click', btnConfig.onClick);
-        container.appendChild(btn);
-    });
-}
-
-// New functions to satisfy missing exports
-function renderIndex(options = {}) {
-    // Use the imported indexContent to generate the index page
-    return indexContent;
-}
-
-function createInPageButtons(container, options = {}) {
-    // Create in-page navigation buttons
-    // This is a placeholder implementation; extend as needed
-    const buttons = [];
-    // Example: could create buttons for sections, etc.
-    return buttons;
-}
-
-// Create in-page navigation buttons
-function createInPageButtons(container, navItems) {
-    if (!container || !navItems || !Array.isArray(navItems)) return;
-    
-    const nav = document.createElement('nav');
-    nav.setAttribute('aria-label', 'In-page navigation');
-    
-    const ul = document.createElement('ul');
-    ul.className = 'in-page-nav';
-    
-    navItems.forEach(item => {
-        const li = document.createElement('li');
-        const a = document.createElement('a');
-        a.href = `#${item.id}`;
-        a.textContent = item.text || item.id;
-        a.setAttribute('aria-current', item.current ? 'page' : 'false');
-        
-        // Add click handler for accessibility
-        a.addEventListener('click', (e) => {
-            const target = document.querySelector(item.id);
-            if (target) {
-                target.tabIndex = -1;
-                target.focus();
-            }
-        });
-        
-        li.appendChild(a);
-        ul.appendChild(li);
-    });
-    
-    nav.appendChild(ul);
-    container.appendChild(nav);
-    
-    return nav;
-}
-
-// Accessibility enhancements for dependency graph elements
-function enhanceDependencyGraphAccessibility(graphElement) {
-    if (!graphElement) return;
-    
-    graphElement.setAttribute('role', 'treegrid');
-    graphElement.setAttribute('aria-multiselectable', 'false');
-    
-    // Add keyboard navigation support
-    graphElement.addEventListener('keydown', (e) => {
-        accessibilityUtils.handleKeyboardNav(e, {
-            onArrowUp: () => {
-                // Move to previous node in graph
-            },
-            onArrowDown: () => {
-                // Move to next node in graph
-            },
-            onEnter: () => {
-                // Expand/collapse node
-            },
-            onEscape: () => {
-                // Close or deselect current node
-            }
-        });
-    });
+function addAriaLabel(element, label) {
+    if (element) {
+        element.setAttribute('aria-label', label);
+    }
 }
 
 // Added missing functions for export
@@ -674,8 +708,8 @@ module.exports = {
     renderIndex, // Added the export 'renderIndex'
     getLangAttribute,
     accessibilityUtils,
-    trapFocus,
-    newFocusTrap,
+    trapFocus: accessibilityUtils.trapFocus,
+    newFocusTrap: accessibilityUtils.newFocusTrapWithEnhancedFeatures, // Update the export name for the focus trap
     initSkipLink: accessibilityUtils.initSkipLink,
     announceToScreenReader: accessibilityUtils.announceToScreenReader,
     handleKeyboardNav: accessibilityUtils.handleKeyboardNav,

@@ -3,16 +3,6 @@ const { exec } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
-// TODO: This is the existing code that needs to be preserved
-// Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and createInPageButton())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 2 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ...)
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...)
-// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
-// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
-// - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
-
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -115,10 +105,58 @@ function main() {
 }
 
 function renderDependencyGraphs(svgElements) {
-    const accessibleName = getSvgAccessibleName(svgElements);
-    if (accessibleName) {
-        // Use accessibleName
+    if (!svgElements || svgElements.length === 0) {
+        return [];
     }
+
+    const accessibleName = getSvgAccessibleName(svgElements);
+    const graphs = [];
+
+    svgElements.forEach((svg, index) => {
+        const graphId = svg.getAttribute('id') || `dependency-graph-${index}`;
+        const label = svg.getAttribute('aria-label') || accessibleName || graphId;
+
+        // Build a simple dependency graph from package.json
+        const dependencies = getDependencyNodes();
+        const edges = getDependencyEdges(dependencies);
+
+        // Clear existing graph content
+        while (svg.firstChild) {
+            svg.removeChild(svg.firstChild);
+        }
+
+        // Set up accessible name
+        setSvgAttributes(svg);
+
+        // Calculate layout positions for nodes
+        const nodePositions = layoutNodes(dependencies);
+
+        // Render edges first (so nodes appear on top)
+        edges.forEach((edge) => {
+            const line = createEdgeElement(edge, nodePositions);
+            svg.appendChild(line);
+        });
+
+        // Render nodes
+        dependencies.forEach((node) => {
+            const nodeElement = createNodeElement(node, nodePositions[node.id]);
+            svg.appendChild(nodeElement);
+        });
+
+        // Add a title element for accessibility
+        const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+        title.textContent = `Dependency graph: ${label}`;
+        svg.insertBefore(title, svg.firstChild);
+
+        graphs.push({
+            id: graphId,
+            label: label,
+            nodeCount: dependencies.length,
+            edgeCount: edges.length
+        });
+    });
+
+    return graphs;
 }
 
 function getSvgAccessibleName(svgElements) {
@@ -126,6 +164,84 @@ function getSvgAccessibleName(svgElements) {
         return svgElements[0].getAttribute('aria-label') || svgElements[0].getAttribute('id');
     }
     return '';
+}
+
+function getDependencyNodes() {
+    try {
+        const packageJsonPath = path.join(__dirname, 'package.json');
+        const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+        const dependencies = packageJson.dependencies || {};
+        const nodes = [{ id: 'root', label: 'root' }];
+        Object.keys(dependencies).forEach((dep) => {
+            nodes.push({ id: dep, label: dep });
+        });
+        return nodes;
+    } catch (error) {
+        return [{ id: 'root', label: 'root' }];
+    }
+}
+
+function getDependencyEdges(nodes) {
+    const edges = [];
+    for (let i = 1; i < nodes.length; i++) {
+        edges.push({ source: 'root', target: nodes[i].id });
+    }
+    return edges;
+}
+
+function layoutNodes(nodes) {
+    const positions = {};
+    const width = 200;
+    const height = 100;
+    nodes.forEach((node, index) => {
+        positions[node.id] = {
+            x: 20 + (index % 3) * 60,
+            y: 20 + Math.floor(index / 3) * 40,
+            width: width,
+            height: height
+        };
+    });
+    return positions;
+}
+
+function createNodeElement(node, position) {
+    const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    g.setAttribute('data-node-id', node.id);
+
+    const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    rect.setAttribute('x', position.x);
+    rect.setAttribute('y', position.y);
+    rect.setAttribute('width', position.width);
+    rect.setAttribute('height', position.height);
+    rect.setAttribute('fill', '#4a90e2');
+    rect.setAttribute('stroke', '#2c5f8d');
+    rect.setAttribute('stroke-width', '1');
+    g.appendChild(rect);
+
+    const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    text.setAttribute('x', position.x + 10);
+    text.setAttribute('y', position.y + 20);
+    text.setAttribute('fill', '#ffffff');
+    text.setAttribute('font-size', '12');
+    text.textContent = node.label;
+    g.appendChild(text);
+
+    return g;
+}
+
+function createEdgeElement(edge, nodePositions) {
+    const source = nodePositions[edge.source];
+    const target = nodePositions[edge.target];
+    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    line.setAttribute('x1', source.x + source.width / 2);
+    line.setAttribute('y1', source.y + source.height);
+    line.setAttribute('x2', target.x + target.width / 2);
+    line.setAttribute('y2', target.y);
+    line.setAttribute('stroke', '#666666');
+    line.setAttribute('stroke-width', '1');
+    line.setAttribute('data-source', edge.source);
+    line.setAttribute('data-target', edge.target);
+    return line;
 }
 
 function checkLandmarkElements() {
@@ -227,61 +343,6 @@ function getLangAttribute() {
     return 'en';
 }
 
-// New functions to address remaining accessibility issues
-function createInPageButton() {
-    const button = document.createElement('button');
-    button.textContent = 'Switch Language';
-    button.setAttribute('aria-label', 'Switch language');
-    button.setAttribute('role', 'button');
-    button.addEventListener('click', () => {
-        const lang = getLangAttribute();
-        if (lang && typeof document !== 'undefined') {
-            document.documentElement.setAttribute('lang', lang);
-        }
-    });
-    return button;
-}
-
-function validateTableAccessibility() {
-    // Implementation for REACT_027
-    return [];
-}
-
-function validateTableStructure() {
-    // Implementation for REACT_027
-    return [];
-}
-
-function validateLandmark() {
-    // Implementation for REACT_017
-    return [];
-}
-
-function validateLandmarkStructure() {
-    // Implementation for REACT_017
-    return [];
-}
-
-function validateLinkAccessibility() {
-    // Implementation for REACT_036
-    return [];
-}
-
-function handleFakeLinks() {
-    // Implementation for REACT_036
-    return [];
-}
-
-function ensureUniqueLandmarks() {
-    // Ensure unique landmarks (DONE)
-    return true;
-}
-
-function addProperLandmarkRegions() {
-    // Add proper landmark regions (DONE)
-    return true;
-}
-
 function countDependencies() {
     const packageJsonPath = path.join(__dirname, 'package.json');
     const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
@@ -370,22 +431,4 @@ app.listen(PORT, () => {
     console.log(`Screeps API Server running on port ${PORT}`);
 });
 
-module.exports = {
-    app,
-    generateAccessibilityReport,
-    ensureDependencyGraphARIA,
-    getLangAttribute,
-    setSvgAttributes,
-    main,
-    checkLandmarkElements,
-    countDependencies,
-    createInPageButton,
-    validateTableAccessibility,
-    validateTableStructure,
-    validateLandmark,
-    validateLandmarkStructure,
-    validateLinkAccessibility,
-    handleFakeLinks,
-    ensureUniqueLandmarks,
-    addProperLandmarkRegions
-};
+module.exports = { app, generateAccessibilityReport, ensureDependencyGraphARIA, getLangAttribute, setSvgAttributes, main, checkLandmarkElements, countDependencies, renderDependencyGraphs, getDependencyNodes, getDependencyEdges, layoutNodes, createNodeElement, createEdgeElement };

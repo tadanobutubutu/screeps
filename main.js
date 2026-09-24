@@ -142,18 +142,67 @@ function createInPageButton (parent = document.body) {
 
 // New function to validate table accessibility
 function validateTableAccessibility () {
-  // Implementation for table accessibility validation
-  const issues = []
-  if (typeof document !== 'undefined') {
-    const tables = document.querySelectorAll('table')
-    tables.forEach((table, index) => {
-      // Check for missing table headers
-      const headers = table.querySelectorAll('th')
-      if (headers.length === 0) {
-        issues.push(`Table ${index + 1} has no header cells`)
-      }
+  if (typeof document === 'undefined') return []
 
-      // Check for missing scope attributes on headers
+  const issues = []
+  const tables = document.querySelectorAll('table')
+
+  tables.forEach((table, index) => {
+    // Check for missing table headers
+    const headers = table.querySelectorAll('th')
+    if (headers.length === 0) {
+      issues.push(`Table ${index + 1} has no header cells`)
+    }
+
+    // Check for missing scope attributes on headers
+    headers.forEach((header, hIndex) => {
+      if (!header.hasAttribute('scope')) {
+        issues.push(
+                    `Header ${hIndex + 1} in table ${index + 1} is missing scope attribute`
+        )
+      }
+    })
+
+    // Check for missing captions
+    if (!table.querySelector('caption')) {
+      issues.push(`Table ${index + 1} is missing a caption`)
+    }
+
+    // Check for proper table structure
+    const rows = table.querySelectorAll('tr')
+    if (rows.length > 0) {
+      const firstRowCells = rows[0].querySelectorAll('td, th')
+      rows.forEach((row, rIndex) => {
+        const cells = row.querySelectorAll('td, th')
+        if (cells.length !== firstRowCells.length) {
+          issues.push(
+                        `Row ${rIndex + 1} in table ${index + 1} has inconsistent number of cells`
+          )
+        }
+      })
+    }
+  })
+
+  return issues
+}
+
+// New function to validate table structure
+function validateTableStructure () {
+  if (typeof document === 'undefined') return []
+
+  const issues = []
+  const tables = document.querySelectorAll('table')
+
+  tables.forEach((table, index) => {
+    // Check for proper table structure
+    const rows = table.querySelectorAll('tr')
+    if (rows.length === 0) {
+      issues.push(`Table ${index + 1} has no rows`)
+    }
+
+    // Check for proper table headers
+    const headers = table.querySelectorAll('th')
+    if (headers.length > 0) {
       headers.forEach((header, hIndex) => {
         if (!header.hasAttribute('scope')) {
           issues.push(
@@ -161,101 +210,74 @@ function validateTableAccessibility () {
           )
         }
       })
+    }
 
-      // Check for missing captions
-      if (!table.querySelector('caption')) {
-        issues.push(`Table ${index + 1} is missing a caption`)
-      }
-    })
-  }
-  return issues
-}
-
-// New function to validate table structure
-function validateTableStructure () {
-  // Implementation for table structure validation
-  const issues = []
-  if (typeof document !== 'undefined') {
-    const tables = document.querySelectorAll('table')
-    tables.forEach((table, index) => {
-      // Check for proper table structure
-      const rows = table.querySelectorAll('tr')
-      if (rows.length === 0) {
-        issues.push(`Table ${index + 1} has no rows`)
-      }
-
-      // Check for consistent column count
-      const columnCounts = []
-      rows.forEach((row, rIndex) => {
-        const cells = row.querySelectorAll('td, th')
-        columnCounts.push(cells.length)
-        if (rIndex > 0 && cells.length !== columnCounts[0]) {
+    // Check for proper table data cells
+    const dataCells = table.querySelectorAll('td')
+    if (dataCells.length > 0) {
+      dataCells.forEach((cell, cIndex) => {
+        if (!cell.hasAttribute('headers') && !cell.hasAttribute('data-headers')) {
           issues.push(
-                        `Row ${rIndex + 1} in table ${index + 1} has inconsistent column count`
+                        `Data cell ${cIndex + 1} in table ${index + 1} is missing headers reference`
           )
         }
       })
-    })
-  }
+    }
+  })
+
   return issues
 }
 
 // New function to validate landmarks
 function validateLandmark () {
-  // Implementation for landmark validation
-  const issues = []
-  if (typeof document !== 'undefined') {
-    const landmarks = [
-      'header',
-      'nav',
-      'main',
-      'footer',
-      '[role="banner"]',
-      '[role="navigation"]',
-      '[role="main"]',
-      '[role="contentinfo"]'
-    ]
+  if (typeof document === 'undefined') return []
 
-    landmarks.forEach((selector) => {
-      const elements = document.querySelectorAll(selector)
-      if (elements.length === 0) {
-        issues.push(`Missing landmark: ${selector}`)
+  const issues = []
+  const landmarks = ['header', 'nav', 'main', 'footer', 'aside', 'section']
+
+  landmarks.forEach((landmark) => {
+    const elements = document.querySelectorAll(landmark)
+    if (elements.length > 1) {
+      issues.push(`Multiple ${landmark} elements found - only one should exist per page`)
+    }
+
+    elements.forEach((element, index) => {
+      if (!element.hasAttribute('aria-label') && !element.hasAttribute('aria-labelledby')) {
+        issues.push(`${landmark} element ${index + 1} is missing accessible name`)
       }
     })
-  }
+  })
+
   return issues
 }
 
 // New function to validate landmark structure
 function validateLandmarkStructure () {
-  // Implementation for landmark structure validation
+  if (typeof document === 'undefined') return []
+
   const issues = []
-  if (typeof document !== 'undefined') {
-    const landmarks = document.querySelectorAll(
-      'header, nav, main, footer, [role="banner"], [role="navigation"], [role="main"], [role="contentinfo"]'
-    )
+  const main = document.querySelector('main')
 
-    landmarks.forEach((landmark, index) => {
-      // Check for empty landmarks
-      if (landmark.children.length === 0) {
-        issues.push(`Landmark ${index + 1} (${landmark.tagName.toLowerCase()}) is empty`)
-      }
+  if (!main) {
+    issues.push('No main landmark found - every page should have one main landmark')
+  } else if (document.querySelectorAll('main').length > 1) {
+    issues.push('Multiple main landmarks found - only one should exist per page')
+  }
 
-      // Check for proper nesting
-      const parent = landmark.parentElement
-      if (parent && parent.tagName.toLowerCase() === 'main') {
-        issues.push(
-                    `Landmark ${index + 1} (${landmark.tagName.toLowerCase()}) is nested inside main`
-        )
+  const navs = document.querySelectorAll('nav')
+  if (navs.length > 0) {
+    navs.forEach((nav, index) => {
+      if (!nav.querySelector('a, button')) {
+        issues.push(`Navigation landmark ${index + 1} has no interactive elements`)
       }
     })
   }
+
   return issues
 }
 
 // New function to get SVG accessible name
 function getSvgAccessibleName (svgElement) {
-  // Implementation for getting SVG accessible name
   if (!svgElement || typeof document === 'undefined') return ''
 
   // Check for aria-label
@@ -273,17 +295,18 @@ function getSvgAccessibleName (svgElement) {
   }
 
   // Check for title element
-  const titleElement = svgElement.querySelector('title')
-  if (titleElement) {
-    return titleElement.textContent.trim()
+  const title = svgElement.querySelector('title')
+  if (title) {
+    return title.textContent.trim()
   }
 
   // Check for desc element
-  const descElement = svgElement.querySelector('desc')
-  if (descElement) {
-    return descElement.textContent.trim()
+  const desc = svgElement.querySelector('desc')
+  if (desc) {
+    return desc.textContent.trim()
   }
 
+  // Fallback to empty string
   return ''
 }
 
@@ -300,28 +323,27 @@ function createWebResourceButton (url, text, parent = document.body) {
 
 // New function to validate unique landmarks
 function validateUniqueLandmarks () {
-  // Implementation for validating unique landmark roles
-  // Ensures each landmark has a unique identifier for accessibility
+  if (typeof document === 'undefined') return []
+
   const issues = []
-  if (typeof document !== 'undefined') {
-    const landmarkRoles = ['banner', 'navigation', 'main', 'contentinfo']
-    const landmarkElements = {}
+  const landmarkRoles = [
+    'banner',
+    'complementary',
+    'contentinfo',
+    'form',
+    'main',
+    'navigation',
+    'region',
+    'search'
+  ]
 
-    landmarkRoles.forEach((role) => {
-      const elements = document.querySelectorAll(`[role="${role}"]`)
-      if (elements.length > 1) {
-        issues.push(`Multiple elements with role="${role}" found - only one should exist`)
-      }
-      if (elements.length === 1) {
-        landmarkElements[role] = elements[0]
-      }
-    })
-
-    // Check for required landmarks
-    if (!landmarkElements.main) {
-      issues.push('Missing required landmark: main')
+  landmarkRoles.forEach((role) => {
+    const elements = document.querySelectorAll(`[role="${role}"]`)
+    if (elements.length > 1) {
+      issues.push(`Multiple elements with role="${role}" found - landmarks should be unique`)
     }
-  }
+  })
+
   return issues
 }
 

@@ -90,10 +90,31 @@ function clearCache() {
   appState.cache.clear();
 }
 
-// Helper function
-function someFunction() {
-  return 'some value';
-}
+// REACT_040: Helper to replace my-button with actual button id for accessibility
+function getAccessibleButtonProps(id, label) {
+  return {
+    id,
+    'aria-label': label,
+  };
+};
+
+// REACT_042: Helper to ensure dependencyGraph container has proper ARIA role
+function getDependencyGraphContainerProps() {
+  return {
+    role: 'region',
+    'aria-label': 'Dependency graph visualization',
+  };
+};
+
+// Function to count dependencies
+function countDependencies() {
+  const dependencies = {
+    'react': true,
+    'react-redux': true,
+    'antd': true
+  };
+  return Object.keys(dependencies).length;
+};
 
 // Helper for input transformation
 function helper(input) {
@@ -236,151 +257,54 @@ function fixTableStructure() {
       const firstRowCells = rows[0].querySelectorAll('th, td');
       let hasHeaders = false;
 
-      firstRowCells.forEach(cell => {
-        if (cell.tagName === 'TH') {
-          hasHeaders = true;
-        }
-      });
-
-      // If no headers, add them
-      if (!hasHeaders && rows.length > 1) {
-        const headerRow = document.createElement('tr');
-        const secondRowCells = rows[1].querySelectorAll('td');
-
-        secondRowCells.forEach((cell, cellIndex) => {
-          const th = document.createElement('th');
-          th.textContent = `Column ${cellIndex + 1}`;
-          th.setAttribute('scope', 'col');
-          headerRow.appendChild(th);
-        });
-
-        table.insertBefore(headerRow, table.firstChild);
-      }
-    }
-
-    // Ensure proper scope attributes for headers
-    const headers = table.querySelectorAll('th');
-    headers.forEach(header => {
-      if (!header.hasAttribute('scope')) {
-        header.setAttribute('scope', 'col');
-      }
-    });
-
-    // Ensure all cells have proper headers attribute if needed
-    const cells = table.querySelectorAll('td');
-    cells.forEach(cell => {
-      if (!cell.hasAttribute('headers') && headers.length > 0) {
-        const rowIndex = Array.from(table.rows).indexOf(cell.parentNode);
-        const cellIndex = Array.from(cell.parentNode.cells).indexOf(cell);
-
-        if (rowIndex > 0 && cellIndex < headers.length) {
-          cell.setAttribute('headers', headers[cellIndex].id || `col-${cellIndex}`);
-        }
-      }
-    });
-  });
-}
-
-// Landmark functions
-function addMainLandmark() {
-  if (typeof document === 'undefined') return;
-
-  const landmarkSelectors = ['header', 'nav', 'main', 'footer', 'aside', 'section', 'article'];
-  const landmarkCounts = {};
-
-  landmarkSelectors.forEach(selector => {
-    landmarkCounts[selector] = 0;
-  });
-
-  document.querySelectorAll(landmarkSelectors.join(', ')).forEach(element => {
-    const tagName = element.tagName.toLowerCase();
-
-    if (landmarkCounts[tagName] > 0 && !element.hasAttribute('aria-label') && !element.hasAttribute('aria-labelledby')) {
-      landmarkCounts[tagName]++;
-      element.setAttribute('aria-label', `${tagName}-${landmarkCounts[tagName]}`);
-    } else if (landmarkCounts[tagName] === 0) {
-      landmarkCounts[tagName]++;
-    }
-  }
-}
-
-// REACT_017: Add landmark regions to document
-function addLandmarkRegions() {
-  if (typeof document === 'undefined') return;
-
-// Button creation function
-function createInPageButton() {
-  console.log('Creating in-page button');
-}
-
-// Link accessibility functions
-function validateLinkAccessibility() {
-  console.log('Validating link accessibility');
-  return [];
-}
-
-function handleFakeLinks() {
-  console.log('Handling fake links');
-}
-
-// New function to check link and button accessibility
-function checkLinkAndButtonAccessibility() {
-  const issues = [];
-
-  // Check all links for accessibility issues
-  const links = document.querySelectorAll('a');
-  links.forEach(link => {
-    if (!link.hasAttribute('href') && !link.hasAttribute('role')) {
-      issues.push({
-        type: 'ACCESSIBILITY_001',
-        description: 'Link without href or role attribute',
-        element: link,
-        severity: 'high'
-      });
-    }
-
-    if (link.hasAttribute('href') && !link.textContent.trim()) {
-      issues.push({
-        type: 'ACCESSIBILITY_002',
-        description: 'Link with href but no visible text',
-        element: link,
-        severity: 'medium'
-      });
-    }
-  });
-
-  // Check all buttons for accessibility issues
-  const buttons = document.querySelectorAll('button, [role="button"]');
-  buttons.forEach(button => {
-    if (!button.hasAttribute('aria-label') && !button.textContent.trim()) {
-      issues.push({
-        type: 'ACCESSIBILITY_003',
-        description: 'Button without accessible name',
-        element: button,
-        severity: 'high'
-      });
-    }
-
-    if (button.tagName.toLowerCase() !== 'button' && !button.hasAttribute('role')) {
-      issues.push({
-        type: 'ACCESSIBILITY_004',
-        description: 'Non-button element with button role but missing proper button attributes',
-        element: button,
-        severity: 'medium'
-      });
-    }
-  });
-
-  return issues;
-}
-
-// Landmark data
-const landmarks = [];
-
-// App data
-const appData = {
-  title: 'Screeps',
-  version: '1.0.0'
+  // Render the list of book items and sorting controls
+  return (
+    <main {...getLandmarkProps('main', 'Main content')}>
+      <div {...getDependencyGraphContainerProps()}>
+        <button onClick={handleSort(sortByTitle)}>Sort by Title</button>
+        <button onClick={handleSort(sortByAuthor)}>Sort by Author</button>
+        <List
+          itemLayout="vertical"
+          dataSource={booksList}
+          renderItem={book => (
+            <List.Item key={generateKey(book)}>
+              <BookItem book={book} />
+            </List.Item>
+          )}
+        />
+        {/* Accessible form for adding a new book */}
+        <form onSubmit={handleAddBook} aria-label="Add new book">
+          <div>
+            <label htmlFor="book-title">Book Title:</label>
+            <input
+              id="book-title"
+              type="text"
+              value={newBookTitle}
+              onChange={(e) => setNewBookTitle(e.target.value)}
+              ref={addBookInputRef}
+              required
+              aria-required="true"
+            />
+          </div>
+          <div>
+            <label htmlFor="book-author">Author:</label>
+            <input
+              id="book-author"
+              type="text"
+              value={newBookAuthor}
+              onChange={(e) => setNewBookAuthor(e.target.value)}
+              required
+              aria-required="true"
+            />
+          </div>
+          <button type="submit" {...getAccessibleButtonProps('add-book-button', 'Add new book')}>
+            {typeof enhanceAccessibilityForAddBook === 'function' ? 'Add Book (Experimental Accessibility Improvements)' : 'Add Book'}
+          </button>
+        </form>
+        <button onClick={enhanceAccessibilityForAddBook} aria-label="Enhance accessibility for adding a new book">Enhance Accessibility</button>
+      </div>
+    </main>
+  );
 };
 
 // Add book function

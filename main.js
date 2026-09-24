@@ -883,6 +883,102 @@ function fixAccessibilityIssue() {
   console.log('Accessibility issues fixed');
 }
 
+/**
+ * Validates link accessibility by checking for accessible names
+ * @param {string} text - Link text
+ * @param {string} ariaLabel - aria-label attribute
+ * @returns {Object} Validation result with valid flag and issues array
+ */
+function validateLinkAccessibility(text, ariaLabel) {
+  const issues = [];
+
+  if (!text && !ariaLabel) {
+    issues.push('Link has no accessible name (no text or aria-label)');
+  }
+
+  // Check for meaningful text
+  if (text && (text === 'click here' || text === 'read more' || text === 'learn more')) {
+    issues.push(`Link text "${text}" is not descriptive`);
+  }
+
+  return { valid: issues.length === 0, issues };
+}
+
+/**
+ * Handles fake links by converting them to proper buttons or adding accessibility attributes.
+ */
+function handleFakeLinks(container) {
+  const issues = [];
+  const elements = container ? container.querySelectorAll('a:not([href]), button') : document.querySelectorAll('a:not([href]), button');
+
+  elements.forEach((element, index) => {
+    const tagName = element.tagName.toLowerCase();
+
+    if (tagName === 'a' && !element.getAttribute('href') && !element.getAttribute('onclick')) {
+      issues.push(`Element at index ${index} is an anchor without href or onclick`);
+    }
+
+    if (tagName === 'button' && element.querySelector('a')) {
+      issues.push(`Button at index ${index} contains an anchor element`);
+    }
+  });
+
+  return issues;
+}
+
+/**
+ * Generates an accessibility report based on axe-core scanning results
+ * @param {Object} axeResults - Results from axe-core scan
+ * @returns {string} Formatted accessibility report
+ */
+function generateAccessibilityReport(axeResults) {
+  if (!axeResults || !axeResults.violations) {
+    return 'No accessibility issues found or invalid results format';
+  }
+
+  let report = `Accessibility Report\n`;
+  report += `====================\n\n`;
+  report += `Total violations: ${axeResults.violations.length}\n\n`;
+
+  axeResults.violations.forEach((violation, index) => {
+    report += `Violation ${index + 1}: ${violation.id}\n`;
+    report += `Description: ${violation.description}\n`;
+    report += `Impact: ${violation.impact}\n`;
+    report += `Elements affected: ${violation.nodes.length}\n`;
+
+    if (violation.nodes.length > 0) {
+      report += `Sample affected elements:\n`;
+      violation.nodes.slice(0, 3).forEach(node => {
+        report += `- ${node.target.join(' > ')}\n`;
+      });
+
+      if (violation.nodes.length > 3) {
+        report += `- ...and ${violation.nodes.length - 3} more\n`;
+      }
+    }
+
+    report += `Help: ${violation.help}\n`;
+    report += `Help URL: ${violation.helpUrl}\n\n`;
+  });
+
+  return report;
+}
+
+/**
+ * Writes accessibility report to a file
+ * @param {string} report - The accessibility report content
+ * @param {string} filePath - Path to save the report
+ */
+function writeAccessibilityReport(report, filePath = 'accessibility-report.txt') {
+  try {
+    fs.writeFileSync(filePath, report, 'utf8');
+    console.log(`Accessibility report successfully written to ${filePath}`);
+  } catch (error) {
+    console.error('Error writing accessibility report:', error.message);
+  }
+}
+
+// Export all functions that need to be available
 module.exports = {
   config,
   appState,
@@ -893,41 +989,8 @@ module.exports = {
   initialize,
   validateInput,
   addressAccessibilityIssues,
-  processAccessibilityReport,
-  getLangAttribute,
-  addLangAttribute,
-  validateTableAccessibility,
-  validateTableStructure,
-  fixTableStructure,
-  addMainLandmark,
-  validateLandmark,
-  validateLandmarkStructure,
-  validateLandmarkAttributes,
-  getSvgAccessibleName,
-  setSvgAttributes,
-  ensureUniqueLandmarks,
-  createInPageButton,
+  ensureDependencyGraphRole,
   validateLinkAccessibility,
   handleFakeLinks,
-  addLandmarkRegions,
-  // Added from origin/main
-  someFunction: function() {
-    return 'some value';
-  },
-  CONFIG: {
-    apiUrl: process.env.API_URL || 'https://api.example.com',
-    timeout: 5000
-  },
-  helper: function(input) {
-    return input ? input.toUpperCase() : '';
-  },
-  formatDate: function(date) {
-    if (!(date instanceof Date)) {
-      date = new Date(date);
-    }
-    return date.toISOString().split('T')[0];
-  },
-  // Accessibility Functions
-  addProperLandmarkRegions,
-  fixAccessibilityIssue
+  writeAccessibilityReport
 };

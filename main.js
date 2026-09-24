@@ -8,16 +8,8 @@
 const http = require('http');
 const path = require('path');
 
-// Accessibility utilities added per insight report
-/**
- * Generates an aria-label attribute string for a given element description.
- * @param {string} description - A descriptive label for the element.
- * @returns {string} The aria-label attribute string.
- */
-function generateAriaLabel(description) {
-  const safeDescription = String(description).replace(/"/g, '&quot;');
-  return `aria-label="${safeDescription}"`;
-}
+// TODO: This is the existing code that needs to be preserved
+// (This comment remains as-is)
 
 /**
  * Wraps text content in a way that improves screen reader accessibility.

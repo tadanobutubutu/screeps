@@ -293,6 +293,56 @@ function applyAccessibilityFixes(html) {
     return result;
 }
 
+// New function to address accessibility issues
+function addressAccessibilityIssues(insightReport) {
+  // Apply accessibility fixes to HTML content based on insight report
+  if (insightReport && insightReport.html) {
+    insightReport.html = applyAccessibilityFixes(insightReport.html);
+  }
+
+  // Ensure dependency graph container has proper ARIA role
+  ensureDependencyGraphContainerAccessibility();
+
+  // Ensure all landmark elements have unique IDs
+  ensureUniqueLandmarkIds();
+
+  // Implement the changes required to address accessibility issues from the insight report
+  const linkIssues = checkLinkAccessibility();
+  const tableIssues = validateTableAccessibility();
+  const tableStructureIssues = validateTableStructure();
+  const linkAccessibilityIssues = validateLinkAccessibility();
+  const fakeLinkIssues = handleFakeLinks();
+
+  // Handle issues (e.g., log them, display warnings, etc.)
+  // For demonstration purposes, we will just log the issues to the console
+  console.log('Addressing accessibility issues from insight report:', insightReport);
+  console.log('Link Accessibility Issues:', linkIssues);
+  console.log('Table Accessibility Issues:', tableIssues);
+  console.log('Table Structure Issues:', tableStructureIssues);
+  console.log('Link Accessibility Validation Issues:', linkAccessibilityIssues);
+  console.log('Fake Link Issues:', fakeLinkIssues);
+
+  return {
+    success: true,
+    message: 'Accessibility issues addressed successfully',
+    issues: {
+      linkIssues,
+      tableIssues,
+      tableStructureIssues,
+      linkAccessibilityIssues,
+      fakeLinkIssues
+    }
+  };
+}
+
+function createInPageButton(buttonId, buttonText, buttonClass) {
+    const button = document.createElement('button');
+    button.id = buttonId;
+    button.textContent = buttonText;
+    button.className = buttonClass;
+    document.body.appendChild(button);
+}
+
 // Function to ensure dependency graph container has proper ARIA role
 function ensureDependencyGraphContainerAccessibility() {
   const container = document.querySelector('.dependency-graph-container');
@@ -322,53 +372,86 @@ function ensureUniqueLandmarkIds() {
   });
 }
 
-// Updated addressAccessibilityIssues function to include new requirements
-function addressAccessibilityIssues(insightReport) {
-  // Apply accessibility fixes to HTML content based on insight report
-  if (insightReport && insightReport.html) {
-    insightReport.html = applyAccessibilityFixes(insightReport.html);
-  }
-
-  // Ensure dependency graph container has proper ARIA role
-  ensureDependencyGraphContainerAccessibility();
-
-  // Ensure all landmark elements have unique IDs
-  ensureUniqueLandmarkIds();
-
-  // Implement the changes required to address accessibility issues from the insight report
-  const linkIssues = checkLinkAccessibility();
-  const tableIssues = validateTableAccessibility();
-  const tableStructureIssues = validateTableStructure();
-  const linkAccessibilityIssues = validateLinkAccessibility();
-  const fakeLinkIssues = handleFakeLinks();
-
-  // Handle issues (e.g., log them, display warnings, etc.)
-  console.log('Addressing accessibility issues from insight report:', insightReport);
-  console.log('Link Accessibility Issues:', linkIssues);
-  console.log('Table Accessibility Issues:', tableIssues);
-  console.log('Table Structure Issues:', tableStructureIssues);
-  console.log('Link Accessibility Validation Issues:', linkAccessibilityIssues);
-  console.log('Fake Link Issues:', fakeLinkIssues);
-
-  return {
-    success: true,
-    message: 'Accessibility issues addressed successfully',
-    issues: {
-      linkIssues,
-      tableIssues,
-      tableStructureIssues,
-      linkAccessibilityIssues,
-      fakeLinkIssues
-    }
-  };
+// Missing functions referenced in addressAccessibilityIssues and exports
+function getLangAttribute() {
+  const html = document.documentElement;
+  return html.getAttribute('lang') || 'en';
 }
 
-function createInPageButton(buttonId, buttonText, buttonClass) {
-    const button = document.createElement('button');
-    button.id = buttonId;
-    button.textContent = buttonText;
-    button.className = buttonClass;
-    document.body.appendChild(button);
+function validateTableAccessibility() {
+  const tables = document.querySelectorAll('table');
+  const issues = [];
+  tables.forEach((table, index) => {
+    if (!table.querySelector('caption')) {
+      issues.push(`Table ${index + 1} is missing a caption`);
+    }
+    if (!table.querySelector('thead')) {
+      issues.push(`Table ${index + 1} is missing a thead section`);
+    }
+    if (!table.querySelector('tbody')) {
+      issues.push(`Table ${index + 1} is missing a tbody section`);
+    }
+    const ths = table.querySelectorAll('th');
+    ths.forEach(th => {
+      if (!th.hasAttribute('scope')) {
+        issues.push(`Table ${index + 1} has th without scope attribute`);
+      }
+    });
+  });
+  return issues;
+}
+
+function validateTableStructure() {
+  const tables = document.querySelectorAll('table');
+  const issues = [];
+  tables.forEach((table, index) => {
+    const rows = table.querySelectorAll('tr');
+    if (rows.length === 0) {
+      issues.push(`Table ${index + 1} has no rows`);
+    }
+    const headers = table.querySelectorAll('th');
+    if (headers.length === 0 && rows.length > 0) {
+      issues.push(`Table ${index + 1} has no header cells`);
+    }
+  });
+  return issues;
+}
+
+function validateLinkAccessibility() {
+  const links = document.querySelectorAll('a[href]');
+  const issues = [];
+  links.forEach(link => {
+    const text = link.textContent.trim();
+    const ariaLabel = link.getAttribute('aria-label');
+    const ariaLabelledBy = link.getAttribute('aria-labelledby');
+    const title = link.getAttribute('title');
+
+    if (!text && !ariaLabel && !ariaLabelledBy && !title) {
+      issues.push(`Link with href "${link.getAttribute('href')}" has no accessible name`);
+    }
+    if (text === 'click here' || text === 'read more' || text === 'here') {
+      issues.push(`Link with href "${link.getAttribute('href')}" has ambiguous link text: "${text}"`);
+    }
+  });
+  return issues;
+}
+
+function handleFakeLinks() {
+  const fakeLinks = document.querySelectorAll('[onclick]:not(a):not(button):not(input):not(select):not(textarea)');
+  const issues = [];
+  fakeLinks.forEach((element, index) => {
+    const onclick = element.getAttribute('onclick');
+    if (onclick && (onclick.includes('location') || onclick.includes('href') || onclick.includes('navigate'))) {
+      issues.push(`Element ${index + 1} (${element.tagName.toLowerCase()}) has onclick handler that acts as a link but is not an <a> element`);
+    }
+  });
+  return issues;
+}
+
+// Placeholder for newFunction referenced in exports
+function newFunction() {
+  // Placeholder function for future implementation
+  return 'newFunction called';
 }
 
 // Main entry point function
@@ -377,30 +460,6 @@ function main() {
 }
 
 // Don't forget to test your new additions in the test file
-
-// Export accessibility utility functions
-module.exports = {
-    addLangAttribute,
-    fixTableStructure,
-    fixLandmarks,
-    addSvgAccessibleNames,
-    ensureUniqueLandmarks,
-    fixFakeLinks,
-    applyAccessibilityFixes,
-    addressAccessibilityIssues,
-    createInPageButton,
-    divide,
-    checkLinkAccessibility,
-    wrapPrimaryContentInMain,
-    handleCredentialResponse,
-    getLangAttribute,
-    validateTableAccessibility,
-    validateTableStructure,
-    validateLinkAccessibility,
-    handleFakeLinks,
-    newFunction,
-    main,
-};
 
 // Export accessibility utility functions
 export {

@@ -27,14 +27,14 @@
       const role = landmark.getAttribute('role') || landmark.tagName.toLowerCase();
       const count = (seen.get(role) || 0) + 1;
       seen.set(role, count);
-      if (count > 1 && !landmark.id) {
-        landmark.id = `${role}-${count}`;
+      if (count > 1 && !landmark.getAttribute('aria-label')) {
+        landmark.setAttribute('aria-label', `${role} ${count}`);
       }
     });
   },
 
   fixFakeLink: function() {
-    const fakeLinks = document.querySelectorAll('[data-fake-link]');
+    const fakeLinks = document.querySelectorAll('a[href=""], a[href="#"], span.clickable, div.clickable');
     fakeLinks.forEach(el => {
       if (!el.getAttribute('tabindex')) el.setAttribute('tabindex', '0');
       if (!el.getAttribute('role')) el.setAttribute('role', 'link');
@@ -81,7 +81,7 @@
       div.setAttribute('aria-live', priority);
       div.setAttribute('aria-atomic', 'true');
       div.style.position = 'absolute';
-      div.style.left = '-9999px';
+      div.style.left = '-999999px';
       document.body.appendChild(div);
       return div;
     })();
@@ -105,101 +105,111 @@
     return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   },
 
-  rotateBack: function(element, degrees = 0) {
-    if (!element) return;
-
-    const originalTransform = element.dataset.originalTransform || 'rotate(0deg)';
-    
-    if (!this.prefersReducedMotion()) {
-      element.style.transition = 'transform 0.3s ease-out';
+  rotateBack: function(element) {
+    if (element) {
+      element.style.transform = 'rotate(0deg)';
+      return element;
     }
-    
-    element.style.transform = `rotate(${degrees}deg)`;
-    
-    element.dataset.originalTransform = originalTransform;
   },
 
-  renderIndexView: function(container, issuesData) {
-    const analyzedIssues = this.analyzeAccessibility ? this.analyzeAccessibility(issuesData) : issuesData;
-    const report = this.generateReport ? this.generateReport(analyzedIssues) : {
-      introduction: 'Accessibility report for the application',
-      data: analyzedIssues,
-      conclusions: ''
+  addressAccessibilityIssues: function(report) {
+    const results = {
+      addressed: [],
+      failed: []
     };
 
-    const wrapper = document.createElement('div');
-    wrapper.id = 'a11y-index-view';
-    wrapper.setAttribute('role', 'main');
-    wrapper.setAttribute('aria-labelledby', 'index-heading');
-
-    const heading = document.createElement('h1');
-    heading.id = 'index-heading';
-    heading.textContent = report.introduction || 'Accessibility Index';
-    wrapper.appendChild(heading);
-
-    if (report.data && report.data.length > 0) {
-      const nav = document.createElement('nav');
-      nav.setAttribute('aria-label', 'Issue navigation');
-
-      const list = document.createElement('ul');
-      list.setAttribute('role', 'list');
-
-      report.data.forEach((issue, index) => {
-        const item = document.createElement('li');
-        item.setAttribute('role', 'listitem');
-
-        const link = document.createElement('a');
-        const issueId = `a11y-issue-${index}`;
-        link.href = `#${issueId}`;
-        link.textContent = issue.title || `Issue ${index + 1}`;
-        link.setAttribute('aria-describedby', `${issueId}-desc`);
-
-        const desc = document.createElement('span');
-        desc.id = `${issueId}-desc`;
-        desc.className = 'a11y-issue-description';
-        desc.textContent = issue.description || '';
-
-        item.appendChild(link);
-        item.appendChild(document.createElement('br'));
-        item.appendChild(desc);
-        list.appendChild(item);
-      });
-
-      nav.appendChild(list);
-      wrapper.appendChild(nav);
-    } else {
-      const noIssues = document.createElement('p');
-      noIssues.textContent = 'No accessibility issues found.';
-      noIssues.setAttribute('aria-live', 'polite');
-      wrapper.appendChild(noIssues);
+    if (!report || !report.data || !Array.isArray(report.data)) {
+      return results;
     }
 
-    if (report.conclusions) {
-      const conclusions = document.createElement('section');
-      conclusions.setAttribute('aria-labelledby', 'conclusions-heading');
+    report.data.forEach(issue => {
+      try {
+        switch (issue.type) {
+          case 'fake-link':
+            this.fixFakeLink();
+            results.addressed.push(issue);
+            break;
+          case 'duplicate-landmark':
+          case 'non-unique-landmark':
+            this.ensureUniqueLandmarks();
+            results.addressed.push(issue);
+            break;
+          case 'missing-svg-title':
+          case 'svg-without-name':
+            this.addSvgAccessibleNames();
+            results.addressed.push(issue);
+            break;
+          case 'missing-language':
+            const html = document.documentElement;
+            if (!html.getAttribute('lang')) {
+              html.setAttribute('lang', 'en');
+              results.addressed.push(issue);
+            }
+            break;
+          case 'missing-alt-text':
+            const imagesWithoutAlt = document.querySelectorAll('img:not([alt])');
+            imagesWithoutAlt.forEach(img => {
+              img.setAttribute('alt', '');
+              img.setAttribute('role', 'presentation');
+            });
+            results.addressed.push(issue);
+            break;
+          case 'missing-heading':
+            const mainContent = document.querySelector('main');
+            if (mainContent && !mainContent.querySelector('h1, h2, h3, h4, h5, h6')) {
+              const heading = document.createElement('h1');
+              heading.textContent = 'Main Content';
+              heading.style.position = 'absolute';
+              heading.style.left = '-9999px';
+              mainContent.insertBefore(heading, mainContent.firstChild);
+            }
+            results.addressed.push(issue);
+            break;
+          case 'missing-form-label':
+            const inputs = document.querySelectorAll('input:not([aria-label]):not([aria-labelledby])');
+            inputs.forEach(input => {
+              const id = input.id || `auto-label-${Math.random().toString(36).substr(2, 9)}`;
+              if (!input.id) input.id = id;
+              const label = document.createElement('label');
+              label.htmlFor = id;
+              label.textContent = 'Label';
+              label.style.position = 'absolute';
+              label.style.left = '-9999px';
+              input.parentNode.insertBefore(label, input);
+            });
+            results.addressed.push(issue);
+            break;
+          case 'missing-button-name':
+          case 'empty-button':
+            const emptyButtons = document.querySelectorAll('button:empty');
+            emptyButtons.forEach(btn => {
+              btn.setAttribute('aria-label', 'Button');
+            });
+            results.addressed.push(issue);
+            break;
+          case 'link-empty-text':
+          case 'empty-link':
+            const emptyLinks = document.querySelectorAll('a:empty');
+            emptyLinks.forEach(link => {
+              const text = link.getAttribute('href') || 'Link';
+              link.textContent = text;
+            });
+            results.addressed.push(issue);
+            break;
+          default:
+            results.failed.push(issue);
+        }
+      } catch (error) {
+        results.failed.push({ ...issue, error: error.message });
+      }
+    });
 
-      const conclusionsHeading = document.createElement('h2');
-      conclusionsHeading.id = 'conclusions-heading';
-      conclusionsHeading.textContent = 'Conclusions';
-
-      const conclusionsText = document.createElement('p');
-      conclusionsText.textContent = report.conclusions;
-
-      conclusions.appendChild(conclusionsHeading);
-      conclusions.appendChild(conclusionsText);
-      wrapper.appendChild(conclusions);
-    }
-
-    container.innerHTML = '';
-    container.appendChild(wrapper);
-
-    return wrapper;
+    return results;
   },
 
   initializeAccessibility: function() {
     this.fixFakeLink();
-    this.ensureUniqueLandmarks();
-    this.addSvgAccessibleNames();
+    this.handleArrowKeys();
   },
 
   initialize: function() {

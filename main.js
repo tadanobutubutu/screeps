@@ -191,19 +191,19 @@ function startApp() {
   return server;
 }
 
-/**
- * Creates a web resource button suitable for accessibility
- * @param {string} url - The URL of the web resource
- * @param {string} text - The text content of the button
- * @returns {HTMLButtonElement} The created button element
- */
-function createAccessibleWebResourceButton(url, text) {
-  const button = document.createElement('button');
-  button.setAttribute('type', 'button');
-  button.setAttribute('aria-label', `Go to ${text}`);
-  button.textContent = text;
-  button.href = url;
-  return button;
+// New function to handle accessibility concerns
+function enhanceAccessibility(server) {
+  // Example: Implementing a middleware to check for accessibility concerns
+  server.use((req, res, next) => {
+    // Simulate accessibility check
+    const accessibilityPassed = true; // This should be replaced with actual accessibility checks
+    if (!accessibilityPassed) {
+      res.writeHead(406, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ status: 'error', message: 'Accessibility issues detected' }));
+    } else {
+      next();
+    }
+  });
 }
 
 // Export functions for testing
@@ -211,37 +211,11 @@ module.exports = {
   createServer,
   startApp,
   config,
-  createAccessibleWebResourceButton
+  enhanceAccessibility // New export for accessibility enhancements
 };
 
 // Start the application if run directly
 if (require.main === module) {
-  startApp();
+  const server = startApp();
+  enhanceAccessibility(server); // Apply the accessibility enhancements
 }
-
-// Add lang attribute to HTML element for accessibility
-function getLangAttribute() {
-  return 'en'; // Assuming 'en' as the default language
-}
-
-function ensureDependencyGraphARIA() {
-  // This function would contain logic to ensure that the dependency graph has ARIA roles and properties
-  // For the purpose of this example, we'll just log that it's been called
-  console.log('Dependency graph ARIA roles and properties have been ensured.');
-}
-
-// Add lang attribute to HTML element
-function addLangAttribute() {
-  const htmlElement = document.querySelector('html');
-  if (htmlElement) {
-    htmlElement.setAttribute('lang', getLangAttribute());
-  } else {
-    console.error('HTML element not found.');
-  }
-}
-
-// Call the function to add the lang attribute
-addLangAttribute();
-
-// Call the function to ensure ARIA roles and properties
-ensureDependencyGraphARIA();

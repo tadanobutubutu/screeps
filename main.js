@@ -32,6 +32,11 @@ function renderGraphIndex() {
     }
 }
 
+// TODO: Add the following function for demonstrating changes (leave the existing exports as-is)
+function addCustomFunction(a, b) {
+    return a + b;
+}
+
 // Preserve any existing exports here
 export { createInPageButton, validateLandmarkStructure };
 

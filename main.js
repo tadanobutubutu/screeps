@@ -115,5 +115,11 @@ module.exports = {
   divide,
   checkLinkAccessibility,
   wrapPrimaryContentInMain,
-  harvestResources
+  // New function added as per the issue
+  calculatePercentage
+}
+
+// New function added as per the issue
+function calculatePercentage(total, part) {
+  return (part / total) * 100;
 }

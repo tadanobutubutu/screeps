@@ -2,13 +2,55 @@
 // Dependency imports
 const http = require('http');
 const url = require('url');
-const { dependencyGraphContent } = require('./utilities');
-const { indexContent } = require('./utilities');
-const { addLangAttribute, fixTableStructureIssues, addMainLandmark, ensureUniqueLandmarks, setSvgAccessibilityProps, addAccessibleNamesToSVGs, fixFakeLinkIssue, fixFakeLinkIssues, fixLandmarkIssues, addLandmarkRegions, uniqueLandmarks, fixImageAltTexts, googleSignIn, ensureElementHasId, ensureElementHasIdOrigin, addAriaLabel, renderDependencyGraphs, fixButtonIdentifiers, fixDependencyGraphAria, addMainLandmarkToIndex, addressAccessibilityIssues } = require('./utilities');
-const { createInPageButton, createWebResourceButton, validateLandmark, validateLandmarkStructure, validateAccessibilityReport } = require('./utilities');
+const { 
+  dependencyGraphContent, 
+  indexContent, 
+  addLangAttribute, 
+  fixTableStructureIssues, 
+  addMainLandmark, 
+  ensureUniqueLandmarks, 
+  setSvgAccessibilityProps, 
+  addAccessibleNamesToSVGs, 
+  fixFakeLinkIssue, 
+  fixFakeLinkIssues, 
+  fixLandmarkIssues, 
+  addLandmarkRegions, 
+  uniqueLandmarks, 
+  fixImageAltTexts, 
+  googleSignIn, 
+  ensureElementHasId, 
+  ensureElementHasIdOrigin, 
+  addAriaLabel, 
+  renderDependencyGraphs, 
+  fixButtonIdentifiers, 
+  fixDependencyGraphAria, 
+  addMainLandmarkToIndex, 
+  addressAccessibilityIssues 
+} = require('./utilities');
+const { 
+  createInPageButton, 
+  createWebResourceButton, 
+  validateLandmark, 
+  validateLandmarkStructure, 
+  validateAccessibilityReport 
+} = require('./utilities');
 
 const { main } = require('./utilities');
 const { functionA, functionB } = require('./utilities');
+
+// App state for session management
+const appState = {
+  sessions: new Map()
+};
+
+// Helper functions for session management
+function getActiveSessionsCount() {
+  return appState.sessions.size;
+}
+
+function validateSession(sessionId) {
+  return appState.sessions.get(sessionId) || null;
+}
 
 // Function to validate table accessibility
 const validateTableAccessibility = (html) => {
@@ -80,10 +122,11 @@ const validateTableAccessibility = (html) => {
     }
     
     // Check for id and headers attributes for complex tables
-    const hasMultipleHeaders = (thMatches || []).length > 1;
+    const thElements = tableContent.match(/<th[^>]*>/gi) || [];
+    const hasMultipleHeaders = thElements.length > 1;
     if (hasMultipleHeaders) {
-      const hasHeadersAttr = /headers=["']/i.test(tableContent);
-      const hasIdAttr = (tableContent.match(/<th[^>]*id=["'][^"']+["'][^>]*>/gi) || []).length > 0;
+      const hasHeadersAttr = /headers=["'][^"']+["']/i.test(tableContent);
+      const hasIdAttr = /<th[^>]*\sid=["'][^"']+["'][^>]*>/i.test(tableContent) || /<td[^>]*\sid=["'][^"']+["'][^>]*>/i.test(tableContent);
       
       if (!hasIdAttr && !hasHeadersAttr) {
         issues.push({
@@ -101,78 +144,76 @@ const validateTableAccessibility = (html) => {
 
 // Re-add the required exports for functionA and functionB
 // Assuming that they are objects with properties X, Y, and Z
+const { functionA: exportedFunctionA, functionB: exportedFunctionB } = require('./utilities');
 
-// App state for session management
-const appState = {
-  sessions: new Map()
-};
-
-// Helper functions for session management
-function getActiveSessionsCount() {
-  return appState.sessions.size;
-}
-
-// New entry point for accessibility related functions
-function accessibility() {
-  // Handle initial accessibility setup on page load
-  handleInitialAccessibility();
-  // Ensure all interactive elements have proper ARIA roles and attributes after page load
-  ensureInteractiveElementsAccessible();
-}
-
-function handleCredentialResponse(credentialResponse) {
-  // Process credential response - basic implementation
-  if (!credentialResponse || typeof credentialResponse !== 'object') {
-    return { status: 'error', message: 'Invalid credential response' };
+// Focus trap function for keyboard navigation
+function trapFocus(containerElement) {
+  if (!containerElement || typeof containerElement !== 'object') {
+    return null;
   }
-  return { status: 'success', credential: credentialResponse };
-}
 
-const a11yStore = {
-  liveRegion: null,
-  
-  prefersReducedMotion() {
-    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  },
+  const focusableSelectors = [
+    'a[href]',
+    'button:not([disabled])',
+    'input:not([disabled])',
+    'select:not([disabled])',
+    'textarea:not([disabled])',
+    '[tabindex]:not([tabindex="-1"])'
+  ].join(',');
 
-  prefersHighContrast() {
-    return window.matchMedia('(prefers-contrast: more)').matches;
-  },
+  const focusableElements = containerElement.querySelectorAll(focusableSelectors);
+  const firstFocusable = focusableElements[0];
+  const lastFocusable = focusableElements[focusableElements.length - 1];
 
-  updateLiveRegion(message, priority = 'polite') {
-    if (!this.liveRegion) {
-      this.liveRegion = document.createElement('div');
-      this.liveRegion.setAttribute('aria-live', priority);
-      this.liveRegion.setAttribute('aria-atomic', 'true');
-      this.liveRegion.className = 'sr-only';
-      document.body.appendChild(this.liveRegion);
+  let previouslyFocused = null;
+
+  function handleKeyDown(event) {
+    if (event.key !== 'Tab') {
+      return;
     }
-    this.announce(message, priority);
-  },
 
-  announce(message, priority) {
-    this.liveRegion.setAttribute('aria-live', priority);
-    this.liveRegion.textContent = '';
-    setTimeout(() => {
-      this.liveRegion.textContent = message;
-    }, 100);
-  },
-
-  checkLandmarkElements() {
-    const landmarkElements = ['main', 'nav', 'header', 'footer', 'aside'];
-    landmarkElements.forEach((element) => {
-      const landmarks = document.getElementsByTagName(element);
-      landmarks.forEach((landmark, index) => {
-        if (landmark.id === '') {
-          landmark.id = `${element}-${index}`;
-        }
-
-        if (landmarks.length > 1) {
-          if (!landmark.hasAttribute('aria-label') && !landmark.hasAttribute('aria-labelledby')) {
-            landmark.setAttribute('aria-label', `${element} section ${index + 1}`);
-          }
-        }
-      });
-    });
+    if (event.shiftKey) {
+      if (document.activeElement === firstFocusable) {
+        event.preventDefault();
+        lastFocusable.focus();
+      }
+    } else {
+      if (document.activeElement === lastFocusable) {
+        event.preventDefault();
+        firstFocusable.focus();
+      }
+    }
   }
+
+  function activateTrap() {
+    previouslyFocused = document.activeElement;
+    if (firstFocusable) {
+      firstFocusable.focus();
+    }
+    containerElement.addEventListener('keydown', handleKeyDown);
+  }
+
+  function deactivateTrap() {
+    containerElement.removeEventListener('keydown', handleKeyDown);
+    if (previouslyFocused && typeof previouslyFocused.focus === 'function') {
+      previouslyFocused.focus();
+    }
+  }
+
+  return {
+    activate: activateTrap,
+    deactivate: deactivateTrap,
+    getFocusableElements: () => focusableElements
+  };
+}
+
+// Export for testing
+module.exports = {
+  validateTableAccessibility,
+  trapFocus,
+  getActiveSessionsCount,
+  validateSession,
+  appState,
+  exportedFunctionA,
+  exportedFunctionB
 };

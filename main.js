@@ -149,15 +149,11 @@ updateLiveRegion(message, priority = 'polite') {
   this.announce(message, priority);
 },
 
-checkLandmarkElements() {
-  const landmarkElements = ['main', 'nav', 'header', 'footer', 'aside'];
-  landmarkElements.forEach((element) => {
-    const landmarks = document.querySelectorAll(`[role="${element}"]`);
-    landmarks.forEach((landmark) => {
-      if (landmark.id === '') {
-        landmark.setAttribute('id', `${element}-${index}`);
-      }
-
-      if (landmarks.length > 1) {
-        if (!landmark.hasAttribute('aria-label') && !landmark.hasAttribute('aria-labelledby')) {
-          landmark.setAttribute('aria
+        if (landmarks.length > 1) {
+          if (!landmark.hasAttribute('aria-label') && !landmark.hasAttribute('aria-labelledby')) {
+            landmark.setAttribute('aria-label', `Navigation: ${element}`);
+          }
+        }
+      });
+    });
+  }

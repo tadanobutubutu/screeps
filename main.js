@@ -1,113 +1,6 @@
-Here is the resolved file content with merged changes:
-
-```javascript
-// main.js - Accessibility-focused implementation
-
-import React from 'react';
-
-// Assuming main.js has a <html> tag, add the lang attribute based on your content
-// For example, if the page is in English, set lang to 'en'
-
-/**
- * Checks if text contains characters from a specific Unicode range
- * @param {string} text - The text to check
- * @param {number} start - Start of Unicode range
- * @param {number} end - End of Unicode range
- * @returns {boolean} Whether text contains characters in the range
- */
-function containsUnicodeRange(text, start, end) {
-  if (!text) return false;
-  for (let i = 0; i < text.length; i++) {
-    const code = text.charCodeAt(i);
-    if (code >= start && code <= end) return true;
-  }
-  return false;
-}
-
-/**
- * Checks if text contains Cyrillic characters
- * @param {string} text - The text to check
- * @returns {boolean} Whether text contains Cyrillic characters
- */
-function containsCyrillic(text) {
-  if (!text) return false;
-  // Cyrillic Unicode range: \u0400-\u04FF
-  return containsUnicodeRange(text, 0x0400, 0x04FF);
-}
-
-/**
- * Checks if text contains Arabic characters
- * @param {string} text - The text to check
- * @returns {boolean} Whether text contains Arabic characters
- */
-function containsArabic(text) {
-  if (!text) return false;
-  // Arabic Unicode range: \u0600-\u06FF
-  return containsUnicodeRange(text, 0x0600, 0x06FF);
-}
-
-/**
- * Checks if text contains Chinese characters
- * @param {string} text - The text to check
- * @returns {boolean} Whether text contains Chinese characters
- */
-function containsChinese(text) {
-  if (!text) return false;
-  // CJK Unified Ideographs range: \u4E00-\u9FFF
-  return containsUnicodeRange(text, 0x4E00, 0x9FFF);
-}
-
-/**
- * Checks if text contains Japanese characters (Hiragana, Katakana, or CJK)
- * @param {string} text - The text to check
- * @returns {boolean} Whether text contains Japanese characters
- */
-function containsJapanese(text) {
-  if (!text) return false;
-  // Hiragana: \u3040-\u309F, Katakana: \u30A0-\u30FF, CJK: \u4E00-\u9FFF
-  return containsUnicodeRange(text, 0x3040, 0x309F) ||
-         containsUnicodeRange(text, 0x30A0, 0x30FF) ||
-         containsUnicodeRange(text, 0x4E00, 0x9FFF);
-}
-
-/**
- * Checks if text contains French-specific characters
- * @param {string} text - The text to check
- * @returns {boolean} Whether text contains French characters
- */
-function containsFrench(text) {
-  if (!text) return false;
-  // French uses Latin alphabet with accents (à, â, ç, é, è, ê, ë, î, ï, ô, ù, û, ü, ÿ)
-  const frenchAccents = /[àâçéèêëîïôùûüÿ]/i;
-  return frenchAccents.test(text);
-}
-
-/**
- * Checks if text contains German-specific characters
- * @param {string} text - The text to check
- * @returns {boolean} Whether text contains German characters
- */
-function containsGerman(text) {
-  if (!text) return false;
-  // German uses Latin alphabet with umlauts (ä, ö, ü) and Eszett (ß)
-  const germanChars = /[äöüß]/i;
-  return germanChars.test(text);
-}
-
-/**
- * Checks if text contains Latin extended characters (common in Western European languages)
- * @param {string} text - The text to check
- * @returns {boolean} Whether text contains Latin extended characters
- */
-function containsLatinExtended(text) {
-  if (!text) return false;
-  // Latin Extended-A and Latin Extended-B ranges: \u0100-\u024F
-  return containsUnicodeRange(text, 0x0100, 0x024F);
-}
-
-// Import dependency graph content and index content from appropriate modules
-import { dependencyGraphContent } from './dependencyGraphContent';
-import { indexContent } from './indexContent';
+// Updates the existing function using the new functions for rendering graph/index
+// DO NOT REMOVE OR RENAME THE EXISTING FUNCTIONS BELOW
+import React, { useEffect } from 'react';
 
 /**
  * Adds the lang attribute to the document's <html> tag based on content
@@ -395,21 +288,70 @@ function handleFakeLinks(link) {
 }
 
 /**
- * Renders the dependency graph using the dependencyGraphContent module
- * @param {Object} options - Options for rendering the dependency graph
- * @param {HTMLElement} options.container - The container element to render into
- * @param {Array} options.data - The dependency graph data
- * @returns {string} The rendered dependency graph content
+ * Renders a dependency graph using the new rendering functions
+ * @param {HTMLElement} container - The container element to render the graph into
+ * @param {Object} data - The dependency graph data
+ * @returns {HTMLElement} The rendered graph element
  */
-function renderDependencyGraph({ container, data }) {
-  const content = dependencyGraphContent(data);
-  if (container && typeof container.innerHTML !== 'undefined') {
-    container.innerHTML = content;
-  }
-  return content;
+function renderDependencyGraph(container, data) {
+  if (!container || typeof container !== 'object') return null;
+  const graph = document.createElement('div');
+  graph.setAttribute('role', 'img');
+  graph.setAttribute('aria-label', 'Dependency graph');
+  graph.setAttribute('data-graph', JSON.stringify(data || {}));
+  container.appendChild(graph);
+  return graph;
 }
 
 /**
- * Renders the index view using the indexContent module
- * @param {Object} options - Options for rendering the index view
- * @param {HTMLElement} options.container - The container element to render
+ * Renders an index view using the new rendering functions
+ * @param {HTMLElement} container - The container element to render the index into
+ * @param {Array} items - The index items to render
+ * @returns {HTMLElement} The rendered index element
+ */
+function renderIndexView(container, items) {
+  if (!container || typeof container !== 'object') return null;
+  const index = document.createElement('nav');
+  index.setAttribute('role', 'navigation');
+  index.setAttribute('aria-label', 'Index');
+  const list = document.createElement('ul');
+  if (Array.isArray(items)) {
+    for (const item of items) {
+      const li = document.createElement('li');
+      li.textContent = String(item);
+      list.appendChild(li);
+    }
+  }
+  index.appendChild(list);
+  container.appendChild(index);
+  return index;
+}
+
+// REACT_015: Add lang attribute to HTML element
+// Add the language attribute to the HTML element for proper accessibility
+useEffect(() => {
+  detectAndSetLang();
+}, []);
+
+// main.js exports the renderDependencyGraph and renderIndexView functions
+// along with the existing helpers
+
+module.exports = {
+  setHtmlLangAttribute,
+  getLangAttribute,
+  detectAndSetLang,
+  personName,
+  createInPageButton,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  validateLandmarkAttributes,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  ensureUniqueLandmarks,
+  validateLinkAccessibility,
+  handleFakeLinks,
+  renderDependencyGraph,
+  renderIndexView
+};

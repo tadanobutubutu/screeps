@@ -100,10 +100,10 @@
 
       // Existing code
 
-      // New property to count dependencies
-      countDependencies() {
-        return countDependencies();
-      },
+  init() {
+    this.setupSkipLinks();
+    this.fixFakeLinks();
+  },
 
       init() {
         ...

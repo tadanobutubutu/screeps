@@ -7,4 +7,6 @@
 // - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks() and validateLandmarkStructure())
 // - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), createAccessibleLink() and handleAccessibilityIssues())
 
-// This is the existing code that needs to be preserved
+// TODO: This is the existing code that needs to be preserved in main.js
+// Commit: b2d12c0706ad2101d5bfb53bbf648aad7c6d744f
+// todo-hash: 6c02eea5ebc55ce1d03924617c86b97c69d7d9d6

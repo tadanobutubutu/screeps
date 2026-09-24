@@ -1,113 +1,132 @@
-const main = require('./utilities');
+const fs = require('fs');
+const path = require('path');
 
-const { createInPageButton, createWebResourceButton, validateLandmark, validateLandmarkStructure, validateAccessibilityReport } = require('./utilities');
+const getLangAttribute = () => document.documentElement ? document.documentElement.lang || 'en' : 'en';
 
-const { addLangAttribute, fixTableStructureIssues, addMainLandmark, ensureUniqueLandmarks, setSvgAccessibilityProps, addSvgAccessibleNames, addAccessibleNamesToSVGs, fixFakeLinkIssue, fixFakeLinkIssues, fixLandmarkIssues, addLandmarkRegions, uniqueLandmarks, fixImageAltTexts, googleSignIn, handleCredentialResponse, ensureElementHasId, ensureElementHasIdOrigin, addAriaLabel, renderDependencyGraphs, fixButtonIdentifiers, fixDependencyGraphAria, addMainLandmarkToIndex, addressAccessibilityIssues } = main;
+function rotateBack() {
+  console.log('Rotating back...');
+};
 
-const http = require('http');
-const url = require('url');
+export const metadata = {
+  title: "Screeps Dashboard",
+  description: "Dashboard for Screeps",
+};
 
-// New function to display module structure
-function displayModuleStructure() {
-    console.log('Module Structure:');
-    console.log('----------------');
-    for (const key in require.cache) {
-        const module = require.cache[key];
-        console.log(`Module: ${key}`);
-        console.log('Exports:');
-        for (const exportKey in module.exports) {
-            console.log(`  ${exportKey}`);
-        }
-    }
+function addLangAttribute(lang = 'en') {
+  const htmlElement = document.documentElement;
+  if (htmlElement) {
+    htmlElement.lang = lang;
+  }
+  return document;
 }
 
-// Function to validate table accessibility
-const validateTableAccessibility = (html) => {
-  const issues = [];
-  
-  // Check if HTML contains tables
-  const tableRegex = /<table[^>]*>([\s\S]*?)<\/table>/gi;
-  let match;
-  
-  while ((match = tableRegex.exec(html)) !== null) {
-    const tableContent = match[0];
-    const tableNumber = (html.slice(0, match.index).match(/<table/gi) || []).length + 1;
-    
-    // Check for caption
-    const hasCaption = /<caption[^>]*>[\s\S]*?<\/caption>/i.test(tableContent);
-    if (!hasCaption) {
-      issues.push({
-        type: 'table',
-        severity: 'warning',
-        message: `Table ${tableNumber} is missing a <caption> element for accessibility`,
-        suggestion: 'Add a <caption> element immediately after the <table> tag to describe the purpose of the table'
-      });
+function addMainLandmark(document) {
+  let mainElement = document.querySelector('main');
+
+  if (!mainElement) {
+    const body = document.body;
+    const main = document.createElement('main');
+    main.setAttribute('id', 'main-content');
+
+    const children = Array.from(body.children);
+    for (const child of children) {
+      if (child.tagName !== 'SCRIPT' && child.tagName !== 'STYLE' &&
+          child.tagName !== 'LINK' && child.tagName !== 'META') {
+        main.appendChild(child);
+        break;
+      }
     }
-    
-    // Check for th elements
-    const hasHeaders = /<th[^>]*>/i.test(tableContent);
-    if (!hasHeaders) {
-      issues.push({
-        type: 'table',
-        severity: 'warning',
-        message: `Table ${tableNumber} appears to be a data table but has no <th> (table header) elements`,
-        suggestion: 'Add <th> elements for column or row headers to improve accessibility for screen readers'
-      });
+
+    body.insertBefore(main, body.firstChild);
+    mainElement = main;
+  }
+
+  if (mainElement.tagName !== 'MAIN') {
+    mainElement.setAttribute('role', 'main');
+  }
+
+  return mainElement;
+}
+
+function validateLandmarkElements(document) {
+  const main = document.querySelector('main');
+  if (main && !main.id) {
+    main.id = 'main-content';
+  }
+
+  const navigations = document.querySelectorAll('nav');
+  navigations.forEach((nav, index) => {
+    if (!nav.id && !nav.getAttribute('aria-label')) {
+      nav.setAttribute('aria-label', `navigation-${index + 1}`);
     }
-    
-    // Check for scope attributes on th elements
-    const thMatches = tableContent.match(/<th[^>]*>/gi) || [];
-    thMatches.forEach((thTag, index) => {
-      if (!/scope=["'](row|col|rowgroup|colgroup)["']/i.test(thTag)) {
-        issues.push({
-          type: 'table',
-          severity: 'info',
-          message: `Table ${tableNumber} header ${index + 1} is missing a 'scope' attribute`,
-          suggestion: 'Add scope="col", scope="row", scope="rowgroup", or scope="colgroup" to <th> elements'
-        });
+  });
+
+  const regions = document.querySelectorAll('[role="region"]');
+  regions.forEach((region, index) => {
+    if (!region.id) {
+      region.id = `region-${index + 1}`;
+    }
+  });
+
+  return document;
+}
+
+/**
+ * Announce message to screen readers
+ * @param {string} message - The message to announce
+ * @param {string} [priority='polite'] - The priority of the message (optional, defaults to 'polite')
+ */
+const announceToScreenReader = (message, priority = 'polite') => {
+  const announcer = document.createElement('div');
+  announcer.setAttribute('aria-live', priority);
+  announcer.setAttribute('aria-atomic', 'true');
+  announcer.className = 'sr-only';
+  announcer.style.position = 'absolute';
+  announcer.style.left = '-9999px';
+  announcer.textContent = message;
+  document.body.appendChild(announcer);
+  setTimeout(() => announcer.remove(), 1000);
+};
+
+const accessibilityUtils = {
+  trapFocus: function (container) {
+    const focusableElements = container.querySelectorAll(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
+
+    const firstElement = focusableElements[0];
+    const lastElement = focusableElements[focusableElements.length - 1];
+
+    container.addEventListener('keydown', (e) => {
+      const isTab = e.key === 'Tab';
+      if (!isTab) return;
+      if (e.shiftKey) {
+        if (document.activeElement === firstElement) {
+          lastElement && lastElement.focus();
+        }
+      } else {
+        if (document.activeElement === lastElement) {
+          firstElement && firstElement.focus();
+        }
       }
     });
-    
-    // Check for thead and tbody structure
-    const hasThead = /<thead[^>]*>[\s\S]*?<\/thead>/i.test(tableContent);
-    const hasTbody = /<tbody[^>]*>[\s\S]*?<\/tbody>/i.test(tableContent);
-    
-    if (!hasThead) {
-      issues.push({
-        type: 'table',
-        severity: 'info',
-        message: `Table ${tableNumber} is missing <thead> element`,
-        suggestion: 'Wrap header rows in a <thead> element for better semantic structure'
-      });
+  },
+
+  announceToScreenReader,
+
+  /**
+   * Handle keyboard navigation
+   * @param {Event} e - The keyboard event
+   * @param {Object} handlers - The handler functions for different keys
+   */
+  handleKeyboardNav: (e, handlers) => {
+    const key = e.key;
+    if (handlers[key]) {
+      handlers[key](e);
     }
-    
-    if (!hasTbody) {
-      issues.push({
-        type: 'table',
-        severity: 'info',
-        message: `Table ${tableNumber} is missing <tbody> element`,
-        suggestion: 'Wrap data rows in a <tbody> element for better semantic structure'
-      });
-    }
-    
-    // Check for id and headers attributes for complex tables
-    const hasMultipleHeaders = (tableContent.match(/<th/gi) || []).length > 1;
-    if (hasMultipleHeaders) {
-      const hasHeadersAttr = /headers=["'][^"']+["']/.test(tableContent);
-      const hasIdAttr = /id=["'][^"']+["']/.test(tableContent.replace(/<th/gi, '<td'));
-      
-      if (!hasIdAttr && !hasHeadersAttr) {
-        issues.push({
-          type: 'table',
-          severity: 'warning',
-          message: `Table ${tableNumber} has multiple headers but may not have proper id/headers associations`,
-          suggestion: 'For complex tables, ensure header cells have unique id attributes and data cells have headers attributes referencing those ids'
-        });
-      }
-    }
-  }
-  
-  return issues;
+  },
+
+  // Add other functions here
 };
 
 // Re-add the required exports for functionA and functionB
@@ -316,19 +335,80 @@ function handleFocusTrap(element) {
   });
 }
 
-// HTTP Server setup
-const server = http.createServer((req, res) => {
-    const parsedUrl = url.parse(req.url, true);
-    
-    // CORS headers for credential responses
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-    
-    if (req.method === 'OPTIONS') {
-        res.writeHead(200);
-        res.end();
-        return;
+function newFocusTrap() {
+  // New function implementation
+}
+
+/**
+ * Spawn a child process with the given command and arguments.
+ * @param {string} command - The command to execute
+ * @param {string[]} args - Arguments to pass to the command
+ * @param {Object} options - Options for the spawn function
+ * @returns {ChildProcess} The spawned process
+ */
+function spawnProcess(command, args = [], options = {}) {
+  const { spawn } = require('child_process');
+  return spawn(command, args, options);
+}
+
+// Credential response handling
+async function handleCredentialResponse(response) {
+  if (!response) {
+    throw new Error('No response received');
+  }
+
+  if (response.error) {
+    throw new Error(response.error);
+  }
+
+  if (response.token) {
+    return {
+      success: true,
+      token: response.token,
+      expiresIn: response.expiresIn || 3600
+    };
+  }
+
+  throw new Error('Invalid credential response');
+}
+
+// Export functionality with accessibility support
+const exportUtils = {
+  exportData: (data, filename, mimeType) => {
+    const blob = new Blob([data], { type: mimeType });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    link.setAttribute('aria-label', `Download ${filename}`);
+    link.style.display = 'none';
+    document.body.appendChild(link);
+    link.click();
+    URL.revokeObjectURL(url);
+    link.remove();
+
+    // Announce download completion to screen readers
+    accessibilityUtils.announceToScreenReader(`Download of ${filename} started`);
+  },
+
+  exportToJSON: (data, filename) => {
+    const jsonString = JSON.stringify(data, null, 2);
+    exportUtils.exportData(jsonString, filename || 'export.json', 'application/json');
+  },
+
+  exportToCSV: (data, filename) => {
+    if (!data || data.length === 0) return;
+
+    const headers = Object.keys(data[0]);
+    const csvRows = [];
+    csvRows.push(headers.join(','));
+
+    for (const row of data) {
+      const values = headers.map(header => {
+        const escaped = ('' + row[header]).replace(/"/g, '\\"');
+        return `"${escaped}"`;
+      });
+      csvRows.push(values.join(','));
     }
 
     // Health check endpoint
@@ -408,23 +488,25 @@ if (require.main === module) {
 
 // Export modules for testing
 module.exports = {
-  createInPageButton,
-  createWebResourceButton,
-  validateLandmark,
-  validateLandmarkStructure,
-  validateAccessibilityReport,
-  validateTableAccessibility,
+  getLangAttribute,
+  rotateBack,
+  metadata,
+  addLangAttribute,
+  addMainLandmark,
+  validateLandmarkElements,
+  accessibilityUtils,
+  exportUtils,
+  initAccessibility,
+  handleCredentialResponse,
+  ensureElementId,
+  ensureElementHasId,
+  addAriaLabel,
   renderDependencyGraph,
-  renderIndex,
-  renderGraphIndex,
-  newFunction,
-  checkLandmarkElement,
-  wrapPrimaryContentInMain,
-  checkLandmarks,
-  ensureUniqueLandmarks,
-  handleFocusTrap,
-  revokeSession,
-  functionA,
-  functionB,
-  displayModuleStructure
+  renderDependencyGraphs,
+  spawnProcess,
+  focusTrap,
+  newFocusTrap,
+  sanitizeFilename,
+  readFileSafe,
+  log
 };

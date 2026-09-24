@@ -1,5 +1,4 @@
-// TODO: This is the existing code that needs to be preserved
-// ----- BEGIN ORIGINAL CODE (unchanged) -----
+// TODO: This is the existing code that needs to be preserved (This comment remains as-is)
 // Import necessary dependencies
 import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
@@ -183,9 +182,12 @@ function ... {
     return labelElement ? labelElement.textContent : '';
   }
   
-  // Check for title element inside SVG
-  const titleElement = ...
-  return titleElement ? titleElement.textContent : '';
+  // Check for (const svgElement of document.querySelectorAll('svg')) {
+    const titleElement = svgElement.querySelector('title');
+    return titleElement ? titleElement.textContent : '';
+  }
+  
+  return '';
 }
 
 // REACT_041: Set SVG attributes for accessibility

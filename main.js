@@ -171,4 +171,6 @@ module.exports = {
   renderDependencyGraphs,
   ...mainUtilities,
   accessibilityUtils,
+  navigateWithArrow,
+  handleTabNavigation
 }

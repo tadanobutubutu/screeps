@@ -557,26 +557,26 @@ function add(a, b) {
   return a + b;
 }
 
-function function3(data) {
-  if (!data || typeof data !== 'object') {
-    return null;
+/**
+ * Renders a dependency graph into a container.
+ * @param {HTMLElement} container - The container element to render into.
+ * @param {Object} data - The dependency graph data.
+ */
+function renderDependencyGraph(container, data) {
+  if (container) {
+    container.innerHTML = JSON.stringify(data);
   }
-  const result = {};
-  for (const key in data) {
-    if (Object.prototype.hasOwnProperty.call(data, key)) {
-      const value = data[key];
-      if (typeof value === 'string') {
-        result[key] = value.trim();
-      } else if (typeof value === 'number' || typeof value === 'boolean') {
-        result[key] = value;
-      } else if (Array.isArray(value)) {
-        result[key] = value.map(item => (typeof item === 'string' ? item.trim() : item));
-      } else if (typeof value === 'object' && value !== null) {
-        result[key] = function3(value);
-      }
-    }
+}
+
+/**
+ * Updates an existing dependency graph with new data.
+ * @param {HTMLElement} container - The container element of the graph.
+ * @param {Object} data - The new data to apply.
+ */
+function updateDependencyGraph(container, data) {
+  if (container) {
+    renderDependencyGraph(container, data);
   }
-  return result;
 }
 
 // Export existing functionality and new functions
@@ -593,18 +593,15 @@ export {
   calculateDiscount, 
   newFunction, 
   renderIndexView,
-  createUnrotateButton,
-  addLandmarkRoles,
-  addSvgAccessibleNames,
-  ensureUniqueLandmarks,
-  fixFakeLink,
-  initializeAccessibility,
-  ensureThScope
+  renderDependencyGraph,
+  updateDependencyGraph 
 };
 
 // Compatibility for CommonJS if needed (as per HEAD)
 module.exports.newFunction = newFunction;
 module.exports.renderIndexView = renderIndexView;
+module.exports.renderDependencyGraph = renderDependencyGraph;
+module.exports.updateDependencyGraph = updateDependencyGraph;
 
 // Initialize on DOM ready
 if (typeof document !== 'undefined') {

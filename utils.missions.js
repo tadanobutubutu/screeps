@@ -54,6 +54,19 @@ function secureRandomInt(max) {
 }
 
 const MissionSystem = {
+    _cacheActiveMissions() {
+        const activeMissions = Memory.missions.active;
+        const result = [];
+        const len = activeMissions.length;
+        for (let i = 0; i < len; i++) {
+            const m = activeMissions[i];
+            if (m.status === 'active') {
+                result.push(m);
+            }
+        }
+        this._activeMissionsCache = result;
+        this._lastActiveMissionsTick = Game.time;
+    },
     initMemory() {
         if (!Memory.missions) {
             Memory.missions = {
@@ -103,11 +116,15 @@ const MissionSystem = {
         };
 
         Memory.missions.active.push(mission);
+        this._lastActiveMissionsTick = 0; // Force cache rebuild
         return mission;
     },
 
     getMissionsForCreep(creep) {
-        return Memory.missions.active.filter((m) => m.status === 'active');
+        if (Game.time !== this._lastActiveMissionsTick) {
+            this._cacheActiveMissions();
+        }
+        return this._activeMissionsCache;
     },
 
     completeMission(missionId) {
@@ -115,11 +132,16 @@ const MissionSystem = {
         if (mission) {
             mission.status = 'completed';
             Memory.missions.completed++;
+            // Force cache rebuild on next access since state changed
+            this._lastActiveMissionsTick = 0;
         }
     },
 
     getActiveMissions() {
-        return Memory.missions.active.filter((m) => m.status === 'active');
+        if (Game.time !== this._lastActiveMissionsTick) {
+            this._cacheActiveMissions();
+        }
+        return this._activeMissionsCache;
     },
 
     createRandomMission() {

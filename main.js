@@ -735,82 +735,143 @@ function generateAndDisplayReport() {
     return report;
 }
 
-/**
- * Creates a landmark region with proper ARIA attributes and structure.
- * @param {Object} options - Configuration options for the landmark.
- * @param {string} options.type - The type of landmark (e.g., 'main', 'nav', 'aside').
- * @param {string} [options.label] - Accessible label for the landmark.
- * @param {string} [options.id] - Unique ID for the landmark.
- * @param {HTMLElement} [options.container] - Container element to append the landmark to.
- * @returns {HTMLElement} The created landmark element.
- */
-function createLandmarkRegion({ type, label, id, container = document.body } = {}) {
-    if (!type) {
-        throw new Error('Landmark type is required');
-    }
-
-    // Create the landmark element
-    let landmark;
-    if (type === 'main') {
-        landmark = document.createElement('main');
-    } else if (type === 'nav') {
-        landmark = document.createElement('nav');
-    } else if (type === 'aside') {
-        landmark = document.createElement('aside');
-    } else if (type === 'header') {
-        landmark = document.createElement('header');
-    } else if (type === 'footer') {
-        landmark = document.createElement('footer');
-    } else {
-        // For custom roles, create a div with the appropriate role
-        landmark = document.createElement('div');
-        landmark.setAttribute('role', type);
-    }
-
-    // Set the ID if provided or generate a unique one
-    if (id) {
-        landmark.id = id;
-    } else {
-        landmark.id = ensureUniqueLandmarkId(type);
-    }
-
-    // Add ARIA label if provided
-    if (label) {
-        landmark.setAttribute('aria-label', label);
-    }
-
-    // Append to container if provided
-    if (container) {
-        container.appendChild(landmark);
-    }
-
-    return landmark;
-}
-
-/**
- * Adds a landmark region to the document with proper structure and accessibility attributes.
- * @param {Object} options - Configuration options for the landmark.
- * @param {string} options.type - The type of landmark (e.g., 'main', 'nav', 'aside').
- * @param {string} [options.label] - Accessible label for the landmark.
- * @param {string} [options.id] - Unique ID for the landmark.
- * @param {HTMLElement} [options.container] - Container element to append the landmark to.
- * @returns {HTMLElement} The created landmark element.
- */
-function addLandmarkRegion(options) {
-    try {
-        const landmark = createLandmarkRegion(options);
-        if (options.container) {
-            options.container.appendChild(landmark);
-        }
-        return landmark;
-    } catch (error) {
-        console.error('Error adding landmark region:', error);
-        return null;
-    }
-}
-
-// Export the new landmark functions
+// Export the new accessibility report functions
 export {
-    createLandmarkRegion,
-    addLandmarkRegion
+    generateAccessibilityReport,
+    renderAccessibilityReportHtml,
+    generateAndDisplayReport
+};
+
+// New accessibility utility functions
+
+/**
+ * Sets up basic accessibility features for a page
+ * @param {Object} options - Configuration options
+ * @param {string} [options.lang='en'] - Language code for the page
+ * @param {boolean} [options.skipToContent=true] - Whether to add skip-to-content link
+ */
+function setupBasicAccessibility(options = {}) {
+    const { lang = 'en', skipToContent = true } = options;
+
+    // Set language attribute
+    if (typeof document !== 'undefined') {
+        const html = document.documentElement;
+        if (html && !html.hasAttribute('lang')) {
+            html.setAttribute('lang', lang);
+        }
+
+        // Add skip-to-content link if enabled
+        if (skipToContent) {
+            const skipLink = document.createElement('a');
+            skipLink.href = '#main-content';
+            skipLink.className = 'skip-link';
+            skipLink.textContent = 'Skip to main content';
+            skipLink.style.cssText = `
+                position: absolute;
+                left: -10000px;
+                top: auto;
+                width: 1px;
+                height: 1px;
+                overflow: hidden;
+            `;
+            skipLink.addEventListener('focus', function() {
+                this.style.left = '0';
+                this.style.width = 'auto';
+                this.style.height = 'auto';
+            });
+            skipLink.addEventListener('blur', function() {
+                this.style.left = '-10000px';
+                this.style.width = '1px';
+                this.style.height = '1px';
+            });
+            document.body.insertBefore(skipLink, document.body.firstChild);
+        }
+    }
+}
+
+/**
+ * Makes a button more accessible by ensuring it has proper attributes
+ * @param {HTMLElement} button - The button element to enhance
+ * @param {Object} options - Configuration options
+ * @param {string} [options.ariaLabel] - ARIA label for the button
+ * @param {string} [options.role] - ARIA role for the button
+ */
+function enhanceButtonAccessibility(button, options = {}) {
+    if (!button) return;
+
+    const { ariaLabel, role = 'button' } = options;
+
+    // Set role if not already set
+    if (!button.hasAttribute('role')) {
+        button.setAttribute('role', role);
+    }
+
+    // Set ARIA label if provided
+    if (ariaLabel && !button.hasAttribute('aria-label')) {
+        button.setAttribute('aria-label', ariaLabel);
+    }
+
+    // Ensure button has proper tabindex
+    if (!button.hasAttribute('tabindex')) {
+        button.setAttribute('tabindex', '0');
+    }
+
+    // Add keyboard event listeners for better keyboard navigation
+    button.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            button.click();
+        }
+    });
+}
+
+/**
+ * Makes a form more accessible by adding proper labels and ARIA attributes
+ * @param {HTMLFormElement} form - The form element to enhance
+ */
+function enhanceFormAccessibility(form) {
+    if (!form) return;
+
+    // Add ARIA role to form
+    if (!form.hasAttribute('role')) {
+        form.setAttribute('role', 'form');
+    }
+
+    // Ensure all form controls have proper labels
+    const controls = form.querySelectorAll('input, textarea, select');
+    controls.forEach(control => {
+        if (!control.id) {
+            control.id = `form-control-${Math.random().toString(36).substr(2, 9)}`;
+        }
+
+        // Find or create label
+        let label = form.querySelector(`label[for="${control.id}"]`);
+        if (!label) {
+            label = document.createElement('label');
+            label.setAttribute('for', control.id);
+            label.textContent = control.placeholder || control.name || 'Input field';
+            control.parentNode.insertBefore(label, control);
+        }
+
+        // Add ARIA describedby if there's help text
+        const helpText = control.nextElementSibling;
+        if (helpText && helpText.classList.contains('help-text')) {
+            control.setAttribute('aria-describedby', helpText.id || `help-${control.id}`);
+        }
+    });
+
+    // Add submit button if missing
+    if (!form.querySelector('button[type="submit"]')) {
+        const submitBtn = document.createElement('button');
+        submitBtn.type = 'submit';
+        submitBtn.textContent = 'Submit';
+        form.appendChild(submitBtn);
+    }
+}
+
+// Export the new accessibility utility functions
+export {
+    setupBasicAccessibility,
+    enhanceButtonAccessibility,
+    enhanceFormAccessibility
 };

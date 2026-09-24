@@ -109,6 +109,8 @@ function newFunction() {
   // Function body
 }
 
+// Dependency graph rendering functions: N/A — no functions in this file render dependency graphs
+
 // REACT_015: Add lang attribute to the <html> element
 function ... lang = 'en') {
     if (typeof html !== 'string') return html;

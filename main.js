@@ -317,37 +317,42 @@ function createAccessibleLink (text, href) {
 
 // New function to fix accessibility issues as per the insight report
 function fixAccessibilityIssues() {
-  // Fix table structure issues
+  // New code to fix accessibility issues...
+  // 1. Ensure all landmarks are unique
+  ensureUniqueLandmarks();
+
+  // 2. Add proper IDs to elements that need them
+  ensureElementHasId('myTable');
+  ensureElementHasId('myLogo');
+  ensureElementHasId('myMenu');
+
+  // 3. Add ARIA labels where needed
+  addAriaLabel('myTable', 'Product data table');
+  addAriaLabel('myLogo', 'Company logo');
+  addAriaLabel('myMenu', 'Accessibility menu');
+
+  // 4. Validate table accessibility
   const tables = document.querySelectorAll('table');
   tables.forEach(table => {
     validateTableAccessibility(table);
     validateTableStructure(table);
   });
 
-  // Add main landmark if missing
-  if (!document.querySelector('[role="main"]')) {
-    const mainElement = document.createElement('main');
-    mainElement.setAttribute('role', 'main');
-    mainElement.id = createLandmarkId('main');
-    document.body.appendChild(mainElement);
-  }
+  // 5. Add lang attribute to HTML element
+  addLangAttribute();
 
-  // Ensure unique landmarks
-  ensureUniqueLandmarks();
-
-  // Add accessible names to SVGs
+  // 6. Ensure SVGs have accessible names
   const svgs = document.querySelectorAll('svg');
   svgs.forEach(svg => {
     const accessibleName = getSvgAccessibleName(svg);
     setSvgAttributes(svg, accessibleName);
   });
 
-  // Fix fake link issues
-  const fakeLinks = document.querySelectorAll('a[href="#"]');
-  fakeLinks.forEach(link => {
-    link.setAttribute('role', 'button');
-    link.removeAttribute('href');
-  });
+  // 7. Validate link accessibility
+  validateLinkAccessibility();
+
+  // 8. Handle fake links
+  handleFakeLinks();
 }
 
 // New function to calculate the sum of two numbers
@@ -383,10 +388,25 @@ tables.forEach(table => {
 
 function validateLinkAccessibility() {
   // Implementation for validating link accessibility
+  const links = document.querySelectorAll('a');
+  links.forEach(link => {
+    if (!link.getAttribute('aria-label') && !link.textContent.trim()) {
+      link.setAttribute('aria-label', 'Link');
+    }
+  });
 }
 
 function handleFakeLinks() {
   // Implementation for handling fake links
+  const fakeLinks = document.querySelectorAll('[role="link"]:not(a)');
+  fakeLinks.forEach(link => {
+    if (!link.getAttribute('tabindex')) {
+      link.setAttribute('tabindex', '0');
+    }
+    if (!link.getAttribute('aria-label')) {
+      link.setAttribute('aria-label', 'Link');
+    }
+  });
 }
 
 // Add lang attribute to HTML element
@@ -439,9 +459,10 @@ buttons.forEach((button, index) => {
 });
 
 // Use the new function to add aria-labels to the appropriate elements
-addAriaLabel('myTable', 'Product data table');
-addAriaLabel('myLogo', 'Company logo');
-addAriaLabel('myMenu', 'Accessibility menu');
+...
+
+// Execute the fixAccessibilityIssues function when the DOM is loaded
+document.addEventListener('DOMContentLoaded', fixAccessibilityIssues);
 
 // End of file
 

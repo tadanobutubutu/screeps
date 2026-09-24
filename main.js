@@ -297,7 +297,7 @@ function checkLandmarkElement(id) {
   // Check if element has appropriate landmark role
   const landmarkRoles = ['main', 'navigation', 'banner', 'contentinfo', 'complementary', 'region'];
   const role = element.getAttribute('role');
-  return landmarkRoles.includes(role) || element.tagName.toLowerCase() === 'MAIN';
+  return landmarkRoles.includes(role) || element.tagName.toLowerCase() === 'main';
 }
 
 /**
@@ -562,9 +562,7 @@ module.exports = {
   validateLinkAccessibility,
   handleFakeLinks,
   personName,
-  main,
   mainExecution,
   versionOneImplementation,
-  checkLandmarkElement,
-  addProperLandmarkRegionsDocument
+  checkLandmarkElement
 };

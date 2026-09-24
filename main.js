@@ -13,34 +13,81 @@ const appData = {
 
 let icons = {};
 
-// Function to ensure the dependencyGraph container has a proper ARIA role (handled by setDependencyGraphRole())
-// (The comment from the issue remains as-is)
-function setDependencyGraphRole() {
-    const container = document.getElementById('dependencyGraph');
-    if (container) {
-        container.setAttribute('role', 'graph');
+// Address accessibility issues from insight report:
+// Ensure the dependencyGraph container has a proper ARIA role
+//_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
+//<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
+//_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
+//<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
+
+// Implemented validateLandmark functionality
+function validateLandmark(landmark) {
+  const errors = [];
+
+  // Check if landmark exists
+  if (!landmark) {
+    errors.push('Landmark is required');
+    return { valid: false, errors };
+  }
+
+  // Validate name
+  if (!landmark.name || typeof landmark.name !== 'string' || landmark.name.trim() === '') {
+    errors.push('Landmark must have a valid name');
+  }
+
+  // Validate latitude
+  if (landmark.latitude === undefined || landmark.latitude === null) {
+    errors.push('Landmark must have a latitude');
+  } else if (typeof landmark.latitude !== 'number' || isNaN(landmark.latitude)) {
+    errors.push('Landmark latitude must be a number');
+  } else if (landmark.latitude < -90 || landmark.latitude > 90) {
+    errors.push('Landmark latitude must be between -90 and 90');
+  }
+
+  // Validate longitude
+  if (landmark.longitude === undefined || landmark.longitude === null) {
+    errors.push('Landmark must have a longitude');
+  } else if (typeof landmark.longitude !== 'number' || ... {
+    errors.push('Landmark longitude must be a number');
+  } else if (landmark.longitude < -180 || landmark.longitude > 180) {
+    errors.push('Landmark longitude must be between -180 and 180');
+  }
+
+  // Additional validation changes from the other branch
+  if (Array.isArray(landmark) && landmark.length > 0) {
+    if (!landmark[0].name || typeof landmark[0].name !== 'string' || landmark[0].name.trim() === '') {
+      errors.push('Landmark array must have a name');
     }
 }
 
-// Added function to get accessible names for SVGs (handled by getSvgAccessibleName()) and another function to set the SVG attributes (setSvgAttributes())
-function getSvgAccessibleName(svgId) {
-    const svg = document.getElementById(svgId);
-    if (svg) {
-        return svg.getAttribute('aria-label') || svg.getAttribute('title') || '';
-    }
-    return '';
+/**
+ * Function to check if the specified landmark element is in the document.
+ * @param {string} id - The ID of the landmark element.
+ * @returns {boolean} Returns true if the element exists; otherwise, false.
+ */
+function checkLandmarkElement(id) {
+  const element = ...
+  return element !== null;
 }
 
-function setSvgAttributes(svgId, accessibleName) {
-    const svg = document.getElementById(svgId);
-    if (svg) {
-        svg.setAttribute('aria-label', accessibleName);
-        svg.setAttribute('aria-hidden', 'false');
+// Ensure unique landmarks by filtering duplicates
+function ensureUniqueLandmarks(landmarksArray) {
+  if (!landmarksArray || landmarksArray.length === 0) {
+      return {};
+  }
+  const seen = new Set();
+  return landmarksArray.filter(landmark => {
+    const key = landmark.name + '_' + (landmark.role || 'default');
+    // Merge both approaches for checking uniqueness
+    if (seen.has(key)) {
+        return false;
     }
+    seen.add(key);
+    return true;
+  });
 }
 
-// Implemented ensureUniqueLandmarksFromString, ensureUniqueLandmarks, addProperLandmarkRegions, validateLandmark, checkLandmarkElement functions
-// (The implementation from the issue is included as-is)
+// ... (previous and updated code remains as it is)
 
 // Updated function: ensures landmarks uniqueness when there's an array structure
 function ensureLandmarkUniqueness(elements) {
@@ -51,8 +98,8 @@ function ensureLandmarkUniqueness(elements) {
   if (Array.isArray(elements)) {
     for (const landmark of elements) {
       if (landmark.id) {
-        if (elementsById[landmark.id]) {
-          elementsById[landmark.id] = true;
+        if ... {
+          ... = true;
         } else {
           landmark.id += '_duplicate';
         }
@@ -61,6 +108,22 @@ function ensureLandmarkUniqueness(elements) {
   }
 
   return elements;
+}
+
+// Updated function using the new functions for rendering graph/index
+function renderDependencyGraphContent() {
+  const container = ...
+  if (!container) {
+    return;
+  }
+  
+  // Address accessibility: Ensure the dependencyGraph container has a proper ARIA role
+  container.setAttribute('role', 'region');
+  container.setAttribute('aria-label', 'Dependency Graph');
+  
+  // Use the new functions for rendering
+  renderDependencyGraph(container);
+  renderIndexView(container);
 }
 
 // Export functions for testing
@@ -78,18 +141,14 @@ export {
   icons,
   validateLandmark,
   ensureFocusableElements,
-  setDependencyGraphRole,
   renderDependencyGraphContent,
   ensureLandmarkUniqueness,
-  getSvgAccessibleName,
-  setSvgAttributes,
   validateSvgAccessibility,
   processUniqueElements,
   addressInsightIssues,
-  addProperLandmarkRegions,
-  validateTableAccessibility,
-  validateTableStructure,
   renderDependencyGraph,
   renderIndexView,
-  calculateSum
+  calculateSum,
+  addProperLandmarkRegions,
+  countDependencies
 };

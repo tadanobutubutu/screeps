@@ -7,6 +7,8 @@
 // - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue)
 // - NEW: Implement this function for checking link and button accessibility (DONE: checkAccessibility)
 
+// TODO: Implement solution to the issue
+
 const fs = require('fs');
 const path = require('path');
 
@@ -115,24 +117,23 @@ function renderDependencyGraph(dependencies) {
  * @returns {string} - HTML string for the index view
  */
 function renderIndexView(packages) {
-    // REACT_015: Add lang attribute to HTML element
-    // REACT_017: Add landmark roles (header, main, nav) and fix landmark issues
-    // REACT_025: Ensure unique landmarks
-    let html = '<!DOCTYPE html><html lang="en"><head><title>Dependencies</title></head><body>';
-    html += '<header role="banner"><h1>Dependency Index</h1></header>';
-    html += '<main role="main">';
-    html += '<nav role="navigation" aria-label="Package list">';
-    html += '<ul>';
+    let html = '<!DOCTYPE html>\n';
+    html += '<html lang="en">\n<head>\n';
+    html += '    <meta charset="UTF-8">\n';
+    html += '    <title>Dependency Index</title>\n';
+    html += '</head>\n<body>\n';
+    html += '<main>\n';
+    html += '<h1>Dependency Index</h1>\n';
+    html += '<ul>\n';
     
     for (const pkg of packages) {
-        html += `<li>${pkg.name} - ${pkg.version || 'N/A'}</li>`;
+        html += `<li>${pkg.name} - ${pkg.version || 'N/A'}</li>\n`;
     }
     
-    html += '</ul>';
-    html += '</nav>';
-    html += '</main>';
-    html += '<footer role="contentinfo"><p>Dependency Index</p></footer>';
-    html += '</body></html>';
+    html += '</ul>\n';
+    html += '</main>\n';
+    html += '</body>\n';
+    html += '</html>';
     return html;
 }
 

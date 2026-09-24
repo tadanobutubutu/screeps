@@ -156,58 +156,99 @@ const config = {
 };
 
 /**
- * Makes an API call to the specified URL
- * @param {string} url - The URL to make the request to
- * @param {Object} options - Request options (method, headers, body, etc.)
- * @returns {Promise<Object>} Promise resolving to the response data
+ * Adds lang attribute to HTML element
+ * @param {HTMLElement} element - The HTML element to add the lang attribute to
  */
-function makeApiCall(url, options = {}) {
-  return new Promise((resolve, reject) => {
-    const urlObj = new URL(url);
-    const requestOptions = {
-      hostname: urlObj.hostname,
-      port: urlObj.port || (urlObj.protocol === 'https:' ? 443 : 80),
-      path: urlObj.pathname + urlObj.search,
-      method: options.method || 'GET',
-      headers: options.headers || {}
-    };
+function getLangAttribute(element) {
+  element.setAttribute('lang', 'en'); // Assuming 'en' is the default language
+}
 
-    const protocol = urlObj.protocol === 'https:' ? require('https') : http;
+/**
+ * Creates an in-page button
+ * @returns {HTMLElement} The created button element
+ */
+function createInPageButton() {
+  const button = document.createElement('button');
+  button.textContent = 'In-page Button';
+  return button;
+}
 
-    const req = protocol.request(requestOptions, (res) => {
-      let data = '';
-      res.on('data', (chunk) => {
-        data += chunk;
-      });
-      res.on('end', () => {
-        try {
-          const parsedData = JSON.parse(data);
-          resolve({
-            statusCode: res.statusCode,
-            headers: res.headers,
-            data: parsedData
-          });
-        } catch (e) {
-          resolve({
-            statusCode: res.statusCode,
-            headers: res.headers,
-            data: data
-          });
-        }
-      });
-    });
+/**
+ * Validates the accessibility of the table structure
+ * @param {HTMLElement} table - The table element to validate
+ */
+function validateTableAccessibility(table) {
+  // Implement validation logic here
+}
 
-    req.on('error', (error) => {
-      reject(error);
-    });
+/**
+ * Validates the structure of a table
+ * @param {HTMLElement} table - The table element to validate
+ */
+function validateTableStructure(table) {
+  // Implement validation logic here
+}
 
-    if (options.body) {
-      const body = typeof options.body === 'string' ? options.body : JSON.stringify(options.body);
-      req.write(body);
-    }
+/**
+ * Adds/fixes landmark issues
+ * @param {HTMLElement} landmark - The landmark element to validate and fix
+ */
+function validateLandmark(landmark) {
+  // Implement validation logic here
+}
 
-    req.end();
-  });
+/**
+ * Validates the structure of landmarks
+ * @param {HTMLElement} landmark - The landmark element to validate
+ */
+function validateLandmarkStructure(landmark) {
+  // Implement validation logic here
+}
+
+/**
+ * Ensures unique landmarks
+ */
+function ensureUniqueLandmarks() {
+  // Implement logic to ensure landmarks are unique
+}
+
+/**
+ * Adds accessible names to SVGs
+ * @param {SVGElement} svg - The SVG element to add an accessible name to
+ */
+function getSvgAccessibleName(svg) {
+  // Implement logic to get the accessible name
+}
+
+/**
+ * Sets attributes for SVGs
+ * @param {SVGElement} svg - The SVG element to set attributes for
+ */
+function setSvgAttributes(svg) {
+  // Implement logic to set attributes
+}
+
+/**
+ * Ensures unique landmarks
+ */
+function ensureUniqueLandmarks() {
+  // Implement logic to ensure landmarks are unique
+}
+
+/**
+ * Fixes fake link issues
+ * @param {HTMLAnchorElement} link - The fake link element to handle
+ */
+function handleFakeLinks(link) {
+  // Implement logic to handle fake links
+}
+
+/**
+ * Validates the accessibility of a link
+ * @param {HTMLAnchorElement} link - The link element to validate
+ */
+function validateLinkAccessibility(link) {
+  // Implement validation logic here
 }
 
 /**
@@ -283,7 +324,17 @@ module.exports = {
   createServer,
   startApp,
   config,
-  addressAccessibilityIssues
+  getLangAttribute,
+  createInPageButton,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  ensureUniqueLandmarks,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  handleFakeLinks,
+  validateLinkAccessibility
 };
 functionsForTesting.newFocusTrap = newFocusTrap;
 

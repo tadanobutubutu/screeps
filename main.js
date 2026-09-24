@@ -51,7 +51,12 @@ const {
   newFunction
 } = main
 
-function validateTableStructure(container) {
+function customValidateTableStructure(container) {
+  return validateTableStructureForAccessibility(container);
+}
+
+function customValidateHeadingHierarchy(headings) {
+  // Implementation placeholder - function to be implemented
   return true
 }
 
@@ -911,8 +916,8 @@ module.exports = {
   ...main,
   createInPageButton,
   createWebResourceButton,
-  validateLandmark,
-  validateLandmarkStructure,
+  customValidateLandmark,
+  customValidateLandmarkStructure,
   getSvgAccessibleName,
   getLangAttribute,
   validateAccessibilityReport,
@@ -927,6 +932,8 @@ module.exports = {
   addMainLandmarkToIndex,
   focusTrap,
   checkAccessibility,
+  customValidateTableStructureForAccessibility,
+  implementAccessibilityFixesFromReport,
   checkAccessibilityForReport,
   renderGraphIndex,
   trapFocus,
@@ -950,11 +957,9 @@ module.exports = {
   fixLandmarkIssues,
   validateTableAccessibility,
   initializeAccessibility,
-  renderIndex: function() { return renderGraphIndex.apply(this, arguments); },
-  renderAdditionalContent,
-  // Export the new landmark structure validation function
-  validateLandmarkStructure
+  renderIndex,
+  newFunction,
+  customValidateHeadingHierarchy,
+  ensureHeadingHierarchy,
+  renderAdditionalContent
 };
-
-// Add the new function to the exports
-module.exports.renderAdditionalContent = renderAdditionalContent

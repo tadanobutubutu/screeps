@@ -9,7 +9,6 @@
 
 // TODO: This is the existing code that needs to be preserved
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
-// (Previously existing code that needs to be preserved)
 // main.js - Accessibility improvements implementation
 // main.js - Combined utility and accessibility features
 
@@ -611,30 +610,18 @@ function analyzeDependencyGraph(dependencies) {
 }
 
 // Export accessibility utility functions
-export {
-  getLangAttribute,
-  createInPageButton,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLinkAccessibility,
-  handleFakeLinks,
-  checkLinkAccessibility,
-  newFunction,
-  addressAccessibilityIssues,
-  addressAccessibilityIssuesNew,
-  addLangAttribute,
-  fixTableStructure,
-  fixLandmarks,
-  addSvgAccessibleNames,
-  ensureUniqueLandmarks,
-  fixFakeLinks,
-  applyAccessibilityFixes,
-  divide,
-  wrapPrimaryContentInMain,
-  spawnEntity
+module.exports = {
+    addLangAttribute,
+    fixTableStructure,
+    fixLandmarks,
+    addSvgAccessibleNames,
+    ensureUniqueLandmarks,
+    fixFakeLinks,
+    applyAccessibilityFixes,
+    addressAccessibilityIssues,
+    createInPageButton,
+    divide,
+    checkLinkAccessibility,
+    wrapPrimaryContentInMain,
+    createAccessibleBookForm
 };
-
-// Run if executed directly
-if (require.main === module) {
-  main();
-}

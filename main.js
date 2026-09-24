@@ -594,9 +594,13 @@ const a11yStore = {
 
   // ... remaining a11yStore methods ...
 
-  // New method to add a language attribute to the HTML element
-  addLanguageAttribute(language) {
-    document.documentElement.setAttribute('lang', language);
+  /**
+   * Ensure interactive elements have proper accessibility attributes
+   */
+  ensureInteractiveElementsAccessible() {
+    this.ensureInteractiveRoles();
+    this.addFormControlLabels();
+    this.ensureImageAccessibility();
   }
 };
 

@@ -58,61 +58,19 @@ function ensureElementHasId(element, prefix = 'element') {
   return 'en';
 }
 
-// Function to render dependency graphs
-function renderDependencyGraph(container, data) {
-  if (!container) return;
-  
-  // Ensure container has an id for accessibility
-  ensureElementHasId(container, 'dependency-graph');
-  
-  // Add aria-label for accessibility
-  addAriaLabel(container, 'Dependency graph visualization');
-  
-  // Render the dependency graph
-  // Implementation for rendering dependency graphs
-  container.innerHTML = '';
-  
-  // Create SVG for the graph
-  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-  svg.setAttribute('role', 'img');
-  svg.setAttribute('aria-labelledby', 'dependency-graph-title');
-  
-  const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
-  title.setAttribute('id', 'dependency-graph-title');
-  title.textContent = 'Dependency Graph';
-  
-  svg.appendChild(title);
-  
-  // Add other SVG elements as needed for the graph
-  const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-  svg.appendChild(g);
-  
-  container.appendChild(svg);
-  
-  return svg;
-}
-
-function generateAccessibilityReportFromInsights(issuesData) {
-  const analyzedIssues = analyzeAccessibility(issuesData); // presume this function is already defined
-
-  // Define the structure of the report here
-  const report = {
-    introduction: 'Accessibility report for the application',
-    data: {},
-    conclusions: '',
-  };
-
-  // Fill the report's data and conclusions
-  // ...
-
-  // Return the final report
-  return report;
+// REACT_015: Add lang attribute to the <html> element
+function ... {
+  if (typeof html !== 'string') return html;
+  return ... (match, attrs) => {
+    if ... return match;
+    return `<html${attrs} lang="en">`;
+  });
 }
 
 // React application code with accessibility features
 import React from 'react';
 import PropTypes from 'prop-types';
-import ReactDOM from 'react-dom/client';
+import ReactDOM from 'react-dom/root';
 import './index.css';
 import App from './App';
 import reportWebVitals from ...
@@ -121,7 +79,7 @@ import a11y from './AccessibilityUtilities';
 const root = ...
 
 // DOM Elements
-const dependencyGraph = document.getElementById('dependencyGraph');
+const dependencyGraph = ...
 
 // Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and addLangAttribute())
@@ -142,7 +100,7 @@ const dependencyGraph = document.getElementById('dependencyGraph');
 //<!-- todo-hash: f8051b788bad4952d8493f08d3c7d22a06ff80d3_ -->
 //<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
 //_Commit: ...
-//<!-- todo-hash: c87b573b0860b150bcfdfdff7be68c9f7779afde -->
+//<!-- todo-hash: c87b573b0860b150bcfdfdff7be68c9f77e79afde -->
 
 import React from 'react';
 import PropTypes from 'prop-types';
@@ -189,7 +147,7 @@ function addLangAttribute() {
  */
 function validateTableAccessibility(table) {
   // Check for caption or aria-label
-  return table.querySelector('caption') ||
+  return ... ||
            table.getAttribute('aria-label') ||
            table.getAttribute('aria-labelledby');
 }
@@ -200,8 +158,8 @@ function validateTableAccessibility(table) {
  * @returns {boolean} True if table structure is valid
  */
 function validateTableStructure(table) {
-  const hasHeader = table.querySelector('th');
-  const hasBody = table.querySelector('td');
+  const hasHeader = ... th');
+  const hasBody = ... td');
   return hasHeader && hasBody;
 }
 
@@ -217,8 +175,8 @@ function fixTableStructure(table) {
       const firstRow = table.querySelector('tr');
       if (firstRow) {
         const headerRow = document.createElement('tr');
-        Array.from(firstRow.cells).forEach(cell => {
-          const th = document.createElement('th');
+        ... => {
+          const th = ...
           th.textContent = cell.textContent;
           ...
         });
@@ -250,10 +208,10 @@ function validateLandmark(landmark) {
   return ...
 }
 
-function validateLandmarkAccessibility(landmark) {
-  const ariaLabel = landmark.getAttribute('aria-label');
-  const ariaLabelledBy = landmark.getAttribute('aria-labelledby');
-  return !!(ariaLabel || ariaLabelledBy || landmark.textContent.trim());
+function ... {
+  const ariaLabel = ...
+  const ariaLabelledBy = ...
+  return !!(ariaLabel || ariaLabelledBy || landmark.textContent.closest);
 }
 
 /**
@@ -271,22 +229,103 @@ function validateLandmarkStructure() {
   });
 
   if (missingLandmarks.length > 0) {
-    console.warn(`Warning: Missing required landmarks: ${missingLandmarks.join(', ')}`);
+    ... warning: Missing required landmarks: ... ')}`);
     return false;
   }
 
   return true;
 }
 
+// TODO: Implement the logic to handle the credential response
 /**
- * Gets accessible name for SVG
- * @param {HTMLElement} svg - The SVG element
- * @returns {string} The accessible name
+ * Handles the credential response from authentication flows
+ * @param {Object} credentialResponse - The credential response object from the authentication provider
+ * @returns {Object} Result object containing success status, user data, or error information
  */
+function handleCredentialResponse(credentialResponse) {
+  if (!credentialResponse) {
+    return {
+      success: false,
+      error: 'No credential response provided',
+      timestamp: new Date().toISOString()
+    };
+  }
+
+  try {
+    const { credential, select_by, client_id } = credentialResponse;
+
+    if (!credential) {
+      return {
+        success: false,
+        error: 'No credential token found in response',
+        timestamp: new Date().toISOString()
+      };
+    }
+
+    // Parse the JWT token to extract user information
+    const tokenParts = credential.split('.');
+    if (tokenParts.length !== 3) {
+      return {
+        success: false,
+        error: 'Invalid credential token format',
+        timestamp: new Date().toISOString()
+      };
+    }
+
+    // Decode the JWT payload (middle part)
+    const payload = JSON.parse(atob(tokenParts[1].replace(/-/g, '+').replace(/_/g, '/')));
+
+    // Validate token expiration
+    const currentTime = Math.floor(Date.now() / 1000);
+    if (payload.exp && payload.exp < currentTime) {
+      return {
+        success: false,
+        error: 'Credential token has expired',
+        timestamp: new Date().toISOString()
+      };
+    }
+
+    // Store credential token securely in session storage
+    sessionStorage.setItem('credential_token', credential);
+    sessionStorage.setItem('credential_timestamp', currentTime.toString());
+
+    // Extract and return user information from the payload
+    const userData = {
+      email: payload.email || null,
+      name: payload.name || null,
+      picture: payload.picture || null,
+      sub: payload.sub || null,
+      email_verified: payload.email_verified || false
+    };
+
+    console.log('Credential response processed successfully', {
+      select_by,
+      client_id,
+      user: userData
+    });
+
+    return {
+      success: true,
+      user: userData,
+      select_by,
+      client_id,
+      expiresAt: payload.exp ? new Date(payload.exp * 1000).toISOString() : null,
+      timestamp: new Date().toISOString()
+    };
+  } catch (error) {
+    console.error('Error processing credential response:', error);
+    return {
+      success: false,
+      error: 'Failed to process credential response: ' + error.message,
+      timestamp: new Date().toISOString()
+    };
+  }
+}
+
 function getSvgAccessibleName(svg) {
   return ... ||
          svg.getAttribute('title') ||
-         svg.getAttribute('aria-labelledby') ||
+         ... ||
          'SVG graphic';
 }
 
@@ -304,7 +343,7 @@ function setSvgAttributes(svg, name) {
  * Ensures unique landmarks in the document
  */
 function ensureUniqueLandmarks() {
-  const mainLandmarks = document.querySelectorAll('[role="main"]');
+  const mainLandmarks = ... main');
   if (mainLandmarks.length > 1) {
     mainLandmarks.forEach((landmark, index) => {
       if (index > 0) {
@@ -321,8 +360,8 @@ function ensureUniqueLandmarks() {
 function createInPageButton() {
   const button = document.createElement('button');
   button.textContent = 'Skip to content';
-  button.addEventListener('click', function() {
-    const mainContent = document.querySelector('main');
+  ... function() {
+    const mainContent = ...
     if (mainContent) {
       mainContent.focus();
     }
@@ -346,7 +385,7 @@ function validateLinkAccessibility(link) {
  * Handles fake links in the document
  */
 function handleFakeLinks() {
-  const links = document.querySelectorAll('a[href="#"], a:not([href])');
+  const links = ...
   links.forEach(link => {
     if ... {
       link.setAttribute('aria-label', 'Link to ' + (link.href || 'unknown destination'));
@@ -380,13 +419,13 @@ function ... {
  * Handles migration of deprecated patterns to modern accessibility practices
  * @returns {Object} Upgrade results with counts of upgraded patterns
  */
-function generateAccessibilityReport() {
+function ... {
   const issues = [];
 
   // Check for images without alt attributes
-  const images = document.querySelectorAll('img');
+  const images = ...
   images.forEach((img, index) => {
-    if (!img.alt) {
+    if ... {
       issues.push({
         type: 'missing-alt',
         element: 'img',
@@ -397,9 +436,9 @@ function generateAccessibilityReport() {
   });
 
   // Check for buttons without accessible name
-  const buttons = document.querySelectorAll('button');
-  buttons.forEach((btn, index) => {
-    const accessibleName = btn.textContent.trim() || btn.getAttribute('aria-label') || btn.getAttribute('title');
+  const buttons = ...
+  buttons.foreach((btn, index) => {
+    const accessibleName = btn.textContent.trim() || btn.getAttribute('aria-label') || ...
     if (!accessibleName) {
       issues.push({
         type: 'missing-name',
@@ -411,12 +450,21 @@ function generateAccessibilityReport() {
   });
 
   // Check for links without accessible names
-  const links = document.querySelectorAll('a');
-  links.forEach((link, index) => {
-    const accessibleName = link.textContent.trim() || link.getAttribute('aria-label') || link.getAttribute('title');
+  const links = ...
+  links.foreach((link, index) => {
+    const accessibleName = link.textContent.trim() || link.getAttribute('aria-label') || ...
     if (!accessibleName) {
       issues.push({
         type: 'missing-name',
         element: 'a',
         index: index,
-        message: `Link at index ${index} is missing an accessible name
+        message: `Link at index ${index} is missing an accessible name`
+      });
+    }
+  });
+
+  // Check for form inputs without labels
+  const inputs = ...
+  ... index) => {
+    const inputType = input.getAttribute('type');
+    if (inputType && inputType !== 'hidden' && inputType !== 'submit' &&

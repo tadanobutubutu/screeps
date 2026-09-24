@@ -61,6 +61,22 @@ module.exports = {
 // Start the application if run directly
 if (require.main === module) {
   startApp();
-  // Call the trapFocus function to enable the focus trap
-  trapFocus();
+}
+
+// New function to handle logging
+function logMessage(message) {
+  console.log(`[LOG]: ${message}`);
+}
+
+// New function to handle graceful shutdown
+function gracefulShutdown(server) {
+  server.close(() => {
+    console.log('Server closed gracefully');
+    process.exit(0);
+  });
+
+  // Forcibly close server after 5 seconds
+  setTimeout(() => {
+    server.kill('SIGKILL');
+  }, 5000);
 }

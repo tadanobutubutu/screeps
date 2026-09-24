@@ -1,5 +1,5 @@
 const fs = require('fs');
-const path = require('path');
+const path = path = require('path');
 
 // Import test helper function
 const { updateThScopeAttribute } = require('./testHelper');
@@ -366,9 +366,19 @@ const a11yStore = {
 
   // Preserve existing code functionality
   preserveExistingCode() {
-    // Placeholder to ensure existing functionality is maintained
     console.log("Preserving existing code and accessibility features");
   },
+
+  // Placeholder methods (not previously defined) to avoid runtime errors during init()
+  addFocusStyles() {
+    // No implementation required for now
+  },
+  setupFocusVisiblePolyfill() {
+    // No implementation required for now
+  },
+  enhanceDynamicContent() {
+    // No implementation required for now
+  }
 };
 
 // New function to handle adding landmark regions
@@ -487,72 +497,70 @@ function ensureUniqueLandmarks() {
   });
 }
 
-/**
- * Creates a web resource button suitable for accessibility (e.g., GitHub, Stack Overflow, etc.)
- * @param {Object} options - Button configuration options
- * @param {string} options.url - The URL for the web resource
- * @param {string} options.text - The text to display on the button
- * @param {string} [options.icon] - Optional icon (SVG string or icon class)
- * @param {string} [options.platform] - Platform identifier (e.g., 'github', 'stackoverflow', 'twitter')
- * @param {string} [options.id] - Optional unique identifier for the button
- * @param {string} [options.className] - Optional CSS class name for styling
- * @param {boolean} [options.openInNewTab=true] - Whether to open link in new tab
- * @returns {HTMLButtonElement} - The created button element
- */
-function createWebResourceButton(options) {
-  const { url, text, icon, platform, id, className, openInNewTab = true } = options;
-
-  // Validate required options
-  if (!url) {
-    throw new Error('URL is required for web resource button');
-  }
-  if (!text) {
-    throw new Error('Button text is required');
+// Focus trap for keyboard navigation
+function newFocusTrap() {
+  // Helper to get all focusable elements within a container
+  function getFocusableElements(container) {
+    return Array.from(container.querySelectorAll('button, [href], input, select, textarea, [tabindex]')).filter(el => !el.hasAttribute('disabled') && el.getAttribute('tabindex') !== '-1');
   }
 
-  // Create button element
-  const button = document.createElement('button');
-  button.type = 'button';
-  button.className = `web-resource-button ${className || ''}`.trim();
-  button.setAttribute('data-platform', platform || 'external');
-  
-  if (id) {
-    button.id = id;
-  } else {
-    button.id = `web-btn-${platform || 'external'}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  let focusTrapActive = false;
+  let currentFocusedElement = null;
+  let trapContainer = null;
+
+  // Activate focus trap around a specific element (typically a modal)
+  function activate(element) {
+    if (!element) return;
+    trapContainer = element;
+    focusTrapActive = true;
+    // Move focus to first focusable element inside the trap
+    const focusable = getFocusableElements(trapContainer);
+    if (focusable.length > 0) {
+      focusable[0].focus();
+      currentFocusedElement = focusable[0];
+    }
   }
 
-  // Set accessible name
-  button.setAttribute('aria-label', text);
-
-  // Add icon if provided
-  let buttonContent = '';
-  if (icon) {
-    buttonContent += `<span class="web-resource-icon" aria-hidden="true">${icon}</span>`;
+  // Deactivate focus trap
+  function deactivate() {
+    focusTrapActive = false;
+    trapContainer = null;
+    currentFocusedElement = null;
   }
-  buttonContent += `<span class="web-resource-text">${text}</span>`;
-  button.innerHTML = buttonContent;
 
-  // Handle click - open URL
-  button.addEventListener('click', () => {
-    if (openInNewTab) {
-      window.open(url, '_blank', 'noopener,noreferrer');
+  // Listen for Tab key to trap focus
+  document.addEventListener('keydown', (e) => {
+    if (!focusTrapActive || e.key !== 'Tab') return;
+
+    const focusable = getFocusableElements(trapContainer);
+    if (focusable.length === 0) return;
+
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+
+    if (e.shiftKey) {
+      // Shift + Tab
+      if (document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      }
     } else {
-      window.location.href = url;
+      // Tab
+      if (document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
     }
   });
 
-  // Keyboard support for button (Enter/Space)
-  button.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      button.click();
-    }
-  });
-
-  return button;
+  // Return public API
+  return { activate, deactivate };
 }
 
+// Additional helper: expose newFocusTrap as a property for compatibility
+const newFocusTrapSingleton = newFocusTrap();
+
+// Export module
 module.exports = {
   checkLandmarkElements,
   createInPageButton,
@@ -560,6 +568,7 @@ module.exports = {
   a11yStore,
   addLandmarkRegions,
   addressAccessibilityIssues,
+  newFocusTrap: newFocusTrapSingleton,
   LANDMARK_ELEMENTS,
   getLangAttribute: a11yStore.getLangAttribute.bind(a11yStore),
   updateLiveRegion: a11yStore.updateLiveRegion.bind(a11yStore),
@@ -571,6 +580,5 @@ module.exports = {
   validateLandmark,
   validateLandmarkStructure,
   getSvgAccessibleName,
-  ensureUniqueLandmarks,
-  createWebResourceButton
+  ensureUniqueLandmarks
 };

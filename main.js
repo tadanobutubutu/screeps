@@ -38,20 +38,18 @@ function startApp() {
   return server;
 }
 
-/**
- * Gets the server instance
- * @returns {http.Server|null} The server instance
- */
-function getServer() {
-  return server;
+// New function to implement logic after the existing code
+function newFunction() {
+  // TODO: Implement your logic here
+  console.log('New function logic executed');
 }
 
 // Export functions for testing
 module.exports = {
   createServer,
   startApp,
-  getServer,
-  config
+  config,
+  newFunction // Add new function to exports
 };
 
 // New functions

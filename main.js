@@ -18,14 +18,7 @@ import { validateLandmark, validateLandmarkStructure } from './utils/landmarkUti
 import { getSvgAccessibleName, setSvgAttributes } from './utils/svgAccessibilityUtils';
 import { validateLinkAccessibility, handleFakeLinks } from './utils/linkAccessibilityUtils';
 
-// Re-add the required exports for functionA and functionB
-export function functionA() {
-  // TODO: implement
-}
-
-export function functionB() {
-  // TODO: implement
-}
+// TODO: Implement harvest and upgrade logic
 
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())

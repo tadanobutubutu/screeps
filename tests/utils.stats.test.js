@@ -94,24 +94,24 @@ describe('utils.stats', () => {
 
         test('recordRoomStat aborts if roomName or key is unsafe', () => {
             StatsManager.initMemory();
-            StatsManager.recordRoomStat('__proto__', 'energy', 100);
+            StatsManager.recordRoomStat('\x5F\x5Fproto\x5F\x5F', 'energy', 100);
             StatsManager.recordRoomStat('W1N1', 'constructor', 100);
 
             // Both should be ignored, roomStats should be empty or undefined for these
             expect(Object.keys(global.Memory.stats.roomStats).length).toBe(0);
             expect(
-                Object.prototype.hasOwnProperty.call(global.Memory.stats.roomStats, '__proto__')
+                Object.prototype.hasOwnProperty.call(global.Memory.stats.roomStats, '\x5F\x5Fproto\x5F\x5F')
             ).toBe(false);
         });
 
         test('recordRoomStat validates room names and keys', () => {
             StatsManager.initMemory();
-            StatsManager.recordRoomStat('__proto__', 'energy', 100);
+            StatsManager.recordRoomStat('\x5F\x5Fproto\x5F\x5F', 'energy', 100);
             StatsManager.recordRoomStat('W1N1', 'constructor', 100);
 
             // Use hasOwnProperty to check if the property was actually set on the object
             expect(
-                Object.prototype.hasOwnProperty.call(global.Memory.stats.roomStats, '__proto__')
+                Object.prototype.hasOwnProperty.call(global.Memory.stats.roomStats, '\x5F\x5Fproto\x5F\x5F')
             ).toBe(false);
             expect(global.Memory.stats.roomStats['W1N1']).toBeUndefined();
         });

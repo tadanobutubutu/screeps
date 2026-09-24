@@ -701,5 +701,9 @@ export {
   calculateSum,
   addProperLandmarkRegions,
   createInPageButtons,
-  ensureDependencyGraphARIA
+  fixFakeLinkIssue,
+  addSvgAccessibleNames,
+  ensureUniqueLandmarksDoc
 };
+
+// TODO: This is the modified and merged code

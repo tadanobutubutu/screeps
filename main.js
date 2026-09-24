@@ -1,3 +1,12 @@
+// Main entry point for the Screeps bot.
+// Handles core game logic and integration points.
+const main = require('./utilities')
+const React = require('react');
+
+const { addLangAttribute, validateTableAccessibility, validateTableStructure, fixTableStructure, fixLandmarkIssues, addMainLandmark, addLandmarkRegions, ensureUniqueLandmarks, addSvgAccessibleName, addSvgAccessibleNames, addAccessibleNamesToSVGs, fixFakeLinkIssue, fixFakeLinkIssues, validateLandmark, validateLandmarkStructure, googleSignIn, decodeJwtResponse, fixButtonIdentifiers, ensureElementHasId, ensureElementHasIdOrigin, addAriaLabel, setupFocusTrap, restoreFocus } = require('./AccessibilityHelpers')
+
+const DOMParser = require('@xmldom/xmldom').DOMParser;
+
 // Dependency imports
 const { dependencyGraphContent } = require('./dependencyGraphContent');
 const { indexContent } = require('./indexContent');

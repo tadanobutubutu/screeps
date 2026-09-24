@@ -735,9 +735,58 @@ function generateAndDisplayReport() {
     return report;
 }
 
-// Export the accessibility report functions
-export {
-    generateAccessibilityReport,
-    renderAccessibilityReportHtml,
-    generateAndDisplayReport
-};
+/**
+ * Extracts the accessible name for an SVG from its content.
+ * @param {SVGElement} svg - The SVG element to analyze.
+ * @returns {string|null} The accessible name if found, otherwise null.
+ */
+function extractSvgAccessibleName(svg) {
+    if (!svg) return null;
+
+    // Check for <title> element
+    const title = svg.querySelector('title');
+    if (title && title.textContent.trim()) {
+        return title.textContent.trim();
+    }
+
+    // Check for <desc> element
+    const desc = svg.querySelector('desc');
+    if (desc && desc.textContent.trim()) {
+        return desc.textContent.trim();
+    }
+
+    // Check for aria-label attribute
+    if (svg.hasAttribute('aria-label')) {
+        const ariaLabel = svg.getAttribute('aria-label').trim();
+        if (ariaLabel) return ariaLabel;
+    }
+
+    // Check for aria-labelledby attribute
+    if (svg.hasAttribute('aria-labelledby')) {
+        const labelledbyId = svg.getAttribute('aria-labelledby').trim();
+        if (labelledbyId) {
+            const labelledElement = document.getElementById(labelledbyId);
+            if (labelledElement && labelledElement.textContent.trim()) {
+                return labelledElement.textContent.trim();
+            }
+        }
+    }
+
+    // Check for alt attribute (for SVG images)
+    if (svg.hasAttribute('alt')) {
+        const altText = svg.getAttribute('alt').trim();
+        if (altText) return altText;
+    }
+
+    // Check for role="img" with aria-label
+    if (svg.getAttribute('role') === 'img' && svg.hasAttribute('aria-label')) {
+        const ariaLabel = svg.getAttribute('aria-label').trim();
+        if (ariaLabel) return ariaLabel;
+    }
+
+    // If no accessible name found, return null
+    return null;
+}
+
+// Export the new SVG accessibility function
+export { extractSvgAccessibleName };

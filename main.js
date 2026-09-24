@@ -163,46 +163,43 @@ function ensureAccessibility(container) {
   return container;
 }
 
-// Function to validate table structure for accessibility issues
-function validateTableStructure(container) {
-  // Check if container exists and contains tables
-  if (!container || !container.querySelectorAll) return;
+// TODO: add the new functions or changes requested in the issue
+// New function to handle accessibility improvements for SVG elements
+function improveSvgAccessibility(svgElement) {
+  // Ensure SVG has an accessible name
+  if (!svgElement.getAttribute('aria-label') && !svgElement.querySelector('title, desc')) {
+    svgElement.setAttribute('aria-label', 'Graphical content');
+  }
 
-  const tables = container.querySelectorAll('table');
+  // Ensure SVG has proper role
+  if (!svgElement.getAttribute('role')) {
+    svgElement.setAttribute('role', 'img');
+  }
 
-  tables.forEach(table => {
-    // Ensure table has a caption if it's not empty
-    if (table.rows.length > 0 && !table.querySelector('caption')) {
-      const caption = document.createElement('caption');
-      caption.textContent = 'Table caption';
-      table.prepend(caption);
-    }
+  return svgElement;
+}
 
-    // Ensure table has proper headers
-    const headers = table.querySelectorAll('th');
-    if (headers.length === 0) {
-      // If no headers, add scope attributes to first row cells
-      const firstRowCells = table.querySelectorAll('tr:first-child td');
-      firstRowCells.forEach(cell => {
-        cell.setAttribute('scope', 'col');
-      });
-    } else {
-      // Ensure headers have scope attributes
-      headers.forEach(header => {
-        if (!header.hasAttribute('scope')) {
-          header.setAttribute('scope', 'col');
-        }
-      });
-    }
-
-    // Ensure table has proper ARIA attributes
-    if (!table.hasAttribute('role')) {
-      table.setAttribute('role', 'table');
-    }
+// New function to process all SVGs in a container
+function processContainerSvgs(container) {
+  const svgs = container.querySelectorAll('svg');
+  svgs.forEach(svg => {
+    improveSvgAccessibility(svg);
   });
 }
 
-// Add the validateTableStructure function to exports
+// New function to enhance accessibility of data visualizations
+function enhanceDataVisualizationAccessibility(container) {
+  // Process all SVGs in the container
+  processContainerSvgs(container);
+
+  // Add additional accessibility features to the container
+  if (!container.getAttribute('aria-live')) {
+    container.setAttribute('aria-live', 'polite');
+  }
+
+  return container;
+}
+
 module.exports = {
   VERSION,
   hello,
@@ -214,7 +211,9 @@ module.exports = {
   calculateSum,
   newFunction,
   renderGraphIndex,
-  validateTableStructure,
+  improveSvgAccessibility,
+  processContainerSvgs,
+  enhanceDataVisualizationAccessibility,
   prefersReducedMotion,
   isEmpty,
   getRandomInt,

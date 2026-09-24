@@ -1,14 +1,17 @@
-const {
-  createInPageButton,
-  createWebResourceButton,
-  validateLandmark,
-  validateLandmarkStructure,
-  validateAccessibilityReport,
-  validateTableAccessibility,
-  validateTableStructure,
-  getSvgAccessibleName,
-  exportUtils
-} = main
+// Dependency imports
+const { dependencyGraphContent } = require('./dependency-graph');
+const { indexContent } = require('./index-template');
+
+// TODO: This is the existing code that needs to be preserved
+// (This comment remains as-is)
+
+// TODO: Address accessibility issues from insight report:
+// Ensure the dependencyGraph container has a proper ARIA role
+
+// Import necessary dependencies
+import React, { useRef } from 'react';
+import { render } from 'react-dom';
+import { addLangAttribute, fixTableStructure, fixLandmarkIssues, addMainLandmark, addLandmarkRegions, ensureUniqueLandmarks, uniqueLandmarks, addSvgAccessibleNames, addAccessibleNamesToSVGs, fixFakeLinkIssue, fixFakeLinkIssues, googleSignIn, decodeJwtResponse, fixButtonIdentifiers, ensureElementHasId, addAriaLabel, renderDependencyGraphs } from './AccessibilityHelpers';
 
 // Access the dependencyGraph container and ensure it has proper ARIA role
 const dependencyGraph = document.getElementById('dependencyGraph')

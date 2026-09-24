@@ -163,98 +163,12 @@ const a11yStore = {
 
   // ... remaining a11yStore methods ...
 
-  /**
-   * Ensure all interactive elements are accessible
-   */
+  // New function
   ensureInteractiveElementsAccessible() {
-    this.ensureInteractiveRoles();
-    this.addFormControlLabels();
-    this.ensureImageAccessibility();
-  }
-};
-
-/**
- * Validates the accessibility report by running all accessibility checks
- * and ensuring the a11yStore methods are properly configured.
- */
-function validateAccessibilityReport() {
-  console.log('Validating accessibility report...');
-  
-  // Check if a11yStore exists and has required methods
-  if (!a11yStore) {
-    throw new Error('a11yStore is not initialized');
-  }
-  
-  const requiredMethods = [
-    'preferReducedMotion',
-    'preferHighContrast',
-    'updateLiveRegion',
-    'checkLandmarkElements',
-    'addSVGAccessibilityProps',
-    'fixFakeLinks',
-    'ensureInteractiveRoles',
-    'addFormControlLabels',
-    'ensureImageAccessibility'
-  ];
-  
-  for (const methodName of requiredMethods) {
-    if (!a11yStore[methodName]) {
-      throw new Error(`Missing accessibility method: ${methodName}`);
-    }
-  }
-  
-  // Run each accessibility check
-  try {
-    a11yStore.preferReducedMotion();
-    a11yStore.preferHighContrast();
-    a11yStore.updateLiveRegion('Test message');
-    a11yStore.checkLandmarkElements();
-    a11yStore.addSVGAccessibilityProps();
-    a11yStore.fixFakeLinks();
     a11yStore.ensureInteractiveRoles();
     a11yStore.addFormControlLabels();
     a11yStore.ensureImageAccessibility();
-    
-    console.log('Accessibility report validation passed successfully.');
-  } catch (error) {
-    console.error('Accessibility validation failed:', error.message);
-    process.exit(1);
   }
-}
-
-// New functions
-function ensureInteractiveElementsAccessible() {
-  a11yStore.ensureInteractiveElementsAccessible();
-}
-
-function initializeAccessibility() {
-  a11yStore.checkLandmarkElements();
-  a11yStore.fixSvgAccessibility();
-  a11yStore.fixFakeLinks();
-  ensureInteractiveElementsAccessible();
-}
+};
 
 // ... rest of the code ...
-
-module.exports = {
-  greetingFunction,
-  getWelcomeMessage,
-  config,
-  a11yStore,
-  initializeAccessibility,
-  ensureInteractiveElementsAccessible,
-  add,
-  subtract,
-  multiply,
-  divide,
-  power,
-  squareRoot,
-  factorial,
-  fibonacci,
-  sum,
-  average,
-  max,
-  min,
-  mode,
-  median,
-};

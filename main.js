@@ -204,8 +204,8 @@ function validateLandmarkStructure(container) {
   const htmlEl =
         document.documentElement ||
         (container.ownerDocument && container.ownerDocument.documentElement)
-  if (htmlEl && ... {
-    ... 'en')
+  if (htmlEl && !htmlEl.hasAttribute('lang')) {
+    addLangAttribute(htmlEl, 'en')
     fixes.langAdded = true
   }
 
@@ -218,7 +218,7 @@ function validateLandmarkStructure(container) {
       while (body.firstChild) {
         ...
       }
-      ...
+      body.insertBefore(newMain, body.firstChild)
       fixes.mainLandmarkAdded = true
     }
   }
@@ -226,14 +226,13 @@ function validateLandmarkStructure(container) {
   // Update the existing function using the new functions for rendering graph/index
   renderDependencyGraphs(container)
   fixButtonIdentifiers(container)
-  ...
-  ...
+  ensureElementHasId(container)
   addAriaLabel(container)
   addMainLandmarkToIndex(container)
 
   // Fix landmark issues
   validateLandmark(container)
-  ...
+  fixLandmarkIssues(container)
   fixes.landmarksFixed++
 
   // Fix SVG accessible names
@@ -242,21 +241,19 @@ function validateLandmarkStructure(container) {
     const accessibleName = getSvgAccessibleName(svg)
     if (
       accessibleName &&
-            ... &&
-            ...
+      svgElements.length > 0 &&
+      svgElements.length <= 2
     ) {
-      ... accessibleName)
+      addSvgAccessibleNames(svg, accessibleName)
       fixes.svgNamesAdded++
     }
   })
 
   // Fix fake link issues (elements that look like links but are missing href)
-  const fakeLinks = ...
-  fakeLinks.forEach(link => {
-    link.setAttribute('href', '#' + (link.id || 'link'))
-    link.setAttribute('role', 'link')
+  const fakeLinks = fixFakeLinkIssues(container)
+  if (fakeLinks) {
     fixes.fakeLinksFixed++
-  })
+  }
 
   // Validate accessibility report
   const accessibilityReport = ...
@@ -317,7 +314,7 @@ function trapFocus(container) {
   const focusableElements = container.querySelectorAll(
     'button, [href], input, select, textarea, ...
   );
-  const firstElement = ...
+  const firstElement = focusableElements[0]
   const lastElement = focusableElements[focusableElements.length - 1];
 
   return function(e) {
@@ -346,8 +343,8 @@ export function addLangAttribute(element, lang = 'en') {
   if (!htmlElement) {
     return null;
   }
-  if (htmlElement && ... {
-    ... lang);
+  if (htmlElement && !htmlElement.hasAttribute('lang')) {
+    htmlElement.setAttribute('lang', lang);
   }
   return htmlElement;
 }
@@ -356,23 +353,23 @@ export function addLangAttribute(element, lang = 'en') {
  * REACT_027: Fix table structure issues
  * Ensures tables have proper structure with headers and captions
  */
-export function ... {
+export function fixTableStructureIssues(tableElement) {
   if (!tableElement) return null;
   
-  const headers = ...
+  const headers = tableElement.querySelectorAll('th:not([scope])');
   headers.forEach(th => {
     if ... {
       const row = th.closest('tr');
-      const cellIndex = ...
+      const cellIndex = Array.from(row.children).indexOf(th);
       th.setAttribute('scope', cellIndex === 0 ? 'row' : 'col');
     }
   });
   
-  const existingCaption = ...
+  const existingCaption = tableElement.querySelector('caption');
   if (!existingCaption) {
-    const caption = ...
+    const caption = document.createElement('caption');
     caption.textContent = 'Data table';
-    ... ...
+    tableElement.insertBefore(caption, tableElement.firstChild);
   }
   
   return tableElement;
@@ -384,22 +381,22 @@ export function ... {
 export function ... {
   if (!container) return null;
   
-  const mainElement = ... || ...
+  const mainElement = container.querySelector('main') || container.querySelector('[role="main"]');
   if (!mainElement) {
-    const existingMain = ...
+    const existingMain = addMainLandmark(container);
     if (existingMain) {
       ... 'main');
     }
   }
   
-  const navElements = ...
+  const navElements = container.querySelectorAll('nav:not([aria-label])');
   navElements.forEach(nav => {
-    if ... && ... {
+    if (nav && !nav.hasAttribute('aria-label')) {
       nav.setAttribute('aria-label', 'Navigation');
     }
   });
   
-  const footerElement = container.querySelector('footer') || ...
+  const footerElement = container.querySelector('footer') || container.querySelector('[role="contentinfo"]');
   if (footerElement) {
     footerElement.setAttribute('role', 'contentinfo');
   }
@@ -413,9 +410,9 @@ export function ... {
 export function addMainLandmark(container) {
   if (!container) return null;
   
-  let mainElement = ...
+  let mainElement = container.querySelector('main');
   if (!mainElement) {
-    mainElement = ...
+    mainElement = container.querySelector('[role="main"]');
   }
   
   if (!mainElement) {
@@ -423,7 +420,7 @@ export function addMainLandmark(container) {
     mainElement.setAttribute('id', 'main-content');
     const body = document.body;
     if (body && body.firstChild) {
-      ...
+      body.insertBefore(mainElement, body.firstChild);
     }
   }
   
@@ -445,13 +442,16 @@ export function addLandmarkRegions(container) {
   ];
   
   landmarks.forEach(landmark => {
-    let element = ...
+    let element = container.querySelector(landmark.selector);
     if (!element) {
       element = container.querySelector(`[role="${landmark.role}"]`);
     }
     
     if (element && !element.getAttribute('aria-label') && !element.getAttribute('role')) {
       element.setAttribute('aria-label', landmark.label);
+      if (landmark.role) {
+        element.setAttribute('role', landmark.role);
+      }
     }
   });
   
@@ -467,7 +467,7 @@ export function ... {
   const landmarks = ['banner', 'navigation', 'main', 'complementary', 'contentinfo'];
   
   landmarks.forEach(role => {
-    const elements = ...
+    const elements = container.querySelectorAll(`[role="${role}"]`);
     elements.forEach((el, index) => {
       if (index > 0 && !el.getAttribute('aria-label')) {
         const count = index + 1;
@@ -492,46 +492,5 @@ export function uniqueLandmarks() {
 export function ... accessibleName) {
   if (!svgElement) return null;
   
-  let title = ...
-  if (!title) {
-    title = document.createElement('title');
-    svgElement.insertBefore(title, ...
-  }
-  title.textContent = accessibleName;
-  
-  const titleId = ... 9)}`;
-  title.setAttribute('id', titleId);
-  ... titleId)
-  
-  if ... {
-    ... 'img');
-  }
-  
-  return svgElement;
-}
-
-/**
- * REACT_041: Add accessible names to all SVGs in container
- */
-export function ... defaultName) {
-  if (!container) return;
-  
-  const svgs = ...
-  svgs.forEach((svg, index) => {
-    if ... && ... {
-      addSvgAccessibleNames(svg, defaultName || `Icon ${index + 1}`);
-    }
-  });
-  
-  return container;
-}
-
-/**
- * REACT_036: Fix fake link issue
- */
-export function fixFakeLinkIssue(element) {
-  if (!element) return null;
-  
-  const tagName = element.tagName.toLowerCase();
-  const role = element.getAttribute('role');
-  const onClick = element.get
+  let title = svgElement.querySelector('title');
+  if

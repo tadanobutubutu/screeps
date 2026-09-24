@@ -1,6 +1,11 @@
 // TODO: This is the existing code that needs to be preserved
 // ----- BEGIN ORIGINAL CODE (unchanged) -----
-// Existing code starts here
+// This is the existing code that needs to be preserved
+// (This comment remains as-is)
+// More existing code that should be preserved
+// Existing code ends here
+
+// TODO: This is the existing code that needs to be preserved (This comment remains as-is)
 // Main entry point for dependency visualization tool
 // ----- BEGIN ORIGINAL CODE (unchanged) -----
 // [PLACE ALL EXISTING FUNCTIONS, VARIABLES, AND EXPORTS HERE]

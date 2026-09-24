@@ -570,8 +570,18 @@ const {
   fixButtonIdentifiers,
   ensureElementHasIdOrigin,
   renderDependencyGraphs,
-  wrapPrimaryContentInMain
-} = AccessibilityHelpers;
+  fixDependencyGraphAria,
+  addMainLandmarkToIndex,
+  focusTrap,
+  checkAccessibility,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  getLangAttribute,
+  validateAccessibilityReport,
+  implementAccessibilityFixesFromReport,
+  document
+} from './AccessibilityHelpers'
 
 // Functions from origin/main that are not in HEAD
 function implementAccessibilityFixesFromReport(container, report) {

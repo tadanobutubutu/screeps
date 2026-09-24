@@ -206,3 +206,111 @@ describe('utils.missions', () => {
         crypto.randomBytes = originalRandomBytes;
     });
 });
+
+
+describe('crypto fallbacks and edge cases', () => {
+    beforeEach(() => {
+        global.Game = { time: 10 };
+        global.Memory = {};
+        jest.resetModules();
+    });
+
+    test('generateMissionId uses randomBytes if randomUUID is not available', () => {
+        jest.mock('crypto', () => {
+            return {
+                randomUUID: undefined,
+                randomBytes: jest.fn().mockReturnValue(Buffer.from('abcdef', 'hex'))
+            };
+        });
+
+        const MissionSystem = require('../utils.missions');
+        MissionSystem.initMemory();
+        const mission = MissionSystem.createMission('test', 'test', 10);
+        expect(mission.id).toBe('abcdef');
+        expect(require('crypto').randomBytes).toHaveBeenCalled();
+    });
+
+    test('generateMissionId uses fallback counter if crypto is unavailable or throws', () => {
+        jest.mock('crypto', () => {
+            return {
+                randomUUID: () => { throw new Error('no uuid'); },
+                randomBytes: () => { throw new Error('no bytes'); }
+            };
+        });
+
+        const MissionSystem = require('../utils.missions');
+        MissionSystem.initMemory();
+        const mission = MissionSystem.createMission('test', 'test', 10);
+        expect(mission.id).toMatch(/^a-[0-9a-z]+$/);
+    });
+
+    test('generateMissionId uses fallback counter with Date.now if Game.time is not defined', () => {
+        jest.mock('crypto', () => {
+            return {
+                randomUUID: () => { throw new Error('no uuid'); },
+                randomBytes: () => { throw new Error('no bytes'); }
+            };
+        });
+
+        global.Game = { }; // Game exists but no time
+        const MissionSystem = require('../utils.missions');
+        MissionSystem.initMemory();
+
+        const mission = MissionSystem.createMission('test', 'test', 10);
+        expect(mission.id).toMatch(/^[0-9a-z]+-[0-9a-z]+$/);
+        expect(mission.id.startsWith('undefined-')).toBe(false);
+    });
+
+    test('secureRandomInt uses Math.random if crypto throws', () => {
+        jest.mock('crypto', () => {
+            return {
+                randomBytes: () => { throw new Error('no bytes'); }
+            };
+        });
+
+        const mockMath = jest.spyOn(Math, 'random').mockReturnValue(0.5);
+
+        const MissionSystem = require('../utils.missions');
+        MissionSystem.initMemory();
+        global.Game = { time: 10, rooms: { W1N1: { name: 'W1N1' } } };
+        MissionSystem.createRandomMission();
+
+        expect(mockMath).toHaveBeenCalled();
+        mockMath.mockRestore();
+    });
+
+    test('secureRandomInt uses fallback Math.random if crypto is unavailable', () => {
+        // Mock crypto so it returns undefined for randomBytes
+        jest.mock('crypto', () => {
+            return {
+                randomBytes: undefined
+            };
+        });
+
+        const mockMath = jest.spyOn(Math, 'random').mockReturnValue(0.5);
+
+        const MissionSystem = require('../utils.missions');
+        MissionSystem.initMemory();
+        global.Game = { time: 10, rooms: { W1N1: { name: 'W1N1' } } };
+        MissionSystem.createRandomMission();
+
+        expect(mockMath).toHaveBeenCalled();
+        mockMath.mockRestore();
+    });
+});
+
+describe('createRandomMission edge cases', () => {
+    beforeEach(() => {
+        global.Game = { time: 10 };
+        global.Memory = {};
+        jest.resetModules();
+    });
+
+    test('handles missing rooms in Game', () => {
+        const MissionSystem = require('../utils.missions');
+        MissionSystem.initMemory();
+        global.Game = { time: 10, rooms: {} }; // No rooms
+        const mission = MissionSystem.createRandomMission();
+        expect(mission.target).toBe('sim');
+    });
+});

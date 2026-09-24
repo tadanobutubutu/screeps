@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React from 'react';
 import express from 'express';
 import path from 'path';
 import './styles.css';
 import { initializeApp } from './app.js';
 import { registerSW } from 'effector-sw';
 import { isSecureContext } from './utils.js';
+import { visualizeDependencyTree } from './utils.js';
 
 // Existing code starts here
 
@@ -667,267 +668,35 @@ function validateTableStructure(table) {
   return true;
 }
 
-/**
- * Fixes table structure issues.
- */
-function fixTableStructure() {
-  const tables = document.querySelectorAll('table');
-  tables.forEach(table => {
-    if (!validateTableStructure(table)) {
-      // Add missing caption if needed
-      if (!table.querySelector('caption')) {
-        const caption = document.createElement('caption');
-        caption.textContent = 'Table caption';
-        table.prepend(caption);
-      }
-
-      // Ensure headers exist
-      const firstRow = table.querySelector('tr');
-      if (firstRow && !firstRow.querySelector('th')) {
-        const cells = firstRow.querySelectorAll('td');
-        cells.forEach(cell => {
-          const th = document.createElement('th');
-          th.textContent = cell.textContent;
-          th.setAttribute('scope', 'col');
-          cell.replaceWith(th);
-        });
-      }
-    }
-  });
-}
-
-/**
- * REACT_041: Add accessible names to 2 SVGs
- * Gets accessible name for an SVG element.
- * @param {SVGElement} svg - The SVG element.
- * @returns {string|null} Returns the accessible name or null.
- */
-function getSvgAccessibleName(svg) {
-  if (!svg) return null;
-
-  // Try to get accessible name from SVG
-  const name = svg.getAttribute('aria-label') || svg.getAttribute('title') || svg.getAttribute('aria-labelledby') || '';
-  return name || null;
-}
-
-/**
- * Sets accessibility attributes on SVG elements.
- * @param {SVGElement} svg - The SVG element.
- * @param {string} name - The accessible name to set.
- */
-function setSvgAttributes(svg, name) {
-  if (!svg) return;
-
-  if (name) {
-    svg.setAttribute('aria-label', name);
-  } else {
-    // If no name provided, ensure there's some accessible name
-    if (!getSvgAccessibleName(svg)) {
-      svg.setAttribute('aria-hidden', 'true');
-    }
-  }
-}
-
-/**
- * REACT_036: Fix 1 fake link issue
- * Creates an in-page button with proper accessibility.
- * @param {string} text - The button text.
- * @param {Function} onClick - The click handler.
- * @returns {HTMLButtonElement} The created button element.
- */
-function createInPageButton(text, onClick) {
-  const button = document.createElement('button');
-  button.textContent = text;
-  button.setAttribute('type', 'button');
-  if (onClick) {
-    button.addEventListener('click', onClick);
-  }
-  return button;
-}
-
-/**
- * Validates link accessibility by checking for proper href attributes.
- * @param {HTMLAnchorElement} link - The link element to validate.
- * @returns {boolean} Returns true if the link is accessible.
- */
-function validateLinkAccessibility(link) {
-  if (!link) return false;
-
-  const href = link.getAttribute('href');
-  const hasProperHref = href && href.length > 0 && href !== '#';
-  const hasAccessibleText = link.textContent.trim().length > 0;
-
-  return hasProperHref || hasAccessibleText;
-}
-
-/**
- * Handles fake links by converting them to proper buttons or adding accessibility attributes.
- */
-function handleFakeLinks() {
-  const links = document.querySelectorAll('a[rel="fake"], a[href=""], a[href="#"]');
-  links.forEach(link => {
-    if (link.getAttribute('href') === '' || link.getAttribute('href') === '#') {
-      link.setAttribute('role', 'button');
-      link.setAttribute('tabindex', '0');
-      link.setAttribute('aria-label', link.textContent.trim() || 'Button');
-    }
-  });
-}
-
-/**
- * Fixes fake links by adding proper ARIA attributes.
- */
-function fixFakeLinks() {
-  const fakeLinks = document.querySelectorAll('[role="link"], [role="button"]');
-  fakeLinks.forEach(link => {
-    if (!link.getAttribute('tabindex')) {
-      link.setAttribute('tabindex', '0');
-    }
-
-    if (!link.getAttribute('aria-label') && !link.textContent.trim()) {
-      link.setAttribute('aria-label', 'Link');
-    }
-  });
-}
-
-/**
- * Generates an accessibility report for the current page.
- * @returns {Object} Accessibility report with issues and recommendations
- */
-function generateAccessibilityReport() {
-  const report = {
-    issues: [],
-    recommendations: []
-  };
-
-  // Check for missing landmarks
-  const requiredLandmarks = ['main', 'banner', 'contentinfo'];
-  const existingLandmarks = document.querySelectorAll('[role]');
-
-  requiredLandmarks.forEach(role => {
-    const hasLandmark = Array.from(existingLandmarks).some(
-      el => el.getAttribute('role') === role
-    );
-
-    if (!hasLandmark) {
-      report.issues.push(`Missing required landmark: ${role}`);
-      report.recommendations.push(`Add a <div role="${role}"> element for better accessibility`);
+// Accessibility improvements
+function ensureAccessibleAttributes() {
+  // Add ARIA attributes to important elements
+  document.querySelectorAll('button').forEach(button => {
+    if (!button.getAttribute('aria-label')) {
+      button.setAttribute('aria-label', button.textContent || 'Button');
     }
   });
 
-  // Check for proper language attribute
-  const htmlElement = document.querySelector('html');
-  if (!htmlElement || !htmlElement.getAttribute('lang')) {
-    report.issues.push('Missing language attribute on HTML element');
-    report.recommendations.push('Add lang attribute to the HTML element');
-  }
-
-  return report;
-}
-
-/**
- * Initializes the application and applies accessibility fixes.
- */
-function handleKeyboardNavigation(event, container) {
-  const focusableElements = container.querySelectorAll(
-    'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-  );
-  const firstElement = focusableElements[0];
-  const lastElement = focusableElements[focusableElements.length - 1];
-
-  if (event.key === 'Tab') {
-    if (event.shiftKey && document.activeElement === firstElement) {
-      lastElement.focus();
-      event.preventDefault();
-    } else if (!event.shiftKey && document.activeElement === lastElement) {
-      firstElement.focus();
-      event.preventDefault();
+  // Ensure proper heading structure
+  const headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
+  headings.forEach((heading, index) => {
+    if (!heading.id) {
+      heading.id = `heading-${index + 1}`;
     }
-  }
+  });
+
+  // Add skip link for keyboard users
+  const skipLink = document.createElement('a');
+  skipLink.href = '#main-content';
+  skipLink.className = 'skip-link';
+  skipLink.textContent = 'Skip to main content';
+  document.body.insertBefore(skipLink, document.body.firstChild);
 }
 
-/**
- * Adds ARIA labels to interactive elements
- * @param {HTMLElement} element - The element to add ARIA labels to
- * @param {string} label - The ARIA label text
- */
-function addAriaLabel(element, label) {
-  if (element) {
-    element.setAttribute('aria-label', label);
-  }
+// Initialize accessibility when DOM is ready
+if (typeof window !== 'undefined') {
+  document.addEventListener('DOMContentLoaded', ensureAccessibleAttributes);
 }
-
-/**
- * Function to process data and return formatted results
- * @param {Array} data - The input data array
- * @returns {Object} Processed data with summary statistics
- */
-function functionB(data) {
-  if (!Array.isArray(data)) {
-    throw new Error('Input must be an array');
-  }
-
-  if (data.length === 0) {
-    return {
-      count: 0,
-      sum: 0,
-      average: 0,
-      max: null,
-      min: null
-    };
-  }
-
-  const sum = data.reduce((acc, val) => acc + val, 0);
-  const average = sum / data.length;
-  const max = Math.max(...data);
-  const min = Math.min(...data);
-
-  return {
-    count: data.length,
-    sum,
-    average,
-    max,
-    min
-  };
-}
-
-// TODO: Add your code here
-function getAccessibilityStats() {
-  const stats = {
-    totalElements: document.querySelectorAll('*').length,
-    landmarkElements: document.querySelectorAll('[role]').length,
-    tableElements: document.querySelectorAll('table').length,
-    svgElements: document.querySelectorAll('svg').length,
-    linkElements: document.querySelectorAll('a').length,
-    buttonElements: document.querySelectorAll('button').length
-  };
-
-  return stats;
-}
-
-function App() {
-  const [programData, setProgramData] = useState(null);
-
-  useEffect(() => {
-    const loadProgramData = async () => {
-      const filePath = path.join(appConfig.dataPath, 'program.json');
-      try {
-        const data = await fs.promises.readFile(filePath, 'utf8');
-        const parsedData = JSON.parse(data);
-        setProgramData(parsedData);
-      } catch (error) {
-        console.error('Error loading program data:', error);
-      }
-    };
-    loadProgramData();
-  }, []);
-
-  return (
-    // ... Your accessible React Router setup ...
-  );
-}
-
-export default App;
 
 module.exports = {
   generateAccessibilityReport,
@@ -957,6 +726,7 @@ module.exports = {
   landmarkConfig: appConfig,
   initialize,
   initializeApp,
-  clearCache,
-  getAccessibilityStats
+  main,
+  ensureAccessibleAttributes,
+  // ... (Preserve the rest of the existing exports)
 };

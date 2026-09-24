@@ -221,11 +221,13 @@ class ScreepsBot {
     }
   }
 
-  // Add the event listener for click events on the dependencyGraph element
-  document.getElementById('dependencyGraph').addEventListener('click', () => {
-    const html = document.getElementById('dependencyGraph')?.innerText || '';
-    main.validateTableAccessibility(html);
-  });
+  calculateDiscount(price, discountRate) {
+    // Calculate the discount amount based on the price and discount rate
+    const discountAmount = price * (discountRate / 100);
+    return discountAmount;
+  }
+
+  // ... (Add the event listener for click events on the dependencyGraph element)
 }
 
 // ... (The module.exports section remains the same as in the original conflict branch)

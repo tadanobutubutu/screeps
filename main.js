@@ -269,21 +269,18 @@ function addMiddleware(middleware) {
   return server;
 }
 
-/**
- * Function to address accessibility issues from insight report
- * This function is a placeholder and should be implemented based on the actual requirements
- */
-function addressAccessibilityIssues() {
-  // TODO: Implement the actual logic for addressing accessibility issues
-  console.log('Addressing accessibility issues...');
+// New function to enhance accessibility
+function checkAccessibility() {
+  // Placeholder for actual accessibility check logic
+  console.log('Accessibility check is pending.');
 }
 
 // Export functions for testing
 module.exports = {
   createServer,
   startApp,
-  addressAccessibilityIssues,
-  config
+  config,
+  checkAccessibility
 };
 functionsForTesting.newFocusTrap = newFocusTrap;
 

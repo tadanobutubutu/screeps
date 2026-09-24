@@ -389,30 +389,6 @@ function validateTableAccessibility(table) {
     return issues;
 }
 
-// Accessibility helper function to validate table structure
-function validateTableStructure(table) {
-    const issues = [];
-
-    // Check for proper table structure (thead, tbody, tfoot)
-    if (!table.querySelector('thead')) {
-        issues.push('Table missing thead');
-    }
-    if (!table.querySelector('tbody')) {
-        issues.push('Table missing tbody');
-    }
-
-    // Check for proper row structure
-    const rows = table.querySelectorAll('tr');
-    rows.forEach((row, index) => {
-        const cells = row.querySelectorAll('td, th');
-        if (cells.length === 0) {
-            issues.push(`Row ${index} has no cells`);
-        }
-    });
-
-    return issues;
-}
-
 // Main execution when run directly
 if (require.main === module) {
     // Start server
@@ -1184,6 +1160,43 @@ function addNewBook(bookData) {
     }
 }
 
+// New accessibility function for addBook form
+function enhanceAddBookFormAccessibility(formElement) {
+    if (!formElement) return;
+
+    // Ensure form has proper ARIA attributes
+    if (!formElement.getAttribute('aria-labelledby')) {
+        const label = formElement.querySelector('legend') || formElement.querySelector('h1, h2, h3');
+        if (label) {
+            const id = `form-label-${Date.now()}`;
+            label.id = id;
+            formElement.setAttribute('aria-labelledby', id);
+        }
+    }
+
+    // Ensure all form fields have proper labels
+    const inputs = formElement.querySelectorAll('input, textarea, select');
+    inputs.forEach(input => {
+        if (!input.id) {
+            input.id = `form-field-${Date.now()}`;
+        }
+
+        if (!input.getAttribute('aria-label') && !input.getAttribute('aria-labelledby')) {
+            const label = formElement.querySelector(`label[for="${input.id}"]`);
+            if (label) {
+                label.id = label.id || `label-${Date.now()}`;
+                input.setAttribute('aria-labelledby', label.id);
+            }
+        }
+    });
+
+    // Ensure submit button has proper ARIA
+    const submitButton = formElement.querySelector('button[type="submit"]');
+    if (submitButton && !submitButton.getAttribute('aria-label')) {
+        submitButton.setAttribute('aria-label', 'Submit book information');
+    }
+}
+
 // Export functions for testing
 module.exports = {
     User,
@@ -1230,6 +1243,7 @@ module.exports = {
     calculateSum,
     addProperLandmarkRegions,
     countGraphDependencies,
+    enhanceAddBookFormAccessibility, // New accessibility function
 
     // New book-related function
     addNewBook,

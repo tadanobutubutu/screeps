@@ -76,19 +76,17 @@ function detectAndSetLang(content) {
   
   if (content) {
     // Check for common non-ASCII characters to help detect language
-    if (/[\u4e00-\u9fff]/.test(content)) {
+    if ... {
       lang = 'zh'; // Chinese
-    } else if (/[\u3040-\u309f\u30a0-\u30ff]/.test(content)) {
+    } else if ... {
       lang = 'ja'; // Japanese
-    } else if (/[Ѐ-ӿ]/.test(content)) {
+    } else if ... {
       lang = 'ru'; // Russian/Cyrillic
-    } else if (/[؀-ۿ]/.test(content)) {
+    } else if ... {
       lang = 'ar'; // Arabic
-    } else if ((/\b(le|la|les|de|du|et|est|une|un|des|pour|dans|sur|avec|ce|que|qui)\b/i.test(content) && 
-               /[àâçéèêëîïôùûü]/i.test(content)) || /[àâçéèêëîïôûùüÿœæ]|[ÀÂÇÉÈÊËÎÏÔÛÙÜŸŒÆ]/.test(content)) {
+    } else if ... {
       lang = 'fr'; // French
-    } else if ((/\b(der|die|das|ein|eine|und|ist|von|mit|für|auf|im|zu|als|auch|es|an|werden|aus)\b/i.test(content) && 
-               /[äöüß]/i.test(content)) || /[àâäéèêëïîôùûüç]/i.test(content)) {
+    } else if ... {
       lang = 'de'; // German
     }
   }
@@ -97,13 +95,7 @@ function detectAndSetLang(content) {
   return lang;
 }
 
-// TODO: Any additional changes requested in the issue should be added after this function
-
-/**
- * Improves keyboard navigation for accessibility
- */
-function improveKeyboardNavigation() {
-  // New code to improve accessibility
+  return ...
 }
 
 /**

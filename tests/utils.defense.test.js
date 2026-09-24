@@ -143,4 +143,33 @@ describe('utils.defense', () => {
         expect(mockTower.attack).not.toHaveBeenCalled();
         expect(mockTower.repair).not.toHaveBeenCalled();
     });
+    test("findTowerTargetsがhits 100000未満のwallがあるときrepairを呼ぶ", () => {
+        const mockTower = { structureType: STRUCTURE_TOWER, attack: jest.fn(), repair: jest.fn() };
+        const mockDamagedWall = { id: "wall1", hits: 50000, hitsMax: 300000000, structureType: STRUCTURE_WALL };
+        const room = {
+            find: jest.fn().mockImplementation((type) => {
+                if (type === FIND_MY_STRUCTURES) return [mockTower];
+                if (type === FIND_HOSTILE_CREEPS) return [];
+                if (type === FIND_STRUCTURES) return [mockDamagedWall];
+                return [];
+            }),
+        };
+        DefenseManager.findTowerTargets(room);
+        expect(mockTower.repair).toHaveBeenCalledWith(mockDamagedWall);
+    });
+
+    test("findTowerTargetsがhits 100000以上のwallがあるときrepairを呼ばない", () => {
+        const mockTower = { structureType: STRUCTURE_TOWER, attack: jest.fn(), repair: jest.fn() };
+        const mockHealthyWall = { id: "wall1", hits: 150000, hitsMax: 300000000, structureType: STRUCTURE_WALL };
+        const room = {
+            find: jest.fn().mockImplementation((type) => {
+                if (type === FIND_MY_STRUCTURES) return [mockTower];
+                if (type === FIND_HOSTILE_CREEPS) return [];
+                if (type === FIND_STRUCTURES) return [mockHealthyWall];
+                return [];
+            }),
+        };
+        DefenseManager.findTowerTargets(room);
+        expect(mockTower.repair).not.toHaveBeenCalled();
+    });
 });

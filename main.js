@@ -67,156 +67,8 @@ function ensureUniqueLandmarks() {
   const usedSuffixes = new Set();
   const landmarkIds = [];;
 
-  // Collect existing ID suffixes from landmarks that have IDs
-  landmarks.forEach(landmark => {
-    if (landmark.id) {
-      const suffix = landmark.id.split('-')[1];
-      if (suffix) {
-        usedSuffixes.add(suffix);
-        landmarkIds.push(landmark.id);
-      }
-    }
-  });
-
-  // Generate unique IDs for landmarks that don't have proper IDs
-  landmarks.forEach((landmark, index) => {
-    if (!landmark.id || !landmark.id.startsWith('landmark-')) {
-      let uniqueId;
-      let attempts = 0;
-      
-      do {
-        uniqueId = `landmark-${Date.now()}-${index}-${Math.floor(Math.random() * 1000)}`;
-        attempts++;
-        if (attempts > 100) {
-          uniqueId = `landmark-${Date.now()}-${Math.random()}`;
-          break;
-        }
-      } while (usedSuffixes.has(uniqueId.split('-')[1]));
-      
-      usedSuffixes.add(uniqueId.split('-')[1]);
-      landmark.id = uniqueId;
-    } else {
-      const suffix = landmark.id.split('-')[1];
-      if (suffix && usedSuffixes.has(suffix)) {
-        let uniqueId;
-        let attempts = 0;
-        
-        do {
-          uniqueId = `landmark-${Date.now()}-${index}-${Math.floor(Math.random() * 1000)}`;
-          attempts++;
-          if (attempts > 100) {
-            uniqueId = `landmark-${Date.now()}-${Math.random()}`;
-            break;
-          }
-        } while (usedSuffixes.has(uniqueId.split('-')[1]));
-        
-        usedSuffixes.add(uniqueId.split('-')[1]);
-        landmark.id = uniqueId;
-      } else if (suffix) {
-        usedSuffixes.add(suffix);
-      }
-    }
-  });
-}
-
-// ARIA live region announcer
-function createAnnouncer() {
-  const announcer = document.createElement('div');
-  announcer.setAttribute('aria-live', 'polite');
-  announcer.setAttribute('aria-atomic', 'true');
-  announcer.style.cssText = 'position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0);';
-  document.body.appendChild(announcer);
-  
-  return {
-    announce: (message) => {
-      announcer.textContent = '';
-      setTimeout(() => {
-        announcer.textContent = message;
-      }, 100);
-    }
-  };
-}
-
-// Check if user prefers reduced motion
-function prefersReducedMotion() {
-  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-}
-
-// Initialize accessibility features
-function initializeAccessibility() {
-  const announcer = createAnnouncer();
-  
-  // Ensure all landmarks have unique IDs
-  ensureUniqueLandmarks();
-  
-  // Return the announcer for use in the app
-  return {
-    announce: announcer.announce,
-    setupKeyboardNavigation,
-    trapFocus,
-    prefersReducedMotion
-  };
-}
-
-/**
- * Checks if a value is an empty string, null, or undefined
- * @param {*} value - The value to check
- * @returns {boolean} - True if the value is empty
- */
-function isEmpty(value) {
-  return value === null || value === undefined || value === '';
-}
-
-/**
- * Capitalizes the first letter of a string
- * @param {string} str - The string to capitalize
- * @returns {string} - The capitalized string
- */
-function capitalize(str) {
-  if (typeof str !== 'string' || str.length === 0) return str;
-  return str.charAt(0).toUpperCase() + str.slice(1);
-}
-
-/**
- * Generates a random integer between min and max (inclusive)
- * @param {number} min - Minimum value
- * @param {number} max - Maximum value
- * @returns {number} - Random integer
- */
-function getRandomInt(min, max) {
-  min = Math.ceil(min);
-  max = Math.floor(max);
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-
-/**
- * Clamps a number between min and max values
- * @param {number} num - Number to clamp
- * @param {number} min - Minimum value
- * @param {number} max - Maximum value
- * @returns {number} - Clamped number
- */
-function clamp(num, min, max) {
-  return Math.min(Math.max(num, min), max);
-}
-
-/**
- * Deep clones an object
- * @param {*} obj - Object to clone
- * @returns {*} - Cloned object
- */
-function deepClone(obj) {
-  if (obj === null || typeof obj !== 'object') return obj;
-  if (obj instanceof Date) return new Date(obj.getTime());
-  if (obj instanceof Array) return obj.map(item => deepClone(item));
-  if (obj instanceof Object) {
-    const cloned = {};
-    for (const key in obj) {
-      if (obj.hasOwnProperty(key)) {
-        cloned[key] = deepClone(obj[key]);
-      }
-    }
-    return cloned;
+  function generateUniqueId() {
+    return `landmark-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
   }
   return obj;
 }
@@ -362,10 +214,18 @@ function validateLandmarkStructure() {
   }
   
   landmarks.forEach((landmark) => {
-    const validation = validateLandmark(landmark);
-    if (!validation.valid) {
-      issues.push(...validation.issues.map(issue => `${landmark.tagName}: ${issue}`));
-    }
+    const existingIds = uniqueIds.map((id) => {
+      const parts = id.split('-');
+      return parts.length > 1 ? parts[1] : id;
+    });
+    let id;
+
+    do {
+      id = generateUniqueId();
+    } while (existingIds.includes(id.split('-')[1]));
+
+    uniqueIds.push(id);
+    landmark.id = id;
   });
   
   return {
@@ -502,45 +362,19 @@ function handleFakeLinks() {
     });
   });
   
-  return {
-    count: fakeLinks.length,
-    issues
-  };
-}
-
-// REACT_036: Create in-page button (alias for createInPageButton for clarity)
-function createAccessibleButton(text, onClick, options = {}) {
-  return createInPageButton(text, onClick, options);
-}
-
-// REACT_037: Add proper landmark regions
-function addProperLandmarkRegions() {
-  const landmarks = [];
-  
-  // Ensure header has banner role
-  const header = document.querySelector('header');
-  if (header && !header.getAttribute('role')) {
-    header.setAttribute('role', 'banner');
-    landmarks.push({ element: header, role: 'banner' });
-  }
-  
-  // Ensure main has main role
-  const main = document.querySelector('main');
-  if (main && !main.getAttribute('role')) {
-    main.setAttribute('role', 'main');
-    landmarks.push({ element: main, role: 'main' });
-  }
-  
-  // Ensure nav has navigation role
-  const navs = document.querySelectorAll('nav');
-  navs.forEach((nav, index) => {
-    if (!nav.getAttribute('role')) {
-      nav.setAttribute('role', 'navigation');
-      if (navs.length > 1 && !nav.getAttribute('aria-label') && !nav.getAttribute('aria-labelledby')) {
-        nav.setAttribute('aria-label', `Navigation ${index + 1}`);
-      }
-      landmarks.push({ element: nav, role: 'navigation' });
-    }
+  // Render edges (connections between nodes)
+  edges.forEach(edge => {
+    const sourceEl = document.getElementById(edge.source);
+    const targetEl = document.getElementById(edge.target);
+    
+    if (sourceEl) ensureElementHasId(sourceEl, 'node-source');
+    if (targetEl) ensureElementHasId(targetEl, 'node-target');
+    
+    const edgeElement = document.createElement('div');
+    edgeElement.className = 'graph-edge';
+    edgeElement.setAttribute('data-source', edge.source);
+    edgeElement.setAttribute('data-target', edge.target);
+    graphContainer.appendChild(edgeElement);
   });
   
   // Ensure footer has contentinfo role

@@ -1,5 +1,7 @@
 // TODO: Import required module(s) and export the new necessary function(s) here in main.js (preserving the original code)
 import { union } from 'lodash'; // You'll need to install lodash if it's not already installed
+import path from 'path';
+import fs from 'fs';
 
 // Import graph rendering functions
 import { renderGraph } from ... // Assuming you have a separate file for the new functions
@@ -45,11 +47,49 @@ export function ... {
   });
 }
 
-// Function to prepare data for graph rendering
+// Function to prepare data for graph
 function prepareDataForGraph() {
-  // Placeholder implementation - returns empty object
-  // Replace with actual data preparation logic
-  return {};
+  // Placeholder implementation
+  return { nodes: [], edges: [] };
+}
+
+// Function to update th scope attribute in HTML files
+function updateThScopeAttribute(filePath) {
+  try {
+    let content = fs.readFileSync(filePath, 'utf8');
+    // Simple placeholder implementation
+    // In real implementation, this would parse HTML and update th elements
+    return content;
+  } catch (error) {
+    console.error(`Error updating file: ${filePath}`, error);
+    return null;
+  }
+}
+
+// Function to get lang attribute
+export function getLangAttribute() {
+  const htmlElement = document.querySelector('html');
+  return htmlElement ? htmlElement.getAttribute('lang') || 'en' : 'en';
+}
+
+// Function to wrap primary content in main
+export function wrapPrimaryContentInMain() {
+  const mainElements = document.querySelectorAll('main');
+  if (mainElements.length > 1) {
+    console.warn('Multiple <main> elements detected.');
+  }
+  return mainElements.length > 0;
+}
+
+// Function to add landmark regions
+export function addLandmarkRegions() {
+  const landmarks = document.querySelectorAll('[role="landmark"]');
+  landmarks.forEach((landmark, index) => {
+    if (!landmark.id) {
+      landmark.id = `landmark-${index + 1}`;
+    }
+  });
+  return landmarks.length;
 }
 
 // Function to render graph/index using new functions
@@ -459,13 +499,32 @@ module.exports.loop = function() {
 
     if(harvesters.length < 2) {
         var newName = 'Harvester' + Game.time;
-        Game.spawns['Spawn1'].spawnCreep([WORK, CARRY, MOVE], newName,
+        Game.spawns['Spawn1'].spawnCreep(Game.rooms.W0N0.createCreepBody(), newName, 
             {memory: {role: 'harvester'}});
     }
-
+    
     if(upgraders.length < 2) {
         var newName = 'Upgrader' + Game.time;
-        Game.spawns['Spawn1'].spawnCreep([WORK, CARRY, MOVE], newName,
+        Game.spawns['Spawn1'].spawnCreep(Game.rooms.W0N0.createCreepBody(), newName, 
             {memory: {role: 'upgrader'}});
+    }
+    
+    if(Game.spawns['Spawn1'].spawning) { 
+        var spawningCreep = Game.creeps[Game.spawns['Spawn1'].spawning.name];
+        Game.spawns['Spawn1'].room.visual.text(
+            '🛠️' + spawningCreep.memory.role,
+            Game.spawns['Spawn1'].pos.x + 1, 
+            Game.spawns['Spawn1'].pos.y, 
+            {align: 'left', opacity: 0.8});
+    }
+
+    for(var name in Game.creeps) {
+        var creep = Game.creeps[name];
+        if(creep.memory.role == 'harvester') {
+            roleHarvester.run(creep);
+        }
+        if(creep.memory.role == 'upgrader') {
+            roleUpgrader.run(creep);
+        }
     }
 };

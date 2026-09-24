@@ -14,133 +14,6 @@ const config = {
 
 const port = config.port;
 
-const AddressabilityIssues = {
-  validateTableAccessibility: function(table) {
-    // Ensures the table has proper structure (rows, headers, etc.)
-    if (table) {
-      const rows = Array.from(table.children).filter(c => c.tagName === 'TR');
-      if (rows.length === 0) {
-        const tr = document.createElement('tr');
-        table.appendChild(tr);
-      }
-      // Simple header handling
-      const th = document.createElement('th');
-      th.textContent = 'Column';
-      table.insertBefore(th, table.firstChild);
-      // Ensure the table has a caption
-      const caption = document.createElement('caption');
-      caption.textContent = 'Table Caption';
-      table.insertBefore(caption, table.firstChild);
-      // Add scope attributes to header cells
-      const ths = table.querySelectorAll('th');
-      ths.forEach(th => {
-        th.setAttribute('scope', 'col');
-      });
-    }
-
-function getLangAttribute() {
-  let lang = 'en'; // Default to English
-  // Your code for detecting the language based on the content or any other logic
-  return lang;
-}
-
-function addLangAttribute(element) {
-  if (element && typeof element.setAttribute === 'function') {
-    element.setAttribute('lang', 'en');
-  }
-  return element;
-}
-
-function validateTableAccessibility(table) {
-  // Check 26 table structure issues
-  // Your code for validating the table accessibility
-  return true; // Set the default value to true
-}
-
-function validateTableStructure(table) {
-  // Check the table structure and return a boolean value indicating the result
-  // Your code for validating the table structure
-  return true; // Set the default value to true
-}
-
-function validateLandmark(element) {
-  const validLandmarks = ['main', 'nav', 'aside', 'footer', 'header', 'form', 'search'];
-  const role = element.getAttribute('role');
-  return validLandmarks.includes(role);
-}
-
-function validateLandmarkStructure() {
-  // Check for 2 unique landmarks issues and resolve them
-  // Your implementation for ensuring unique landmarks
-  return true; // Set the default value to true
-}
-
-function ensureUniqueLandmarks() {
-  // Your implementation for ensuring unique landmarks
-  return true; // Set the default value to true
-}
-
-function setSVGAccessibleName(svgElement, name) {
-  // Your implementation for setting the SVG accessible name
-  return svgElement;
-}
-
-function createInPageButton(text) {
-  // Your implementation for the in-page button creation
-  return {};
-}
-
-function createAccessibleLink(href, text) {
-  // Your implementation for the accessible link creation
-  return {};
-}
-
-function handleAccessibilityIssues() {
-  // Your implementation for handling accessibility issues
-}
-
-function addAriaLabel(element, label) {
-  if (!element.ariaLabel) {
-    element.ariaLabel = label;
-  }
-  return element;
-}
-
-function addProperLandmarkRegions(regions) {
-  // Your implementation for ensuring proper landmark regions
-  return {
-    totalIssues: 0,
-    addressed: 0,
-    unaddressed: 0,
-    addressedIssues: [],
-    unaddressedIssues: [],
-  };
-}
-
-function checkElementAccessibility(element) {
-  // Your implementation for checking the accessibility of an element
-  return true;
-}
-
-function setupHandlers() {
-  console.log('Setting up event handlers...');
-}
-
-function validateInput(input) {
-  return input !== null && input !== undefined;
-}
-
-function processData(data) {
-  if (!validateInput(data)) {
-    throw new Error('Invalid input data');
-  }
-};
-
-function countDependencies() {
-  // Implement your code for counting dependencies
-  return {};
-}
-
 function getLangAttribute() {
   let lang = 'en'; // Default to English
   // Your code for detecting the language based on the content or any other logic
@@ -244,47 +117,20 @@ function countDependencies() {
   return {};
 }
 
-function calculateSum(a, b) {
-  return a + b;
-}
+function createServer() {
+  const app = express();
 
   app.get('/', (req, res) => {
     res.send('Hello World!');
   });
-  return server;
-};
 
-// Utility functions
-function loadConfigurations() {
-    try {
-        const packagePath = path.join(__dirname, 'package.json');
-        if (fs.existsSync(packagePath)) {
-            const packageJson = JSON.parse(fs.readFileSync(packagePath, 'utf8'));
-            config.name = packageJson.name || 'dependency-counter';
-            config.version = packageJson.version || '1.0.0';
-            config.dependencies = packageJson.dependencies || {};
-            config.devDependencies = packageJson.devDependencies || {};
-            config.accessibility = packageJson.accessibility || {};
-        }
-      }
-      count++;
-    }
+  return app;
 }
 
-function initializeApp() {
-    addressInsightIssues();
-    if (typeof wrapPrimaryContentInMain === 'function') {
-      wrapPrimaryContentInMain();
-    }
-}
-
-// Implements the new addressNewAccessibilityIssues function
-function addressNewAccessibilityIssues(insightReport) {
-  return AddressabilityIssues.addressAccessibilityIssues(insightReport);
-}
-
+/**
+ * Starts the application
+ */
 function startApp() {
-  loadConfigurations();
   const server = createServer();
   return server;
 }
@@ -298,7 +144,7 @@ function ensureElementId(element, id) {
   }
 }
 
-const calcAddressabilityIssues = {
+const AddressabilityIssues = {
   validateTableAccessibility: function(table) {
     // Check 26 table structure issues
     // Your code for validating the table accessibility
@@ -384,13 +230,3 @@ function fixFakeLinkIssue(document) {
     }
   });
 }
-
-module.exports = {
-    config,
-    XYZ,
-    calculateSum,
-    fixMain,
-    createServer,
-    startApp,
-    AddressabilityIssues
-};

@@ -1,8 +1,6 @@
 name: Auto Merge PRs - Force Penetration (Instant CI)
 
 on:
-  pull_request_target:
-    types: [opened, synchronize, reopened, ready_for_review]
   schedule:
     - cron: "*/5 * * * *"
   workflow_dispatch:
@@ -21,7 +19,7 @@ on:
         default: '10'
 
 concurrency:
-  group: auto-merge-pr
+  group: auto-merge-batch-runner
   cancel-in-progress: false
 
 permissions:

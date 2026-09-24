@@ -10,15 +10,11 @@ const http = require('http');
 const url = require('url');
 const { dependencyGraphContent } = require('./dependencyGraphContent');
 const { indexContent } = require('./indexContent');
-const { addLangAttribute, fixTableStructureIssues, addMainLandmark, ensureUniqueLandmarks, setSvgAccessibilityProps, addAccessibleNamesToSVGs, fixFakeLinkIssue, fixFakeLinkIssues, fixLandmarkIssues, addLandmarkRegions, uniqueLandmarks, fixImageAltTexts, googleSignIn, handleCredentialResponse, ensureElementHasId, ensureElementHasIdOrigin, addAriaLabel, renderDependencyGraphs, fixButtonIdentifiers, fixDependencyGraphAria, addMainLandmarkToIndex, addressAccessibilityIssues } = require('./utilities');
+const { addLangAttribute, fixTableStructureIssues, addMainLandmark, ensureUniqueLandmarks, setSvgAccessibilityProps, addAccessibleNamesToSVGs, fixFakeLinkIssue, fixFakeLinkIssues, fixLandmarkIssues, addLandmarkRegions, uniqueLandmarks, fixImageAltTexts, googleSignIn, ensureElementHasId, ensureElementHasIdOrigin, addAriaLabel, renderDependencyGraphs, fixButtonIdentifiers, fixDependencyGraphAria, addMainLandmarkToIndex, addressAccessibilityIssues } = require('./utilities');
 const { createInPageButton, createWebResourceButton, validateLandmark, validateLandmarkStructure, validateAccessibilityReport } = require('./utilities');
 
 const { main } = require('./utilities');
 const { functionA, functionB } = require('./functionModule');
-
-// Removed duplicate http import
-// const { http } = require('http');
-// const url = require('url');
 
 // Function to validate table accessibility
 const validateTableAccessibility = (html) => {
@@ -138,11 +134,8 @@ function processCredentialResponse(credentialResponse) {
   return importedHandleCredentialResponse(credentialResponse);
 }
 
-// Re-add the required exports for functionA and functionB
-// Assuming that they are objects with properties X, Y, and Z
-const { functionA, functionB } = require('./functionModule');
-
 const a11yStore = {
+  // ... existing methods ...
   prefersReducedMotion() {
     return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   },
@@ -169,4 +162,21 @@ const a11yStore = {
 
         if (landmarks.length > 1) {
           if (!landmark.hasAttribute('aria-label') && !landmark.hasAttribute('aria-labelledby')) {
-            landmark.setAttribute('aria
+            landmark.setAttribute('aria-label', `${element} section`);
+          }
+        }
+      });
+    });
+  }
+};
+
+// Export all required functions
+module.exports = {
+  validateTableAccessibility,
+  getActiveSessionsCount,
+  validateSession,
+  handleCredentialResponse,
+  a11yStore,
+  functionA,
+  functionB
+};

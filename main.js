@@ -77,9 +77,11 @@ function implementAccessibilityFixesFromReport (container, report) {
   }
 
   // Add lang attribute to HTML element if missing
-  const htmlEl = document.documentElement || (container.ownerDocument && container.ownerDocument.documentElement)
-  if (htmlEl && !htmlEl.lang) {
-    htmlEl.lang = 'en'
+  const htmlEl =
+    document.documentElement ||
+    (container.ownerDocument && container.ownerDocument.documentElement)
+  if (htmlEl && !htmlEl.hasAttribute('lang')) {
+    htmlEl.setAttribute('lang', 'en')
     fixes.langAdded = true
   }
 
@@ -100,9 +102,7 @@ function implementAccessibilityFixesFromReport (container, report) {
   // Update the existing function using the new functions for rendering graph/index
   renderDependencyGraphs(container)
   fixButtonIdentifiers(container)
-  ensureElementHasId(container)
-  addAriaLabel(container)
-  addMainLandmarkToIndex(container)
+  checkAccessibility(container)
 
   // Fix landmark issues
   validateLandmark(container)
@@ -113,8 +113,12 @@ function implementAccessibilityFixesFromReport (container, report) {
   const svgElements = container.querySelectorAll('svg')
   svgElements.forEach(svg => {
     const accessibleName = getSvgAccessibleName(svg)
-    if (accessibleName && !svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
-      svg.setAttribute('aria-label', accessibleName)
+    if (
+      accessibleName &&
+      !svg.hasAttribute('aria-label') &&
+      !svg.getAttribute('aria-labelledby')
+    ) {
+      addSvgAccessibleName(svg, accessibleName)
       fixes.svgNamesAdded++
     }
   })
@@ -122,7 +126,7 @@ function implementAccessibilityFixesFromReport (container, report) {
   // Fix fake link issues (elements that look like links but are missing href)
   const fakeLinks = container.querySelectorAll('a:not([href])')
   fakeLinks.forEach(link => {
-    link.setAttribute('href', '#' + (link.id || 'link'))
+    link.setAttribute('href', '#' + (link.id || Math.random().toString(36).substr(2, 9)))
     link.setAttribute('role', 'link')
     fixes.fakeLinksFixed++
   })
@@ -147,12 +151,12 @@ function implementAccessibilityFixesFromReport (container, report) {
   // Check for new accessibility issues
   const newAccessibilityIssues = checkAccessibility(container)
   if (newAccessibilityIssues.length > 0) {
-    log(`New accessibility issues found: ${newAccessibilityIssues.length}`, 'error')
+    log(`New accessibility issues found: ${newAccessibilityIssues.map(i => i.message).join(', ')}`, 'error')
   }
 
   const landmarkFixesCount = fixes.landmarksFixed || 0
   if (landmarkFixesCount > 0) {
-    log(`Fixed ${landmarkFixesCount} landmarks for unique landmarks`, 'info')
+    log(`Fixed ${landmarkFixesCount} landmarks with ${uniqueLandmarks} unique landmarks`, 'info')
   }
 
   const svgFixes = fixes.svgNamesAdded || 0
@@ -308,9 +312,88 @@ function createAnnouncer() {
   }
 }
 
-// Check if user prefers reduced motion
-function prefersReducedMotion() {
-  return ... reduce)').matches
+// TODO: Implement new function3 logic here
+/**
+ * REACT_016: Function3 - Process accessibility remediation workflow
+ * Processes and applies accessibility fixes based on provided remediation plan
+ * @param {Object} container - The container element to apply fixes to
+ * @param {Array} remediationPlan - Array of remediation actions to apply
+ * @returns {Object} Summary of applied fixes
+ */
+export function function3(container, remediationPlan) {
+  const results = {
+    fixesApplied: 0,
+    fixesFailed: 0,
+    errors: []
+  }
+
+  if (!container || !remediationPlan || !Array.isArray(remediationPlan)) {
+    results.errors.push('Invalid container or remediation plan provided')
+    return results
+  }
+
+  remediationPlan.forEach(action => {
+    try {
+      switch (action.type) {
+        case 'addLangAttribute':
+          addLangAttribute(container, action.lang || 'en')
+          results.fixesApplied++
+          break
+        case 'fixTableStructure':
+          if (action.tableSelector) {
+            const table = container.querySelector(action.tableSelector)
+            if (table) {
+              fixTableStructure(table)
+              results.fixesApplied++
+            }
+          }
+          break
+        case 'addMainLandmark':
+          addMainLandmark(container)
+          results.fixesApplied++
+          break
+        case 'addLandmarkRegions':
+          addLandmarkRegions(container)
+          results.fixesApplied++
+          break
+        case 'fixButtonIdentifiers':
+          fixButtonIdentifiers(container)
+          results.fixesApplied++
+          break
+        case 'addSvgAccessibleName':
+          addAccessibleNamesToSVGs(container)
+          results.fixesApplied++
+          break
+        case 'fixFakeLinkIssues':
+          fixFakeLinkIssues(container)
+          results.fixesApplied++
+          break
+        default:
+          results.errors.push(`Unknown action type: ${action.type}`)
+          results.fixesFailed++
+      }
+    } catch (error) {
+      results.errors.push(`Failed to apply ${action.type}: ${error.message}`)
+      results.fixesFailed++
+    }
+  })
+
+  return results
+}
+
+/**
+ * REACT_015: Add lang attribute to HTML element
+ * Ensures the HTML element has a proper lang attribute for screen readers
+ */
+export function addLangAttribute(element, lang = 'en') {
+  let htmlElement = element || document.documentElement
+  if (!htmlElement) {
+    return null
+  }
+  if (htmlElement && !htmlElement.hasAttribute('lang')) {
+    htmlElement.setAttribute('lang', lang)
+  }
+  return htmlElement
 }
 
 // Access the dependencyGraph container and ensure it has proper ARIA role
@@ -384,32 +467,13 @@ function validateTableStructure (tableData) {
 function initializeAccessibility() {
   const announcer = createAnnouncer()
   
-  accessibilityUtils.initSkipLink()
-  
-  return {
-    announce: announcer.announce,
-    getLastMessage: announcer.getLastMessage
-  }
+  const headers = tableElement.querySelectorAll('th')
+  headers.forEach(th => {
+    if (!th.hasAttribute('scope')) {
+      const row = th.closest('tr')
+      const cellIndex = Array.from(row.children).indexOf(th)
+      th.setAttribute('scope', cellIndex === 0 ? 'row' : 'col')
+    }
+  })
+  return tableElement
 }
-
-// Call the functions to address the accessibility issues
-addLangAttribute()
-fixTableStructure()
-addMainLandmark()
-fixLandmarkIssues()
-ensureUniqueLandmarks()
-addSvgAccessibleNames()
-addAccessibleNamesToSVGs()
-fixFakeLinkIssue()
-googleSignIn()
-fixButtonIdentifiers()
-
-// Other code...
-
-module.exports = {
-  ...main,
-  createInPageButton,
-  createWebResourceButton,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessible

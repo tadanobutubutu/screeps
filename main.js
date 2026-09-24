@@ -145,6 +145,66 @@ function fixLandmarks() {
   });
 }
 
+// REACT_017: Add main landmark if missing
+function addMainLandmark() {
+  if (typeof document === 'undefined') return;
+
+  const mainElement = document.querySelector('main');
+  if (!mainElement) {
+    const main = document.createElement('main');
+    main.setAttribute('role', 'main');
+    main.setAttribute('aria-label', 'Main content');
+
+    // Insert main landmark at the beginning of the body
+    if (document.body) {
+      document.body.insertBefore(main, document.body.firstChild);
+    }
+  }
+}
+
+// REACT_017: Add landmark regions to document
+function addLandmarkRegions() {
+  if (typeof document === 'undefined') return;
+
+  // Check for common landmark regions and add if missing
+  const landmarks = {
+    header: document.querySelector('header'),
+    nav: document.querySelector('nav'),
+    main: document.querySelector('main'),
+    footer: document.querySelector('footer'),
+    aside: document.querySelector('aside')
+  };
+
+  // Add missing landmarks
+  if (!landmarks.header) {
+    const header = document.createElement('header');
+    header.setAttribute('role', 'banner');
+    document.body.insertBefore(header, document.body.firstChild);
+  }
+
+  if (!landmarks.nav) {
+    const nav = document.createElement('nav');
+    nav.setAttribute('role', 'navigation');
+    document.body.insertBefore(nav, document.body.firstChild);
+  }
+
+  if (!landmarks.main) {
+    addMainLandmark();
+  }
+
+  if (!landmarks.footer) {
+    const footer = document.createElement('footer');
+    footer.setAttribute('role', 'contentinfo');
+    document.body.appendChild(footer);
+  }
+
+  if (!landmarks.aside) {
+    const aside = document.createElement('aside');
+    aside.setAttribute('role', 'complementary');
+    document.body.appendChild(aside);
+  }
+}
+
 // REACT_041: Add accessible names to SVGs
 function addSvgAccessibleNames() {
   if (typeof document === 'undefined') return;
@@ -247,6 +307,8 @@ function initializeAccessibility() {
   ensureLangAttribute();
   fixTableStructure();
   fixLandmarks();
+  addMainLandmark();
+  addLandmarkRegions();
   addSvgAccessibleNames();
   fixFakeLinks();
   replaceButtonIds();
@@ -270,6 +332,8 @@ module.exports = {
   ensureLangAttribute,
   fixTableStructure,
   fixLandmarks,
+  addMainLandmark,
+  addLandmarkRegions,
   addSvgAccessibleNames,
   fixFakeLinks,
   replaceButtonIds,

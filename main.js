@@ -423,24 +423,91 @@ function getInsightReport() {
   return issues;
 }
 
-/**
- * Returns accessibility props for SVG elements
- * @param {string} accessibleName - The accessible name for the SVG
- * @param {string} [role='img'] - The ARIA role for the SVG
- * @returns {Object} Object containing accessibility props
- */
-function getSvgAccessibilityProps(accessibleName, role = 'img') {
-  const props = {
-    role: role,
-    'aria-hidden': !accessibleName
-  };
-
-  if (accessibleName) {
-    props['aria-label'] = accessibleName;
-  }
-
-  return props;
+// Function to add scope to table headers
+function addTableHeaderScopes() {
+  const tableHeaders = document.querySelectorAll('th');
+  tableHeaders.forEach(header => {
+    if (header && header.setAttribute) {
+      // Default to column scope if not specified
+      const scope = header.getAttribute('scope') || 'col';
+      header.setAttribute('scope', scope);
+    }
+  });
 }
 
-export { someFunction };
-export default Main;
+// Updated function to ensure unique landmarks
+function ensureUniqueLandmarks() {
+  // Remove duplicate main landmarks
+  const mainElements = document.querySelectorAll('main');
+  if (mainElements.length > 1) {
+    for (let i = 1; i < mainElements.length; i++) {
+      mainElements[i].removeAttribute('role');
+    }
+  }
+
+  // Ensure only one navigation landmark
+  const navElements = document.querySelectorAll('nav[role="navigation"]');
+  if (navElements.length > 1) {
+    for (let i = 1; i < navElements.length; i++) {
+      navElements[i].removeAttribute('role');
+    }
+  }
+}
+
+// Updated function to add accessible names to SVGs
+function addSvgAccessibleNames() {
+  const svgs = document.querySelectorAll('svg');
+  svgs.forEach(svg => {
+    if (svg && !svg.getAttribute('aria-label')) {
+      setSvgAttributes(svg, getSvgAccessibleName());
+    }
+  });
+}
+
+// Updated function to fix fake links
+function fixFakeLinkIssue() {
+  const fakeLinks = document.querySelectorAll('a:not([href])');
+  fakeLinks.forEach(link => {
+    if (link && !link.getAttribute('role')) {
+      link.setAttribute('role', 'button');
+    }
+  });
+}
+
+// Updated exports to include new accessibility functions
+module.exports = {
+  User,
+  spawnNewUser,
+  config,
+  initialize,
+  initializeApp,
+  main,
+  visualizeDependencyTree,
+  someFunction,
+  getConfig,
+  getVersion,
+  getLangAttribute,
+  addLangAttribute,
+  setLanguageAttribute,
+  addLandmarkRoles,
+  fixFakeLinks,
+  validateTableAccessibility,
+  validateTableStructure,
+  fixTableStructure,
+  addMainLandmark,
+  validateLandmark,
+  validateLandmarkStructure,
+  validateLandmarkAttributes,
+  addLandmarkRegions,
+  getSvgAccessibleName,
+  setSvgAttributes,
+  ensureUniqueLandmarks,
+  createInPageButton,
+  validateLinkAccessibility,
+  handleFakeLinks,
+  addressAccessibilityIssues,
+  getInsightReport,
+  addTableHeaderScopes,
+  addSvgAccessibleNames,
+  fixFakeLinkIssue
+};

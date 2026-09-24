@@ -222,8 +222,8 @@ export {
   function3,
   App,
   getUniqueLandmarkName,
-  addLandmarkRoles,
-  ...
+  validateLandmarks,
+  addSvgAccessibleNames,
   addSvgAccessibleName,
   isValidLink,
   addScopeToHeaders,

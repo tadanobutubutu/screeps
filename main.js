@@ -44,29 +44,18 @@ module.exports = {
   config
 };
 
-// New function to handle logging
-function logMessage(message) {
-  console.log(`[LOG]: ${message}`);
+// Start the application if run directly
+if (require.main === module) {
+  startApp();
 }
 
-/**
- * New function to handle logging
- */
-function gracefulShutdown(server) {
-  server.close(() => {
-    console.log('Server closed gracefully');
-    process.exit(0);
-  });
-
-  // Forcibly close server after 5 seconds
-  setTimeout(() => {
-    server.kill('SIGKILL');
-  }, 5000);
+// TODO: Address accessibility issues from insight report:
+// Example: Add 'aria-live' attribute to console log output for screen readers
+function logWithAccessibility(message) {
+  const accessibilityLog = document.createElement('div');
+  accessibilityLog.setAttribute('aria-live', 'polite');
+  accessibilityLog.textContent = message;
+  document.body.appendChild(accessibilityLog);
 }
 
-/**
- * New function to add lang attribute to HTML element
- */
-function addLangAttribute(htmlElement) {
-  htmlElement.setAttribute('lang', 'en');
-}
+// Example usage: logWithAccessibility(`Server running on port ${config.port}`);

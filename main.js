@@ -25,6 +25,8 @@
 // <!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
 // >>>>>>> branch-name
 
+// TODO: Address accessibility issues from insight report — FIXED
+
 // TODO: Import required modules and export the new necessary functions here in main.js (preserving the original code)
 
 // Import required modules

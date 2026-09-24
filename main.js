@@ -268,45 +268,12 @@ const a11yStore = {
 
   // ... remaining a11yStore methods ...
 
-  /**
-   * Ensure the dependencyGraph container has a proper ARIA role
-   */
-  ensureDependencyGraphRole() {
-    const dependencyGraph = document.getElementById('dependencyGraph');
-    if (dependencyGraph) {
-      if (!dependencyGraph.hasAttribute('role')) {
-        dependencyGraph.setAttribute('role', 'group');
-      }
-    }
-  }
-};
-
-// New functions
-function ensureInteractiveElementsAccessible() {
-  if (a11yStore) {
+  // New function
+  ensureInteractiveElementsAccessible() {
     a11yStore.ensureInteractiveRoles();
     a11yStore.addFormControlLabels();
-    a11yStore.checkLandmarkElements();
+    a11yStore.ensureImageAccessibility();
   }
-}
-
-/**
- * Initialize accessibility features for the page
- * @param {string} mainHeading - Optional main heading text
- */
-function initAccessibility(mainHeading) {
-  a11yStore.checkLandmarkElements();
-  a11yStore.addSVGAccessibilityProps();
-  a11yStore.fixFakeLinks();
-  a11yStore.ensureInteractiveRoles();
-  a11yStore.addFormControlLabels();
-  a11yStore.ensureImageAccessibility();
-  a11yStore.ensureSkipLink();
-  a11yStore.ensureButtonAccessibility();
-  if (mainHeading) {
-    a11yStore.addHeadingStructure(mainHeading);
-  }
-  a11yStore.focusMainLandmark();
-}
+};
 
 // ... rest of the code ...

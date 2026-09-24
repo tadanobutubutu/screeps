@@ -546,12 +546,12 @@ const a11yStore = {
   }
 };
 
-// New functions
-function ensureInteractiveElementsAccessible() {
-  a11yStore.ensureInteractiveRoles();
-  a11yStore.addFormControlLabels();
-  a11yStore.ensureImageAccessibility();
-  a11yStore.ensureSingleMainLandmark(); // Call the new function to check for multiple <main> elements
+// New function to add language attribute to the HTML element
+function addLanguageAttribute(language) {
+  const htmlElement = document.querySelector('html');
+  if (htmlElement) {
+    htmlElement.setAttribute('lang', language);
+  }
 }
 
 /**

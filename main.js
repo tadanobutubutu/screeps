@@ -471,33 +471,12 @@ const a11yStore = {
 
   // ... remaining a11yStore methods ...
 
-  /**
-   * Ensure interactive elements have proper ARIA roles and labels
-   */
+  // New functions
   ensureInteractiveElementsAccessible() {
     this.ensureInteractiveRoles();
     this.addFormControlLabels();
     this.ensureImageAccessibility();
   }
 };
-
-// Existing function for checking landmarkElements, addSVGAccessibilityProps, fixFakeLinks, ensuring interactive elements have proper ARIA roles, adding form control labels, and ensuring images have alt text
-a11yStore.checkLandmarkElements();
-a11yStore.addSVGAccessibilityProps();
-a11yStore.fixFakeLinks();
-a11yStore.ensureInteractiveRoles();
-a11yStore.addFormControlLabels();
-a11yStore.ensureImageAccessibility();
-
-// New function to ensure all dependencyGraph container elements have proper ARIA roles
-function ensureDependencyGraphAccessibility() {
-  a11yStore.setDependencyGraphARIA();
-}
-
-// changed function to call both greetingFunction and ensureDependencyGraphAccessibility
-function getWelcomeMessageWithAccessibility() {
-  return greetingFunction() + " This is a new function that returns a welcome message with dependency graph accessibility.";
-  ensureDependencyGraphAccessibility();
-}
 
 // ... rest of the code ...

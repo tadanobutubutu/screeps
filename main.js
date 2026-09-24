@@ -102,42 +102,5 @@ function addressAccessibilityIssues() {
   checkLandmarkElements();
 }
 
-function validateTableAccessibility() {
-  // Implementation to validate table accessibility
-}
-
-function validateTableStructure() {
-  // Implementation to validate table structure
-}
-
-function validateLandmark() {
-  // Implementation to validate landmark
-}
-
-function validateLandmarkStructure() {
-  // Implementation to validate landmark structure
-}
-
-function ensureUniqueLandmarks() {
-  // Implementation to ensure unique landmarks
-}
-
-function getSvgAccessibleName() {
-  // Implementation to get SVG accessible name
-}
-
-function setSvgAttributes() {
-  // Implementation to set SVG attributes
-}
-
-function createInPageButton() {
-  // Implementation to create in-page button
-}
-
-function validateLinkAccessibility() {
-  // Implementation to validate link accessibility
-}
-
-function handleFakeLinks() {
-  // Implementation to handle fake links
-}
+// Export functions if needed
+export { rotateBack, addressAccessibilityIssues };

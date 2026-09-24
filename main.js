@@ -93,137 +93,240 @@ export function validateFocusableElement(element) {
     return false;
   }
   const focusableTags = ['a', 'button', 'input', 'select', 'textarea'];
-  const tagName = ...
-  const isFocusable = ... ||
+  const tagName = element.tagName ? element.tagName.toLowerCase() : '';
+  const isTagFocusable = focusableTags.includes(tagName);
+  const isFocusable = isTagFocusable ||
                       element.tabIndex >= 0 ||
                       checkAccessibilityAttribute(element, 'tabindex');
-  return isFocusable && ...
+  return isFocusable && ensureAccessibleLabel(element);
 }
 
-// Default export for backwards compatibility
-export default {
-  calculateSum,
-  calculateDifference,
-  calculateProduct,
-  isNumber,
-  clamp,
-  divide,
-  start() {
-    console.log('Application started');
-    return Promise.resolve();
+/**
+ * Get the lang attribute value for the HTML element
+ * @param {Document} doc - The document object (defaults to global document)
+ * @returns {string} The language attribute value, or 'en' as default
+ */
+export function getLangAttribute(doc = document) {
+  const htmlElement = doc.documentElement || doc.querySelector('html');
+  const lang = htmlElement ? htmlElement.getAttribute('lang') : null;
+  return lang || 'en';
+}
+
+/**
+ * Validate that a table has proper accessibility structure
+ * @param {HTMLTableElement} table - The table element to validate
+ * @returns {Object} Validation result with isValid and issues array
+ */
+export function validateTableAccessibility(table) {
+  const issues = [];
+  
+  if (!table) {
+    return { isValid: false, issues: ['Table element is required'] };
   }
-};
-
-export const logger = {
-  info(message) {
-    console.log(`[INFO] ${message}`);
-  },
-  error(message) {
-    console.error(`[ERROR] ${message}`);
+  
+  // Check for caption
+  const caption = table.querySelector('caption');
+  if (!caption) {
+    issues.push({ code: 'REACT_027', message: 'Table should have a caption element' });
   }
-};
-
-export { addLandmarkRegions };
-
-export function initializeApp() {
-  console.log('Initializing application...');
-  return Promise.resolve();
-}
-
-export function generateAccessibilityReport() {
-  // Placeholder for the actual implementation
-  // This function should return a report object based on the accessibility issues found
-  return {
-    issues: [
-      // Example issue object
-      {
-        description: "Example issue description",
-        severity: "warning",
-        // ... other properties like 'elementId', 'fixRecommendation', etc.
-      }
-    ]
-  };
-}
-
-// TODO: Add any other missing exports that might have been?
-// Added missing exports as per the issue
-
-var roleHarvester = require('role.harvester');
-var roleUpgrader = require('role.upgrader');
-
-// Address the issues: REACT_015, REACT_017, REACT_041, REACT_025, REACT_036
-function addressAccessibilityIssues() {
-  ... 'en');
-
-  const landmarks = ...
-  landmarks.forEach((landmark, index) => {
-    ... 'landmark');
-    ... ...
+  
+  // Check for th elements with scope or headers
+  const thElements = table.querySelectorAll('th');
+  thElements.forEach((th, index) => {
+    const hasScope = th.hasAttribute('scope');
+    const hasHeaders = th.hasAttribute('headers');
+    if (!hasScope && !hasHeaders) {
+      issues.push({ 
+        code: 'REACT_027', 
+        message: `Table header at index ${index} should have scope or headers attribute` 
+      });
+    }
   });
-
-  const svg1 = ...
-  const svg2 = ...
-  ... 'svg1-title');
-  ... 'svg2-title');
-
-  // ... existing code preserved for accessibility ...
-
-  ... = addressAccessibilityIssues;
+  
+  return { isValid: issues.length === 0, issues };
 }
 
-... = getLangAttribute;
-... = wrapPrimaryContentInMain;
-
-function renderGraph() {
-  // TODO: Add implementation details
+/**
+ * Validate the structure of a table
+ * @param {HTMLTableElement} table - The table element to validate
+ * @returns {Object} Validation result with isValid and issues array
+ */
+export function validateTableStructure(table) {
+  const issues = [];
+  
+  if (!table) {
+    return { isValid: false, issues: ['Table element is required'] };
+  }
+  
+  // Check for thead
+  const thead = table.querySelector('thead');
+  if (!thead) {
+    issues.push({ code: 'REACT_027', message: 'Table should have a thead element' });
+  }
+  
+  // Check for tbody
+  const tbody = table.querySelector('tbody');
+  if (!tbody) {
+    issues.push({ code: 'REACT_027', message: 'Table should have a tbody element' });
+  }
+  
+  // Check that th elements are in thead
+  const allThs = table.querySelectorAll('th');
+  allThs.forEach((th) => {
+    let parent = th.parentElement;
+    while (parent && parent !== table) {
+      if (parent.tagName === 'THEAD') break;
+      parent = parent.parentElement;
+    }
+    if (parent !== table && !parent) {
+      issues.push({ code: 'REACT_027', message: 'All th elements should be within thead' });
+    }
+  });
+  
+  return { isValid: issues.length === 0, issues };
 }
 
-function renderIndex() {
-  // TODO: Add implementation details
+/**
+ * Validate landmark accessibility
+ * @param {HTMLElement} element - The element to validate as a landmark
+ * @returns {Object} Validation result with isValid and issues array
+ */
+export function validateLandmark(element) {
+  const issues = [];
+  
+  if (!element) {
+    return { isValid: false, issues: ['Element is required'] };
+  }
+  
+  // Check if element has a valid landmark role
+  const validLandmarkRoles = [
+    'banner', 'navigation', 'main', 'complementary', 'contentinfo',
+    'region', 'search', 'form', 'application'
+  ];
+  
+  const role = element.getAttribute('role');
+  const tagName = element.tagName ? element.tagName.toLowerCase() : '';
+  const implicitRole = ['header', 'nav', 'main', 'aside', 'footer'].includes(tagName) ? tagName : null;
+  const effectiveRole = role || implicitRole;
+  
+  if (effectiveRole && !validLandmarkRoles.includes(effectiveRole)) {
+    issues.push({ 
+      code: 'REACT_017', 
+      message: `Invalid landmark role: ${effectiveRole}` 
+    });
+  }
+  
+  // Check for accessible name (aria-label or aria-labelledby or text content)
+  const hasLabel = ensureAccessibleLabel(element);
+  const hasText = element.textContent.trim().length > 0;
+  if (!hasLabel && !hasText && effectiveRole === 'region') {
+    issues.push({ 
+      code: 'REACT_017', 
+      message: 'Landmark region should have an accessible name' 
+    });
+  }
+  
+  return { isValid: issues.length === 0, issues };
 }
 
-module.exports.renderGraph = renderGraph;
-module.exports.renderIndex = renderIndex;
-
-module.exports.loop = function() {
-    // Clear the memory of dead creeps
-    for(var name in Memory.creeps) {
-        ... {
-            delete Memory.creeps[name];
-        }
+/**
+ * Validate landmark structure for uniqueness
+ * @param {Document|HTMLElement} root - The root element to search within
+ * @returns {Object} Validation result with isValid and issues array
+ */
+export function validateLandmarkStructure(root = document) {
+  const issues = [];
+  const landmarkCounts = {};
+  
+  // Find all main landmarks
+  const mainLandmarks = root.querySelectorAll('[role="main"], main');
+  if (mainLandmarks.length > 1) {
+    issues.push({ 
+      code: 'REACT_025', 
+      message: `Page has ${mainLandmarks.length} main landmarks, but should have only 1` 
+    });
+  }
+  
+  // Check for duplicate landmark roles
+  const elements = root.querySelectorAll('[role]');
+  elements.forEach((el) => {
+    const role = el.getAttribute('role');
+    if (!landmarkCounts[role]) {
+      landmarkCounts[role] = [];
     }
-
-    // TODO: Update the existing function using the new functions for rendering graph/index
-    // DO NOT REMOVE OR RENAME THE EXISTING FUNCTIONS BELOW
-
-    var harvesters = _.filter(Game.creeps, (creep) => creep.memory.role == 'harvester');
-    var upgraders = _.filter(Game.creeps, (creep) => creep.memory.role == 'upgrader');
-
-    if(harvesters.length < 2) {
-        var newName = 'Harvester' + Game.time;
-        ... CARRY, MOVE], newName,
-            {memory: {role: 'harvester'}});
+    landmarkCounts[role].push(el);
+  });
+  
+  Object.keys(landmarkCounts).forEach((role) => {
+    // Banner, main, contentinfo should be unique
+    const uniqueRoles = ['banner', 'main', 'contentinfo'];
+    if (uniqueRoles.includes(role) && landmarkCounts[role].length > 1) {
+      issues.push({
+        code: 'REACT_025',
+        message: `Page has ${landmarkCounts[role].length} ${role} landmarks, but should have only 1`
+      });
     }
+  });
+  
+  return { isValid: issues.length === 0, issues };
+}
 
-    if(upgraders.length < 2) {
-        var newName = 'Upgrader' + Game.time;
-        ... CARRY, MOVE], newName,
-            {memory: {role: 'upgrader'}});
-    }
+/**
+ * Get accessible name for an SVG element
+ * @param {SVGElement} svg - The SVG element
+ * @returns {string} The accessible name or empty string
+ */
+export function getSvgAccessibleName(svg) {
+  if (!svg) return '';
+  
+  // Check aria-label
+  const ariaLabel = svg.getAttribute('aria-label');
+  if (ariaLabel) return ariaLabel;
+  
+  // Check aria-labelledby
+  const ariaLabelledby = svg.getAttribute('aria-labelledby');
+  if (ariaLabelledby) {
+    const doc = svg.ownerDocument || document;
+    const labelElement = doc.getElementById(ariaLabelledby);
+    return labelElement ? labelElement.textContent : '';
+  }
+  
+  // Check for title element inside SVG
+  const title = svg.querySelector('title');
+  if (title) return title.textContent;
+  
+  return '';
+}
 
-    for(var name in Game.rooms) {
-        console.log('Room "'+name+'" has ' + ... + ' energy');
-    }
+/**
+ * Set accessibility attributes on an SVG element
+ * @param {SVGElement} svg - The SVG element
+ * @param {string} accessibleName - The accessible name to set
+ */
+export function setSvgAttributes(svg, accessibleName) {
+  if (!svg || !accessibleName) return;
+  
+  svg.setAttribute('aria-label', accessibleName);
+  
+  // Add title if not present
+  const existingTitle = svg.querySelector('title');
+  if (!existingTitle) {
+    const title = document.createElement('title');
+    title.textContent = accessibleName;
+    title.id = `${svg.id || 'svg'}-title`;
+    svg.insertBefore(title, svg.firstChild);
+  }
+  
+  // Add role="img" if not present
+  if (!svg.hasAttribute('role')) {
+    svg.setAttribute('role', 'img');
+  }
+}
 
-    for(var name in Game.creeps) {
-        var creep = Game.creeps[name];
-        if(creep.memory.role == 'harvester') {
-            roleHarvester.run(creep);
-        }
-        if(creep.memory.role == 'upgrader') {
-            roleUpgrader.run(creep);
-        }
-    }
-};
-
-addressAccessibilityIssues(); // Call the accessibility function
+/**
+ * Create an accessible in-page button
+ * @param {Object} options - Button options
+ * @param {string} options.text - Button text
+ * @param {string} options.id - Button ID
+ * @param {Function} options.onClick - Click handler
+ * @param {string}

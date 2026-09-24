@@ -220,10 +220,8 @@ const a11yStore = {
 
   // ... remaining a11yStore methods ...
 
-  /**
-   * Ensure interactive elements are accessible
-   */
-  ensureInteractiveElementsAccessible() {
+  // New function
+  ensureAccessibilityForAllInteractiveElements() {
     this.ensureInteractiveRoles();
     this.addFormControlLabels();
     this.ensureImageAccessibility();

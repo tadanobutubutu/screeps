@@ -88,42 +88,46 @@ function renderGraphIndex (content, options = {}) {
   return container
 }
 
-// Add function to fix fake link issues
-function fixFakeLinkIssues(container) {
-  const fakeLinks = container.querySelectorAll('a[href="#"]');
-  fakeLinks.forEach(link => {
-    if (!link.getAttribute('role')) {
-      link.setAttribute('role', 'button');
+// New function to address accessibility issues from insight report
+function ensureAccessibility(container) {
+  // Ensure all SVGs in the container have accessible names
+  addAccessibleNamesToSVGs(container);
+
+  // Ensure all buttons have proper identifiers
+  fixButtonIdentifiers(container);
+
+  // Ensure all elements with landmark roles have unique identifiers
+  ensureUniqueLandmarks(container);
+
+  // Ensure the dependency graph has proper ARIA attributes
+  const graph = container.querySelector('#dependencyGraph');
+  if (graph) {
+    if (!graph.getAttribute('role')) {
+      graph.setAttribute('role', 'region');
     }
-    if (!link.getAttribute('aria-label')) {
-      link.setAttribute('aria-label', 'Interactive element');
+    if (!graph.getAttribute('aria-label')) {
+      graph.setAttribute('aria-label', 'Dependency graph visualization');
     }
-  });
+  }
+
+  return container;
 }
 
-// Add function to ensure unique landmarks
-function ensureUniqueLandmarks(container) {
-  const landmarks = ['main', 'nav', 'header', 'footer', 'aside', 'section'];
-  landmarks.forEach(landmark => {
-    const elements = container.querySelectorAll(landmark);
-    if (elements.length > 1) {
-      elements.forEach((el, index) => {
-        if (index > 0) {
-          el.setAttribute('aria-label', `${landmark} ${index + 1}`);
-        }
-      });
-    }
-  });
-}
-
-// Add function to add accessible names to SVGs
-function addSvgAccessibleNames(container) {
-  const svgs = container.querySelectorAll('svg');
-  svgs.forEach(svg => {
-    if (!svg.getAttribute('aria-label') && !svg.querySelector('title, desc')) {
-      svg.setAttribute('aria-label', 'Graphical element');
-    }
-  });
-}
-
-export { renderGraphIndex, prefersReducedMotion, isEmpty, capitalize, getRandomInt, clamp, deepClone, fixFakeLinkIssues, ensureUniqueLandmarks, addSvgAccessibleNames };
+module.exports = {
+  VERSION,
+  hello,
+  goodbye,
+  Greeter,
+  getVersion,
+  capitalize,
+  reverseString,
+  calculateSum,
+  newFunction,
+  renderGraphIndex,
+  ensureAccessibility,
+  prefersReducedMotion,
+  isEmpty,
+  getRandomInt,
+  clamp,
+  deepClone
+};

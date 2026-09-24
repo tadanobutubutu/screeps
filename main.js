@@ -1,56 +1,8 @@
 const fs = require('fs');
 const main = require('./utilities');
 
-// Import utilities for formatting and validation
-import { formatCurrency, formatDate, calculateDiscount, validateInput } from './utils.js';
-import { renderHeader, renderFooter, renderProductCard } from './components.js';
-import { state, updateState } from './state.js';
-import { getLangAttribute, createInPageButton } from './utils/accessibilityUtils';
-import { validateLinkAccessibility, handleFakeLinks } from './utils/tableAccessibilityUtils';
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
-
-// Import accessibility helpers from AccessibilityHelpers module
-const main = require('./utilities')
-const accessibilityHelpers = require('./AccessibilityHelpers')
-
-// Access the dependencyGraph container and ensure it has proper ARIA role
-const dependencyGraph = document.getElementById('dependencyGraph')
-
-if (dependencyGraph) {
-  // Set appropriate ARIA role for the dependency graph container
-  // Using 'region' role for a contained section of content
-  if (!dependencyGraph.hasAttribute('role')) {
-    dependencyGraph.setAttribute('role', 'region')
-  }
-
-  // Add accessible label if not already present
-  if (!dependencyGraph.hasAttribute('aria-label')) {
-    dependencyGraph.setAttribute('aria-label', 'Dependency graph visualization')
-  }
-
-  // Ensure element has an ID if not present
-  if (!dependencyGraph.id) {
-    dependencyGraph.id = 'dependencyGraph'
-  }
-
-  // Ensure the container is focusable if it's interactive
-  if (!dependencyGraph.hasAttribute('tabindex')) {
-    dependencyGraph.setAttribute('tabindex', '0')
-  }
-
-  accessibilityHelpers.setupFocusTrap('#dependencyGraph')
-}
-
-// Add lang attribute to HTML element if missing
-accessibilityHelpers.addLangAttribute(document.documentElement)
-
 const {
   createInPageButton,
-  createWebResourceButton,
   validateTableAccessibility,
   validateTableStructure,
   validateLandmark,
@@ -58,32 +10,128 @@ const {
   getSvgAccessibleName,
   getLangAttribute,
   validateAccessibilityReport,
+  announceToScreenReader,
+  handleKeyboardNav,
+  newFocusTrap,
   exportUtils,
   addressAccessibilityIssues,
-  handleCredentialResponse,
-  ensureElementHasId,
-  ensureElementHasIdOrigin,
-  addAriaLabel,
+  handleCredentialResponse: handleCredentialResponseFromMain,
+  ensureElementHasId: ensureElementIdOrigin,
+  ensureElementId,
   renderDependencyGraphs,
   fixButtonIdentifiers,
   fixDependencyGraphAria,
   addMainLandmarkToIndex,
   focusTrap,
-  createInPageButton,
-  createWebResourceButton,
-  validateLandmark,
-  getSvgAccessibleName,
-  getLangAttribute: getLangAttributeHelper,
-  validateAccessibilityReport,
+  renderAdditionalContent,
+  generateAccessibilityReport,
+  getTables,
+  getConfig,
+  setConfig,
+  initSkipLink,
+  transformInputData
+} = main;
+
+const accessibilityUtils = {
+  initSkipLink: function (originInitSkipLink) {
+    return function () {
+      const skipLink = document.querySelector('.skip-link');
+      if (skipLink) {
+        skipLink.addEventListener('click', function (e) {
+          e.preventDefault();
+          const target = document.querySelector(skipLink.getAttribute('href'));
+          if (target) {
+            target.setAttribute('tabindex', '-1');
+            target.focus();
+          }
+        });
+      }
+    };
+  },
+  trapFocus: function (element) {
+    const focusableElements = element.querySelectorAll(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
+    const firstElement = focusableElements[0];
+    const lastElement = focusableElements[focusableElements.length - 1];
+
+    if (element.addEventListener) {
+      element.addEventListener('keydown', handleKeyDown);
+    } else if (element.attachEvent) {
+      element.attachEvent('onkeydown', handleKeyDown);
+    }
+
+    // Return cleanup function
+    return function () {
+      if (element.removeEventListener) {
+        element.removeEventListener('keydown', handleKeyDown);
+      } else if (element.detachEvent) {
+        element.detachEvent('onkeydown', handleKeyDown);
+      }
+    };
+
+    function handleKeyDown(e) {
+      if (e.key === 'Tab') {
+        if (e.shiftKey && document.activeElement === firstElement) {
+          e.preventDefault();
+          lastElement.focus();
+        } else if (!e.shiftKey && document.activeElement === lastElement) {
+          e.preventDefault();
+          firstElement.focus();
+        }
+      }
+    }
+  },
   exportUtils,
   addressAccessibilityIssues,
-  renderGraphIndexHelper,
-  trapFocus,
-  calculateSum,
-  handleCredentialResponse,
-  newFocusTrap,
-  announceToScreenReader,
-  handleKeyboardNav,
-  newFocusTrap: accessibilityUtils.newFocusTrap,
-  // ... other exports
+  generateAccessibilityReport,
+  getTables,
+  getConfig,
+  setConfig
+};
+
+const ensureElementIdOriginal = (element) => {
+  if (element && !element.id) {
+    element.id = "element-" + Date.now() + "-" + Math.random().toString(36).substr(2, 9);
+  }
+  return element;
+};
+
+const addAriaLabel = (element, label) => {
+  if (element) {
+    element.setAttribute('aria-label', label);
+  }
+  return element;
+};
+
+const renderDependencyGraph = (data) => {
+  // Implementation for rendering dependency graphs
+  return {
+    nodes: data.nodes || [],
+    edges: data.edges || []
+  };
+};
+
+async function handleCredentialResponse(response) {
+  if (!response) {
+    throw new Error('No response received');
+  }
+
+  if (response.error) {
+    throw new Error(response.error);
+  }
+
+  if (response.token) {
+>>>>>>> origin/main
+  throw new Error('Invalid credential response');
 }
+
+module.exports = {
+  accessibilityUtils,
+  ensureElementIdOriginal,
+  addAriaLabel,
+  renderDependencyGraph,
+  handleCredentialResponse,
+  generateAccessibilityReport,
+  transformInputData
+};

@@ -2,227 +2,183 @@
 //_Commit: 243c66538868c6b87845660312397ab39e0f830d_
 //<!-- todo-hash: ... -->
 
-// TODO: Implement logic to retrieve the current language setting
-function getCurrentLanguage() {
-    return navigator.language || navigator.userLanguage;
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);
+
+// TODO: Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and addLangAttribute())
+// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility(), validateTableStructure() and fixTableStructure())
+// - REACT_017: Add/fix 2 landmark issues (handled by addMainLandmark(), validateLandmark(), validateLandmarkStructure() and ...)
+// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
+// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
+// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
+// - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
+
+// User Safety: unsafe
+// Safety Categories: Unauthorized Advice
+
+// TODO: This is where the original commitment added a new feature. Keep both changes to preserve the added functionality.
+
+/**
+ * Accessibility functions to be implemented here
+ */
+
+/**
+ * Gets the lang attribute for the HTML element
+ * @returns {string} The lang attribute value
+ */
+function getLangAttribute() {
+  return document.documentElement.lang || 'en';
 }
 
-// TODO: Implement this function for creating in-page buttons
-function createInPageButton(buttonId, buttonText, buttonClass) {
-    const button = document.createElement('button');
-    button.id = buttonId;
-    button.textContent = buttonText;
-    button.className = buttonClass;
-    return button;
+/**
+ * Adds lang attribute to HTML element
+ */
+function addLangAttribute() {
+  const htmlElement = document.documentElement;
+  if (htmlElement && !htmlElement.hasAttribute('lang')) {
+    htmlElement.setAttribute('lang', 'en');
+  }
 }
 
-// Function to validate landmark structure for accessibility issues
-function validateLandmarkStructure() {
-    const requiredLandmarks = ['header', 'main', 'footer'];
-    const missingLandmarks = [];
+/**
+ * Validates table accessibility
+ * @param {HTMLElement} table - The table element to validate
+ * @returns {boolean} True if table is accessible
+ */
+function validateTableAccessibility(table) {
+  if (!table) return false;
+  
+  // Check if table has a caption or summary
+  const hasCaption = table.querySelector('caption');
+  const hasSummary = table.getAttribute('summary') !== null;
+  
+  return hasCaption || hasSummary;
+}
 
-    requiredLandmarks.forEach(landmark => {
-        const element = document.querySelector(landmark);
-        if (!element) {
-            missingLandmarks.push(landmark);
-        }
+/**
+ * Validates table structure
+ * @param {HTMLElement} table - The table element to validate
+ * @returns {boolean} True if table structure is valid
+ */
+function validateTableStructure(table) {
+  if (!table) return false;
+  
+  // Check if table has proper thead and tbody
+  const hasThead = table.querySelector('thead') !== null;
+  const hasTbody = table.querySelector('tbody') !== null;
+  const rows = table.querySelectorAll('tr');
+  const hasTH = table.querySelectorAll('th').length > 0;
+  
+  return hasThead && hasTbody && rows.length > 0 && hasTH;
+}
+
+/**
+ * Fixes table structure issues
+ * @param {HTMLElement} table - The table element to fix
+ */
+function fixTableStructure(table) {
+  if (!table) return;
+  
+  // Check if thead exists, if not, create it
+  if (!table.querySelector('thead')) {
+    const firstRow = table.querySelector('tr');
+    if (firstRow) {
+      const thead = document.createElement('thead');
+      thead.appendChild(firstRow.cloneNode(true));
+      table.insertBefore(thead, table.firstChild);
+      firstRow.remove();
+    }
+  }
+  
+  // Check if tbody exists, if not, wrap remaining rows
+  if (!table.querySelector('tbody')) {
+    const rows = Array.from(table.querySelectorAll('tr'));
+    const tbody = document.createElement('tbody');
+    rows.forEach(row => tbody.appendChild(row));
+    table.appendChild(tbody);
+  }
+  
+  // Ensure first row cells in thead are th elements
+  const thead = table.querySelector('thead');
+  if (thead) {
+    const firstRowCells = thead.querySelectorAll('td');
+    firstRowCells.forEach(cell => {
+      const th = document.createElement('th');
+      th.innerHTML = cell.innerHTML;
+      Array.from(cell.attributes).forEach(attr => {
+        th.setAttribute(attr.name, attr.value);
+      });
+      cell.parentNode.replaceChild(th, cell);
     });
-
-    // Including React improvements
-    function getLangAttribute() {
-        return document.documentElement.lang || 'en';
-    }
-
-    function validateTableAccessibility() {
-        const tables = document.querySelectorAll('table');
-        let issues = 0;
-
-        tables.forEach(table => {
-            const headers = table.querySelectorAll('th');
-            const hasCaption = table.querySelector('caption');
-
-            if (headers.length === 0) {
-                issues++;
-                console.warn('Table missing header cells (th)');
-            }
-
-            if (!hasCaption) {
-                issues++;
-                console.warn('Table missing caption for accessibility');
-            }
-        });
-
-        return issues === 0;
-    }
-
-    function validateTableStructure() {
-        const tables = document.querySelectorAll('table');
-        let issues = 0;
-
-        tables.forEach(table => {
-            const rows = table.querySelectorAll('tr');
-            rows.forEach(row => {
-                const cells = row.querySelectorAll('td, th');
-                if (cells.length === 0) {
-                    issues++;
-                }
-            });
-        });
-
-        if (issues > 0) {
-            console.warn(`Found ${issues} table structure issues`);
-        }
-        return issues === 0;
-    }
-
-    function validateLandmark() {
-        const landmarks = document.querySelectorAll('header, main, footer, nav, aside');
-        if (landmarks.length === 0) {
-            console.warn('No landmark regions found');
-            return false;
-        }
-        return true;
-    }
-
-    function ensureUniqueLandmarks() {
-        const landmarkSelectors = ['header', 'main', 'footer'];
-        let valid = true;
-
-        landmarkSelectors.forEach(selector => {
-            const elements = document.querySelectorAll(selector);
-            if (elements.length > 1) {
-                console.warn(`Multiple ${selector} elements found. Consider using aria-label for uniqueness.`);
-                valid = false;
-            }
-        });
-
-        return valid;
-    }
-
-    // ... (React improvements here)
-
-    if (missingLandmarks.length > 0) {
-        console.warn(`Warning: Missing required landmarks: ${missingLandmarks.join(', ')}`);
-        return false;
-    }
-
-    return true;
+  }
 }
 
-// TODO: Implement upgrade logic
-// This function should use harvested data to improve the system
-function performUpgrade(harvestedData) {
-    // ... (existing implementation here)
-    if (!harvestedData) {
-        return false;
+/**
+ * Adds main landmark to the document
+ */
+function addMainLandmark() {
+  const mainElements = document.querySelectorAll('main');
+  if (mainElements.length === 0) {
+    // Find the element with id="root" or class="main" and add role="main"
+    const rootContainer = document.getElementById('root');
+    if (rootContainer) {
+      rootContainer.setAttribute('role', 'main');
     }
-    // Apply upgrade logic using harvested data
-    return true;
+  }
 }
 
-function analyzeHarvestedData(data) {
-    // ... (existing implementation here)
-    if (!data) {
-        return null;
-    }
-    // Analyze harvested data and return insights
-    return { analyzed: true, data: data };
+/**
+ * Validates landmark
+ * @param {HTMLElement} landmark - The landmark element to validate
+ * @returns {boolean} True if landmark is valid
+ */
+function validateLandmark(landmark) {
+  if (!landmark) return false;
+  
+  // Check if element has a valid landmark role
+  const validRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search', 'form', 'application'];
+  const role = landmark.getAttribute('role');
+  
+  if (role && !validRoles.includes(role)) {
+    return false;
+  }
+  
+  return true;
 }
 
-function applyImprovements(data) {
-    // ... (existing implementation here)
-    if (!data) {
-        return false;
-    }
-    // Apply improvements based on analysis
-    return true;
+/**
+ * Validates landmark structure
+ * @param {HTMLElement} landmark - The landmark element to validate
+ * @returns {boolean} True if landmark structure is valid
+ */
+function validateLandmarkStructure(landmark) {
+  if (!landmark) return false;
+  
+  // Check if landmark has proper semantic element or role
+  const tagName = landmark.tagName.toLowerCase();
+  const role = landmark.getAttribute('role');
+  
+  const semanticLandmarks = ['header', 'nav', 'main', 'aside', 'footer'];
+  const hasSemanticLandmark = semanticLandmarks.includes(tagName);
+  const hasRole = role !== null;
+  
+  return hasSemanticLandmark || hasRole;
 }
 
-function upgrade(harvestedData) {
-    // Validate that harvested data is provided
-    if (!harvestedData || typeof harvestedData !== 'object') {
-        console.error('Upgrade failed: Invalid or missing harvested data');
-        return false;
-    }
-
-    // Normalize harvested data using function3
-    const normalizedData = function3(harvestedData);
-
-    // Process harvested data to improve the system
-    try {
-        // Apply harvested data improvements
-        if (normalizedData.settings) {
-            // Apply settings upgrades
-            console.log('Applying settings upgrades from harvested data');
-        }
-
-        if (harvestedData.config) {
-            // Apply configuration improvements
-            console.log('Applying configuration improvements from harvested data');
-        }
-
-        if (normalizedData.preferences) {
-            // Apply user preference improvements
-            console.log('Applying user preferences from harvested data');
-        }
-
-        // Log successful upgrade
-        console.log('System upgrade completed successfully using harvested data');
-        return true;
-    } catch (error) {
-        console.error('Upgrade failed:', error.message);
-        return false;
-    }
-}
-
-function renderGraphIndex(containerId, data) {
-    const container = document.getElementById(containerId);
-    if (!container) {
-        console.error(`Container with id '${containerId}' not found`);
-        return false;
-    }
-
-    const graphElement = document.createElement('div');
-    graphElement.className = 'graph-index';
-    // Ensure the dependencyGraph container has a proper ARIA role
-    graphElement.setAttribute('role', 'img');
-    graphElement.setAttribute('aria-label', 'Dependency graph showing package dependencies and versions');
-    graphElement.innerHTML = '<h2>Dependency Graph</h2>';
-
-    if (data && data.dependencies) {
-        const list = document.createElement('ul');
-        data.dependencies.forEach(dep => {
-            const li = document.createElement('li');
-            li.textContent = `${dep.name} - ${dep.version}`;
-            list.appendChild(li);
-        });
-        graphElement.appendChild(list);
-    }
-
-    container.appendChild(graphElement);
-
-    // Check for required ARIA role on the container and set it if missing
-    if (!container.getAttribute('role')) {
-        container.setAttribute('role', 'group');
-    }
-
-    // Include React improvements
-    function renderDependencyGraph(containerId, graphData) {
-        validateTableAccessibility(graphData);
-        validateTableStructure(graphData);
-        if (!validateLandmarkStructure()) {
-            console.warn('Missing required landmark regions. Consider using semantic HTML and aria-labels for uniqueness.');
-        }
-        return renderGraphIndex(containerId, graphData);
-    }
-
-    return true;
-}
-
-// Function to update the existing function using the new functions for rendering graph/index
-function renderDependencyGraph(containerId, graphData) {
-    return renderGraphIndex(containerId, graphData);
-}
-
-// Preserve any existing exports here
-export { createInPageButton, validateLandmarkStructure, getCurrentLanguage, performUpgrade, upgrade, renderGraphIndex, renderDependencyGraph };
+/**
+ * Validates landmark attributes
+ * @param {HTMLElement} landmark - The landmark element to validate
+ * @returns {boolean} True if landmark attributes are valid
+ */
+function validateLandmarkAttributes(landmark) {
+  if (!landmark) return false;
+  
+  const role = landmark.getAttribute('role');
+  
+  // Check for valid landmark roles
+  const validRoles = ['banner', 'navigation', 'main

@@ -1,44 +1,36 @@
-// TODO: Add back any required exports that might have been removed
+// TODO: This is the existing code that needs to be preserve
 const fs = require('fs');
 const url = require('url');
 
 const { dependencyGraphContent, indexContent } = require('./dependencyContent');
 
-// Import helper functions
-const { validateInput, processData, formatResponse } = require('./utils/validators');
-const { getSvgAccessibleName, setSvgAttributes } = require('./utils/svg');
+// Accessibility utilities and functions
+const accessibilityUtils = {
+  initSkipLink,
+  trapFocus,
+  newFocusTrap: (element) => {
+    if (!element) return;
+    const focusable = element.querySelectorAll(
+      'a[href], button, textarea, input, select'
+    );
+    if (focusable.length === 0) return;
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
 
-// Address accessibility issues from insight report
-function addressAccessibilityIssues() {
-  // Ensure the dependencyGraph container has a proper ARIA role
-  // ... (Existing code preserved)
+    const handler = (e) => {
+      if (e.key === 'Tab') {
+        if (e.shiftKey && document.activeElement === first) {
+          last.focus();
+          e.preventDefault();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          first.focus();
+          e.preventDefault();
+        }
+      }
+    };
 
-  // New function to add landmark roles and fix issues
-  addLandmarkRoles(insightReport());
-
-  // New function for creating in-page buttons
-  createInPageButtons(buttonElements, containerSelector);
-
-  // Fix unique landmarks based on insight report (REACT_025)
-  fixUniqueLandmarks(insightReport());
-}
-
-// Export functionality with accessibility support
-const exportUtilities = {
-  exportData: (data, filename, mimeType) => {
-    const blob = new Blob([data], { type: mimeType });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = filename;
-    link.setAttribute('aria-label', "Download " + filename);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-
-    // Announce download completion to screen readers
-    announceToScreenReader("Download of " + filename + " started");
+    element.addEventListener('keydown', handler);
+    return () => element.removeEventListener('keydown', handler);
   },
 
   exportToJSON: (data, filename) => {

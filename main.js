@@ -658,14 +658,9 @@ const a11yStore = {
 
   // ... remaining a11yStore methods ...
 
-  // New function to address accessibility issues
-  addressAccessibilityIssues() {
-    this.checkLandmarkElements();
-    this.addSVGAccessibilityProps();
-    this.fixFakeLinks();
-    this.ensureInteractiveRoles();
-    this.addFormControlLabels();
-    this.ensureImageAccessibility();
+  // New method to add a language attribute to the HTML element
+  addLanguageAttribute(language) {
+    document.documentElement.setAttribute('lang', language);
   }
 };
 

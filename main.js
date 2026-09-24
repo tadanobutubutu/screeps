@@ -639,6 +639,25 @@ function setLanguageAttribute() {
   }
 }
 
+// Address accessibility issues from insight report:
+// Ensure the dependencyGraph container has a proper ARIA role
+function ensureDependencyGraphAccessible() {
+  const dependencyGraph = document.getElementById('dependencyGraph');
+  if (dependencyGraph) {
+    dependencyGraph.setAttribute('role', 'region');
+    dependencyGraph.setAttribute('aria-label', 'Dependency Graph');
+  }
+}
+
+// TODO: This is the existing code that needs to be preserved
+// (This comment remains as-is)
+function ensureRootContainerAccessible(rootElement) {
+  // Ensure the root container has an accessible name
+  if (rootElement) {
+    rootElement.setAttribute('role', 'main');
+  }
+}
+
 // Address accessibility issues from insight report
 // - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
 // - REACT_027: Fix 26 table structure issues (DONE: fixTableStructure)

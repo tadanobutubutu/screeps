@@ -1,8 +1,9 @@
+// TODO: This is the existing code that needs to be preserved
+// TODO: Add new functions to ensure the element has an id, add aria-label, render dependency graphs
 // TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element
-// - REACT_017: Add landmark roles and fix landmark issues (_Add this function in a new section, as it requires DOM access and should not be exported for testing_)
-// - REACT_041: Add accessible names to 2 SVGs
-// - REACT_025: Ensure unique landmarks (_Add this function in a new section, as it requires DOM access and should not be exported for testing_)
+// - REACT_015: Add lang attribute to HTML element (typically in index.html, not main.js)
+// - REACT_017: Add landmark roles and fix landmark issues
+// - REACT_025: Ensure unique landmarks (2 issues)
 // - REACT_036: Fix 1 fake link issue
 // - REACT_027: Add scope="col" or scope="row" to <th> elements (already implemented)
 

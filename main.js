@@ -188,36 +188,15 @@ const a11yStore = {
       }
     });
   },
+
+  // ... remaining a11yStore methods ...
+
+  // New function
+  ensureInteractiveElementsAccessible() {
+    a11yStore.ensureInteractiveRoles();
+    a11yStore.addFormControlLabels();
+    a11yStore.ensureImageAccessibility();
+  }
 };
-
-// Function for rendering graph/index
-function renderGraphIndex() {
-  // Use the new functions for rendering graph and index
-  const graphContent = dependencyGraphContent();
-  const indexPageContent = indexContent();
-  
-  return {
-    graph: graphContent,
-    index: indexPageContent
-  };
-}
-
-// New functions
-function ensureInteractiveElementsAccessible() {
-  a11yStore.ensureInteractiveRoles();
-  a11yStore.addFormControlLabels();
-  a11yStore.fixImageAccessibility();
-  a11yStore.fixSvgAccessibility();
-}
 
 // ... rest of the code ...
-
-module.exports = {
-  greetingFunction,
-  getWelcomeMessage,
-  renderGraphIndex,
-  ensureInteractiveElementsAccessible,
-  a11yStore,
-  config,
-  // ... other existing exports ...
-};

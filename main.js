@@ -133,6 +133,11 @@ function fixHeadingHierarchy(issue) {
 const http = require('http');
 const path = require('path');
 
+// New function to handle focus trap for keyboard navigation
+function newFocusTrap() {
+  // Implement the focus trap functionality here
+}
+
 // TODO: This is the existing code that needs to be preserved
 // _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
 // <!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
@@ -210,7 +215,8 @@ function makeApiCall(url, options = {}) {
  * @returns {http.Server} The created server instance
  */
 function createServer() {
-  const serverPort = getRandomInt(3000, 3050);
+  // Implement any necessary changes to ensure accessibility
+
   const server = http.createServer((req, res) => {
     res.writeHead(200, { 
       'Content-Type': 'application/json',
@@ -241,6 +247,8 @@ function validateAccessibilityReport() {
  * Starts the application
  */
 function startApp() {
+  // Implement any necessary changes to ensure accessibility
+
   const server = createServer();
   server.listen(serverPort, () => {
     console.log(`Server running on port ${serverPort}`);
@@ -261,19 +269,14 @@ function addMiddleware(middleware) {
   return server;
 }
 
-// New function added for testing
-function newFunction() {
-  // Placeholder implementation
-  return 'This is a new function';
-}
-
-// Export functions for testing
-module.exports = {
+// Export functions for testing and new function for focus trap
+const functionsForTesting = {
   createServer,
   startApp,
   config,
   newFunction // Added the new function to exports
 };
+functionsForTesting.newFocusTrap = newFocusTrap;
 
 // Start the application if run directly
 if (require.main === module) {

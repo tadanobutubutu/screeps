@@ -10,21 +10,21 @@ let isInitialized = false;
 const appData = {};
 let uniqueLandmarks = {};
 
-// Helper functions for distance calculation (used by landmark region logic)
-function toRad(degrees) {
-  return degrees * (Math.PI / 180);
-}
-
+// Calculate distance between two points using Haversine formula
 function calculateDistance(lat1, lon1, lat2, lon2) {
-  const R = 6371; // Earth's radius in kilometers
+  const R = 6371; // Earth's radius in km
   const dLat = toRad(lat2 - lat1);
   const dLon = toRad(lon2 - lon1);
-  const a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
-    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+            Math.sin(dLon / 2) * Math.sin(dLon / 2);
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   return R * c;
+}
+
+// Convert degrees to radians
+function toRad(deg) {
+  return deg * (Math.PI / 180);
 }
 
 function addressAccessibilityIssues() {
@@ -40,7 +40,7 @@ function addressAccessibilityIssues() {
   const dependencyGraph = document.querySelector('[data-dependency-graph]') ||
     document.querySelector('.dependency-graph') ||
     document.querySelector('#dependency-graph') ||
-    document.querySelector('main');
+    document.querySelector('div[data-type="dependency-graph"]');
 
   if (dependencyGraph) {
     dependencyGraph.setAttribute('role', 'tree');
@@ -64,8 +64,8 @@ function addressAccessibilityIssues() {
     });
   }
 
-  function maintainLandmarks() {
-    const landmarks = [...new Set(['navigation', 'main', 'complementary', 'banner', 'contentinfo'].filter(Boolean))];
+  function ensureUniqueLandmarks() {
+    const landmarks = [...new Set([...document.querySelectorAll('[role]')].map(el => el.getAttribute('role')))];
 
     // Check if all landmarks exist, re-add if necessary
     landmarks.forEach(uniqueLandmark => {
@@ -73,18 +73,18 @@ function addressAccessibilityIssues() {
       if (elements.length < landmarks.length) {
         const uniqueLandmarkMap = {};
 
-        landmarkRoles.forEach(uniqueLandmark => {
-          let element = elements.filter(el => el.getAttribute('role') === uniqueLandmark);
+        landmarks.forEach(uniqueLand => {
+          let element = elements.filter(el => el.getAttribute('role') === uniqueLand);
           if (!element[0]) {
             element = document.createElement('div');
-            element.setAttribute('role', uniqueLandmark);
+            element.setAttribute('role', uniqueLand);
             if (!element.id) {
-              const id = uniqueLandmark;
+              const id = uniqueLand;
               element.setAttribute('id', id);
             }
             element = element[0] || element;
           }
-          uniqueLandmarkMap[uniqueLandmark] = element[0];
+          uniqueLandmarkMap[uniqueLand] = element[0];
         });
       }
     });

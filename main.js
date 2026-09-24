@@ -286,37 +286,52 @@ function renderIndexView(data, options = {}) {
   // New function for addressing accessibility issues from insight report
   newFocusTrap: newFocusTrap,
 
-        if (rows.length > 0) {
-          thead.appendChild(rows[0].cloneNode(true));
-          rows[0].remove();
-
-          rows.forEach(row => {
-            tbody.appendChild(row.cloneNode(true));
-            row.remove();
-          });
-
-          table.appendChild(thead);
-          table.appendChild(tbody);
-        }
-      }
-
-      // Ensure table has proper headers
-      const headers = table.querySelectorAll('th');
-      headers.forEach((header, index) => {
-        if (!header.hasAttribute('scope')) {
-          header.setAttribute('scope', 'col');
-        }
-        const cells = table.querySelectorAll(`tbody td:nth-child(${index + 1})`);
-        cells.forEach(cell => {
-          if (!cell.hasAttribute('headers')) {
-            cell.setAttribute('headers', header.id || `header-${index}`);
-          }
-        });
-      });
-    });
+  // Accessibility functions to address new issues
+  setHtmlLangAttribute: (lang = 'en') => {
+    const htmlElement = document.querySelector('html');
+    if (htmlElement && !htmlElement.hasAttribute('lang')) {
+      htmlElement.setAttribute('lang', lang);
+    }
   },
 
-  addLandmarks: () => {
+  // Function to fix table structure issues
+  fixTableStructure: (table) => {
+    if (!table) return;
+
+    // Ensure table has proper structure
+    const caption = table.querySelector('caption');
+    const thead = table.querySelector('thead');
+    const tbody = table.querySelector('tbody');
+
+    if (!caption) {
+      const newCaption = document.createElement('caption');
+      newCaption.textContent = 'Table caption';
+      table.insertBefore(newCaption, table.firstChild);
+    }
+
+    if (!thead) {
+      const newThead = document.createElement('thead');
+      const firstRow = table.querySelector('tr');
+      if (firstRow) {
+        newThead.appendChild(firstRow);
+        table.insertBefore(newThead, table.firstChild.nextSibling);
+      }
+    }
+
+    if (!tbody) {
+      const newTbody = document.createElement('tbody');
+      const rows = table.querySelectorAll('tr');
+      rows.forEach(row => {
+        if (!row.parentElement.matches('thead, tfoot')) {
+          newTbody.appendChild(row);
+        }
+      });
+      table.appendChild(newTbody);
+    }
+  },
+
+  // Function to add landmark roles
+  addLandmarkRoles: () => {
     const main = document.querySelector('main');
     if (main && !main.hasAttribute('role')) {
       main.setAttribute('role', 'main');
@@ -338,38 +353,36 @@ function renderIndexView(data, options = {}) {
     }
   },
 
-  addSvgAccessibility: () => {
-    const svgs = document.querySelectorAll('svg');
-    svgs.forEach(svg => {
-      if (!svg.hasAttribute('aria-hidden') && !svg.querySelector('title, desc')) {
-        const title = document.createElement('title');
-        title.textContent = svg.getAttribute('aria-label') || 'Graphic';
-        svg.insertBefore(title, svg.firstChild);
-      }
-    });
+  // Function to add accessible names to SVGs
+  addSvgAccessibleNames: (svg, name) => {
+    if (svg && !svg.hasAttribute('aria-label') && !svg.querySelector('title')) {
+      const title = document.createElement('title');
+      title.textContent = name;
+      svg.insertBefore(title, svg.firstChild);
+    }
   },
 
+  // Function to ensure unique landmarks
   ensureUniqueLandmarks: () => {
-    const landmarks = ['main', 'navigation', 'banner', 'contentinfo'];
+    const landmarks = document.querySelectorAll('[role="main"], [role="navigation"], [role="banner"], [role="contentinfo"]');
+    const landmarkTypes = new Set();
+
     landmarks.forEach(landmark => {
-      const elements = document.querySelectorAll(`[role="${landmark}"]`);
-      if (elements.length > 1) {
-        elements.forEach((el, index) => {
-          if (index > 0) {
-            el.removeAttribute('role');
-          }
-        });
+      const role = landmark.getAttribute('role');
+      if (landmarkTypes.has(role)) {
+        landmark.removeAttribute('role');
+      } else {
+        landmarkTypes.add(role);
       }
     });
   },
 
-  fixFakeLinks: () => {
-    const elements = document.querySelectorAll('[role="link"]');
-    elements.forEach(el => {
-      if (!el.hasAttribute('href') && !el.hasAttribute('tabindex')) {
-        el.setAttribute('tabindex', '0');
-      }
-    });
+  // Function to fix fake links
+  fixFakeLinks: (element) => {
+    if (element && element.tagName === 'A' && !element.hasAttribute('href')) {
+      element.setAttribute('role', 'button');
+      element.setAttribute('tabindex', '0');
+    }
   }
 };
 

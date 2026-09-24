@@ -43,22 +43,17 @@ let storedCredentials = null;
  * Main application entry point with accessibility features
  */
 function createServer() {
-  // ... (existing code)
-}
+  const server = http.createServer((req, res) => {
+    // TODO: Address accessibility issues from insight report
+    // For example, we can add appropriate headers for CORS
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
-// Utility for spawning a command
-function spawnSomeCommand(callback) {
-    const child_process = require('child_process');
-    const child = child_process.spawn('someCommand', [], {
-        stdio: 'inherit',
-    });
-    child.on('exit', (code, signal) => {
-        if (code === 0) {
-            callback(null, 'Successfully executed someCommand');
-        } else {
-            callback(new Error(`someCommand failed with code ${code}`));
-        }
-    });
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ status: 'ok', config }));
+  });
+  return server;
 }
 
 /**

@@ -231,93 +231,98 @@ function trapFocus(container) {
       landmarkTypes.add(role);
     });
 
-    return results;
-  },
-
-  addSVGAccessibilityProps() {
-    const svgElements = document.querySelectorAll('svg');
-    svgElements.forEach(svg => {
-      let titleElement = svg.querySelector('title');
-      if (!titleElement) {
-        titleElement = document.createElement('title');
-        titleElement.textContent = 'Image';
-        svg.insertBefore(titleElement, svg.firstChild);
-      }
-
-      if (!titleElement.id) {
-        titleElement.id = `svg-title-${Math.floor(Math.random() * 10000)}`;
-      }
-
-      svg.setAttribute('aria-labelledby', titleElement.id);
-
-      if (!svg.hasAttribute('role')) {
-        svg.setAttribute('role', 'img');
-      }
-    });
-  },
-
-  fixFakeLinks() {
-    const fakeLinks = document.querySelectorAll('[href]:not(a)');
-    fakeLinks.forEach((link) => {
-      link.setAttribute('role', 'link');
-      link.setAttribute('tabindex', '0');
-      link.setAttribute('data-interactive', 'true');
-    });
-  },
-
-  /**
-   * Ensure all interactive elements have proper ARIA roles
-   */
-  ensureInteractiveRoles() {
-    const interactiveElements = document.querySelectorAll('[onclick], [onkeydown], [onmouseup], [onmousedown], [onfocus], [onblur]');
-    interactiveElements.forEach((element) => {
-      if (!element.hasAttribute('role')) {
-        element.setAttribute('role', 'button');
-      }
-    });
-  },
-
-  /**
-   * Add ARIA labels to form controls if missing
-   */
-  addFormControlLabels() {
-    const formControls = document.querySelectorAll('input, select, textarea');
-    formControls.forEach((control, index) => {
-      if (!control.id) {
-        control.id = `form-control-${index}`;
-      }
-      const label = document.createElement('label');
-      label.setAttribute('for', control.id);
-      label.textContent = control.placeholder || 'Form control';
-      control.parentNode.insertBefore(label, control);
-    });
-  },
-
-  /**
-   * Ensure all images have alt text or ARIA attributes
-   */
-  ensureImageAccessibility() {
-    const images = document.querySelectorAll('img');
-    images.forEach((img) => {
-      if (!img.hasAttribute('alt') && !img.hasAttribute('aria-hidden') && !img.hasAttribute('role')) {
-        img.setAttribute('alt', '');
-      }
-    });
-  },
-
-  // ... remaining a11yStore methods ...
-};
-
-// New functions
-function ensureInteractiveElementsAccessible() {
-  a11yStore.ensureInteractiveRoles();
-  a11yStore.addFormControlLabels();
-  a11yStore.ensureImageAccessibility();
+/**
+ * REACT_017: Fix landmark issues - Add landmark regions
+ */
+export function addMainLandmark(container) {
+  if (!container) return null;
+  
+  let mainElement = container.querySelector('main');
+  if (!mainElement) {
+    const body = container.querySelector('body');
+    if (body) {
+      const newMain = document.createElement('main');
+      newMain.setAttribute('id', 'main-content');
+      newMain.appendChild(body.firstChild);
+      mainElement = newMain;
+    }
+  }
+  
+  return mainElement;
 }
 
-// Export the new function in the format expected by the repository
-module.exports = {
-  ensureInteractiveElementsAccessible,
+/**
+ * REACT_017: Add landmark regions
+ */
+export function addLandmarkRegions(container) {
+  if (!container) return null;
+  
+  const landmarks = [
+    { selector: 'header', role: 'banner', label: 'Site header' },
+    { selector: 'nav', role: 'navigation', label: 'Navigation' },
+    { selector: 'main', role: 'main', label: 'Main content' },
+    { selector: 'aside', role: 'complementary', label: 'Complementary content' },
+    { selector: 'footer', role: 'contentinfo', label: 'Site footer' }
+  ];
+  
+  landmarks.forEach(landmark => {
+    let element = container.querySelector(landmark.selector);
+    if (!element) {
+      element = document.createElement(landmark.selector);
+      element.setAttribute('role', landmark.role);
+      container.appendChild(element);
+    }
+
+    if (landmark.selector === 'main') {
+      addMainLandmark(element);
+    }
+
+    if (!element.getAttribute('aria-label') && !element.getAttribute('role')) {
+      element.setAttribute('aria-label', landmark.label);
+    }
+  });
+  
+  return container;
 }
 
-// ... rest of the code ...
+/**
+ * REACT_025: Ensure unique landmarks
+ */
+export function ensureUniqueLandmarks(container) {
+  if (!container) return null;
+
+  const landmarks = ['banner', 'navigation', 'main', 'complementary', 'contentinfo'];
+
+  landmarks.forEach(role => {
+    const elements = container.querySelectorAll(`[role="${role}"]`);
+    elements.forEach((el, index) => {
+      if (index > 0 && !el.getAttribute('aria-label')) {
+        const count = index + 1;
+        el.setAttribute('aria-label', `${role} ${count}`);
+      }
+    });
+  });
+
+  return container;
+}
+
+/**
+ * REACT_025: Unique landmarks helper
+ */
+export function uniqueLandmarksHelper(container) {
+  if (!container) return;
+
+  const landmarks = ['banner', 'navigation', 'main', 'complementary', 'contentinfo'];
+
+  landmarks.forEach(role => {
+    const elements = container.querySelectorAll(`[role="${role}"]`);
+    elements.forEach((el, index) => {
+      if (index > 0 && !el.getAttribute('aria-label')) {
+        const count = index + 1;
+        el.setAttribute('aria-label', `${role} ${count}`);
+      }
+    });
+  });
+
+  return container;
+}

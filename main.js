@@ -3,114 +3,61 @@
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and personName())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark() and validateLandmarkStructure())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and validateSvgAccessibility())
+// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), ... and validateLandmarkStructure())
+// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...)
 // - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks())
-// - REACT_036: Fix 1 fake link issue (handled by personName() and validateAccessibleLinks())
+// - REACT_036: Fix 1 fake link issue (handled by personName(), createInPageButton(), and ...)
 // - ADD: Address new accessibility issues from insight report
+
 // ----- BEGIN ORIGINAL CODE (unchanged) -----
 // Assuming main.js has a <html> tag, add the lang attribute based on your content
 // For example, if the page is in English, set lang to 'en'
 import React from 'react';
 
-// Placeholder for the existing code
-// ... (Preserve existing code here)
-
-// Example of addressing an accessibility issue
-// If the issue is related to a button that lacks an ARIA label, you might add one like this:
-// <button aria-label="Description of the button's purpose">Click me</button>
-
-// Assuming the issue is related to line 1, you might add a role attribute to the root element
-// to indicate the type of document it represents, for example:
-// <html lang="en" role="document">
-
-// Placeholder for the new changes
-// ... (Add new functions or changes here)
-
-// Example of a new function to improve accessibility
-function enhanceAccessibility() {
-  // Implement accessibility enhancements here
-  // For example, add keyboard navigation support or ARIA live regions
+/**
+ * Adds the lang attribute to the document's <html> tag based on content
+ * @param {string} lang language code (e.g., 'en', 'es', 'fr')
+ * @returns {string} The lang attribute value that was set
+ */
+function setHtmlLangAttribute(lang) {
+  if (typeof document !== 'undefined' && document.documentElement) {
+    document.documentElement.lang = lang || 'en';
+  }
+  return lang || 'en';
 }
 
-// Call the function to apply the accessibility enhancements
-enhanceAccessibility();
-
-// Placeholder for the rest of the existing code
-// ... (Preserve the rest of the existing code here)
-
 /**
- * Gets the full language attribute including region code (e.g., 'en-US', 'zh-CN')
- * Addresses REACT_015: Add lang attribute to HTML element
- * @returns {string} The full lang attribute value (language-region format)
+ * Detects the language of the given content and sets the HTML lang attribute
+ * @param {string} content - The text content to analyze
+ * @returns {string} The detected language code
  */
-function getFullLangAttribute() {
-  if (typeof document === 'undefined' || !document.documentElement) {
-    return 'en-US';
+function detectAndSetLang(content) {
+  // Simple language detection based on common patterns
+  let lang = 'en'; // Default to English
+  
+  if (content) {
+    // Check for common non-ASCII characters to help detect language
+    if (/[\u4e00-\u9fa5]/.test(content)) {
+      lang = 'zh'; // Chinese
+    } else if (/[\u3040-\u30ff]/.test(content)) {
+      lang = 'ja'; // Japanese
+    } else if (/[\u0400-\u04ff]/.test(content)) {
+      lang = 'ru'; // Russian/Cyrillic
+    } else if (/[\u0600-\u06ff]/.test(content)) {
+      lang = 'ar'; // Arabic
+    } else if (/[àâçéèêëîïôûùüÿœæ]/i.test(content)) {
+      lang = 'fr'; // French
+    } else if (/[äöüß]/i.test(content)) {
+      lang = 'de'; // German
+    }
   }
   
-  const lang = document.documentElement.lang || 'en';
-  
-  // If already has region code, return as-is
-  if (lang.includes('-')) {
-    return lang;
-  }
-  
-  // Map language codes to likely region codes
-  const regionMap = {
-    'en': 'US',
-    'zh': 'CN',
-    'ja': 'JP',
-    'ko': 'KR',
-    'fr': 'FR',
-    'de': 'DE',
-    'es': 'ES',
-    'it': 'IT',
-    'pt': 'BR',
-    'ru': 'RU',
-    'ar': 'SA',
-    'hi': 'IN',
-    'nl': 'NL',
-    'pl': 'PL',
-    'tr': 'TR',
-    'sv': 'SE',
-    'da': 'DK',
-    'no': 'NO',
-    'fi': 'FI',
-    'cs': 'CZ',
-    'hu': 'HU',
-    'ro': 'RO',
-    'sk': 'SK',
-    'bg': 'BG',
-    'hr': 'HR',
-    'sr': 'RS',
-    'sl': 'SI',
-    'et': 'EE',
-    'lv': 'LV',
-    'lt': 'LT',
-    'uk': 'UA',
-    'be': 'BY',
-    'mk': 'MK',
-    'sq': 'AL',
-    'mt': 'MT',
-    'ga': 'IE',
-    'cy': 'GB',
-    'eu': 'ES',
-    'ca': 'ES',
-    'gl': 'ES',
-    'is': 'IS',
-    'fo': 'FO',
-    'kl': 'GL',
-    'sm': 'WS',
-    'to': 'TO',
-    'fj': 'FJ',
-    'mi': 'NZ',
-    'haw': 'US',
-    'tlh': 'AA'
-  };
-  
-  const region = regionMap[lang] || 'US';
-  return `${lang}-${region}`;
+  return lang;
+}
+
+// New function to address REACT_015: Add lang attribute to HTML element
+function getLangAttribute() {
+  return (typeof document !== 'undefined' && document.documentElement) ? document.documentElement.lang : 'en';
 }
 
 // New function to address REACT_027: Fix 26 table structure issues
@@ -457,8 +404,143 @@ function validateAccessibleLinks(container) {
   return { valid: errors.length === 0, errors };
 }
 
-const functionA = { X: 1, Y: 2, Z: 3 };
-const functionB = { X: 4, Y: 5, Z: 6 };
+// TODO: Implement functions to address new accessibility issues
+// These should be added based on the specific insight report requirements
+
+// TODO: Implement function to create in-page navigation buttons
+function createInPageButton(buttonConfig) {
+  if (typeof document === 'undefined') {
+    return null;
+  }
+  
+  const button = document.createElement('button');
+  
+  // Set button properties
+  if (buttonConfig.text) {
+    const textNode = document.createTextNode(buttonConfig.text);
+    button.appendChild(textNode);
+  }
+  
+  if (buttonConfig.ariaLabel) {
+    button.setAttribute('aria-label', buttonConfig.ariaLabel);
+  }
+  
+  if (buttonConfig.role) {
+    button.setAttribute('role', buttonConfig.role);
+  }
+  
+  // Add click handler if provided
+  if (buttonConfig.onClick) {
+    button.addEventListener('click', buttonConfig.onClick);
+  }
+  
+  return button;
+}
+
+// TODO: Implement function to validate image accessibility
+function validateImageAccessibility(imageElement) {
+  if (typeof document === 'undefined' || !imageElement) {
+    return { valid: false, errors: ['Image element not found'] };
+  }
+  
+  const errors = [];
+  
+  // Check for alt attribute
+  const alt = imageElement.getAttribute('alt');
+  if (!alt && !imageElement.getAttribute('role') === 'img') {
+    errors.push('Image is missing alt text');
+  }
+  
+  // Check for decorative images
+  if (alt === ' ') {
+    // Empty alt or alt with just a space
+  } else if (alt === '') {
+    // Non-decorative image without alt
+  } else if (!alt) {
+    // Image without alt
+  }
+  
+  // Check for aria-describedby if alt is empty
+  const ariaDescribedBy = imageElement.getAttribute('aria-describedby');
+  if (!alt && !ariaDescribedBy) {
+    errors.push('Non-decorative image should have either alt text or aria-describedby');
+  }
+  
+  return { valid: errors.length === 0, errors };
+}
+
+// TODO: Implement function to validate form accessibility
+function validateFormAccessibility(formElement) {
+  if (typeof document === 'undefined' || !formElement) {
+    return { valid: false, errors: ['Form element not found'] };
+  }
+  
+  const errors = [];
+  
+  // Check for form labels
+  const inputs = formElement.querySelectorAll('input, select, textarea');
+  inputs.forEach((input, index) => {
+    const inputId = input.getAttribute('id');
+    const inputName = input.getAttribute('name');
+    
+    // Check for associated label
+    let hasLabel = false;
+    
+    if (inputId) {
+      const label = formElement.querySelector(`label[for="${inputId}"]`);
+      if (label) hasLabel = true;
+    }
+    
+    // Also check for aria-label or aria-labelledby
+    if (!input.getAttribute('aria-label') && !input.getAttribute('aria-labelledby')) {
+      hasLabel = false;
+    }
+    
+    if (!hasLabel) {
+      errors.push(`Input ${inputName || index + 1} is missing a label`);
+    }
+  });
+  
+  return { valid: errors.length === 0, errors };
+}
+
+// TODO: Implement function to validate semantic HTML
+function validateSemanticHTML(element) {
+  if (typeof document === 'undefined' || !element) {
+    return { valid: false, errors: ['Element not found'] };
+  }
+  
+  const errors = [];
+  const tagName = element.tagName.toLowerCase();
+  const role = element.getAttribute('role');
+  
+  // Check for proper heading hierarchy
+  if (tagName.startsWith('h') && tagName.length === 2) {
+    const level = parseInt(tagName.charAt(1));
+    const siblings = element.parentElement ? element.parentElement.querySelectorAll(`h${level}`) : [];
+    if (siblings.length > 1) {
+      errors.push(`Multiple h${level} elements found at the same level`);
+    }
+  }
+  
+  // Check for skip navigation links
+  if (element.tagName.toLowerCase() === 'a' && element.getAttribute('href') === '#main') {
+    // Check if it has proper attributes
+    if (!element.textContent.trim()) {
+      errors.push('Skip navigation link should have accessible text');
+    }
+  }
+  
+  // Check for list accessibility
+  if (tagName === 'ul' || tagName === 'ol') {
+    const listItems = element.querySelectorAll('li');
+    if (listItems.length === 0) {
+      errors.push('List should contain at least one list item');
+    }
+  }
+  
+  return { valid: errors.length === 0, errors };
+}
 
 // Export all functions to maintain current exports
 module.exports = {
@@ -474,6 +556,8 @@ module.exports = {
   validateSvgAccessibility,
   ensureUniqueLandmarks,
   validateAccessibleLinks,
-  functionA,
-  functionB
+  createInPageButton,
+  validateImageAccessibility,
+  validateFormAccessibility,
+  validateSemanticHTML
 };

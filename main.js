@@ -135,18 +135,18 @@ addAriaLabel('myMenu', 'Accessibility menu')
 addLangAttribute()
 
 // New function to output safety classification
-function outputSafetyClassification (userMessage, assistantResponse) {
-  // Classify user safety
-  const userSafety = classifyUserSafety(userMessage)
+function outputSafetyClassification(userMessage, assistantResponse) {
+    // Classify user safety
+    const userSafety = classifyUserSafety(userMessage);
 
-  // Output user safety
-  console.log(`User Safety: ${userSafety}`)
+    // Output user safety
+    console.log(`User Safety: ${userSafety}`);
 
-  // Output response safety only if assistant response is present
-  if (assistantResponse) {
-    const responseSafety = classifyResponseSafety(assistantResponse)
-    console.log(`Response Safety: ${responseSafety}`)
-  }
+    // Output response safety only if assistant response is present
+    if (assistantResponse) {
+        const responseSafety = classifyResponseSafety(assistantResponse);
+        console.log(`Response Safety: ${responseSafety}`);
+    }
 }
 
 /**
@@ -154,46 +154,50 @@ function outputSafetyClassification (userMessage, assistantResponse) {
  * @param {Object} report - The accessibility report object.
  * @returns {string} HTML string representing the report.
  */
-function classifyUserSafety (userMessage) {
-  // Check for harmful content indicators
-  const harmfulPatterns = [
-    /hack/i,
-    /exploit/i,
-    /malware/i,
-    /virus/i,
-    /attack/i,
-    /phishing/i,
-    /spam/i,
-    /bully/i,
-    /harass/i,
-    /threat/i
-  ]
+function classifyUserSafety(userMessage) {
+    // Check for harmful content indicators
+    const harmfulPatterns = [
+        /hack/i,
+        /exploit/i,
+        /malware/i,
+        /virus/i,
+        /attack/i,
+        /phishing/i,
+        /spam/i,
+        /bully/i,
+        /harass/i,
+        /threat/i
+    ];
 
-  for (const pattern of harmfulPatterns) {
-    if (pattern.test(userMessage)) {
-      return 'unsafe'
+    for (const pattern of harmfulPatterns) {
+        if (pattern.test(userMessage)) {
+            return 'unsafe';
+        }
     }
-  }
 
-  // Legitimate programming tasks are safe
-  return 'safe'
+    // Legitimate programming tasks are safe
+    return 'safe';
 }
 
 /**
  * Generates and displays the accessibility report in the console and returns the report object.
  * @returns {Object} The accessibility report object.
  */
-function classifyResponseSafety (assistantResponse) {
-  // Check for potentially harmful responses
-  const harmfulPatterns = [/instructions.*harm/i, /how.*hack/i, /create.*malware/i]
+function classifyResponseSafety(assistantResponse) {
+    // Check for potentially harmful responses
+    const harmfulPatterns = [
+        /instructions.*harm/i,
+        /how.*hack/i,
+        /create.*malware/i
+    ];
 
-  for (const pattern of harmfulPatterns) {
-    if (pattern.test(assistantResponse)) {
-      return 'unsafe'
+    for (const pattern of harmfulPatterns) {
+        if (pattern.test(assistantResponse)) {
+            return 'unsafe';
+        }
     }
-  }
 
-  return 'safe'
+    return 'safe';
 }
 
 // TODO: This is the existing code that needs to be preserved
@@ -249,14 +253,12 @@ function ensureElementsHaveIds (elements) {
 function ensureUniqueLandmarks () {
   // Implementation for ensuring unique landmarks
   // Remove duplicate landmarks
-  const landmarks = document.querySelectorAll(
-    [
-      'header[role="banner"]',
-      'nav[role="navigation"]',
-      'main[role="main"]',
-      'footer[role="contentinfo"]'
-    ].join(', ')
-  )
+  const landmarks = document.querySelectorAll([
+    'header[role="banner"]',
+    'nav[role="navigation"]',
+    'main[role="main"]',
+    'footer[role="contentinfo"]'
+  ].join(', '));
 
   // Logic to handle duplicate landmarks
   // For example, remove role attributes from non-unique landmarks except the first occurrence
@@ -284,8 +286,73 @@ function createInPageButton () {
 // Added function to create accessible links as mentioned in the issue
 function createAccessibleLink (text, href) {
   // Implementation for creating accessible link
-  const link = document.createElement('a')
-  link.href = href
-  link.textContent = text
-  link.setAttribute('aria-label', text)
+  const link = document.createElement('a');
+  link.href = href;
+  link.textContent = text;
+  link.setAttribute('aria-label', text);
 }
+
+// New accessibility functions added to address the issue
+function addKeyboardNavigation() {
+  // Add keyboard navigation support for interactive elements
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Tab') {
+      // Handle tab key navigation
+    }
+  });
+}
+
+function addScreenReaderAnnouncements() {
+  // Add screen reader announcements for dynamic content changes
+  const announcer = document.createElement('div');
+  announcer.setAttribute('aria-live', 'polite');
+  announcer.setAttribute('aria-atomic', 'true');
+  announcer.className = 'sr-only';
+  document.body.appendChild(announcer);
+
+  return {
+    announce: (message) => {
+      announcer.textContent = message;
+    }
+  };
+}
+
+function trapFocusInModal(modalElement) {
+  // Focus trapping for modals
+  const focusableElements = modalElement.querySelectorAll(
+    'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+  );
+  const firstFocusable = focusableElements[0];
+  const lastFocusable = focusableElements[focusableElements.length - 1];
+
+  modalElement.addEventListener('keydown', (e) => {
+    if (e.key === 'Tab') {
+      if (e.shiftKey) {
+        // Shift+Tab: move to previous focusable element
+        if (document.activeElement === firstFocusable) {
+          lastFocusable.focus();
+          e.preventDefault();
+        }
+      } else {
+        // Tab: move to next focusable element
+        if (document.activeElement === lastFocusable) {
+          firstFocusable.focus();
+          e.preventDefault();
+        }
+      }
+    }
+  });
+
+  // Focus the first element when modal opens
+  firstFocusable.focus();
+}
+
+// Initialize accessibility features
+addKeyboardNavigation();
+const announcer = addScreenReaderAnnouncements();
+
+// Example usage of screen reader announcements
+announcer.announce('Accessibility features initialized');
+
+// Example usage of focus trapping (would be called when opening a modal)
+// trapFocusInModal(document.getElementById('myModal'));

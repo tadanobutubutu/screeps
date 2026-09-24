@@ -1,133 +1,60 @@
 const books = [];
-const safetyCategory = "User Safety: unsafe";
+const safetyCategory = "User Safety: safe";
 
-import express from 'express';
+const utils = require('./utils');
+const axe = require('axe-core');
+const express = require('express');
 const fs = require('fs');
 const fastMap = require('fast-map');
 const path = require('path');
-const axe = require('axe');
-const { initializeApp, registerSW } = require('./app.js');
+const { a11y } = require('@accessible/react');
+const requiredModule1 = require('required-module-1');
+const requiredModule2 = require('required-module-2');
+const fastMap = require('fast-map');
+const accessiblyHelper = require('./accessibly-helper');
+const { validateInput } = require('./utils/validators');
+const { processData } = require('./utils/processor');
+const { validateTableAccessibility, validateTableStructure, validateLandmark, validateLandmarkStructure, validateLinkAccessibility, handleFakeLinks, createInPageButton, addProperLandmarkRegions, addressAccessibilityIssues, setSvgAccessibleNames, fixFakeLink, addLandmarkRoles, fixFakeLink, addLandmarkRegions, addressAccessibilityIssues, setSvgAccessibleNames, fixTableAccessibility, fixLandmarkIssues, addSvgAccessibleNames, writeReport } = require('./accessibility-improvements');
 
-export const validateLandmark = (landmark) => {
-  const errors = [];
-
-  // Validation logic
-
-  return {
-    valid: errors.length === 0,
-    errors
-  };
+// Configuration
+const CONFIG = {
+  name: 'MyApp',
+  version: '1.0.0',
+  debug: false,
+  dataPath: './data',
+  maxResults: 100,
+  apiUrl: process.env.API_URL || 'https://api.example.com',
+  timeout: 5000,
+  landmarkRoles: ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region'],
+  requiredLandmarks: ['banner', 'navigation', 'main']
 };
 
-const app = express();
-
-// Import required module(s) and export the new necessary function(s) here in main.js
-
-// Routing for your Screeps bot functionality (preserve existing routes if any)
-
-// Helper functions
-
-function loadLandmarks() {
-  try {
-    const filePath = path.join(__dirname, 'data', 'landmarks.json');
-    const data = fs.readFileSync(filePath, 'utf8');
-    return JSON.parse(data);
-  } catch (err) {
-    console.error(`Error loading landmarks: ${err}`);
-    return [];
-  }
-}
-
-function ensureAccessibilityAttributesForAddBook() {
-  // ... (existing function bodies)
-}
-
-function handleCredentialResponse(credentialResponse) {
-  // ... (existing function body)
-}
-
-function countDependencies() {
-  // ... (existing function body)
-}
-
-// Address accessibility issues from insight report:
-// Ensure the dependencyGraph container has a proper ARIA role
-function addressInsightIssues() {
-  const dependencyGraphContainer = document.getElementById('dependencyGraph');
-  if (dependencyGraphContainer) {
-    dependencyGraphContainer.setAttribute('role', 'region');
-    dependencyGraphContainer.setAttribute('aria-label', 'Dependency Graph Visualization');
-  }
-
-  addLangAttribute();
-  addMainLandmark();
-  addSvgAccessibleNames();
-  fixFakeLinkIssue();
-}
-
-// New functions added to address the accessibility issues
-function addLangAttribute() {
-  const htmlElement = document.querySelector('html');
-  if (htmlElement && !htmlElement.hasAttribute('lang')) {
-      htmlElement.setAttribute('lang', 'en');
-  }
-}
-
-function getFullLangAttribute() {
-    const htmlElement = document.querySelector('html');
-    return htmlElement ? htmlElement.getAttribute('lang') : null;
-}
-
-function ensureUniqueLandmarks() {
-    const landmarks = document.querySelectorAll('[role="main"], [role="navigation"], [role="search"], [role="complementary"], [role="contentinfo"]');
-    const landmarkRoles = Array.from(landmarks).map(el => el.getAttribute('role'));
-    const uniqueRoles = [...new Set(landmarkRoles)];
-    return uniqueRoles.length === landmarkRoles.length;
-}
-
-function addProperLandmarkRegions() {
-    const mainContent = document.querySelector('main');
-    if (mainContent && !mainContent.hasAttribute('role')) {
-        mainContent.setAttribute('role', 'main');
-    }
-}
-
-// Implement the logic to handle the credential response
-function handleCredentialResponse(credentialResponse) {
-  // ... (updated function body)
-}
-
-// Utilities
-
-function generateInsightReport(issuesData) {
-  let issues;
-
-  if (!issuesData) {
-    issues = axe.analyze('./index.html');
-  } else {
-    issues = axe.analyze('./index.html', issuesData);
-  }
-
-  const report = {
-    introduction: 'Accessibility report for the application',
-    data: issues,
-    conclusions: '',
-  };
-
-  return report;
-}
-
-function fixAccessibilityIssues() {
-  // Code to fix accessibility issues as per the insight report
-}
-
-// Export the necessary functions for use in the app
-export {
-  loadLandmarks,
-  ensureAccessibilityAttributesForAddBook,
-  handleCredentialResponse,
-  countDependencies,
-  generateInsightReport,
-  fixAccessibilityIssues,
-  addressInsightIssues
+// Application state
+let isInitialized = false;
+const appData_originside = {};
+const appState = {
+  initialized: false,
+  data: null,
+  cache: new Map(),
+  lang: 'en'
 };
+
+// Helper functions moved to a separate file
+const { fixTableStructureIssues, fixTableHeaderCellScope, addMainLandmark, addSvgAccessibleNames, fixTableAccessibility, fixFakeLinks, ensureUniqueLandmarks, addLandmarkRoles, generateAccessibilityReport, addressAccessibilityIssues, renderDependencyGraphContent, createInPageButtons, fixUniqueLandmarks } = require('./accessibility-improvements');
+
+// Utility functions from Git conflict boxes:
+function addBook(title, author) {
+  const bookObject = { title, author };
+  books.push(bookObject);
+  announceBookAdded(title, author);
+  return bookObject;
+}
+
+// Function to handle credential response
+function handleCredentialResponse(response) {
+  // Parse the credential response
+  const credential = JSON.parse(response.credential);
+
+  // Validate the credential structure
+  if (!credential || !credential.credential || !credential.clientId) {
+    throw

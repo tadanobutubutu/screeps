@@ -155,9 +155,28 @@ function onAuthorSort() {
   dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
 }
 
-// Function to preserve existing code
-function preserveExistingCode() {
-  // TODO: This is the existing code that needs to be preserved
+// New function to handle sorting the book list by year (ascending)
+function sortByYear(a, b) {
+  return a.year - b.year;
+}
+
+// Function to handle sorting the book list by year (ascending)
+function onYearSort() {
+  const sortedList = [...getBooksList].sort(sortByYear);
+  // Dispatch an action to update the sorted book list in the Redux store
+  dispatch({ type: 'SORT_BY_YEAR', payload: sortedList });
+}
+
+// Function to handle sorting the book list by genre (ascending)
+function sortByGenre(a, b) {
+  return a.genre.localeCompare(b.genre);
+}
+
+// Function to handle sorting the book list by genre (ascending)
+function onGenreSort() {
+  const sortedList = [...getBooksList].sort(sortByGenre);
+  // Dispatch an action to update the sorted book list in the Redux store
+  dispatch({ type: 'SORT_BY_GENRE', payload: sortedList });
 }
 
 // Render the main component containing the book list and sorting controls
@@ -171,7 +190,11 @@ function Main() {
     if (sorting === sortByTitle) {
       onTitleSort(getBooksList);
     } else if (sorting === sortByAuthor) {
-      onAuthorSort(getBooksList);
+      onAuthorSort();
+    } else if (sorting === sortByYear) {
+      onYearSort();
+    } else if (sorting === sortByGenre) {
+      onGenreSort();
     }
 
     // Apply accessibility improvements on component mount
@@ -203,7 +226,9 @@ function Main() {
     <div>
       <button onClick={() => setSorting(sortByTitle)}>Sort by Title</button>
       <button onClick={() => setSorting(sortByAuthor)}>Sort by Author</button>
-      <List ... />
+      <button onClick={() => setSorting(sortByYear)}>Sort by Year</button>
+      <button onClick={() => setSorting(sortByGenre)}>Sort by Genre</button>
+      <List dataSource={bookItems} />
       <BookForm />
     </div>
   );

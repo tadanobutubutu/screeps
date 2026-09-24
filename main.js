@@ -4,6 +4,7 @@ const {
     createWebResourceButton,
     validateAccessibilityReport,
     exportUtils,
+    handleCredentialResponse,
     ensureElementHasId,
     ensureElementHasIdOrigin,
     addAriaLabel,
@@ -147,7 +148,8 @@ function setHtmlLangAttribute(lang) {
 }
 
 module.exports = {
-  setHtmlLangAttribute,
+  addressAccessibilityIssues,
+  checkAccessibility,
   getLangAttribute,
   detectAndSetLang,
   personName,

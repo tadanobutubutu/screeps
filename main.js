@@ -1,11 +1,70 @@
-// TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and personName())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), ... and validateLandmarkStructure())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and ...)
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks())
-// - REACT_036: Fix 1 fake link issue (handled by personName(), createInPageButton(), and ...)
-// - ADD: Address new accessibility issues from insight report
+// Dependency imports
+const { dependencyGraphContent } = require('./dependencyGraphContent')
+const { indexContent } = require('./indexContent')
+const { accessibilityUtils } = require('./accessibilityUtils');
+
+const {
+  createInPageButton,
+  createWebResourceButton,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  getLangAttribute,
+  validateAccessibilityReport,
+  exportUtils,
+  addressAccessibilityIssues,
+  ensureElementHasId,
+  ensureElementHasIdOrigin,
+  addAriaLabel,
+  renderDependencyGraphs,
+  fixButtonIdentifiers,
+  fixDependencyGraphAria,
+  addMainLandmarkToIndex,
+  focusTrap,
+  checkAccessibility,
+  validateTableStructureForAccessibility,
+  implementAccessibilityFixesFromReport,
+  checkAccessibilityForReport,
+  renderGraphIndex,
+  trapFocus,
+  addLandmarkRegions,
+  uniqueLandmarks,
+  fixFakeLinkIssues,
+  getActiveSessionsCount,
+  validateSession,
+  handleCredentialResponse,
+  createAnnouncer,
+  prefersReducedMotion,
+  renderSimpleDependencyGraph,
+  addAccessibleName,
+  addAccessibleNamesToSVGs,
+  addSvgAccessibleNames,
+  fixFakeLinkIssue,
+  addLangAttribute,
+  fixTableStructure,
+  addMainLandmark,
+  fixLandmarkIssues,
+  validateTableAccessibility,
+  validateTableStructure,
+  initializeAccessibility,
+  renderIndex,
+  newFunction,
+  validateHeadingHierarchy,
+  ensureHeadingHierarchy,
+  renderAdditionalContent,
+  googleSignIn,
+  decodeJwtResponse,
+  ensureUniqueLandmarks,
+  addSvgAccessibleName,
+  calculateComplexity,
+  newFocusTrap,
+  checkLandmarkElement,
+  wrapPrimaryContentInMain,
+  checkLandmarks,
+  a11yStore,
+  ...main = require('./utilities').main,
+  anotherNewFunction
+} = require('./utilities');
 
 // Access the dependencyGraph container and ensure it has proper ARIA role
 const dependencyGraph = document.getElementById('dependencyGraph')
@@ -189,14 +248,4 @@ function checkLandmarks() {
   return allLandmarks.length;
 }
 
-// Function for rendering the index with updated information
-function renderIndex() {
-  main(['dependencyGraphContent', 'indexContent', 'accessibilityUtils']);
-}
-
-// Function for rendering Dependency Graphs
-function renderDependencyGraphs() {
-  main(['dependencyGraphContent', 'accessibilityUtils', 'resolveConflictWithMerge']);
-}
-
-//... rest of the preserved code
+// ... rest of the preserved code

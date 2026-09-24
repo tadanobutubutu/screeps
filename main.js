@@ -614,7 +614,7 @@ function enhanceDependencyGraphAccessibility(graphElement) {
 // Export all required functions and utilities
 module.exports = {
     renderDependencyGraph,
-    renderIndex,
+    renderIndex, // Added the export 'renderIndex'
     getLangAttribute,
     accessibilityUtils,
     trapFocus,
@@ -622,6 +622,5 @@ module.exports = {
     initSkipLink: accessibilityUtils.initSkipLink,
     announceToScreenReader: accessibilityUtils.announceToScreenReader,
     handleKeyboardNav: accessibilityUtils.handleKeyboardNav,
-    createInPageButtons,
-    validateLandmarkStructure
+    createInPageButtons // Added the export 'createInPageButtons'
 };

@@ -261,12 +261,18 @@ function addMiddleware(middleware) {
   return server;
 }
 
+// New function added for testing
+function newFunction() {
+  // Placeholder implementation
+  return 'This is a new function';
+}
+
 // Export functions for testing
 module.exports = {
   createServer,
   startApp,
   config,
-  makeApiCall
+  newFunction // Added the new function to exports
 };
 
 // Start the application if run directly

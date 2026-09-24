@@ -1,13 +1,7 @@
 // TODO: This is the existing code that needs to be preserved (This comment remains as-is)
+// Main entry point for dependency visualization tool
 // ----- BEGIN ORIGINAL CODE (unchanged) -----
-// _Commit: aabb40916364c3b608e08e010dc71de4a04dfa74_
-
-// Dependency imports
-const { dependencyGraphContent } = require('./dependencyGraphContent')
-const { indexContent } = require('./indexContent')
-
-// Move the accessibilityUtils to a separate variable
-const { accessibilityUtils, ...restMain } = require('./accessibilityUtils');
+// [PLACE ALL EXISTING FUNCTIONS, VARIABLES, AND EXPORTS HERE]
 const main = require('./utilities')
 
 const {

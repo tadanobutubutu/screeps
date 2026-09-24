@@ -29,7 +29,7 @@ function getLangAttribute() {
 }
 
 // Function to ensure ARIA attributes are properly set for the dependency graph
-function ensureAriaAttributes() {
+function ensureAccessibilityAttributes() {
   const lang = getLangAttribute();
 
   // Set lang attribute on document root if not already set
@@ -82,7 +82,7 @@ export function sortByAuthor(a, b) {
 
 // Function to generate a key for each book item
 export function generateKey(book) {
-  return `book-${book.id || Math.random().toString(36).substr(2, 9) || ''}-`;
+  return `book-${book.id || 'unknown'}-${Date.now()}`;
 }
 
 // Function to render a single book item
@@ -100,7 +100,7 @@ export function addBook(book) {
   // ...
 
   // Ensure accessibility attributes are set before adding the book
-  ensureAriaAttributes();
+  ensureAccessibilityAttributes();
 
   // Dispatch an action to add the book to the books list in the Redux store
   dispatch({ type: 'ADD_BOOK', payload: book });
@@ -131,7 +131,7 @@ function generateAccessibilityReport(issues) {
 
   report += `Issue Details:\n`;
   issues.forEach((issue, index) => {
-    report += `${index + 1}. ${issue.description || 'No description'}`;
+    report += `${index + 1}. ${issue.type}: ${issue.description}`;
     if (issue.element) {
       report += ` - Element: ${issue.element}`;
     }
@@ -173,10 +173,10 @@ function fixTableStructureIssues() {
 function fixButtonIdentifiers(container) {
   // implementation omitted
 }
-function addLandmarkRole(role) {
+function addLandmarkRole(container, role) {
   // implementation omitted
 }
-function ensureUniqueLandmarks() {
+function addSvgAccessibleNames() {
   // implementation omitted
 }
 
@@ -196,14 +196,14 @@ function Main() {
     const container = document.getElementById('main-content');
     if (container) {
       // Apply accessibility fixes
-      fixButtonIdentifiers(container);
-      addLandmarkRole('main');
+      addLangAttribute();
+      fixTableStructureIssues();
 
       // Apply SVG accessibility
-      fixFakeLinkIssue('Graphical element');
+      addSvgAccessibleNames();
 
       // Ensure dependency graph has proper ARIA role
-      ensureUniqueLandmarks();
+      addLandmarkRole(container, 'main');
     }
   }, [sorting]);
 
@@ -231,11 +231,11 @@ function Main() {
       </nav>
       <List
         itemLayout="vertical"
-        dataSource={getBooksList}
+        dataSource={bookItems}
         renderItem={book => BookItem(book)}
         aria-label="Book list"
       />
-      <AddBookForm onAdd={handleAddBook} />
+      <AddBookForm onAddBook={handleAddBook} />
     </div>
   );
 }

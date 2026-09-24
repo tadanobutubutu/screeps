@@ -1,12 +1,63 @@
-// TODO: This is the existing code that needs to be preserved
+import React, { useEffect } from 'react';
+import { createRoot } from 'react-dom/client';
+import App from './App';
+import { validateTableAccessibility, validateTableStructure } from './utils/tableAccessibility';
+import { validateLandmark, validateLandmarkStructure, ensureUniqueLandmarks } from './utils/landmarkUtils';
+import { getSvgAccessibleName, createInPageButton } from './utils/svgUtils';
+import { createAccessibleLink, handleAccessibilityIssues } from './utils/linkUtils';
 
-// _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
-// <!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
-// _Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
-// <!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
-// _Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
-// <!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
-// _Commit: 2016e5b5d19ef746c2c20858a97560ad6a5c1e38_
-// <!-- todo-hash: 2940d94829911b172237e001ec7271ce7347833e -->
+// Set the lang attribute on the HTML element (REACT_015)
+const setLangAttribute = () => {
+  const htmlElement = document.documentElement;
+  const lang = htmlElement.getAttribute('lang') || 'en';
+  if (!htmlElement.hasAttribute('lang')) {
+    htmlElement.setAttribute('lang', lang);
+  }
+};
 
-// ... rest of the code
+// Accessibility validation function
+const validateAccessibility = () => {
+  validateTableAccessibility();
+  validateTableStructure();
+  validateLandmark();
+  validateLandmarkStructure();
+  ensureUniqueLandmarks();
+  handleAccessibilityIssues();
+};
+
+// Initialize the application
+const initApp = () => {
+  setLangAttribute();
+  validateAccessibility();
+  
+  const container = document.getElementById('root');
+  if (container) {
+    const root = createRoot(container);
+    root.render(<App />);
+  }
+};
+
+// Run initialization when DOM is ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initApp);
+} else {
+  initApp();
+}
+
+// Export functions for testing and external use
+export {
+  setLangAttribute,
+  validateAccessibility,
+  validateTableAccessibility,
+  validateTableStructure,
+  validateLandmark,
+  validateLandmarkStructure,
+  ensureUniqueLandmarks,
+  getSvgAccessibleName,
+  createInPageButton,
+  createAccessibleLink,
+  handleAccessibilityIssues,
+  initApp
+};
+
+export default App;

@@ -95,7 +95,10 @@ function ensureUniqueLandmarks() {
   const uniqueLandmarkMap = {};
 
   landmarks.forEach(landmark => {
-    const elements = document.querySelectorAll('[role="' + landmark + '"], ' + landmark);
+    const elements = document.querySelectorAll(`[role="${landmark}"]`);
+    if (!uniqueLandmarkMap[landmark]) {
+      uniqueLandmarkMap[landmark] = [];
+    }
     elements.forEach(el => {
       const isUnique = !uniqueLandmarkMap[landmark] || Object.values(uniqueLandmarkMap).filter(e => e === el).length === 0;
       if (isUnique) {

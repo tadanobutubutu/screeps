@@ -163,6 +163,23 @@ const accessibilityUtils = {
 // New focus trap implementation with enhanced features
 // ... (Same implementation as before)
 
+// Render index page
+function renderIndex(options = {}) {
+    // Use indexContent to generate the index page
+    return indexContent;
+}
+
+// Create in-page buttons for navigation
+function createInPageButtons(container, buttons = []) {
+    // Create button elements and append to container
+    buttons.forEach(btnConfig => {
+        const btn = document.createElement('button');
+        btn.textContent = btnConfig.label;
+        btn.addEventListener('click', btnConfig.onClick);
+        container.appendChild(btn);
+    });
+}
+
 // Export all required functions and utilities
 module.exports = {
     renderDependencyGraph,

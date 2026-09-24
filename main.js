@@ -177,32 +177,15 @@ function startApp() {
 }
 
 /**
- * Gets the language attribute value for the HTML element
- * @returns {string} The language attribute value (e.g., 'en', 'en-US')
+ * Gets the health status of the server
+ * @returns {Object} Health status object
  */
-function getLangAttribute() {
-  // Default to 'en' for English if not specified
-  return process.env.LANG_ATTRIBUTE || 'en';
-}
-
-/**
- * Creates an accessible in-page button element
- * @param {string} text - The button text content
- * @param {string} [id] - Optional button ID
- * @param {string} [className] - Optional CSS class name
- * @returns {object} Button configuration object with accessibility support
- */
-function createInPageButton(text, id, className) {
+function getHealthStatus() {
   return {
-    tag: 'button',
-    text: text,
-    id: id || null,
-    className: className || 'in-page-button',
-    attributes: {
-      type: 'button',
-      lang: getLangAttribute(),
-      'aria-label': text
-    }
+    status: 'healthy',
+    timestamp: new Date().toISOString(),
+    environment: config.env,
+    uptime: process.uptime ? process.uptime() : 0
   };
 }
 
@@ -211,7 +194,7 @@ module.exports = {
   createServer,
   startApp,
   config,
-  additionalFunction // Export the new function for testing
+  getHealthStatus
 };
 
 // Function to render graph/index using new functions

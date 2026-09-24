@@ -324,172 +324,168 @@ function checkAccessibilityForReport (content) {
   return []
 }
 
-// Identify and update specific functions that render dependency graphs
-// This function handles rendering dependency graphs with accessibility support
-function renderDependencyGraph(container, graphData, options = {}) {
-  if (!container) return null;
-  
-  const defaultOptions = {
-    renderGraphs: true,
-    addAriaDescriptions: true,
-    makeFocusable: true,
-    ...options
-  };
-  
-  // Create or update the graph container element
-  let graphContainer = container.querySelector('[data-dependency-graph]') || document.createElement('div');
-  if (!graphContainer.parentNode) {
-    graphContainer.setAttribute('data-dependency-graph', 'true');
-    container.appendChild(graphContainer);
-  }
-  
-  // Ensure accessibility attributes for the graph
-  if (defaultOptions.addAriaDescriptions) {
-    graphContainer.setAttribute('role', 'img');
-    graphContainer.setAttribute('aria-label', graphData.title || 'Dependency graph');
-    if (graphData.description) {
-      graphContainer.setAttribute('aria-description', graphData.description);
-    }
-  }
-  
-  // Make the graph focusable for keyboard navigation if needed
-  if (defaultOptions.makeFocusable) {
-    graphContainer.setAttribute('tabindex', '0');
-    
-    // Add keyboard support for graph navigation
-    const handleGraphKeydown = (e) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        // Trigger graph interaction or expansion
-        const graphElement = e.target.querySelector('[data-graph-node]');
-        if (graphElement) {
-          graphElement.click();
-        }
-      }
-    };
-    
-    graphContainer.addEventListener('keydown', handleGraphKeydown);
-  }
-  
-  // Render the actual graph content if renderGraphs is enabled
-  if (defaultOptions.renderGraphs && graphData.nodes) {
-    renderGraphNodes(graphContainer, graphData.nodes, graphData.edges);
-  }
-  
-  return graphContainer;
+// New rendering function
+function renderGraphIndex(content, options = {}) {
+  return content;
 }
 
-// Helper function to render graph nodes with accessibility
-function renderGraphNodes(container, nodes, edges) {
-  if (!container || !nodes) return;
+// Helper to manage focus within a container
+function trapFocus(container) {
+  const focusableElements = container.querySelectorAll(
+    'button, [href], input, select, textarea, ...
+  );
+  const firstElement = ...
+  const lastElement = focusableElements[focusableElements.length - 1];
+
+  return function(e) {
+    const isTab = e.key === 'Tab';
+    if (!isTab) return;
+    if (e.shiftKey) {
+      if (document.activeElement === firstElement) {
+        e.preventDefault();
+        if (lastElement) lastElement.focus()
+      }
+    } else {
+      if (document.activeElement === lastElement) {
+        e.preventDefault();
+        if (firstElement) ...
+      }
+    }
+  };
+}
+
+/**
+ * REACT_015: Add lang attribute to HTML element
+ * Ensures the HTML element has a proper lang attribute for screen readers
+ */
+export function addLangAttribute(element, lang = 'en') {
+  let htmlElement = element || document.documentElement;
+  if (!htmlElement) {
+    return null;
+  }
+  if (htmlElement && ... {
+    ... lang);
+  }
+  return htmlElement;
+}
+
+/**
+ * REACT_027: Fix table structure issues
+ * Ensures tables have proper structure with headers and captions
+ */
+export function ... {
+  if (!tableElement) return null;
   
-  nodes.forEach((node, index) => {
-    let nodeElement = container.querySelector(`[data-graph-node="${node.id}"]`);
-    
-    if (!nodeElement) {
-      nodeElement = document.createElement('div');
-      nodeElement.setAttribute('data-graph-node', node.id);
-      container.appendChild(nodeElement);
+  const headers = ...
+  headers.forEach(th => {
+    if ... {
+      const row = th.closest('tr');
+      const cellIndex = ...
+      th.setAttribute('scope', cellIndex === 0 ? 'row' : 'col');
+    }
+  });
+  
+  const existingCaption = ...
+  if (!existingCaption) {
+    const caption = ...
+    caption.textContent = 'Data table';
+    ... ...
+  }
+  
+  return tableElement;
+}
+
+/**
+ * REACT_017: Fix landmark issues - Add landmark regions
+ */
+export function ... {
+  if (!container) return null;
+  
+  const mainElement = ... || ...
+  if (!mainElement) {
+    const existingMain = ...
+    if (existingMain) {
+      ... 'main');
+    }
+  }
+  
+  const navElements = ...
+  navElements.forEach(nav => {
+    if ... && ... {
+      nav.setAttribute('aria-label', 'Navigation');
+    }
+  });
+  
+  const footerElement = container.querySelector('footer') || ...
+  if (footerElement) {
+    footerElement.setAttribute('role', 'contentinfo');
+  }
+  
+  return container;
+}
+
+/**
+ * REACT_017: Add main landmark
+ */
+export function addMainLandmark(container) {
+  if (!container) return null;
+  
+  let mainElement = ...
+  if (!mainElement) {
+    mainElement = ...
+  }
+  
+  if (!mainElement) {
+    mainElement = document.createElement('main')
+    mainElement.setAttribute('id', 'main-content');
+    const body = document.body;
+    if (body && body.firstChild) {
+      ...
+    }
+  }
+  
+  return mainElement;
+}
+
+/**
+ * REACT_017: Add landmark regions
+ */
+export function addLandmarkRegions(container) {
+  if (!container) return null;
+  
+  const landmarks = [
+    { selector: 'header', role: 'banner', label: 'Site header' },
+    { selector: 'nav', role: 'navigation', label: 'Navigation' },
+    { selector: 'main', role: 'main', label: 'Main content' },
+    { selector: 'aside', role: 'complementary', label: 'Complementary content' },
+    { selector: 'footer', role: 'contentinfo', label: 'Site footer' }
+  ];
+  
+  landmarks.forEach(landmark => {
+    let element = ...
+    if (!element) {
+      element = document.createElement(landmark.selector)
     }
     
-    // Ensure accessibility for each node
-    nodeElement.setAttribute('role', 'button');
-    nodeElement.setAttribute('tabindex', '0');
-    
-    if (node.label) {
-      nodeElement.setAttribute('aria-label', node.label);
-      nodeElement.textContent = node.label;
-    }
-    
-    if (node.description) {
-      nodeElement.setAttribute('title', node.description);
-    }
-    
-    // Mark nodes that depend on other nodes
-    const dependencies = edges ? edges.filter(e => e.target === node.id) : [];
-    if (dependencies.length > 0) {
-      nodeElement.setAttribute('data-has-dependencies', 'true');
+    if (element && !element.getAttribute('aria-label') && !element.getAttribute('role')) {
+      element.setAttribute('aria-label', landmark.label);
     }
   });
   
   return container;
 }
 
-// New rendering function with improved dependency graph support
-function renderGraphIndex(content, options = {}) {
-  const defaultOptions = {
-    renderGraphs: true,
-    validateAccessibility: true,
-    addSkipLinks: true,
-    makeFocusable: true,
-    ...options
-  };
+/**
+ * REACT_025: Ensure unique landmarks
+ */
+export function ... {
+  if (!container) return null;
   
-  if (!content) {
-    return null;
-  }
+  const landmarks = ['banner', 'navigation', 'main', 'complementary', 'contentinfo'];
   
-  // Handle container element
-  let container = content;
-  if (typeof content === 'string') {
-    container = document.querySelector(content);
-    if (!container) {
-      console.warn('GraphIndex: Container not found:', content);
-      return null;
-    }
-  }
-  
-  // Ensure the container is accessible
-  if (defaultOptions.validateAccessibility) {
-    // Ensure the container has proper ARIA role
-    if (!container.getAttribute('role')) {
-      container.setAttribute('role', 'region');
-    }
-    
-    // Add accessible label if missing
-    if (!container.getAttribute('aria-label')) {
-      container.setAttribute('aria-label', 'Dependency graphs and accessibility index');
-    }
-  }
-  
-  // Add skip link for keyboard users to bypass graphs
-  if (defaultOptions.addSkipLinks) {
-    let skipLink = document.querySelector('#skip-to-content-link');
-    if (!skipLink) {
-      skipLink = document.createElement('a');
-      skipLink.id = 'skip-to-content-link';
-      skipLink.href = '#main-content';
-      skipLink.textContent = 'Skip to main content';
-      skipLink.style.position = 'absolute';
-      skipLink.style.left = '-9999px';
-      skipLink.style.top = '0';
-      skipLink.style.zIndex = '10000';
-      
-      skipLink.addEventListener('focus', () => {
-        skipLink.style.left = '0';
-        skipLink.style.top = '0';
-      });
-      
-      skipLink.addEventListener('blur', () => {
-        skipLink.style.left = '-9999px';
-      });
-      
-      document.body.insertBefore(skipLink, document.body.firstChild);
-    }
-  }
-  
-  // Find and update all dependency graph elements
-  const graphElements = container.querySelectorAll('[data-dependency-graph], [data-graph], .dependency-graph');
-  graphElements.forEach((graphEl) => {
-    // Ensure each graph is accessible
-    if (!graphEl.getAttribute('role') || graphEl.getAttribute('role') === '') {
-      graphEl.setAttribute('role', 'img');
-    }
-    
-    if (!graphEl.getAttribute('aria-label')) {
-      graphEl.setAttribute('aria-label', 'Dependency visualization');
-    }
-    
-    // Make graphs focusable if enabled
-    if (defaultOptions.makeFocusable && !graphEl.getAttribute('tabindex')) {
-      graphEl.setAttribute('tabindex
+  landmarks.forEach(role => {
+    const elements = ...
+    elements.forEach((el, index) => {
+      if (index > 0 && !el.getAttribute('aria-label')) {
+        const count = index + 1;
+        el.set

@@ -1,17 +1,8 @@
-// TODO: This is the existing code that needs to be preserved
-// Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and addLangAttribute())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility(), validateTableStructure() and fixTableStructure())
-// - REACT_017: Add/fix 2 landmark issues (handled by addMainLandmark(), validateLandmark(), validateLandmarkStructure() and ...
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and setSvgAttributes())
-// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
-// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
-// - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
-
 // User Safety: unsafe
 // Safety Categories: Unauthorized Advice
 
-// TODO: This is where the original commitment added a new feature. Keep both changes to preserve the added functionality.
+const fs = require('fs');
+const path = require('path');
 
 // Existing code
 export function existingFunction1() {
@@ -245,59 +236,99 @@ const { formatResponse } = require('./utils/processor');
 
 // Function to write the generated report to a file (from the original commitment)
 function writeReport(report) {
-  const reportFile = 'accessibility-report.json';
-  const fs = require('fs');
-  fs.writeFileSync(reportFile, JSON.stringify(report, null, 2));
+  const reportDir = path.join(process.cwd(), 'reports');
+  const reportFile = path.join(reportDir, `accessibility-report-${Date.now()}.json`);
+  
+  try {
+    if (!fs.existsSync(reportDir)) {
+      fs.mkdirSync(reportDir, { recursive: true });
+    }
+    fs.writeFileSync(reportFile, JSON.stringify(report, null, 2));
+    return reportFile;
+  } catch (error) {
+    console.error('Error writing report:', error);
+    throw error;
+  }
 }
 
 // Function to read the generated report (from the original commitment)
-function readReport() {
-  const reportFile = 'accessibility-report.json';
-  const fs = require('fs');
-  return fs.readFileSync(reportFile, 'utf8');
+function readReport(reportFile) {
+  const defaultReportFile = path.join(process.cwd(), 'reports', 'latest-report.json');
+  const filePath = reportFile || defaultReportFile;
+  
+  try {
+    const content = fs.readFileSync(filePath, 'utf8');
+    return JSON.parse(content);
+  } catch (error) {
+    console.error('Error reading report:', error);
+    throw error;
+  }
 }
 
 // Function to generate a report based on accessibility issues (combined implementation from both branches)
-async function generateAccessibilityReport() {
-  const report = await scanAccessibility();
-  writeReport(report);
+async function generateAccessibilityReport(options = {}) {
+  const { includeViolations = true, includePasses = false, saveReport = true } = options;
+  
+  const scanResults = await scanAccessibility();
+  
+  const report = {
+    timestamp: new Date().toISOString(),
+    summary: {
+      totalViolations: scanResults.length || 0,
+      violations: scanResults.filter(r => !r.passed).length,
+      passes: scanResults.filter(r => r.passed).length
+    },
+    violations: includeViolations ? scanResults.filter(r => !r.passed) : [],
+    passes: includePasses ? scanResults.filter(r => r.passed) : [],
+    metadata: {
+      url: scanResults.url || 'unknown',
+      generatedAt: new Date().toISOString()
+    }
+  };
+  
+  if (saveReport) {
+    writeReport(report);
+  }
+  
   return report;
 }
 
 // Helper functions for axe integration
 
 async function scanAccessibility() {
-    // Basic implementation using axe-core
-    // Note: Full axe-core scanning requires a browser or DOM environment
-    // This returns a structured report that can be extended
-    return {
-        timestamp: new Date().toISOString(),
-        url: 'http://localhost',
-        violations: [],
-        passes: [],
-        incomplete: [],
-        inapplicable: []
-    };
+    // Check if axe is available
+    try {
+        const axe = require('axe-core');
+        const results = await axe.run();
+        return results && results.violations ? results.violations : [];
+    } catch (error) {
+        console.warn('axe-core not available, returning mock results');
+        return [{
+            id: 'mock-violation',
+            impact: 'critical',
+            description: 'Mock accessibility violation for testing',
+            help: 'This is a placeholder violation',
+            helpUrl: 'https://dequeuniversity.com/',
+            nodes: []
+        }];
+    }
 }
 
 // Function to validate landmark elements (from the conflicting branch)
 function validateLandmark(landmarkElement) {
-    const landmarkName = landmarkElement.name || '';
+    const landmarkName = landmarkElement ? landmarkElement.tagName : '';
     const requiredLandmarks = ['main', 'nav', 'footer'];
 
-    if (!landmarkElement) {
+    if (!landmarkElement || !landmarkName) {
         return {
-            id: issue.id,
-            description: issue.description,
-            severity: issue.severity,
-            status: 'addressed',
-            addressedAt: new Date().toISOString()
+            present: false,
+            missing: requiredLandmarks
         };
     }
 
-    const landmark = requiredLandmarks.includes(landmarkName);
+    const landmark = landmarkName.toLowerCase();
 
-    if (!landmark) {
+    if (!requiredLandmarks.includes(landmark)) {
         return {
             present: false,
             missing: [landmarkName]
@@ -316,7 +347,7 @@ if (require.main === module) {
 
   // Add the functions from the conflicting branch
   function sortLandmarks(landmarks, ascending = true) {
-    return landmarks.sort((a, b) => {
+    return [...landmarks].sort((a, b) => {
         const nameA = (a.name || '').toLowerCase();
         const nameB = (b.name || '').toLowerCase();
 
@@ -345,4 +376,19 @@ if (require.main === module) {
 
     return validLandmarks;
   }
+
+  // Export additional functions for module usage
+  module.exports = {
+    existingFunction1,
+    existingFunction2,
+    myNewFunction,
+    generateAccessibilityReport,
+    readReport,
+    writeReport,
+    ensureUniqueLandmarks,
+    validateLandmark,
+    validateLandmarks,
+    sortLandmarks,
+    findLandmarkById
+  };
 }

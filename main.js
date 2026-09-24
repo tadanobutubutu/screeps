@@ -1,12 +1,6 @@
-// TODO: This is the existing code that needs to be preserved
-// (This comment remains as-is)
-//_Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
-//<!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
-//_Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
-//<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
-//_Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
-//<!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
-// existing code...
+// TODO: Add back any required exports that might have been removed
+// User Safety: unsafe
+// Safety Categories: Unauthorized Advice
 
 // TODO: Identify and update specific functions that render dependency graphs or
 // index views.
@@ -126,266 +120,280 @@ function getLangAttribute () {
     : 'en'
 }
 
+// Add back addLangAttribute function (referenced in REACT_015 TODO and exports)
+function addLangAttribute(lang) {
+  const errors = [];
+  
+  if (!lang || typeof lang !== 'string') {
+    errors.push('Language must be a non-empty string');
+    return { valid: false, errors };
+  }
+  
+  if (typeof document !== 'undefined' && document.documentElement) {
+    document.documentElement.lang = lang;
+    return { valid: true, errors: [] };
+  }
+  
+  errors.push('Document or documentElement not available');
+  return { valid: false, errors };
+}
+
 // New function to address REACT_027: Fix 26 table structure issues
-function validateTableAccessibility (table) {
+function validateTableAccessibility(table) {
   // This function validates the accessibility of tables
   // Check for proper table headers with scope attributes
   const errors = [];
-
+  
   if (!table) {
-    return { valid: false, errors: ['Table element is required'] }
+    return { valid: false, errors: ['Table element is required'] };
   }
-
+  
   const headers = table.querySelectorAll('th');
   headers.forEach((th, index) => {
     if (!th.hasAttribute('scope')) {
-      errors.push(`Table header at index ${index} is missing scope attribute`)
+      errors.push(`Table header at index ${index} is missing scope attribute`);
     }
   });
-
+  
   // Check if table has a caption or is properly described
   const hasCaption = table.querySelector('caption');
   const hasAriaLabel = table.getAttribute('aria-label') || table.getAttribute('aria-labelledby');
-
+  
   if (!hasCaption && !hasAriaLabel) {
-    errors.push('Table is missing a caption or aria-label/aria-labelledby')
+    errors.push('Table is missing a caption or aria-label/aria-labelledby');
   }
-
+  
   return { valid: errors.length === 0, errors };
 }
 
-function validateTableStructure (table) {
+function validateTableStructure(table) {
   // This function validates the structure of tables
   const errors = [];
-
+  
   if (!table) {
-    return { valid: false, errors: ['Table element is required'] }
+    return { valid: false, errors: ['Table element is required'] };
   }
-
+  
   // Check for proper table structure
   const tbody = table.querySelector('tbody');
   const thead = table.querySelector('thead');
   const tfoot = table.querySelector('tfoot');
-
+  
   // Check for thead and tbody presence
   if (!thead) {
-    errors.push('Table is missing thead element')
+    errors.push('Table is missing thead element');
   }
   if (!tbody) {
-    errors.push('Table is missing tbody element')
+    errors.push('Table is missing tbody element');
   }
-
+  
   // Check for consistent column counts in tbody
-  const rows = table.querySelectorAll('tbody tr')
-  let expectedCols = null
+  const rows = table.querySelectorAll('tbody tr');
+  let expectedCols = null;
   rows.forEach((row, rowIndex) => {
-    const cells = row.querySelectorAll('td, th')
+    const cells = row.querySelectorAll('td, th');
     if (expectedCols === null) {
-      expectedCols = cells.length
+      expectedCols = cells.length;
     } else if (cells.length !== expectedCols) {
-      errors.push(
-                `Row ${rowIndex} has inconsistent cell count: expected ${expectedCols}, got ${cells.length}`
-      )
+      errors.push(`Row ${rowIndex} has inconsistent cell count: expected ${expectedCols}, got ${cells.length}`);
     }
   });
-
+  
   return { valid: errors.length === 0, errors };
 }
 
 // New function to address REACT_017: Add/fix 4 landmark issues
-function validateLandmark (element) {
+function validateLandmark(element) {
   // This function validates landmarks
   const errors = [];
   const allowedLandmarks = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search', 'form', 'region'];
-
+  
   if (!element) {
-    return { valid: false, errors: ['Element is required'] }
+    return { valid: false, errors: ['Element is required'] };
   }
-
+  
   const role = element.getAttribute('role');
   const tagName = element.tagName.toLowerCase();
-
+  
   // Check if element has valid landmark role
   if (role && !allowedLandmarks.includes(role)) {
-    errors.push(`Invalid landmark role: ${role}`)
+    errors.push(`Invalid landmark role: ${role}`);
   }
-
+  
   // Check if landmark has accessible name when required
-  const landmarksNeedingNames = ['navigation', 'search', 'form', 'region', 'complementary']
+  const landmarksNeedingNames = ['navigation', 'search', 'form', 'region', 'complementary'];
   if (role && landmarksNeedingNames.includes(role)) {
-    const hasLabel = element.getAttribute('aria-label') ||
+    const hasLabel = element.getAttribute('aria-label') || 
                      element.getAttribute('aria-labelledby') ||
                      element.querySelector('h1, h2, h3, h4, h5, h6');
     if (!hasLabel) {
-      errors.push(`Landmark role "${role}" is missing accessible name`)
+      errors.push(`Landmark role "${role}" is missing accessible name`);
     }
   }
-
+  
   return { valid: errors.length === 0, errors };
 }
 
-function validateLandmarkStructure () {
+function validateLandmarkStructure() {
   // This function validates the structure of landmarks
   const errors = [];
-
+  
   if (typeof document === 'undefined') {
-    return { valid: false, errors: ['Document not available'] }
+    return { valid: false, errors: ['Document not available'] };
   }
-
+  
   // Check for multiple main landmarks
-  const mainLandmarks = document.querySelectorAll('[role="main"], main')
+  const mainLandmarks = document.querySelectorAll('[role="main"], main');
   if (mainLandmarks.length > 1) {
-    errors.push(`Found ${mainLandmarks.length} main landmarks, should have only 1`)
+    errors.push(`Found ${mainLandmarks.length} main landmarks, should have only 1`);
   }
-
+  
   // Check for multiple banner landmarks
-  const bannerLandmarks = document.querySelectorAll('[role="banner"], header')
+  const bannerLandmarks = document.querySelectorAll('[role="banner"], header');
   if (bannerLandmarks.length > 1) {
-    errors.push(`Found ${bannerLandmarks.length} banner landmarks, should have only 1`)
+    errors.push(`Found ${bannerLandmarks.length} banner landmarks, should have only 1`);
   }
-
+  
   // Check for contentinfo (footer) landmarks
-  const footerLandmarks = document.querySelectorAll('[role="contentinfo"], footer')
+  const footerLandmarks = document.querySelectorAll('[role="contentinfo"], footer');
   if (footerLandmarks.length > 1) {
-    errors.push(`Found ${footerLandmarks.length} contentinfo landmarks, should have only 1`)
+    errors.push(`Found ${footerLandmarks.length} contentinfo landmarks, should have only 1`);
   }
-
+  
   return { valid: errors.length === 0, errors };
 }
 
 // New function to address REACT_041: Add accessible names to 2 SVGs
-function getSvgAccessibleName (svg) {
+function getSvgAccessibleName(svg) {
   // This function returns the accessible name for an SVG
   if (!svg) {
-    return ''
+    return '';
   }
-
+  
   // Check for aria-label attribute
-  const ariaLabel = svg.getAttribute('aria-label')
+  const ariaLabel = svg.getAttribute('aria-label');
   if (ariaLabel) {
-    return ariaLabel
+    return ariaLabel;
   }
-
+  
   // Check for aria-labelledby reference
-  const ariaLabelledby = svg.getAttribute('aria-labelledby')
+  const ariaLabelledby = svg.getAttribute('aria-labelledby');
   if (ariaLabelledby) {
-    const labelElement = document.getElementById(ariaLabelledby)
+    const labelElement = document.getElementById(ariaLabelledby);
     if (labelElement) {
-      return labelElement.textContent || ''
+      return labelElement.textContent || '';
     }
   }
-
+  
   // Check for title element inside SVG
-  const title = svg.querySelector('title')
+  const title = svg.querySelector('title');
   if (title) {
-    return title.textContent || ''
+    return title.textContent || '';
   }
-
+  
   // Check for adjacent description
-  const id = svg.getAttribute('id')
+  const id = svg.getAttribute('id');
   if (id) {
-    const describedBy = document.querySelector(`[id="${id}-desc"]`)
+    const describedBy = document.querySelector(`[id="${id}-desc"]`);
     if (describedBy) {
-      return describedBy.textContent || ''
+      return describedBy.textContent || '';
     }
   }
-
+  
   return '';
 }
 
 // New function to address REACT_025: Ensure unique landmarks (2 issues)
-function ensureUniqueLandmarks () {
+function ensureUniqueLandmarks() {
   // This function ensures that landmarks are unique
   const errors = [];
-
+  
   if (typeof document === 'undefined') {
-    return { valid: false, errors: ['Document not available'] }
+    return { valid: false, errors: ['Document not available'] };
   }
-
+  
   // Define unique landmarks that should only appear once
   const uniqueLandmarks = ['main', 'banner', 'contentinfo'];
   const uniqueRoleSelectors = ['[role="main"]', '[role="banner"]', '[role="contentinfo"]'];
-
+  
   uniqueLandmarks.forEach((landmark, index) => {
     const elements = document.querySelectorAll(uniqueRoleSelectors[index]);
     const tagElements = document.querySelectorAll(landmark);
     const totalCount = elements.length + tagElements.length;
-
+    
     if (totalCount > 1) {
-      errors.push(
-                `Found ${totalCount} instances of "${landmark}" landmark, should have only 1`
-      )
+      errors.push(`Found ${totalCount} instances of "${landmark}" landmark, should have only 1`);
     }
   });
-
+  
   // Check for landmark IDs that should be unique
-  const landmarksWithIds = document.querySelectorAll('[role][id]')
-  const ids = new Set()
-  landmarksWithIds.forEach((el) => {
-    const id = el.getAttribute('id')
+  const landmarksWithIds = document.querySelectorAll('[role][id]');
+  const ids = new Set();
+  landmarksWithIds.forEach(el => {
+    const id = el.getAttribute('id');
     if (ids.has(id)) {
-      errors.push(`Duplicate landmark id found: ${id}`)
+      errors.push(`Duplicate landmark id found: ${id}`);
     }
     ids.add(id);
   });
-
+  
   return { valid: errors.length === 0, errors };
 }
 
 // New function to address REACT_036: Fix 1 fake link issue
-function createAccessibleLink (href, text, options = {}) {
+function createAccessibleLink(href, text, options = {}) {
   // This function creates an accessible link
-  const {
-    onClick,
+  const { 
+    onClick, 
     role = 'link',
     ariaLabel,
     className,
     target,
-    rel
+    rel 
   } = options;
-
+  
   if (!href && !onClick) {
-    return null
+    return null;
   }
-
+  
   const link = document.createElement('a');
   link.textContent = text;
-
+  
   if (href) {
-    link.href = href
+    link.href = href;
     // Add rel="noopener noreferrer" for external links
     if (target === '_blank' && !rel) {
-      link.rel = 'noopener noreferrer'
+      link.rel = 'noopener noreferrer';
     } else if (rel) {
-      link.rel = rel
+      link.rel = rel;
     }
   } else {
     // If no href, it's a button disguised as a link
-    link.href = '#'
+    link.href = '#';
     link.addEventListener('click', (e) => {
-      e.preventDefault()
+      e.preventDefault();
       if (onClick) {
-        onClick(e)
+        onClick(e);
       }
-    })
+    });
   }
-
+  
   if (target) {
-    link.target = target
+    link.target = target;
   }
-
+  
   if (className) {
-    link.className = className
+    link.className = className;
   }
-
+  
   if (ariaLabel) {
-    link.setAttribute('aria-label', ariaLabel)
+    link.setAttribute('aria-label', ariaLabel);
   }
-
+  
   if (role && role !== 'link') {
-    link.setAttribute('role', role)
+    link.setAttribute('role', role);
   }
-
+  
   return link;
 }
 
@@ -394,81 +402,81 @@ function createAccessibleLink (href, text, options = {}) {
  * @param {HTMLElement} parent - The parent element where the button should be inserted (defaults to document.body)
  * @returns {HTMLElement} The created button element
  */
-function createInPageButton (parent = document.body) {
-  const btn = document.createElement('button')
-  btn.type = 'button'
-  btn.setAttribute('role', 'button')
-  btn.setAttribute('aria-label', 'Open modal')
-  parent.appendChild(btn)
-  return btn
+function createInPageButton(parent = document.body) {
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.setAttribute('role', 'button');
+  btn.setAttribute('aria-label', 'Open modal');
+  parent.appendChild(btn);
+  return btn;
 }
 
 /**
- * Analyzes and returns the dependency structure of a module.
- * @param {string} moduleName - The name of the module to analyze
- * @param {Object} moduleRegistry - Optional registry of known modules and their dependencies
- * @returns {Object} An object containing module info, dependencies, and dependents
+ * Creates an accessible web resource button for linking to external resources.
+ * @param {HTMLElement} parent - The parent element where the button should be inserted (defaults to document.body)
+ * @param {string} label - The accessible label/description of the button
+ * @returns {HTMLElement} The created button element
  */
-function createWebResourceButton (parent = document.body, label = 'Open Resource') {
-  const btn = document.createElement('button')
-  btn.type = 'button'
-  btn.setAttribute('role', 'button')
-  btn.setAttribute('aria-label', label)
-  parent.appendChild(btn)
-  return btn
+function createWebResourceButton(parent = document.body, label = 'Open Resource') {
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.setAttribute('role', 'button');
+  btn.setAttribute('aria-label', label);
+  parent.appendChild(btn);
+  return btn;
 }
 
 // TODO: Implement tower defense
-function towerDefense () {
+function towerDefense() {
   // A simple tower defense game implementation
   // Define towers, enemies, waves, and game loop
   const towers = [];
   const enemies = [];
   let wave = 1;
-
+  
   // Example: Tower constructor
-  function Tower (x, y, range, damage, rate) {
-    this.x = x
-    this.y = y
-    this.range = range
-    this.damage = damage
-    this.rate = rate
-    this.lastShot = 0
+  function Tower(x, y, range, damage, rate) {
+    this.x = x;
+    this.y = y;
+    this.range = range;
+    this.damage = damage;
+    this.rate = rate;
+    this.lastShot = 0;
   }
-
+  
   // Example: Enemy constructor
-  function Enemy (x, y, health, speed) {
-    this.x = x
-    this.y = y
-    this.health = health
-    this.speed = speed
+  function Enemy(x, y, health, speed) {
+    this.x = x;
+    this.y = y;
+    this.health = health;
+    this.speed = speed;
   }
-
+  
   // Add a tower
-  function addTower (x, y, range, damage, rate) {
-    towers.push(new Tower(x, y, range, damage, rate))
+  function addTower(x, y, range, damage, rate) {
+    towers.push(new Tower(x, y, range, damage, rate));
   }
-
+  
   // Add an enemy
-  function addEnemy (x, y, health, speed) {
-    enemies.push(new Enemy(x, y, health, speed))
+  function addEnemy(x, y, health, speed) {
+    enemies.push(new Enemy(x, y, health, speed));
   }
-
+  
   // Update game state (simplified)
-  function update () {
+  function update() {
     // Logic for enemy movement, tower shooting, etc.
-    console.log(`Wave ${wave} - updating game state`)
+    console.log(`Wave ${wave} - updating game state`);
   }
-
+  
   // Start the game
-  function start () {
-    console.log('Tower defense game started')
+  function start() {
+    console.log('Tower defense game started');
     // Add initial towers and enemies
-    addTower(100, 100, 200, 10, 1000)
-    addEnemy(0, 50, 100, 2)
+    addTower(100, 100, 200, 10, 1000);
+    addEnemy(0, 50, 100, 2);
     // Game loop would be here
   }
-
+  
   // Expose game functions
   return {
     start,
@@ -476,15 +484,10 @@ function towerDefense () {
     addEnemy,
     update,
     getWave: () => wave
-  }
+  };
 }
 
-// New function to address the "ADD" item in the issue: Address new accessibility issues from insight report
-// This function ensures the dependencyGraph container has a proper ARIA role
-function ensureDependencyGraphAccessibility(container) {
-  if (!container) {
-    return { valid: false, errors: ['Container element is required'] };
-  }
+// Add back missing functions from TODO comments
 
 /**
  * Function to fix table structure issues (REACT_027)
@@ -493,38 +496,38 @@ function ensureDependencyGraphAccessibility(container) {
  */
 function fixTableStructure(table) {
   const result = { valid: true, errors: [] };
-
+  
   if (!table) {
-    return { valid: false, errors: ['Table element is required'] }
+    return { valid: false, errors: ['Table element is required'] };
   }
-
+  
   // Fix missing thead
-  const thead = table.querySelector('thead')
+  const thead = table.querySelector('thead');
   if (!thead) {
-    const newThead = document.createElement('thead')
-    const firstRow = table.querySelector('tr')
+    const newThead = document.createElement('thead');
+    const firstRow = table.querySelector('tr');
     if (firstRow) {
-      newThead.appendChild(firstRow.cloneNode(true))
-      table.insertBefore(newThead, table.firstChild)
+      newThead.appendChild(firstRow.cloneNode(true));
+      table.insertBefore(newThead, table.firstChild);
     }
   }
-
+  
   // Fix missing tbody
   if (!table.querySelector('tbody')) {
-    const tbody = document.createElement('tbody')
-    const rows = Array.from(table.querySelectorAll('tr'))
+    const tbody = document.createElement('tbody');
+    const rows = Array.from(table.querySelectorAll('tr'));
     if (rows.length > 0 && table.querySelector('thead')) {
-      const theadRows = table.querySelectorAll('thead tr')
-      const dataRows = rows.slice(theadRows.length)
-      dataRows.forEach((row) => tbody.appendChild(row))
+      const theadRows = table.querySelectorAll('thead tr');
+      const dataRows = rows.slice(theadRows.length);
+      dataRows.forEach(row => tbody.appendChild(row));
     }
-    table.appendChild(tbody)
+    table.appendChild(tbody);
   }
-
+  
   // Fix inconsistent column counts
-  const allRows = table.querySelectorAll('tr')
-  const columnCounts = Array.from(allRows).map((row) => row.querySelectorAll('td, th').length)
-  const uniqueCounts = [...new Set(columnCounts)]
+  const allRows = table.querySelectorAll('tr');
+  const columnCounts = Array.from(allRows).map(row => row.querySelectorAll('td, th').length);
+  const uniqueCounts = [...new Set(columnCounts)];
   if (uniqueCounts.length > 1) {
     // Use the most common column count
     const countCounts = {};
@@ -532,26 +535,24 @@ function fixTableStructure(table) {
       countCounts[count] = (countCounts[count] || 0) + 1;
     });
     const mostCommonCount = Object.entries(countCounts).sort((a, b) => b[1] - a[1])[0][0];
-
+    
     allRows.forEach((row, rowIndex) => {
-      const cells = row.querySelectorAll('td, th')
+      const cells = row.querySelectorAll('td, th');
       if (cells.length !== mostCommonCount) {
         // Add or remove cells to match the most common count
         while (cells.length < mostCommonCount) {
-          const cell = document.createElement(cells.length % 2 === 0 ? 'td' : 'th')
-          row.appendChild(cell)
+          const cell = document.createElement(cells.length % 2 === 0 ? 'td' : 'th');
+          row.appendChild(cell);
         }
         while (cells.length > mostCommonCount) {
-          row.removeChild(row.lastChild)
+          row.removeChild(row.lastChild);
         }
-        result.errors.push(
-                    `Fixed inconsistent cell count in row ${rowIndex}: set to ${mostCommonCount}`
-        )
+        result.errors.push(`Fixed inconsistent cell count in row ${rowIndex}: set to ${mostCommonCount}`);
       }
-    })
-    result.valid = result.errors.length === 0
+    });
+    result.valid = result.errors.length === 0;
   }
-
+  
   return result;
 }
 
@@ -562,45 +563,45 @@ function fixTableStructure(table) {
  */
 function addLandmarkIssues(element) {
   const errors = [];
-
+  
   if (!element) {
-    return { valid: false, errors: ['Element is required'] }
+    return { valid: false, errors: ['Element is required'] };
   }
-
+  
   // Check if element has role attribute
-  const role = element.getAttribute('role')
+  const role = element.getAttribute('role');
   if (!role) {
     // Try to infer role from tag name
-    const tagName = element.tagName.toLowerCase()
+    const tagName = element.tagName.toLowerCase();
     if (tagName === 'header') {
-      element.setAttribute('role', 'banner')
-      errors.push('Added role="banner" to header element')
+      element.setAttribute('role', 'banner');
+      errors.push('Added role="banner" to header element');
     } else if (tagName === 'nav') {
-      element.setAttribute('role', 'navigation')
-      errors.push('Added role="navigation" to nav element')
+      element.setAttribute('role', 'navigation');
+      errors.push('Added role="navigation" to nav element');
     } else if (tagName === 'main') {
-      element.setAttribute('role', 'main')
-      errors.push('Added role="main" to main element')
+      element.setAttribute('role', 'main');
+      errors.push('Added role="main" to main element');
     } else if (tagName === 'aside') {
-      element.setAttribute('role', 'complementary')
-      errors.push('Added role="complementary" to aside element')
+      element.setAttribute('role', 'complementary');
+      errors.push('Added role="complementary" to aside element');
     } else if (tagName === 'footer') {
-      element.setAttribute('role', 'contentinfo')
-      errors.push('Added role="contentinfo" to footer element')
+      element.setAttribute('role', 'contentinfo');
+      errors.push('Added role="contentinfo" to footer element');
     }
   }
-
+  
   // Check for required accessible names
-  const landmarksNeedingNames = ['navigation', 'search', 'form', 'region', 'complementary']
+  const landmarksNeedingNames = ['navigation', 'search', 'form', 'region', 'complementary'];
   if (role && landmarksNeedingNames.includes(role)) {
-    const hasLabel = element.getAttribute('aria-label') ||
+    const hasLabel = element.getAttribute('aria-label') || 
                      element.getAttribute('aria-labelledby') ||
                      element.querySelector('h1, h2, h3, h4, h5, h6');
     if (!hasLabel) {
-      errors.push(`Landmark role "${role}" is missing accessible name`)
+      errors.push(`Landmark role "${role}" is missing accessible name`);
     }
   }
-
+  
   return { valid: errors.length === 0, errors };
 }
 
@@ -612,42 +613,58 @@ function addLandmarkIssues(element) {
  */
 function addSvgAccessibleNames(svg, accessibleName) {
   const result = { valid: true, errors: [] };
-
+  
   if (!svg) {
-    return { valid: false, errors: ['SVG element is required'] }
+    return { valid: false, errors: ['SVG element is required'] };
   }
-
+  
   if (!accessibleName) {
-    result.errors.push('Accessible name is required')
-    result.valid = false
-    return result
+    result.errors.push('Accessible name is required');
+    result.valid = false;
+    return result;
   }
-
+  
   // Check if SVG already has an accessible name
   const hasAriaLabel = svg.getAttribute('aria-label');
   const hasTitle = svg.querySelector('title');
   const hasAriaLabelledby = svg.getAttribute('aria-labelledby');
-
+  
   if (hasAriaLabel || hasTitle || hasAriaLabelledby) {
-    result.errors.push('SVG already has an accessible name')
-    result.valid = false
-    return result
+    result.errors.push('SVG already has an accessible name');
+    result.valid = false;
+    return result;
   }
-
+  
   // Add aria-label to SVG
   svg.setAttribute('aria-label', accessibleName);
-
+  
   return result;
-}
-
-// New function to ensure unique landmarks (from HEAD side)
-function ensureUniqueLandmarks() {
-  // Implementation for ensuring unique landmarks
 }
 
 // New function to fix fake link issues (from HEAD side)
 function fixFakeLinkIssue() {
   // Implementation for fixing fake link issues
+  const errors = [];
+  
+  if (typeof document === 'undefined') {
+    return { valid: false, errors: ['Document not available'] };
+  }
+  
+  // Find all anchor elements without href or with href="#"
+  const fakeLinks = document.querySelectorAll('a[href="#"], a:not([href])');
+  
+  fakeLinks.forEach((link, index) => {
+    // Check if the link has an onclick handler (indicating it's a fake link)
+    const hasOnClick = link.hasAttribute('onclick');
+    const role = link.getAttribute('role');
+    
+    if (hasOnClick || (role && role !== 'link')) {
+      // This is a fake link that should be a button
+      errors.push(`Link at index ${index} appears to be a fake link and should be a button`);
+    }
+  });
+  
+  return { valid: errors.length === 0, errors };
 }
 
 // Export the new functions
@@ -655,12 +672,12 @@ module.exports = {
   setHtmlLangAttribute,
   detectAndSetLang,
   getLangAttribute,
-  addLangAttribute, // Add back addLangAttribute export
+  addLangAttribute,
   createInPageButton,
   createWebResourceButton,
   validateTableAccessibility,
   validateTableStructure,
-  fixTableStructure, // Add back fixTableStructure export
+  fixTableStructure,
   validateLandmark,
   validateLandmarkStructure,
   getSvgAccessibleName,

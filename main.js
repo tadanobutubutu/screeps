@@ -1,432 +1,223 @@
-// Existing code
+/**
+ * Main module for the application
+ * Handles core functionality including dependency graph rendering and module structure display
+ */
 
-// Entry point for the application
-
-// Existing utility functions
-function getUser(id) {
-  return id;
-}
-
-function validateInput(input) {
-  return typeof input === 'string';
-}
-
-// TODO: Add necessary exports for new functions
-export { getUser, validateInput };
-
-// Additional new functions (if any) from both branches
-export {
-  ensureElementHasId,
-  addAriaLabel,
-  renderDependencyGraph,
-  ensureLandmarkRoles,
-  ensureUniqueLandmarks,
-  addSvgAccessibleNames,
-  fixFakeLinks,
-  ensureLangAttribute
-};
-
-// TODO: Address accessibility issues from insight report:
-
-// Add a new function
-function newFunction() {
-  // Implement your logic here
-}
-
-// Ensure the given element has an ID.
-// If the element doesn't have an ID, generates a unique one.
-// @param {HTMLElement} element - The element to ensure has an ID
-// @returns {string} The element's ID (existing or newly generated)
-function ensureElementHasId(element) {
-  if (!element.id) {
-    element.id = `generated-id-${Math.random().toString(36).substr(2, 9)}`;
-  }
-  return element.id;
-}
-
-'use strict';
-
-// ----- BEGIN ORIGINAL CODE (unchanged) -----
-// Assuming main.js has a <html> tag, add the lang attribute based on your content
-// For example, if the page is in English, set lang to 'en'
-// ...
-
-// BEGIN CHANGES TO ADDRESS ACCESSIBILITY ISSUES
-
-// Function to set the lang attribute based on the page content
-function setLangAttribute() {
-  const htmlElement = document.querySelector('html');
-  if (htmlElement) {
-    const lang = ensureLangAttribute(document);
-    htmlElement.setAttribute('lang', lang);
-  }
-}
-
-// Function to validate table structure for accessibility
-function validateTableAccessibility() {
-  // ... Perform accessibility checks on tables
-  // Example: check if table headers are properly defined
-}
-
-// Function to validate landmark accessibility
-function validateLandmark() {
-  // ... Perform landmark accessibility checks
-  // Example: check if landmark roles are properly assigned
-}
-
-// Function to set accessible names for SVGs
-function getSvgAccessibleName() {
-  // ... Return accessible names for SVGs
-}
-
-// Function to create in-page buttons with appropriate roles and names
-function createInPageButton() {
-  // ... Create buttons with accessibility in mind
-}
+// Sample module registry for demonstration
+const moduleRegistry = new Map();
 
 /**
- * Ensures the given element has an ID.
- * If the element doesn't have an ID, generates a unique one.
- * @param {HTMLElement} element - The element to ensure has an ID
- * @returns {string} The element's ID (existing or newly generated)
+ * Registers a module in the registry
+ * @param {string} name - Module name
+ * @param {object} module - Module object containing dependencies and info
  */
-function ensureElementHasId(element) {
-  if (!element.id) {
-    element.id = `generated-id-${Math.random().toString(36).substr(2, 9)}`;
-  }
-  return element.id;
-}
-
-/**
- * Adds an aria-label to the element if it doesn't have one.
- * @param {HTMLElement} element - The element to add aria-label to
- * @param {string} label - The label text
- * @returns {HTMLElement} The element for chaining
- */
-function addAriaLabel(element, label) {
-  if (!element.hasAttribute('aria-label') && !element.hasAttribute('aria-labelledby')) {
-    element.setAttribute('aria-label', label);
-  }
-  return element;
-}
-
-// Ensure the HTML element has a lang attribute
-function addLangAttribute(element) {
-  element.setAttribute('lang', 'en'); // Replace 'en' with your desired language code
-}
-
-// Add an accessible name to an SVG element
-function addAccessibleNameToSVG(svg, accessibleName) {
-  svg.setAttribute('aria-label', accessibleName);
-}
-
-// Add a role to an HTML container element
-function addARIARole(container, role) {
-  container.setAttribute('role', role);
-}
-
-/**
- * Renders a dependency graph visualization.
- * @param {Object} graphData - The dependency graph data
- * @param {HTMLElement} container - The container element to render into
- * @returns {HTMLElement} The container element
- */
-function renderDependencyGraph(graphData, container) {
-  if (!container) {
-    throw new Error('Container element is required');
-  }
-
-  // Clear existing content
-  container.innerHTML = '';
-
-  // Create SVG for graph visualization
-  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-  svg.setAttribute('width', '100%');
-  svg.setAttribute('height', '100%');
-  svg.setAttribute('viewBox', '0 0 800 600');
-  svg.style.maxWidth = '100%';
-  svg.style.height = 'auto';
-
-  // Simple force-directed graph layout (basic implementation)
-  const nodes = graphData.nodes || [];
-  const edges = graphData.edges || [];
-
-  // Generate positions for nodes
-  const nodePositions = new Map();
-  nodes.forEach((node, index) => {
-    const angle = (index / nodes.length) * 2 * Math.PI;
-    const radius = 200;
-    nodePositions.set(node.id, {
-      x: 400 + radius * Math.cos(angle),
-      y: 300 + radius * Math.sin(angle)
+function registerModule(name, module) {
+    moduleRegistry.set(name, {
+        ...module,
+        timestamp: Date.now()
     });
-  });
-
-  // Draw edges
-  edges.forEach(edge => {
-    const sourcePos = nodePositions.get(edge.source);
-    const targetPos = nodePositions.get(edge.target);
-    if (sourcePos && targetPos) {
-      const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-      line.setAttribute('x1', sourcePos.x);
-      line.setAttribute('y1', sourcePos.y);
-      line.setAttribute('x2', targetPos.x);
-      line.setAttribute('y2', targetPos.y);
-      line.setAttribute('stroke', '#999');
-      line.setAttribute('stroke-width', '2');
-      line.setAttribute('marker-end', 'url(#arrowhead)');
-      svg.appendChild(line);
-    }
-  });
-
-  // Add arrowhead marker
-  const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
-  const marker = document.createElementNS('http://www.w3.org/2000/svg', 'marker');
-  marker.setAttribute('id', 'arrowhead');
-  marker.setAttribute('markerWidth', '10');
-  marker.setAttribute('markerHeight', '7');
-  marker.setAttribute('refX', '9');
-  marker.setAttribute('refY', '3.5');
-  marker.setAttribute('orient', 'auto');
-  const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
-  polygon.setAttribute('points', '0 0, 10 3.5, 0 7');
-  polygon.setAttribute('fill', '#999');
-  marker.appendChild(polygon);
-  defs.appendChild(marker);
-  svg.appendChild(defs);
-
-  // Draw nodes
-  nodes.forEach(node => {
-    const pos = nodePositions.get(node.id);
-    if (pos) {
-      const group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-      group.setAttribute('transform', `translate(${pos.x}, ${pos.y})`);
-
-      const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-      circle.setAttribute('r', '20');
-      circle.setAttribute('fill', node.color || '#4a90d9');
-      circle.setAttribute('stroke', '#333');
-      circle.setAttribute('stroke-width', '2');
-      group.appendChild(circle);
-
-      const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-      text.setAttribute('text-anchor', 'middle');
-      text.setAttribute('dy', '5');
-      text.setAttribute('fill', '#fff');
-      text.setAttribute('font-size', '12');
-      text.setAttribute('font-family', 'sans-serif');
-      text.textContent = node.label || node.id;
-      group.appendChild(text);
-
-      svg.appendChild(group);
-    }
-  });
-
-  container.appendChild(svg);
-  return container;
 }
 
-// REACT_017: Add landmark roles - Ensure proper landmark regions
-function ensureLandmarkRoles(container) {
-  const landmarks = {
-    header: { role: 'banner', count: 0 },
-    nav: { role: 'navigation', count: 0 },
-    main: { role: 'main', count: 0 },
-    aside: { role: 'complementary', count: 0 },
-    footer: { role: 'contentinfo', count: 0 },
-  };
+/**
+ * Renders a dependency graph for visualization
+ * @param {string} rootModule - The root module to start rendering from
+ * @param {object} options - Rendering options
+ * @returns {string} ASCII representation of the dependency graph
+ */
+function renderDependencyGraph(rootModule, options = {}) {
+    const {
+        maxDepth = 3,
+        showVersions = false,
+        format = 'ascii'
+    } = options;
 
-  const elements = container.querySelectorAll('header, nav, main, aside, footer');
-  elements.forEach(el => {
-    const tagName = el.tagName.toLowerCase();
-    if (landmarks[tagName]) {
-      landmarks[tagName].count++;
+    if (!moduleRegistry.has(rootModule)) {
+        return `Error: Module '${rootModule}' not found in registry`;
     }
-  });
 
-  return landmarks;
-}
+    const visited = new Set();
+    const lines = [];
 
-// REACT_025: Ensure unique landmarks - Prevent duplicate landmark roles
-function ensureUniqueLandmarks(container) {
-  const landmarkCounts = {};
-  const landmarkElements = container.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="complementary"], [role="contentinfo"]');
+    function traverse(moduleName, depth = 0, prefix = '', isLast = true) {
+        if (depth > maxDepth || visited.has(moduleName)) {
+            return;
+        }
+        visited.add(moduleName);
 
-  landmarkElements.forEach(el => {
-    const role = el.getAttribute('role');
-    landmarkCounts[role] = (landmarkCounts[role] || 0) + 1;
+        const module = moduleRegistry.get(moduleName);
+        const connector = isLast ? '└── ' : '├── ';
+        const version = showVersions && module.version ? `@${module.version}` : '';
+        lines.push(`${prefix}${connector}${moduleName}${version}`);
 
-    // If multiple of same landmark type, add unique labels
-    if (landmarkCounts[role] > 1) {
-      if (!el.getAttribute('aria-label')) {
-        el.setAttribute('aria-label', `${role} section ${landmarkCounts[role]}`);
-      }
+        if (module.dependencies && module.dependencies.length > 0) {
+            const newPrefix = prefix + (isLast ? '    ' : '│   ');
+            module.dependencies.forEach((dep, index) => {
+                const isLastDep = index === module.dependencies.length - 1;
+                traverse(dep, depth + 1, newPrefix, isLastDep);
+            });
+        }
     }
-  });
+
+    lines.push(`Dependency Graph: ${rootModule}`);
+    lines.push('─'.repeat(40));
+    traverse(rootModule);
+
+    return lines.join('\n');
 }
 
-// REACT_041: Add accessible names to SVGs
-function addSvgAccessibleNames(container) {
-  const svgs = container.querySelectorAll('svg:not([aria-label]):not([aria-labelledby])');
-  svgs.forEach((svg, index) => {
-    const title = svg.querySelector('title');
-    if (title) {
-      const titleId = `svg-title-${index}`;
-      title.id = titleId;
-      svg.setAttribute('aria-labelledby', titleId);
-    } else {
-      svg.setAttribute('aria-label', `SVG graphic ${index + 1}`);
+/**
+ * Displays the structure of a module for debugging purposes
+ * @param {string} moduleName - Name of the module to inspect
+ * @param {object} options - Display options
+ * @returns {string} Formatted module structure
+ */
+function displayModuleStructure(moduleName, options = {}) {
+    const {
+        showPrivate = false,
+        showMetadata = true,
+        indent = '  '
+    } = options;
+
+    if (!moduleRegistry.has(moduleName)) {
+        return `Error: Module '${moduleName}' not found in registry`;
     }
-  });
-}
 
-// REACT_036: Fix fake link issues - Convert buttons styled as links or links styled as buttons
-function fixFakeLinks(container) {
-  const fakeLinks = container.querySelectorAll('a[href="#"], a[onclick], a[role="button"], button[href]');
-  fakeLinks.forEach(el => {
-    if (el.tagName === 'A' && el.getAttribute('role') === 'button') {
-      // Keep as button role, ensure proper button semantics
-      el.setAttribute('aria-pressed', 'false');
-    } else if (el.tagName === 'A' && (el.getAttribute('href') === '#' || el.getAttribute('onclick'))) {
-      // Convert to proper button
-      el.setAttribute('role', 'button');
-      if (!el.getAttribute('aria-label')) {
-        el.setAttribute('aria-label', el.textContent.trim());
-      }
+    const module = moduleRegistry.get(moduleName);
+    const lines = [];
+
+    lines.push(`Module: ${moduleName}`);
+    lines.push('─'.repeat(40));
+
+    if (showMetadata) {
+        lines.push(`Registered: ${new Date(module.timestamp).toISOString()}`);
+        if (module.version) {
+            lines.push(`Version: ${module.version}`);
+        }
     }
-  });
-}
 
-// REACT_015: Add lang attribute helper (for dynamic content injection)
-function ensureLangAttribute(doc) {
-  const html = doc.documentElement;
-  if (!html.hasAttribute('lang')) {
-    html.setAttribute('lang', html.lang || 'en');
-  }
-  return html.getAttribute('lang');
-}
+    if (module.exports) {
+        lines.push('\nExports:');
+        const exportsList = module.exports;
+        if (Array.isArray(exportsList)) {
+            exportsList.forEach(exp => {
+                const visibility = typeof exp === 'string' && exp.startsWith('_') ? '[private]' : '[public]';
+                if (showPrivate || !showPrivate && visibility === '[public]') {
+                    lines.push(`${indent}${visibility} ${exp}`);
+                }
+            });
+        } else {
+            lines.push(`${indent}${exportsList}`);
+        }
+    }
 
-// ----- END CHANGES TO ADDRESS ACCESSIBILITY ISSUES
-
-// Existing application code preserved here
-const App = {
-    init: function() {
-        this.setupAccessibility();
-        this.bindEvents();
-        this.runAdditionalAccessibilityChecks();
-    },
-
-    setupAccessibility: function() {
-        // Add ARIA labels to interactive elements
-        const buttons = document.querySelectorAll('button');
-        buttons.forEach(function(button) {
-            if (!button.getAttribute('aria-label') && !button.textContent.trim()) {
-                button.setAttribute('aria-label', 'Unnamed button');
-            }
+    if (module.dependencies && module.dependencies.length > 0) {
+        lines.push('\nDependencies:');
+        module.dependencies.forEach(dep => {
+            const depInfo = moduleRegistry.get(dep);
+            const status = depInfo ? '[registered]' : '[missing]';
+            lines.push(`${indent}${dep} ${status}`);
         });
-
-        // Ensure keyboard navigation
-        const interactiveElements = document.querySelectorAll('a, button, input, select, textarea, [tabindex]');
-        interactiveElements.forEach(function(el) {
-            el.setAttribute('tabindex', '0');
-        });
-
-        // Focus management for dynamic content
-        const focusableElements = 'a[href], area[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled]), iframe, object, embed, [tabindex="0"], [contenteditable]';
-        
-        // Announce dynamic updates to screen readers
-        this.announceToScreenReader = function(message, priority) {
-            priority = priority || 'polite';
-            const announcer = document.createElement('div');
-            announcer.setAttribute('aria-live', priority);
-            announcer.setAttribute('aria-atomic', 'true');
-            announcer.setAttribute('class', 'sr-only');
-            announcer.style.cssText = 'position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;';
-            document.body.appendChild(announcer);
-            
-            setTimeout(function() {
-                announcer.textContent = message;
-                setTimeout(function() {
-                    document.body.removeChild(announcer);
-                }, 1000);
-            }, 100);
-        };
-    },
-
-    bindEvents: function() {
-        document.addEventListener('keydown', function(e) {
-            // Trap focus within modals
-            if (e.key === 'Escape') {
-                // Close modals on Escape key
-                const modals = document.querySelectorAll('[role="dialog"][aria-hidden="false"]');
-                modals.forEach(function(modal) {
-                    modal.setAttribute('aria-hidden', 'true');
-                });
-            }
-        });
-    },
-
-    runAdditionalAccessibilityChecks: function() {
-        setLangAttribute();
-        validateTableAccessibility();
-        validateLandmark();
-        ensureLandmarkRoles(document);
-        ensureUniqueLandmarks(document);
-        addSvgAccessibleNames(document);
-        fixFakeLinks(document);
     }
-};
 
-// Export for module usage
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = {
-        App: App,
-        getUser: getUser,
-        validateInput: validateInput,
-        ensureElementHasId: ensureElementHasId,
-        addAriaLabel: addAriaLabel,
-        renderDependencyGraph: renderDependencyGraph,
-        ensureLandmarkRoles: ensureLandmarkRoles,
-        ensureUniqueLandmarks: ensureUniqueLandmarks,
-        addSvgAccessibleNames: addSvgAccessibleNames,
-        fixFakeLinks: fixFakeLinks,
-        ensureLangAttribute: ensureLangAttribute,
-        setLangAttribute: setLangAttribute,
-        validateTableAccessibility: validateTableAccessibility,
-        validateLandmark: validateLandmark,
-        getSvgAccessibleName: getSvgAccessibleName,
-        createInPageButton: createInPageButton,
-        addLangAttribute: addLangAttribute,
-        addAccessibleNameToSVG: addAccessibleNameToSVG,
-        addARIARole: addARIARole
+    if (module.dependents && module.dependents.length > 0) {
+        lines.push('\nDependents (modules that depend on this):');
+        module.dependents.forEach(dep => {
+            lines.push(`${indent}${dep}`);
+        });
+    }
+
+    return lines.join('\n');
+}
+
+/**
+ * Generates a complete dependency report for debugging
+ * @param {string[]} modules - Optional list of modules to include (default: all)
+ * @returns {object} Complete dependency report
+ */
+function generateDependencyReport(modules = null) {
+    const targetModules = modules || Array.from(moduleRegistry.keys());
+    const report = {
+        generatedAt: new Date().toISOString(),
+        totalModules: 0,
+        modules: {}
     };
-} else {
-    window.App = App;
-    window.getUser = getUser;
-    window.validateInput = validateInput;
-    window.ensureElementHasId = ensureElementHasId;
-    window.addAriaLabel = addAriaLabel;
-    window.renderDependencyGraph = renderDependencyGraph;
-    window.ensureLandmarkRoles = ensureLandmarkRoles;
-    window.ensureUniqueLandmarks = ensureUniqueLandmarks;
-    window.addSvgAccessibleNames = addSvgAccessibleNames;
-    window.fixFakeLinks = fixFakeLinks;
-    window.ensureLangAttribute = ensureLangAttribute;
-    window.setLangAttribute = setLangAttribute;
-    window.validateTableAccessibility = validateTableAccessibility;
-    window.validateLandmark = validateLandmark;
-    window.getSvgAccessibleName = getSvgAccessibleName;
-    window.createInPageButton = createInPageButton;
-    window.addLangAttribute = addLangAttribute;
-    window.addAccessibleNameToSVG = addAccessibleNameToSVG;
-    window.addARIARole = addARIARole;
+
+    targetModules.forEach(moduleName => {
+        if (!moduleRegistry.has(moduleName)) return;
+
+        const module = moduleRegistry.get(moduleName);
+        report.modules[moduleName] = {
+            dependencies: module.dependencies || [],
+            dependencyCount: (module.dependencies || []).length,
+            dependents: module.dependents || [],
+            dependentCount: (module.dependents || []).length
+        };
+        report.totalModules++;
+    });
+
+    return report;
 }
 
-// Initialize on DOM ready
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', function() {
-        App.init();
-    });
-} else {
-    App.init();
+/**
+ * Validates dependency graph for circular dependencies
+ * @param {string} rootModule - The root module to start validation from
+ * @returns {object} Validation result with any circular dependencies found
+ */
+function validateDependencyGraph(rootModule) {
+    const visited = new Set();
+    const recursionStack = new Set();
+    const circularDeps = [];
+
+    function dfs(moduleName, path = []) {
+        if (recursionStack.has(moduleName)) {
+            const cycleStart = path.indexOf(moduleName);
+            const cycle = path.slice(cycleStart).concat(moduleName);
+            circularDeps.push(cycle);
+            return;
+        }
+
+        if (visited.has(moduleName)) return;
+
+        visited.add(moduleName);
+        recursionStack.add(moduleName);
+
+        const module = moduleRegistry.get(moduleName);
+        if (module && module.dependencies) {
+            module.dependencies.forEach(dep => {
+                if (moduleRegistry.has(dep)) {
+                    dfs(dep, [...path, moduleName]);
+                }
+            });
+        }
+
+        recursionStack.delete(moduleName);
+    }
+
+    dfs(rootModule);
+
+    return {
+        isValid: circularDeps.length === 0,
+        circularDependencies: circularDeps,
+        checkedModules: visited.size
+    };
 }
+
+/**
+ * Exports module registry for external inspection
+ * @returns {Map} The module registry
+ */
+function getModuleRegistry() {
+    return moduleRegistry;
+}
+
+// Export all functions
+module.exports = {
+    registerModule,
+    renderDependencyGraph,
+    displayModuleStructure,
+    generateDependencyReport,
+    validateDependencyGraph,
+    getModuleRegistry
+};
+
+// TODO: Implement functions to render dependency graphs and display module structure for debugging purposes.

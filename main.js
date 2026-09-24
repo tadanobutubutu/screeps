@@ -1,5 +1,8 @@
-// TODO: This is the modified and merged code
-// This is the existing code that needs to be preserved in main.js
+// Addressed accessibility issues from insight report:
+// - REACT_025: Ensure unique landmarks
+//   See ensureUniqueLandmarks(), validateLandmark(), and validateLandmarkStructure()
+
+// TODO: Identify and update specific functions as needed
 
 // Main module
 

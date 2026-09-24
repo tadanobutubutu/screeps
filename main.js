@@ -1,4 +1,5 @@
 import React from 'react';
+// TODO: This is the existing code that needs to be preserved
 import { getLangAttribute } from './utils/accessibility.js';
 import { validateTableAccessibility, validateTableStructure } from './utils/table.js';
 import { validateLandmark, validateLandmarkStructure } from './utils/landmark.js';
@@ -52,7 +53,6 @@ function createInPageButton(buttonId, buttonText) {
   const button = document.createElement('button');
   button.id = buttonId;
   button.textContent = buttonText;
-  // Additional button attributes and event handlers can be added here
   return button;
 }
 
@@ -502,11 +502,11 @@ export function existingExport() {
 // New function to address accessibility issues from insight report
 function addressInsightReportIssues(insightReport) {
   // Assuming insightReport is an array of objects with 'issue' and 'solution' properties
-  insightReport.forEach(item => {
-    console.log(`Addressing issue: ${item.issue}`);
+  insightReport.forEach(({ issue, solution }) => {
+    console.log(`Addressing issue: ${issue}`);
     // Implement the solution to the issue
     // This is a placeholder for the actual implementation
-    console.log(`Solution: ${item.solution}`);
+    console.log(`Solution: ${solution}`);
     // ... code to apply the solution ...
   });
 }

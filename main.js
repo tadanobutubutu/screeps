@@ -2,12 +2,60 @@
 
 // Screeps AI - Main Module
 
-// Helper function to get document object safely
-function getDocument() {
-    if (typeof document !== 'undefined') {
-        return document;
-    }
-    return null;
+// Main game loop
+export default function () {
+    // Initialize accessibility features
+    const langAttr = getLangAttribute();
+    const primaryContent = wrapPrimaryContentInMain();
+
+    // Validate accessibility
+    validateTableAccessibility();
+    validateTableStructure();
+    validateLandmark();
+    validateLandmarkStructure();
+    addFixLandmarkIssues();
+
+    // SVG accessibility
+    const svgName = getSvgAccessibleName();
+    addAriaToFormControls();
+
+    // Unique landmarks and fake link fixes
+    ensureUniqueLandmarks();
+    fixFakeLinkIssues();
+    createAccessibleLink();
+
+    // Harvest and upgrade logic
+    const creeps = Game.creeps;
+    const sources = Game.sources;
+    const controller = Game.controllers[0]; // assuming first controller
+
+    Object.values(creeps).forEach(creep => {
+        const source = creep.findClosestByPath(FIND_SOURCES, {
+            filter: (source) => source.energy > 0
+        });
+        if (source) {
+            harvest(creep, source);
+        } else {
+            upgradeController(creep, controller);
+        }
+    });
+}
+
+// Addressed accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
+// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
+// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ensureUniqueLandmarks())
+// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and createInPageButton())
+// - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks() and validateLandmarkStructure())
+// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), createAccessibleLink() and handleAccessibilityErrors())
+
+// NEW: ADD YOUR CODE HERE
+// TODO: The new function to check link accessibility
+// This function will be used to validate the accessibility of links
+function checkLinkAccessibility() {
+    // Implementation for checking link accessibility
+    // For now, assume that all links have correct text and appropriate roles
+    return validateLinkAccessibility();
 }
 
 // Internal set to track used landmark IDs
@@ -512,7 +560,7 @@ function fixAccessibilityIssues() {
 }
 
 // Add new function to address the accessibility issue REACT_043: Make header focusable
-function makeHeaderFocusable() {
+export function makeHeaderFocusable() {
     // code to make the header element focusable
     // Example: Adding tabindex to the header
     const doc = getDocument();
@@ -522,7 +570,7 @@ function makeHeaderFocusable() {
     }
 }
 
-function fixFakeLinkIssues() {
+export function fixFakeLinkIssues() {
     // Fix fake link issues
     const doc = getDocument();
     if (!doc) return;
@@ -535,7 +583,7 @@ function fixFakeLinkIssues() {
     });
 }
 
-function createAccessibleLink() {
+export function createAccessibleLink() {
     // Create accessible link
     const doc = getDocument();
     if (!doc) return;
@@ -547,7 +595,7 @@ function createAccessibleLink() {
     });
 }
 
-function validateLinkAccessibility() {
+export function validateLinkAccessibility() {
     // Existing code...
     const doc = getDocument();
     if (!doc) return true;
@@ -561,7 +609,7 @@ function validateLinkAccessibility() {
     return issues.length === 0;
 }
 
-function handleFakeLinks() {
+export function handleFakeLinks() {
     // Existing code...
     const doc = getDocument();
     if (!doc) return;

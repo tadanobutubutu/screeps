@@ -225,13 +225,21 @@ function renderGraphIndex(containerId, data) {
     return true;
 }
 
-// TODO: Update the existing function using the new functions for rendering graph/index
+// Function to update the existing function using the new functions for rendering graph/index
 function renderDependencyGraph(containerId, graphData) {
     return renderGraphIndex(containerId, graphData);
 }
 
-// REACT_015: Add lang attribute
-document.documentElement.lang = getCurrentLanguage();
+// TODO: Implement spawning logic
+function spawnProcess(command) {
+    const process = new Worker(command);
+    process.onmessage = function(event) {
+        console.log('Message received from worker:', event.data);
+    };
+    process.onerror = function(error) {
+        console.error('Error in worker:', error);
+    };
+}
 
 // Preserve any existing exports here
-export { createInPageButton, validateLandmarkStructure, getCurrentLanguage, performUpgrade, analyzeHarvestedData, upgrade, renderGraphIndex, renderDependencyGraph };
+export { createInPageButton, validateLandmarkStructure, getCurrentLanguage, performUpgrade, upgrade, renderGraphIndex, renderDependencyGraph, spawnProcess };

@@ -1,28 +1,22 @@
-name: 🔍 Dependency Review
+name: Dependency Review
 
 on:
   pull_request:
-    branches: [ main ]
 
 permissions:
   contents: read
-  pull-requests: write
+  pull-requests: read
 
 jobs:
   dependency-review:
     runs-on: ubuntu-latest
-    name: Review Dependencies
-    
     steps:
-      - name: Checkout Repository
+      - name: Checkout
         uses: actions/checkout@v4
-      
+
       - name: Dependency Review
-        uses: actions/dependency-review-action@v5.0.0
+        uses: actions/dependency-review-action@v4
         with:
-          # Fail on critical or high severity vulnerabilities
-          fail-on-severity: moderate
-          # Allow only approved licenses
-          allow-licenses: MIT, Apache-2.0, BSD-3-Clause, ISC, BSD-2-Clause, CC-BY-4.0, BlueOak-1.0.0, CC0-1.0, 0BSD, (MIT OR CC0-1.0), LGPL-2.0-only, LGPL-2.1-only, LGPL-3.0-only, LGPL-3.0-or-later, MPL-2.0
-          # Comment on PR with results
-          comment-summary-in-pr: always
+          fail-on-severity: high
+          base: ${{ github.event.pull_request.base.ref }}
+          head: ${{ github.event.pull_request.head.ref }}

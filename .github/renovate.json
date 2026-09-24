@@ -1,47 +1,50 @@
 {
-    "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-    "extends": [
-        "config:recommended",
-        ":dependencyDashboard",
-        ":semanticCommits",
-        ":preserveSemverRanges"
-    ],
-    "timezone": "Asia/Tokyo",
-    "schedule": ["before 10am on monday"],
-    "labels": ["dependencies", "renovate", "automated"],
-    "assignees": ["tadanobutubutu"],
-    "reviewers": [],
-    "prConcurrentLimit": 5,
-    "prCreation": "not-pending",
-    "prHourlyLimit": 4,
-    "automerge": false,
-    "packageRules": [
-        {
-            "matchUpdateTypes": ["minor", "patch"],
-            "automerge": false,
-            "labels": ["dependencies", "renovate", "automated"]
-        },
-        {
-            "matchUpdateTypes": ["major"],
-            "automerge": false,
-            "labels": ["dependencies", "renovate", "automated", "major"]
-        },
-        {
-            "matchDepTypes": ["devDependencies"],
-            "automerge": false,
-            "labels": ["dependencies", "renovate", "automated"]
-        }
-    ],
-    "npm": {
-        "enabled": true
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    "schedule:earlyMondays"
+  ],
+  "packageRules": [
+    {
+      "matchManagers": ["github-actions"],
+      "groupName": "GitHub Actions",
+      "schedule": ["before 5am on monday"]
     },
-    "github-actions": {
-        "enabled": true,
-        "managerFilePatterns": ["/^\\.github/workflows/[^/]+\\.ya?ml$/"]
+    {
+      "matchPackageNames": ["dotenv"],
+      "schedule": ["before 5am on monday"]
     },
-    "ignoreDeps": [],
-    "vulnerabilityAlerts": {
-        "enabled": true,
-        "labels": ["security", "dependencies", "renovate", "automated"]
+    {
+      "matchPackageNames": ["google/osv-scanner-action"],
+      "schedule": ["before 5am on monday"]
     }
+  ],
+  "lockFileMaintenance": {
+    "enabled": true,
+    "schedule": ["before 5am on monday"]
+  },
+  "npm": {
+    "lockFileMaintenance": {
+      "enabled": true
+    }
+  },
+  "hostRules": [
+    {
+      "hostType": "npm",
+      "baseUrl": "https://registry.npmjs.org",
+      "timeout": 60000
+    }
+  ],
+  "prHourlyLimit": 2,
+  "prConcurrentLimit": 4,
+  "platformCommit": false,
+  "gitIgnoredAuthors": [],
+  "ignorePaths": [
+    "**/node_modules/**",
+    "**/.git/**"
+  ],
+  "postUpgradeTasks": {
+    "commands": ["npm ci"],
+    "executionMode": "use-isolated-workspace"
+  }
 }

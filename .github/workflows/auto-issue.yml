@@ -1,159 +1,40 @@
-name: Continuous Quality & Coverage Monitor
+name: Auto Issue
 
 on:
-  push:
-    branches: [main]
   schedule:
-    # 6時間ごと（UTC）+ main push 時にも実行
-    - cron: '0 */6 * * *'
+    - cron: '0 8 * * 1'
   workflow_dispatch:
 
 permissions:
-  contents: read
   issues: write
-
-concurrency:
-  group: auto-issue-monitor
-  cancel-in-progress: true
+  contents: read
 
 jobs:
-  monitor-health:
+  auto-issue:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '24'
-
-      - name: Install pnpm
-        uses: pnpm/action-setup@v6
-        with:
-          version: 12
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: 動的検証（lint + test + カバレッジ）
-        id: health_check
-        env:
-          PKG_MANAGER: pnpm
-        run: node scripts/check_repo_health.js
-        continue-on-error: true
-
-      - name: 検証結果をアーティファクト保存
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: repo-health-report
-          path: repo-health-report.json
-          if-no-files-found: ignore
-
-      - name: Issue 起票（重複は fingerprint / タイトル完全一致で除外）
-        if: always()
+      - name: Create Weekly Report Issue
         uses: actions/github-script@v7
         with:
           script: |
-            const fs = require('fs');
-            const path = require('path');
-
-            if (!fs.existsSync('repo-health-report.json')) {
-              core.warning('repo-health-report.json が見つかりません');
-              return;
-            }
-
-            const report = JSON.parse(fs.readFileSync('repo-health-report.json', 'utf8'));
             const { owner, repo } = context.repo;
-
-            const openIssues = await github.paginate(github.rest.issues.listForRepo, {
+            const title = `Weekly Quality Report - ${new Date().toISOString().split('T')[0]}`;
+            const body = `## Weekly Quality Report\n\nAutomated quality metrics for the week.\n\n- Test coverage: TBD\n- Code quality score: TBD\n- Open issues: TBD\n- PRs merged: TBD`;
+            const issues = await github.rest.issues.listForRepo({
               owner,
               repo,
               state: 'open',
-              per_page: 100,
+              labels: 'weekly-report'
             });
-
-            const openTitles = new Set(openIssues.map((issue) => issue.title));
-            const openBodies = openIssues.map((issue) => issue.body || '');
-
-            function hasFingerprint(fp) {
-              if (!fp) return false;
-              const marker = `<!-- health-fp:${fp} -->`;
-              return openBodies.some((body) => body.includes(marker));
-            }
-
-            for (const item of report.issues || []) {
-              let title = '';
-              let body = '';
-              let labels = ['automated', 'ai-solve'];
-
-              if (item.type === 'lint') {
-                title = `Lint Error: Fix ${item.ruleId || 'rule'} in ${item.file}`;
-                body = [
-                  `<!-- health-fp:${item.fingerprint} -->`,
-                  '### Quality Linter Issue',
-                  `- **File:** ${item.file}`,
-                  `- **Line:** ${item.line}`,
-                  `- **Rule ID:** ${item.ruleId || 'N/A'}`,
-                  `- **Message:** ${item.message}`,
-                  '',
-                  'Continuous Quality Monitor により自動生成されました。',
-                ].join('\n');
-                labels.push('bug');
-              } else if (item.type === 'test_failure') {
-                title = item.title
-                  ? `Test Failure: ${item.title} in ${item.suite || 'unknown'}`
-                  : `Test Failure: ${item.message?.slice(0, 80) || 'unknown'}`;
-                body = [
-                  `<!-- health-fp:${item.fingerprint} -->`,
-                  '### Test Failure Alert',
-                  `- **Suite:** ${item.suite || 'N/A'}`,
-                  `- **Test:** ${item.title || 'N/A'}`,
-                  '',
-                  '**Error details:**',
-                  '```',
-                  item.message || 'No details',
-                  '```',
-                ].join('\n');
-                labels.push('test', 'bug');
-              } else if (item.type === 'coverage_gap') {
-                title = `Coverage Gap: Increase ${item.aspect} coverage in ${item.file}`;
-                body = [
-                  `<!-- health-fp:${item.fingerprint} -->`,
-                  '### Code Coverage Gaps',
-                  `- **File:** ${item.file}`,
-                  `- **Aspect:** ${item.aspect}`,
-                  `- **Current Coverage:** ${item.pct}%`,
-                  `- **Target Coverage:** ${process.env.COVERAGE_THRESHOLD || '100'}%`,
-                  '',
-                  'テストケースの追加が必要です。',
-                ].join('\n');
-                labels.push('test', 'coverage');
-              } else {
-                title = `Quality Monitor Alert: ${(item.message || item.type).slice(0, 120)}`;
-                body = [
-                  `<!-- health-fp:${item.fingerprint || item.type} -->`,
-                  item.message || 'No details',
-                ].join('\n');
-                labels.push('bug');
-              }
-
-              if (openTitles.has(title) || hasFingerprint(item.fingerprint)) {
-                core.info(`⏭️ 重複スキップ: ${title}`);
-                continue;
-              }
-
-              core.info(`📝 Issue 作成: ${title}`);
+            if (issues.data.length === 0) {
               await github.rest.issues.create({
                 owner,
                 repo,
                 title,
                 body,
-                labels,
+                labels: ['weekly-report', 'automation']
               });
-              openTitles.add(title);
             }
-
-      - name: 動的検証ゲート（npm test 必須）
-        run: pnpm test

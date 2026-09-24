@@ -1,18 +1,60 @@
-name: gitStream
+name: GitStream
+
 on:
   pull_request:
-    types: [opened, reopened, synchronize]
+    types: [opened, synchronize, reopened, closed]
+  pull_request_target:
+    types: [opened, synchronize, reopened, closed]
+
+permissions:
+  contents: read
+  pull-requests: write
+  checks: read
+
 jobs:
-  gitStream:
-    permissions:
-      contents: read
+  gitstream:
     runs-on: ubuntu-latest
-    setup:
-      extra_params:
-        --fetch-depth=0
     steps:
-      - name: gitStream
-        id: gitstream
-        uses: linear-bots/gitstream-github-action@v2
-        env:
-          GITSTREPQ_TOKEN: ${{ secrets.GITSTREAM_TOKEN }}
+      - name: GitStream
+        uses: linear-bots/gitstream-github-action@v1
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          gitstream-config: |
+            rules:
+              - if:
+                  all:
+                    - changed:
+                        files:
+                          - "src/**"
+                          - "tests/**"
+                    - hasLabel:
+                        - "needs-review"
+                then:
+                  require:
+                    - check: "CI"
+                    - check: "CodeQL"
+                    - check: "Dependency Review"
+                  requireAll: true
+              - if:
+                  all:
+                    - changed:
+                        files:
+                          - ".github/workflows/**"
+                    - hasLabel:
+                        - "ci"
+                then:
+                  require:
+                    - check: "CI"
+                  requireAll: true
+              - if:
+                  all:
+                    - changed:
+                        files:
+                          - "package.json"
+                          - "package-lock.json"
+                          - "yarn.lock"
+                          - "pnpm-lock.yaml"
+                then:
+                  require:
+                    - check: "Dependency Review"
+                  requireAll: true

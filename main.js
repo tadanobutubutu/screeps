@@ -6,6 +6,7 @@
 // Existing code ends here
 
 // TODO: This is the existing code that needs to be preserved (This comment remains as-is)
+// TODO: Existing main.js content before the merge conflict...
 // Main entry point for dependency visualization tool
 // ----- BEGIN ORIGINAL CODE (unchanged) -----
 // [PLACE ALL EXISTING FUNCTIONS, VARIABLES, AND EXPORTS HERE]
@@ -94,8 +95,8 @@ function newFunction() {
 // REACT_015: Add lang attribute to the <html> element
 function ... lang = 'en') {
     if (typeof html !== 'string') return html;
-    return html.replace(/<html([^>]*)>/gi, (match, attrs) => {
-        if (/lang=["']/.test(attrs)) return match;
+    return html.replace(/<html([^>]*)>/i, (match, attrs) => {
+        if (/lang=/i.test(attrs)) return match;
         return `<html${attrs} lang="${lang}">`;
     });
 }
@@ -105,7 +106,7 @@ function ... {
     if (typeof html !== 'string') return html;
 
     // Ensure every table has a caption
-    html = html.replace(/(<table([^>]*)>)/gi, (match, tableTag, attrs) => {
+    html = html.replace(/(<table[^>]*>)/gi, (match, attrs) => {
         if (/<caption/i.test(match)) return match;
         return `${tableTag}<caption></caption>`;
     });
@@ -117,7 +118,7 @@ function ... {
         if (rows.length === 0) return match;
         const firstRows = rows.slice(0, 1).join('');
         const restRows = rows.slice(1).join('');
-        const thPattern = /<th[^>]*>/gi;
+        const thPattern = /<th/gi;
         const firstRowHasTh = thPattern.test(firstRows);
         let thead = '';
         let tbody = restRows;
@@ -161,7 +162,7 @@ function fixLandmarks(html) {
     if (typeof html !== 'string') return html;
 
     // Ensure <main> landmark exists
-    if (!/<main/i.test(html) && /<body/i.test(html)) {
+    if (html.includes('<body') && !/<main/i.test(html)) {
         html = html.replace(
             /<body([^>]*)>/i,
             '<body$1><main>'
@@ -170,7 +171,7 @@ function fixLandmarks(html) {
     }
 
     // Ensure <nav> landmark exists
-    if (!/<nav/i.test(html) && /<main/i.test(html)) {
+    if (html.includes('<main') && !/<nav/i.test(html)) {
         html = html.replace(
             /<main[^>]*>/i,
             '<nav aria-label="Main navigation"></nav><main>'
@@ -178,7 +179,7 @@ function fixLandmarks(html) {
     }
 
     // Ensure <aside> landmark exists if content suggests a sidebar
-    if (!/<aside/i.test(html) && /<\/main>/i.test(html)) {
+    if (html.includes('sidebar') && !/<aside/i.test(html)) {
         html = html.replace(
             /<\/main>/i,
             '<aside aria-label="Sidebar content"></aside></main>'
@@ -186,7 +187,7 @@ function fixLandmarks(html) {
     }
 
     // Ensure <footer> landmark exists
-    if (!/<footer/i.test(html) && /<\/body>/i.test(html)) {
+    if (!/<footer/i.test(html)) {
         html = html.replace(
             /<\/body>/i,
             '<footer></footer></body>'
@@ -277,7 +278,7 @@ function checkLinkAccessibility() {
     }
 
     // Check if link is decorative but not marked as such
-    if (href === '#' && !link.getAttribute('aria-hidden') && link.getAttribute('role') !== 'presentation') {
+    if (href === '#' && !link.hasAttribute('aria-hidden') && link.getAttribute('role') !== 'presentation') {
       issues.push(`Decorative link with href="#" should have aria-hidden="true" or role="presentation"`);
     }
   });
@@ -334,4 +335,15 @@ function ensureUniqueLandmarks(html) {
         if (matches && matches.length > 1) {
             // Keep first occurrence, change subsequent ones
             let count = 0;
-            html = html.replace(pattern, (
+            html = html.replace(pattern, (match) => {
+                count++;
+                if (count === 1) return match;
+                return `role="region"`;
+            });
+        }
+    });
+
+    // Also check for duplicate HTML5 landmark elements (header, nav, main, aside, footer)
+    const html5Landmarks = ['header', 'nav', 'main', 'aside', 'footer'];
+    html5Landmarks.forEach(tag => {
+        const pattern = new Reg

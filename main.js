@@ -17,8 +17,6 @@ import {
   renderDependencyGraphs
 } from './AccessibilityHelpers';
 
-const main = require('./utilities');
-
 // TODO: Create or update the affected functions to be accessible
 // The functions below have been created to match the exported names
 
@@ -316,7 +314,54 @@ function checkAccessibilityForReport (content) {
 
 // New rendering function
 function renderGraphIndex(content, options = {}) {
-  return content;
+  // TODO: Update the existing function using the new functions for rendering graph/index
+  // Use renderDependencyGraphs to render the graph content
+  const container = typeof content === 'string' 
+    ? document.createElement('div') 
+    : content;
+  
+  // If content is a string, set it as innerHTML
+  if (typeof content === 'string') {
+    container.innerHTML = content;
+  }
+  
+  // Apply accessibility fixes for the dependency graph/index
+  if (options.fixAccessibility !== false) {
+    renderDependencyGraphs(container);
+    fixButtonIdentifiers(container);
+    fixDependencyGraphAria(container);
+    ensureElementHasId(container);
+    addAriaLabel(container);
+    addMainLandmarkToIndex(container);
+  }
+  
+  // Apply landmark validation if enabled
+  if (options.validateLandmarks !== false) {
+    validateLandmark(container);
+    validateLandmarkStructure(container);
+  }
+  
+  // Fix SVG accessible names if enabled
+  if (options.fixSvgNames !== false) {
+    const svgElements = container.querySelectorAll('svg');
+    svgElements.forEach(svg => {
+      const accessibleName = getSvgAccessibleName(svg);
+      if (
+        accessibleName &&
+        !svg.getAttribute('aria-label') &&
+        !svg.querySelector('title')
+      ) {
+        svg.setAttribute('aria-label', accessibleName);
+      }
+    });
+  }
+  
+  // Return based on input type
+  if (typeof content === 'string') {
+    return container.innerHTML;
+  }
+  
+  return container;
 }
 
 // Helper to manage focus within a container

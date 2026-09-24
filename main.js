@@ -33,13 +33,23 @@ function checkLinkAccessibility() {
   // This function will be used to validate the accessibility of links
   const links = ...
   const issues = [];
+  
   links.forEach(link => {
-    const href = ...
+    const href = link.getAttribute('href') || '';
     const text = link.textContent.trim();
-    if (!text && ... {
+    const ariaLabel = link.getAttribute('aria-label');
+    
+    // Skip links that are just hash anchors or empty hrefs in skip links
+    if (href === '#' || href === '') {
+      return;
+    }
+    
+    // Check for empty link text (not accessible)
+    if (!text && !ariaLabel) {
       issues.push(`Link with href "${href}" has no accessible text`);
     }
   });
+  
   return issues;
 }
 

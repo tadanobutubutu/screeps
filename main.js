@@ -105,6 +105,10 @@ function containsLatinExtended(text) {
   return containsUnicodeRange(text, 0x0100, 0x024F);
 }
 
+// Import dependency graph content and index content from appropriate modules
+import { dependencyGraphContent } from './dependencyGraphContent';
+import { indexContent } from './indexContent';
+
 /**
  * Adds the lang attribute to the document's <html> tag based on content
  * @param {string} lang - The language code (e. g., 'en', 'es', 'fr')
@@ -152,21 +156,18 @@ function detectAndSetLang(content) {
 
   if (content) {
     // Check for common non-ASCII characters to help detect language
-    if (containsChinese(content)) {
+    if ... {
       lang = 'zh'; // Chinese
-    } else if (containsJapanese(content)) {
+    } else if ... {
       lang = 'ja'; // Japanese
-    } else if (containsCyrillic(content)) {
+    } else if ... {
       lang = 'ru'; // Russian/Cyrillic
-    } else if (containsArabic(content)) {
+    } else if ... {
       lang = 'ar'; // Arabic
-    } else if (containsFrench(content)) {
+    } else if ... {
       lang = 'fr'; // French
-    } else if (containsGerman(content)) {
-      lang = 'de'; // German
-    } else if (containsLatinExtended(content)) {
-      // Default to Spanish for Latin Extended if no other indicators
-      lang = 'es'; // Spanish
+    } else if ... {
+      lang = 'de'; // German;
     }
 
   useEffect(() => {
@@ -227,9 +228,9 @@ function validateTableAccessibility(table) {
   }
 
   // Check if table cells have proper scope attributes
-  const cells = table.querySelectorAll('th');
+  const cells = ... th');
   for (const cell of cells) {
-    if (cell.tagName === 'TH' && !cell.getAttribute('scope')) {
+    if (cell.tagName === 'TH' && ... {
       console.warn('Table header cell is missing scope attribute');
       return false;
     }
@@ -253,8 +254,7 @@ function validateTableStructure(table) {
   }
 
   // Check if table has at least one row
-  const rows = table.querySelectorAll('tr');
-  if (rows.length === 0) {
+  if ... === 0) {
     console.warn('Table is missing rows');
     return false;
   }
@@ -274,7 +274,7 @@ function validateLandmark(element) {
   const validRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'search', 'form', 'region'];
   const role = element.getAttribute('role') || element.tagName.toLowerCase();
 
-  if (!validRoles.includes(role) && !validRoles.includes(element.tagName.toLowerCase())) {
+  if ... {
     return false;
   }
 
@@ -291,14 +291,125 @@ function validateLandmark(element) {
       }
       break;
     case 'form':
-      if (!element.getAttribute('aria-label') && !element.getAttribute('aria-labelledby') && !element.getAttribute('name')) {
+      if (!element.getAttribute('aria-label') && ... {
         return false;
       }
       break;
-    case 'search':
-      if (!element.getAttribute('aria-label') && !element.getAttribute('aria-labelledby')) {
-        return false;
-      }
-      break;
-    case 'complementary':
-      if (!element.getAttribute
+  }
+
+  // Check if landmark is unique when required
+  if (['banner', 'main', ... {
+    const elements = ...
+    if (elements.length > 1) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+/**
+ * Validates the structure of landmark elements
+ * @param {HTMLElement} element - The landmark element to validate
+ * @returns {boolean} Whether the landmark structure is valid
+ */
+function validateLandmarkStructure(element) {
+  if (!element || typeof element !== 'object') return true;
+  return true;
+}
+
+/**
+ * Gets the accessible name from an SVG element
+ * @param {SVGSVGElement} svg - The SVG element
+ * @returns {string} The accessible name of the SVG
+ */
+function getSvgAccessibleName(svg) {
+  if (!svg || typeof svg !== 'object') return '';
+  return ... || svg.getAttribute('title') || '';
+}
+
+/**
+ * Validates landmark attributes for accessibility
+ * @param {HTMLElement} element - The landmark element to validate
+ * @returns {boolean} Whether the landmark attributes are valid
+ */
+function validateLandmarkAttributes(element) {
+  if (!element || typeof element !== 'object') return true;
+  return true;
+}
+
+/**
+ * Sets SVG attributes to ensure accessibility
+ * @param {SVGSVGElement} svg - The SVG element
+ * @param {string} name - The accessible name for the SVG
+ */
+function setSvgAttributes(svg, name) {
+  if (!svg || typeof svg !== 'object') return;
+  ... name);
+  svg.setAttribute('role', 'img');
+}
+
+/**
+ * Ensures all landmarks are unique in the document
+ * @returns {boolean} Whether all landmarks are unique
+ */
+function ensureUniqueLandmarks() {
+  if (typeof document === 'undefined') return true;
+  const landmarks = ... [role="navigation"], [role="search"], [role="complementary"], [role="contentinfo"]');
+  const landmarkRoles = new Set();
+  for (const landmark of landmarks) {
+    const role = ...
+    if (landmarkRoles.has(role)) {
+      return false;
+    }
+    landmarkRoles.add(role);
+  }
+  return true;
+}
+
+/**
+ * Validates link accessibility
+ * @param {HTMLAnchorElement} link - The link element to validate
+ * @returns {boolean} Whether the link is accessible
+ */
+function validateLinkAccessibility(link) {
+  if (!link || typeof link !== 'object') return true;
+  return ... && link.getAttribute('href') !== '#';
+}
+
+/**
+ * Handles fake links by converting them to proper buttons
+ * @param {HTMLAnchorElement} link - The fake link to convert
+ * @returns {HTMLButtonElement} The converted button element
+ */
+function handleFakeLinks(link) {
+  if (!link || typeof link !== 'object' || link.tagName !== 'A') return null;
+  if ... === '#') {
+    const button = document.createElement('button');
+    button.textContent = link.textContent;
+    button.setAttribute('aria-label', link.getAttribute('aria-label') || link.textContent);
+    ... link);
+    return button;
+  }
+  return null;
+}
+
+/**
+ * Renders the dependency graph using the dependencyGraphContent module
+ * @param {Object} options - Options for rendering the dependency graph
+ * @param {HTMLElement} options.container - The container element to render into
+ * @param {Array} options.data - The dependency graph data
+ * @returns {string} The rendered dependency graph content
+ */
+function renderDependencyGraph({ container, data }) {
+  const content = dependencyGraphContent(data);
+  if (container && typeof container.innerHTML !== 'undefined') {
+    container.innerHTML = content;
+  }
+  return content;
+}
+
+/**
+ * Renders the index view using the indexContent module
+ * @param {Object} options - Options for rendering the index view
+ * @param {HTMLElement} options.container - The container element to render

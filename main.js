@@ -652,110 +652,38 @@ function addSvgAccessibleNames(svg, accessibleName) {
 // New function to fix fake link issues (from HEAD side)
 function fixFakeLinkIssue() {
   // Implementation for fixing fake link issues
-}
-
-// New function to generate accessibility report
-/**
- * Generates a comprehensive accessibility report based on all accessibility checks
- * @returns {Object} A report object containing all accessibility issues found
- */
-function fixFakeLinkIssue(element) {
-  const result = { valid: true, errors: [] };
-
-  if (!element) {
-    return { valid: false, errors: ['Element is required'] };
+  if (typeof document === 'undefined') {
+    return { valid: false, errors: ['Document not available'] };
   }
 
-  // Check if element is a fake link
-  if (element.tagName.toLowerCase() === 'a') {
-    const href = element.getAttribute('href');
-    if (!href || href === '#' || href === '') {
-      // This is a fake link, convert to button
+  const errors = [];
+  const fakeLinks = document.querySelectorAll('a[href="#"]:not([role="button"])');
+
+  fakeLinks.forEach(link => {
+    // Check if the link has an onclick handler
+    const hasClickHandler = link.onclick || link.getAttribute('onclick');
+
+    if (hasClickHandler) {
+      // Convert to a proper button
       const button = document.createElement('button');
-      button.textContent = element.textContent;
-      button.setAttribute('role', 'button');
+      button.textContent = link.textContent;
+      button.setAttribute('aria-label', link.getAttribute('aria-label') || link.textContent);
+      button.className = link.className;
 
-      const ariaLabel = element.getAttribute('aria-label');
-      if (ariaLabel) {
-        button.setAttribute('aria-label', ariaLabel);
-      }
+      // Copy event listeners
+      const clone = link.cloneNode(true);
+      button.onclick = clone.onclick;
 
-      const className = element.getAttribute('class');
-      if (className) {
-        button.className = className;
-      }
-
-      element.replaceWith(button);
-      result.errors.push('Converted fake link to button');
-    }
-
-    if (!tableStructure.valid) {
-      tableStructure.errors.forEach(error => {
-        report.issues.push({
-          id: 'REACT_027',
-          severity: 'serious',
-          description: `Table ${index + 1}: ${error}`,
-          recommendation: 'Fix table structure issues as described'
-        });
-        report.summary.serious++;
-        report.summary.totalIssues++;
-      });
+      // Replace the link with the button
+      link.parentNode.replaceChild(button, link);
+      errors.push(`Converted fake link to button: ${link.textContent}`);
     }
   });
 
-  // Check landmarks
-  const landmarkStructure = validateLandmarkStructure();
-  if (!landmarkStructure.valid) {
-    landmarkStructure.errors.forEach(error => {
-      report.issues.push({
-        id: 'REACT_017',
-        severity: 'serious',
-        description: `Landmark structure issue: ${error}`,
-        recommendation: 'Fix landmark structure issues as described'
-      });
-      report.summary.serious++;
-      report.summary.totalIssues++;
-    });
-  }
-
-  return result;
+  return { valid: errors.length === 0, errors };
 }
 
-/**
- * Function to get person's name (REACT_015 and REACT_036)
- * @param {string} person - The person's identifier or object
- * @returns {string} The person's name
- */
-function personName(person) {
-  // Simple implementation - could be expanded based on requirements
-  if (!person) {
-    return '';
-  }
-
-  // If person is an object with a name property
-  if (typeof person === 'object' && person.name) {
-    return person.name;
-  }
-
-  // If person is a string, return it as the name
-  if (typeof person === 'string') {
-    return person;
-  }
-
-  // Default case
-  return String(person);
-}
-
-/**
- * Function to add lang attribute to HTML element (REACT_015)
- * @param {string} lang - The language code to set
- * @returns {string} The language code that was set
- */
-function addLangAttribute(lang) {
-  return setHtmlLangAttribute(lang);
-}
-
-// Export all functions to maintain current exports
+// Export all functions
 module.exports = {
   setHtmlLangAttribute,
   detectAndSetLang,

@@ -620,24 +620,33 @@ const initAccessibility = () => {
   });
 
   // Add lang attribute to HTML element if not present
-  if (document.documentElement && !document.documentElement.hasAttribute('lang')) {
-    getLangAttribute(document.documentElement);
+  const htmlElement = document.querySelector('html');
+  if (htmlElement && !htmlElement.hasAttribute('lang')) {
+    getLangAttribute(htmlElement, 'en');
+  }
+
+  // Validate and fix table structures
+  document.querySelectorAll('table').forEach(table => {
+    if (!validateTableAccessibility(table) || !validateTableStructure(table)) {
+      console.warn('Table accessibility issues found. Please review:', table);
+    }
+  });
+
+  // Validate and fix landmark structures
+  if (!validateLandmarkStructure(document.body)) {
+    console.warn('Landmark structure issues found. Please review the document structure.');
   }
 
   // Ensure unique landmarks
   ensureUniqueLandmarks();
 
-  // Validate all tables on the page
-  document.querySelectorAll('table').forEach(table => {
-    if (!validateTableAccessibility(table) || !validateTableStructure(table)) {
-      console.warn('Table accessibility issues detected:', table);
-    }
-  });
-
-  // Validate all landmarks on the page
-  document.querySelectorAll('*').forEach(element => {
-    if (!validateLandmark(element)) {
-      console.warn('Landmark validation failed for element:', element);
+  // Add accessible names to SVGs
+  document.querySelectorAll('svg').forEach(svg => {
+    if (!svg.hasAttribute('aria-label') && !svg.hasAttribute('aria-labelledby')) {
+      const title = svg.querySelector('title');
+      if (title) {
+        getSvgAccessibleName(svg, title.textContent);
+      }
     }
   });
 };

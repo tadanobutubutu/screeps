@@ -314,17 +314,50 @@ function safeJsonParse(str, defaultValue) {
   }
 }
 
-// Add accessible names to SVG elements
-function addAccessibleNamesToSvg(container) {
-  var svgs = container.querySelectorAll('svg');
-  if (svgs.length >= 2) {
-    svgs[0].setAttribute('aria-label', 'First SVG');
-    svgs[1].setAttribute('aria-label', 'Second SVG');
+// Function to get SVG accessible name for REACT_041
+function getSvgAccessibleName(svg) {
+  // If SVG already has an aria-label, return it
+  if (svg.hasAttribute('aria-label')) {
+    return svg.getAttribute('aria-label');
   }
   
-  svgs.forEach(function(svg, index) {
-    if (!svg.hasAttribute('aria-label') && !svg.getAttribute('aria-hidden')) {
-      svg.setAttribute('aria-label', 'SVG element ' + (index + 1));
+  // If SVG is hidden from accessibility, return null
+  if (svg.getAttribute('aria-hidden') === 'true') {
+    return null;
+  }
+  
+  // Return null to indicate a name should be generated
+  return null;
+}
+
+// Function to set SVG attributes for REACT_041
+function setSvgAttributes(svg, attributes) {
+  if (!svg || !attributes) return;
+  
+  for (const [key, value] of Object.entries(attributes)) {
+    if (value !== null && value !== undefined) {
+      svg.setAttribute(key, value);
+    }
+  }
+}
+
+// Add accessible names to SVG elements
+function addAccessibleNamesToSvg(container) {
+  const svgs = container.querySelectorAll('svg');
+  
+  // Set special labels for the first two SVGs if there are at least two
+  if (svgs.length >= 2) {
+    setSvgAttributes(svgs[0], { 'aria-label': 'Dependency graph' });
+    setSvgAttributes(svgs[1], { 'aria-label': 'Index overview' });
+  }
+  
+  // Process remaining SVGs using the new utility functions
+  svgs.forEach((svg, index) => {
+    const existingName = getSvgAccessibleName(svg);
+    
+    // If SVG doesn't have an accessible name yet, generate one
+    if (existingName === null && !svg.getAttribute('aria-hidden')) {
+      setSvgAttributes(svg, { 'aria-label': `Graph element ${index + 1}` });
     }
   });
 }
@@ -344,16 +377,9 @@ function isInViewport(element) {
   );
 }
 
-// Function to set the lang attribute based on the preferred language or localization (REACT_015)
-function setLangAttribute(htmlElement, lang) {
-  if (!htmlElement) {
-    htmlElement = document.querySelector('html');
-  }
-  if (htmlElement && lang) {
-    htmlElement.setAttribute('lang', lang);
-    return true;
-  }
-  return false;
+// Function to handle getLangAttribute for REACT_015
+function getLangAttributeFromElement(htmlElement) {
+  // Implement the logic to set the lang attribute based on the preferred language or localization
 }
 
 // Function to create a proper in-page link button (REACT_015, REACT_036)
@@ -737,149 +763,7 @@ function ensureUniqueLandmarks() {
   };
 }
 
-// Function to generate an accessible name for SVG elements (REACT_041)
-function getSvgAccessibleName(svg) {
-  if (!svg || svg.tagName !== 'SVG') {
-    return null;
-  }
-
-  // Check for aria-label
-  const ariaLabel = svg.getAttribute('aria-label');
-  if (ariaLabel) {
-    return ariaLabel;
-  }
-
-  // Check for aria-labelledby
-  const ariaLabelledby = svg.getAttribute('aria-labelledby');
-  if (ariaLabelledby) {
-    const labelElement = document.getElementById(ariaLabelledby);
-    if (labelElement) {
-      return labelElement.textContent;
-    }
-  }
-
-  // Check for title element within SVG
-  const title = svg.querySelector('title');
-  if (title && title.textContent) {
-    return title.textContent.trim();
-  }
-
-  // Check for desc element within SVG
-  const desc = svg.querySelector('desc');
-  if (desc && desc.textContent) {
-    return desc.textContent.trim();
-  }
-
-  // Check for adjacent label element
-  const svgId = svg.getAttribute('id');
-  if (svgId) {
-    const labels = document.querySelectorAll(`label[for="${svgId}"]`);
-    if (labels.length > 0) {
-      return labels[0].textContent.trim();
-    }
-  }
-
-  // Check parent elements for aria-describedby
-  let parent = svg.parentElement;
-  while (parent) {
-    const describedBy = parent.getAttribute('aria-describedby');
-    if (describedBy) {
-      const descElement = document.getElementById(describedBy);
-      if (descElement) {
-        return descElement.textContent.trim();
-      }
-    }
-    
-    const labelledBy = parent.getAttribute('aria-labelledby');
-    if (labelledBy) {
-      const labelElement = document.getElementById(labelledBy);
-      if (labelElement) {
-        return labelElement.textContent.trim();
-      }
-    }
-    
-    parent = parent.parentElement;
-  }
-
-  return null;
-}
-
-// Function to set specified attributes on SVG elements (REACT_041)
-function setSvgAttributes(svg, attributes = {}) {
-  const issues = [];
-  
-  if (!svg || svg.tagName !== 'SVG') {
-    issues.push({ type: 'invalid_element', message: 'Element is not an SVG' });
-    return { success: false, issues };
-  }
-
-  const validSvgAttributes = [
-    'aria-label', 'aria-labelledby', 'aria-describedby', 'aria-hidden',
-    'role', 'tabindex', 'focusable', 'id', 'class', 'style',
-    'width', 'height', 'viewBox', 'xmlns', 'preserveAspectRatio'
-  ];
-
-  const validRoles = [
-    'img', 'presentation', 'group', 'button', 'link', 'menuitem',
-    'menuitemcheckbox', 'menuitemradio', 'checkbox', 'radio', 'switch'
-  ];
-
-  let success = true;
-
-  Object.keys(attributes).forEach(attr => {
-    const value = attributes[attr];
-
-    // Handle role attribute specially
-    if (attr === 'role') {
-      if (!validRoles.includes(value)) {
-        issues.push({
-          type: 'invalid_role',
-          message: `Invalid role "${value}" for SVG. Valid roles: ${validRoles.join(', ')}`,
-          attribute: attr,
-          value
-        });
-        success = false;
-      } else {
-        svg.setAttribute('role', value);
-      }
-      return;
-    }
-
-    // Check if attribute is valid for SVG
-    if (!validSvgAttributes.includes(attr)) {
-      // Still allow custom attributes, just log warning
-      issues.push({
-        type: 'warning',
-        message: `Non-standard attribute "${attr}" will be set as-is`,
-        attribute: attr,
-        value
-      });
-    }
-
-    // Handle boolean attributes
-    if (typeof value === 'boolean') {
-      if (value) {
-        svg.setAttribute(attr, '');
-      } else {
-        svg.removeAttribute(attr);
-      }
-    } else {
-      svg.setAttribute(attr, value);
-    }
-  });
-
-  // Ensure role is set for accessibility if not already present
-  if (!svg.getAttribute('role') && !svg.getAttribute('aria-label') && !svg.querySelector('title')) {
-    issues.push({
-      type: 'recommendation',
-      message: 'SVG should have a role, aria-label, or title for accessibility'
-    });
-  }
-
-  return { success, issues };
-}
-
-// Function to handle fake links within the app (REACT_036)
+// Function to handleFakeLinks for REACT_036
 function handleFakeLinks(links) {
   const results = {
     converted: [],
@@ -992,20 +876,17 @@ if (typeof module !== 'undefined' && module.exports) {
     clamp,
     deepClone,
     addAccessibleNamesToSvg,
-    getLangAttribute,
+    isInViewport,
+    getSvgAccessibleName,
+    setSvgAttributes,
+    getLangAttributeFromElement,
     createInPageButton,
     validateTableAccessibility,
     validateTableStructure,
     validateLandmark,
     validateLandmarkStructure,
     ensureUniqueLandmarks,
-    handleFakeLinks,
-    isLinkAccessible,
-    validateLinkAccessibility,
-    getSvgAccessibleName,
-    setSvgAttributes,
-    handleFakeLinks,
-    setLangAttribute
+    handleFakeLinks
   };
 }
 

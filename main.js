@@ -17,12 +17,12 @@
 //<!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
 
 // Preserve existing functionality
-import { getLangAttribute, createInPageButton } from './utils/accessibilityUtils';
-import { validateTableAccessibility, validateTableStructure } from './utils/tableAccessibilityUtils';
-import { validateLandmarkStructure } from './utils/landmarkUtils';
-import { getSvgAccessibleName, setSvgAttributes } from './utils/svgAccessibilityUtils';
-import { validateLinkAccessibility, handleFakeLinks } from './utils/linkAccessibilityUtils';
-import { checkLinkAccessibility } from './utils/linkAccessibilityUtils'; // Added from origin/main
+import { getLangAttribute, createInPageButton } from './utils/accessibilityUtils.js';
+import { validateTableAccessibility, validateTableStructure } from './utils/tableAccessibilityUtils.js';
+import { validateLandmark, validateLandmarkStructure } from './utils/landmarkUtils.js';
+import { getSvgAccessibleName, setSvgAttributes } from './utils/svgAccessibilityUtils.js';
+import { validateLinkAccessibility, handleFakeLinks } from './utils/linkAccessibilityUtils.js';
+import { checkLinkAccessibility } from './utils/linkAccessibilityUtils.js'; // Added from origin/main
 
 // Local implementation of validateLandmark functionality
 /**
@@ -201,7 +201,43 @@ function createInPageButton(buttonId, buttonText, buttonClass) {
     document.body.appendChild(button);
 }
 
-// ... other fixes ...
+// Handle all accessibility issues
+function handleAccessibilityIssues() {
+  // REACT_015: Add lang attribute to HTML element
+  addLangAttribute();
+  
+  // REACT_017/REACT_025: Validate and ensure unique landmarks
+  const landmarkResult = checkLandmarkElements();
+  if (!landmarkResult.isValid) {
+    console.warn('Landmark accessibility issues found:', landmarkResult.validationErrors);
+  }
+  
+  // REACT_027: Validate table accessibility
+  const tables = document.querySelectorAll('table');
+  tables.forEach(table => {
+    validateTableAccessibility(table);
+    validateTableStructure(table);
+  });
+  
+  // REACT_041: Add accessible names to SVGs
+  const svgs = document.querySelectorAll('svg');
+  svgs.forEach(svg => {
+    const accessibleName = getSvgAccessibleName(svg);
+    setSvgAttributes(svg, accessibleName);
+  });
+  
+  // REACT_036: Fix fake links
+  handleFakeLinks();
+  
+  // Validate link accessibility
+  const linkResult = checkLinkAccessibility();
+  if (linkResult.length > 0) {
+    const accessibleLinks = linkResult.filter(link => link.isAccessible);
+    if (accessibleLinks.length !== linkResult.length) {
+      console.warn('Some links have accessibility issues');
+    }
+  }
+}
 
 // Utility functions
 function formatCurrency(amount) {
@@ -235,8 +271,8 @@ createInPageButton();
 // Assuming you have a table element with an id of 'myTable'
 const table = document.getElementById('myTable');
 if (table) {
-    validateTableAccessibility(table);
-    validateTableStructure(table);
+  validateTableAccessibility(table);
+  validateTableStructure(table);
 }
 
 // Add/fix landmark issues
@@ -247,8 +283,8 @@ validateLandmark();
 // Assuming you have an SVG element with an id of 'mySvg'
 const svg = document.getElementById('mySvg');
 if (svg) {
-    const accessibleName = getSvgAccessibleName(svg);
-    setSvgAttributes(svg, accessibleName);
+  const accessibleName = getSvgAccessibleName(svg);
+  setSvgAttributes(svg, accessibleName);
 }
 
 // Ensure unique landmarks
@@ -263,15 +299,13 @@ handleFakeLinks();
 
 // React / UI related functions
 
-// TODO: Add these imported modules to the relevant rendering functions
-
 function formatProductName(product) {
-    return `${product.name} - ${product.id}`;
+  return `${product.name} - ${product.id}`;
 }
 
 function renderProductList(products) {
   const container = document.createElement('div');
-  container.innerHTML = products.map(p => `<div>${p.name}</div>`).join('');
+  container.innerHTML = products.map(p => `<div class="product">${formatProductName(p)}</div>`).join('');
   return container;
 }
 
@@ -282,34 +316,21 @@ function calculateTotalPrice(cart) {
 }
 
 function renderCart(cart) {
-    const total = calculateTotalPrice(cart);
-    return `
-        <div class="cart">
-            <h2>Shopping Cart</h2>
-            <p>Total: $${total}</p>
-            <p>Date: ${formatDate(new Date())}</p>
-        </div>
-    `;
+  const total = calculateTotalPrice(cart);
+  return `
+    <div class="cart">
+      <h2>Shopping Cart</h2>
+      <p>Total: ${formatCurrency(total)}</p>
+      <p>Date: ${formatDate(new Date())}</p>
+    </div>
+  `;
 }
 
 function validateAndRender(input) {
-    if (validateInput(input)) {
-        return '<p>Valid input</p>';
-    }
-    return '<p>Invalid input</p>';
-}
-
-// Component rendering functions
-function renderHeader(title) {
-  return `<header><h1>${title || 'Default Title'}</h1></header>`;
-}
-
-function renderFooter() {
-  return '<footer><p>&copy; 2024</p></footer>';
-}
-
-function renderProductCard(product) {
-  return `<div class="product-card">${formatProductName(product)}</div>`;
+  if (validateInput(input)) {
+    return `<div class="validated">${input}</div>`;
+  }
+  return '<p>Invalid input</p>';
 }
 
 function renderPage(data) {
@@ -367,187 +388,41 @@ function checkLandmarkElements() {
     };
 }
 
+// New function or change requested in the issue
+function checkLinkAccessibility() {
+  // Implementation for checking link accessibility
+  // This function will be used to validate the accessibility of links
+  const links = document.querySelectorAll('a, area[href]');
+  const results = [];
+  
+  links.forEach((link, index) => {
+    const href = link.getAttribute('href') || '';
+    const isAccessible = href.length > 0 && href !== '#';
+    const hasText = link.textContent.trim().length > 0 || link.getAttribute('aria-label');
+    const hasUniqueText = checkUniqueLinkText(link);
+    
+    results.push({
+      index,
+      url: href,
+      isAccessible,
+      hasText,
+      hasUniqueText,
+      element: link
+    });
+  });
+  
+  return results;
+}
+
 /**
  * Checks if link text is unique among sibling links
  * @param {HTMLAnchorElement} link - The link element to check
  * @returns {boolean} True if link text is unique
  */
 function checkUniqueLinkText(link) {
-  const siblings = link.parentElement ? Array.from(link.parentElement.children) : [];
+  const siblings = link.parentElement ? Array.from(link.parentElement.querySelectorAll('a')) : [];
   const linkText = link.textContent.trim();
   
   let count = 0;
   siblings.forEach(sibling => {
-    if (sibling.textContent.trim() === linkText) {
-      count++;
-    }
-  });
-  
-  return count === 1;
-}
-
-// Utilities for accessibility scores calculation and logging
-export {
-  getLangAttribute,
-  createInPageButton,
-  validateTableAccessibility,
-  validateTableStructure,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  setSvgAttributes,
-  validateLinkAccessibility,
-  handleFakeLinks,
-  checkLinkAccessibility,
-};
-
-// Export utility functions
-export {
-  formatCurrency,
-  formatDate,
-  calculateDiscount,
-  validateInput
-};
-
-// Export component functions
-export {
-  renderHeader,
-  renderFooter,
-  renderProductCard
-};
-
-// Export state
-export {
-  state,
-  updateState
-};
-
-// Export UI / product functions
-export {
-  formatProductName,
-  renderProductList,
-  calculateTotalPrice,
-  renderCart,
-  validateAndRender,
-  renderPage
-};
-
-// Export the new function
-export { checkLinkAccessibility, renderDependencyGraph, displayModuleStructure };
-
-// ... other exports ...
-
-// Function to add a landmark, using the following order: validate and add to storage
-function addLandmark(landmark) {
-  if (validateLandmark(landmark)) {
-    landmarks.push(landmark);
-    return true;
-  }
-  return false;
-}
-
-// Function to get all landmarks
-function getLandmarks() {
-  return [...landmarks];
-}
-
-// Function to remove a landmark by ID
-function removeLandmark(id) {
-  const index = landmarks.findIndex(landmark => landmark.id === id);
-  if (index !== -1) {
-    landmarks.splice(index, 1);
-    return true;
-  }
-  return false;
-}
-
-function isLatitudeValid(lat) {
-  return typeof lat === 'number' && lat >= -90 && lat <= 90;
-}
-
-function isLongitudeValid(lng) {
-  return typeof lng === 'number' && lng >= -180 && lng <= 180;
-}
-
-// Add new function
-function newFunction() {
-  // Function body
-}
-
-// Function to ensure unique landmarks
-function ensureUniqueLandmarks(landmarksList) {
-  const landmarkNames = new Map();
-  const uniqueLandmarks = [];
-
-  for (let landmark of landmarksList) {
-    if (!validateLandmark(landmark)) {
-      continue;
-    }
-
-    const name = landmark.name;
-    if (!landmarkNames.has(name)) {
-      landmarkNames.set(name, []);
-      uniqueLandmarks.push(landmark);
-    }
-  }
-
-  return uniqueLandmarks;
-}
-
-// New function to render dependency graphs or display module structure
-function renderDependencyGraph(module) {
-  // Implementation to render the dependency graph for a given module
-  // This is a placeholder function and should be replaced with actual logic
-  console.log('Rendering dependency graph for:', module);
-  // Example output: 'Rendering dependency graph for: ModuleName'
-}
-
-// REACT_037: Add proper landmark regions
-function addProperLandmarkRegions(element) {
-  if (!element || element.nodeType !== Node.ELEMENT_NODE) {
-    return;
-  }
-  
-  const validLandmarkRegions = ['main', 'nav', 'aside', 'header', 'footer', 'section', 'article'];
-  const currentRole = element.getAttribute('role');
-  
-  if (!currentRole && validLandmarkRegions.includes(element.tagName.toLowerCase())) {
-    element.setAttribute('role', element.tagName.toLowerCase());
-  }
-}
-
-/**
- * Generates a dependency report for debugging
- */
-
-// Additional exports requested
-function calculateSum(a, b) {
-  return a + b;
-}
-
-module.exports = {
-  main,
-  getDependencyDepth,
-  renderDependencyGraph,
-  newFunction,
-  greet,
-  newAccessibleFunction,
-  addLandmarkRegionToElement,
-  addLandmark,
-  getLandmarks,
-  removeLandmark,
-  isLatitudeValid,
-  isLongitudeValid,
-  getLangAttribute,
-  createInPageButton,
-  validateTableAccessibility,
-  validateTableStructure,
-  getSvgAccessibleName,
-  setSvgAttributes,
-  ensureUniqueLandmarks,
-  validateLinkAccessibility,
-  handleFakeLinks,
-  addProperLandmarkRegions,
-  displayModuleStructure,
-  calculateSum
-};
+    if (sibling.textContent.trim

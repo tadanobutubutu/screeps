@@ -105,9 +105,24 @@ function onAuthorSort() {
   dispatch({ type: 'SORT_BY_AUTHOR', payload: sortedList });
 }
 
+// Function to handle focus trap for keyboard navigation
+const handleFocusTrap = () => {
+  const list = getBooksList;
+  if (list.length === 0) return;
+
+  if (currentIndex === 0) {
+    setCurrentIndex(list.length - 1);
+  } else if (currentIndex === list.length - 1) {
+    setCurrentIndex(0);
+  } else {
+    setCurrentIndex(currentIndex - 1);
+  }
+};
+
 // Render the main component containing the book list and sorting controls
 function Main() {
   const [sorting, setSorting] = useState(defaultSorting);
+  const [currentIndex, setCurrentIndex] = useState(0);
 
   // UseEffect hook to handle sorting book list updates
   useEffect(() => {
@@ -117,6 +132,9 @@ function Main() {
       onAuthorSort();
     }
   }, [sorting]);
+
+  // Handle focus trap
+  handleFocusTrap();
 
   // Map the book list to the BookItem function to create book items
   const bookItems = getBooksList.map(BookItem);
@@ -134,45 +152,4 @@ function Main() {
 
 // Export the Main component and the BookForm component
 export default Main;
-export { BookForm };
-
-// Add lang attribute to HTML element
-document.documentElement.setAttribute('lang', 'en');
-
-// Add landmark roles and fix landmark issues
-// Assuming the main component is the primary landmark for navigation
-// Wrap the main component with a div having appropriate role
-function App() {
-  return (
-    <div role="application">
-      <Main />
-    </div>
-  );
-}
-
-// Ensure unique landmarks (2 issues)
-// Assuming there is another landmark in the application
-// Wrap the other landmark with a unique identifier
-function AnotherLandmark() {
-  return (
-    <div id="unique-landmark-id" role="navigation">
-      {/* Content of the landmark */}
-    </div>
-  );
-}
-
-// Fix 1 fake link issue
-// Assuming there is a link that should not be a link (e.g., a button)
-// Remove the 'href' attribute and add 'role="button"' to indicate it's a button
-function NonLinkButton() {
-  return (
-    <div
-      onClick={() => {/* button action */}}
-      role="button"
-      tabIndex="0"
-      style={{ cursor: 'pointer' }}
-    >
-      {/* Button content */}
-    </div>
-  );
-}
+export { Book

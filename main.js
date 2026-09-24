@@ -1,4 +1,4 @@
-// main.js - Accessibility improvements implementation
+// TODO: Identify and update specific functions that render dependency graphs or in main.js
 
 function calculateSum(a, b) {
   return a + b;

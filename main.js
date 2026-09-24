@@ -198,7 +198,7 @@ const a11yStore = {
   // ... remaining a11yStore methods ...
 
   /**
-   * New function to ensure interactive elements are accessible
+   * Ensure interactive elements are accessible
    */
   ensureInteractiveElementsAccessible() {
     this.ensureInteractiveRoles();

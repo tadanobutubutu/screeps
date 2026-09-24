@@ -467,13 +467,79 @@ function validateTableStructure (tableData) {
 function initializeAccessibility() {
   const announcer = createAnnouncer()
   
-  const headers = tableElement.querySelectorAll('th')
-  headers.forEach(th => {
-    if (!th.hasAttribute('scope')) {
-      const row = th.closest('tr')
-      const cellIndex = Array.from(row.children).indexOf(th)
-      th.setAttribute('scope', cellIndex === 0 ? 'row' : 'col')
-    }
-  })
-  return tableElement
+  ensureUniqueLandmarks(document.body)
+  
+  return {
+    announce: announcer.announce,
+    getLastMessage: announcer.getLast
+  }
 }
+
+// Call the functions to address the accessibility issues
+if (typeof window !== 'undefined' && typeof document !== 'undefined') {
+  addLangAttribute()
+  fixTableStructure()
+  addMainLandmark()
+  fixLandmarkIssues()
+  ensureUniqueLandmarks()
+  addSvgAccessibleNames()
+  addAccessibleNamesToSVGs()
+  fixFakeLinkIssue()
+  googleSignIn()
+  fixButtonIdentifiers()
+}
+
+// Other code...
+
+module.exports = {
+  ...main,
+  createInPageButton,
+  createWebResourceButton,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  getLangAttribute,
+  validateAccessibilityReport,
+  exportUtils,
+  addressAccessibilityIssues,
+  ensureElementHasId,
+  ensureElementHasIdOrigin,
+  addAriaLabel,
+  renderDependencyGraphs,
+  fixButtonIdentifiers,
+  fixDependencyGraphAria,
+  addMainLandmarkToIndex,
+  focusTrap,
+  checkAccessibility,
+  validateTableStructureForAccessibility,
+  implementAccessibilityFixesFromReport,
+  checkAccessibilityForReport,
+  renderGraphIndex,
+  trapFocus,
+  addLandmarkRegions,
+  uniqueLandmarks,
+  fixFakeLinkIssues,
+  getActiveSessionsCount,
+  validateSession,
+  handleCredentialResponse,
+  accessibilityUtils,
+  createAnnouncer,
+  prefersReducedMotion,
+  renderSimpleDependencyGraph,
+  addAccessibleName,
+  addAccessibleNamesToSVGs,
+  addSvgAccessibleNames,
+  fixFakeLinkIssue,
+  addLangAttribute,
+  fixTableStructure,
+  addMainLandmark,
+  fixLandmarkIssues,
+  validateTableAccessibility,
+  validateTableStructure,
+  initializeAccessibility,
+  renderIndex,
+  newFunction,
+  validateHeadingHierarchy,
+  ensureHeadingHierarchy,
+  renderAdditionalContent
+};

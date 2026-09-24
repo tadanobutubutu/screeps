@@ -205,6 +205,56 @@ function checkAccessibilityForReport (content) {
   return []
 }
 
+// Validate heading hierarchy for accessibility
+function validateHeadingHierarchy(container = document.body) {
+  const headings = container.querySelectorAll('h1, h2, h3, h4, h5, h6');
+  const issues = [];
+  let lastLevel = 0;
+  
+  headings.forEach((heading, index) => {
+    const level = parseInt(heading.tagName.charAt(1));
+    
+    // First heading should ideally be h1
+    if (index === 0 && level !== 1) {
+      issues.push(`First heading should be h1, found ${heading.tagName}`);
+    }
+    
+    // Headings should not skip levels
+    if (level > lastLevel + 1) {
+      issues.push(`Heading ${heading.tagName} skips level ${lastLevel + 1}`);
+    }
+    
+    lastLevel = level;
+  });
+  
+  return issues;
+}
+
+// Ensure proper heading hierarchy
+function ensureHeadingHierarchy(container = document.body) {
+  const headings = Array.from(container.querySelectorAll('h1, h2, h3, h4, h5, h6'));
+  const issues = validateHeadingHierarchy(container);
+  
+  if (issues.length === 0) {
+    return; // No action needed if hierarchy is correct
+  }
+  
+  // Fix multiple h1s by converting subsequent ones to h2
+  let h1Count = 0;
+  headings.forEach((heading) => {
+    if (heading.tagName === 'H1') {
+      h1Count++;
+      if (h1Count > 1) {
+        const newHeading = document.createElement('h2');
+        newHeading.textContent = heading.textContent;
+        newHeading.style.cssText = heading.style.cssText;
+        if (heading.id) newHeading.id = heading.id;
+        heading.replaceWith(newHeading);
+      }
+    }
+  });
+}
+
 // Accessibility utilities
 const accessibilityUtils = {
   initSkipLink: function() {
@@ -345,4 +395,79 @@ function validateTableStructure (tableData) {
 
 // Initialize accessibility features
 function initializeAccessibility() {
-  const announcer = createAnnouncer
+  const announcer = createAnnouncer()
+  
+  ensureUniqueLandmarks(document.body)
+  
+  return {
+    announce: announcer.announce,
+    getLastMessage: announcer.getLastMessage
+  }
+}
+
+// Call the functions to address the accessibility issues
+addLangAttribute()
+fixTableStructure()
+addMainLandmark()
+fixLandmarkIssues()
+ensureUniqueLandmarks()
+addSvgAccessibleNames()
+addAccessibleNamesToSVGs()
+fixFakeLinkIssue()
+googleSignIn()
+fixButtonIdentifiers()
+
+// Other code...
+
+module.exports = {
+  ...main,
+  createInPageButton,
+  createWebResourceButton,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  getLangAttribute,
+  validateAccessibilityReport,
+  exportUtils,
+  addressAccessibilityIssues,
+  ensureElementHasId,
+  ensureElementHasIdOrigin,
+  addAriaLabel,
+  renderDependencyGraphs,
+  fixButtonIdentifiers,
+  fixDependencyGraphAria,
+  addMainLandmarkToIndex,
+  focusTrap,
+  checkAccessibility,
+  validateTableStructureForAccessibility,
+  implementAccessibilityFixesFromReport,
+  checkAccessibilityForReport,
+  renderGraphIndex,
+  trapFocus,
+  addLandmarkRegions,
+  uniqueLandmarks,
+  fixFakeLinkIssues,
+  getActiveSessionsCount,
+  validateSession,
+  handleCredentialResponse,
+  accessibilityUtils,
+  createAnnouncer,
+  prefersReducedMotion,
+  renderSimpleDependencyGraph,
+  addAccessibleName,
+  addAccessibleNamesToSVGs,
+  addSvgAccessibleNames,
+  fixFakeLinkIssue,
+  addLangAttribute,
+  fixTableStructure,
+  addMainLandmark,
+  fixLandmarkIssues,
+  validateTableAccessibility,
+  validateTableStructure,
+  initializeAccessibility,
+  renderIndex,
+  newFunction,
+  validateHeadingHierarchy,
+  ensureHeadingHierarchy,
+  renderAdditionalContent
+};

@@ -7,6 +7,8 @@
 // Main module
 
 // Dependency imports
+const http = require('http');
+const url = require('url');
 const { dependencyGraphContent } = require('./dependencyGraphContent');
 const { indexContent } = require('./indexContent');
 
@@ -1266,10 +1268,7 @@ module.exports = {
   server,
   sanitizeFilename,
   processData,
-  applyInsightReportFixes: a11yStore.applyInsightReportFixes,
-  runAccessibilityAudit: a11yStore.runAccessibilityAudit,
-  announce: a11yStore.announce,
-  createLiveRegion: a11yStore.createLiveRegion,
+  appState,
   ensureFormAccessibility: a11yStore.ensureFormAccessibility,
   ensureKeyboardNavigation: a11yStore.ensureKeyboardNavigation,
   ensureImageAccessibility: a11yStore.ensureImageAccessibility

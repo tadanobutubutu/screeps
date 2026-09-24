@@ -801,42 +801,4 @@ export {
   ensureUniqueLandmarksDoc
 };
 
-// REACT_042: Ensure dependencyGraph container has proper ARIA role
-function ensureDependencyGraphAriaRole() {
-  const dependencyGraph = document.getElementById('dependencyGraph');
-  if (dependencyGraph && !dependencyGraph.getAttribute('role')) {
-    dependencyGraph.setAttribute('role', 'region');
-    dependencyGraph.setAttribute('aria-label', 'Dependency Graph');
-  }
-}
-
-// REACT_040: Replace my-button with actual button id for accessibility
-function fixButtonIdentifiers() {
-  const buttons = document.querySelectorAll('[id^="my-button"]');
-  buttons.forEach((button, index) => {
-    const newId = `button-${index + 1}`;
-    button.id = newId;
-    if (button.getAttribute('aria-label') === 'my-button') {
-      button.setAttribute('aria-label', `Button ${index + 1}`);
-    }
-  });
-}
-
-// REACT_037: Google sign-in logic
-function googleSignIn() {
-  // Implementation for Google sign-in
-  console.log('Google sign-in initiated');
-  // Add proper ARIA attributes for accessibility
-  const signInButton = document.getElementById('google-signin');
-  if (signInButton) {
-    signInButton.setAttribute('aria-label', 'Sign in with Google');
-    signInButton.setAttribute('role', 'button');
-  }
-}
-
-// Add the new functions to the exports
-export {
-  ensureDependencyGraphAriaRole,
-  fixButtonIdentifiers,
-  googleSignIn
-};
+// TODO: This is the existing code that needs to be preserved

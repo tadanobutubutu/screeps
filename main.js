@@ -407,33 +407,17 @@ buttons.forEach((button, index) => {
 // Use the new function to add aria-labels to the appropriate elements
 ... 
 
-// End of file
+// New function to ensure dependencyGraph container has proper ARIA role
+function ensureDependencyGraphAccessibility() {
+  const dependencyGraph = document.getElementById('dependencyGraph');
+  if (dependencyGraph && !dependencyGraph.getAttribute('role')) {
+    dependencyGraph.setAttribute('role', 'tree');
+    // Adding aria-label for better screen reader support
+    dependencyGraph.setAttribute('aria-label', 'Dependency graph visualization');
+  }
+}
 
-// Added exports as requested
-export {
-  createLandmarkId,
-  uniqueLandmarks,
-  addAriaLabel,
-  addLangAttribute,
-  ensureElementHasId,
-  outputSafetyClassification,
-  classifyUserSafety,
-  classifyResponseSafety,
-  getFullLangAttribute,
-  getLangAttribute,
-  validateLandmark,
-  validateLandmarkStructure,
-  validateTableAccessibility,
-  validateTableStructure,
-  ensureElementsHaveIds,
-  ensureUniqueLandmarks,
-  getSvgAccessibleName,
-  setSvgAttributes,
-  createInPageButton,
-  createAccessibleLink,
-  handleAccessibilityIssues,
-  fixAccessibilityIssues,
-  calculateSum,
-  validateLinkAccessibility,
-  handleFakeLinks
-};
+// Call the new function to ensure accessibility
+ensureDependencyGraphAccessibility();
+
+// End of file

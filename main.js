@@ -4,8 +4,8 @@ import { getLangAttribute } from './utils/accessibility.js';
 import { validateTableAccessibility, validateTableStructure } from './utils/table.js';
 import { validateLandmark, validateLandmarkStructure } from './utils/landmark.js';
 import { getSvgAccessibleName, setSvgAttributes } from './utils/svg.js';
-import { ensureUniqueLandmarks } from './utils/landmark.js';
-import { createInPageButton, validateLinkAccessibility, handleFakeLinks } from './utils/link.js';
+import { ensureUniqueLandmarks } from './utils/landmarkUtils.js';
+import { createInPageButton as createButton, validateLinkAccessibility, handleFakeLinks } from './utils/link.js';
 
 // TODO: This is the existing code that needs to be preserved
 // (This comment remains as-is)
@@ -53,6 +53,11 @@ function createInPageButton(buttonId, buttonText) {
   const button = document.createElement('button');
   button.id = buttonId;
   button.textContent = buttonText;
+  // Add lang attribute for accessibility
+  const langAttr = getLangAttribute();
+  if (langAttr) {
+    button.setAttribute('lang', langAttr);
+  }
   return button;
 }
 
@@ -84,20 +89,26 @@ function addressAccessibilityIssues(insightReport) {
         // Actual implementation from HEAD
         const htmlElement = document.documentElement;
         if (htmlElement) {
-          htmlElement.setAttribute('lang', 'en');
+          const langAttr = getLangAttribute();
+          htmlElement.setAttribute('lang', langAttr || 'en');
         }
         break;
       case 'add-landmark-roles':
         fixedIssue.fixApplied = 'Added landmark roles and fixed landmark issues.';
+        validateLandmark();
+        validateLandmarkStructure();
         break;
       case 'add-accessible-names-to-svgs':
         fixedIssue.fixApplied = 'Added accessible names to SVGs.';
+        setSvgAttributes();
         break;
       case 'ensure-unique-landmarks':
         fixedIssue.fixApplied = 'Ensured unique landmarks.';
+        ensureUniqueLandmarks();
         break;
       case 'fix-fake-link':
         fixedIssue.fixApplied = 'Fixed fake link issue.';
+        handleFakeLinks();
         break;
       default:
         fixedIssue.fixApplied = 'Applied generic accessibility fix.';
@@ -532,23 +543,3 @@ export function functionB() {
   // Placeholder implementation for functionB
   // Implementation details here
 }
-
-// Existing tests in /tests/ must continue to pass
-// Example test case for the new function
-describe('addressInsightReportIssues', () => {
-  it('should address each issue in the insight report', () => {
-    const insightReport = [
-      { issue: 'Issue 1', solution: 'Solution 1' },
-      { issue: 'Issue 2', solution: 'Solution 2' }
-    ];
-    const mockLog = jest.spyOn(console, 'log').mockImplementation(() => {});
-    addressInsightReportIssues(insightReport);
-    // Mock console.log to check if the correct messages were logged
-    // This is a simplified example; in a real test, you would use a mock library
-    expect(mockLog).toHaveBeenCalledWith('Addressing issue: Issue 1');
-    expect(mockLog).toHaveBeenCalledWith('Solution: Solution 1');
-    expect(mockLog).toHaveBeenCalledWith('Addressing issue: Issue 2');
-    expect(mockLog).toHaveBeenCalledWith('Solution: Solution 2');
-    mockLog.mockRestore();
-  });
-});

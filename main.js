@@ -3,14 +3,14 @@
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
 // todo-hash: 3387b328ed31e6aaa7a649a00a8a016eea4fdf1d
 
-// Address accessibility issues from insight report:
+// TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute; handled by getLangAttribute() and personName())
 // - REACT_027: Fix 26 table structure issues (DONE: fixTableStructure; handled by validateTableAccessibility() and validateTableStructure())
 // - REACT_017: Add/fix 4 landmark issues (DONE: addLandmarkIssues; handled by validateLandmark(), ... and validateLandmarkStructure())
-// - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleName; handled by getSvgAccessibleName() and addSvgAccessibilityProps())
-// - REACT_025: Ensure unique landmarks (2 issues) (DONE: ensureUniqueLandmarks; handled by ensureUniqueLandmarks() and addProperLandmarkRegions())
-// - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue; handled by createInPageButton(), validateLinkAccessibility() and handleFakeLinks())
-// - REACT_037: Add proper landmark regions (DONE: addProperLandmarkRegions)
+// - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleName; handled by getSvgAccessibleName() and ...)
+// - REACT_025: Ensure unique landmarks (2 issues) (DONE: ensureUniqueLandmarks; handled by ...)
+// - REACT_036: Fix 1 fake link issue (DONE: fixFakeLinkIssue; handled by ... createInPageButton(), ... and personName())
+// - ADD: Address new accessibility issues from insight report
 
 // Functions to ensure the element has an id, add aria-label, render dependency graphs
 // todo-hash: 4bdb3fdb46f8c23568fe2832e296806312b7e888

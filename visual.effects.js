@@ -8,17 +8,23 @@ const adaptiveSystem = require('system.adaptive')
  * セキュアな乱数を生成する (PRNGの脆弱性対策)
  * @returns {number} 0以上、1未満の浮動小数点数
  */
-function secureRandomFloat () {
-  try {
-    const crypto = require('crypto')
-    if (crypto && crypto.randomBytes) {
-      const buf = crypto.randomBytes(4)
-      return buf.readUInt32LE(0) / (0xffffffff + 1)
+function secureRandomFloat() {
+    try {
+        const crypto = require('crypto');
+        if (crypto && crypto.randomBytes) {
+            const buf = crypto.randomBytes(4);
+            return buf.readUInt32LE(0) / (0xffffffff + 1);
+        }
+    } catch (e) {
+        // Fallback handled below
     }
-  } catch (e) {
-    // Fallback
-  }
-  return Math.random()
+    // Fallback: Use Web Crypto API if available, otherwise return 0 to fail safely
+    if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
+        const array = new Uint32Array(1);
+        crypto.getRandomValues(array);
+        return array[0] / (0xffffffff + 1);
+    }
+    return 0; // Secure fallback
 }
 
 // ⚡ PERFORMANCE: Per-tick cache for visual effects enablement

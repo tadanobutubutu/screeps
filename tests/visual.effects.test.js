@@ -212,40 +212,41 @@ describe('visual.effects', () => {
     global.Game.time = 1000 // 1000: 次のテスト用のキャッシュリセット値
   })
 
-  test('rainbowTrailはtrailPositionsをMemoryからvolatile cacheに移行する', () => {
-    const mockCreep = {
-      id: 'creep1',
-      pos: { x: 25, y: 25 },
-      room: { name: 'W0N0' },
-      memory: {
-        trailPositions: Array.from({ length: 10 }, (_, i) => ({ x: i, y: i }))
-      }
-    }
-    global.Game.time = 2000
-    expect(() => visualEffects.rainbowTrail(mockCreep)).not.toThrow()
-    // Memoryからは削除されているはず
-    expect(mockCreep.memory.trailPositions).toBeUndefined()
-  })
-  test('secureRandomFloat falls back to Math.random on exception', () => {
-    const originalMathRandom = Math.random
-    Math.random = jest.fn().mockReturnValue(0.99)
-    try {
-      jest.resetModules()
-      jest.mock('crypto', () => {
-        throw new Error('Module not found')
-      })
-      jest.mock('system.adaptive', () => ({
-        isEnabled: jest.fn().mockReturnValue(true)
-      }))
-      const visualEffects = require('../visual.effects')
-      expect(() => {
-        visualEffects.particles({ x: 25, y: 25, roomName: 'W0N0' }, '#FFD700', 1)
-      }).not.toThrow()
-      expect(Math.random).toHaveBeenCalled()
-    } finally {
-      Math.random = originalMathRandom
-      jest.unmock('crypto')
-      jest.unmock('system.adaptive')
-    }
-  })
-})
+    test('rainbowTrailはtrailPositionsをMemoryからvolatile cacheに移行する', () => {
+        const mockCreep = {
+            id: 'creep1',
+            pos: { x: 25, y: 25 },
+            room: { name: 'W0N0' },
+            memory: {
+                trailPositions: Array.from({ length: 10 }, (_, i) => ({ x: i, y: i })),
+            },
+        };
+        global.Game.time = 2000;
+        expect(() => visualEffects.rainbowTrail(mockCreep)).not.toThrow();
+        // Memoryからは削除されているはず
+        expect(mockCreep.memory.trailPositions).toBeUndefined();
+    });
+    test('secureRandomFloat gracefully handles exception without Math.random', () => {
+        const originalMathRandom = Math.random;
+        Math.random = jest.fn().mockReturnValue(0.99);
+        try {
+            jest.resetModules();
+            jest.mock('crypto', () => {
+                throw new Error('Module not found');
+            });
+            jest.mock('system.adaptive', () => ({
+                isEnabled: jest.fn().mockReturnValue(true),
+            }));
+            const visualEffects = require('../visual.effects');
+            expect(() => {
+                visualEffects.particles({ x: 25, y: 25, roomName: 'W0N0' }, '#FFD700', 1);
+            }).not.toThrow();
+            expect(Math.random).not.toHaveBeenCalled();
+        } finally {
+            Math.random = originalMathRandom;
+            jest.unmock('crypto');
+            jest.unmock('system.adaptive');
+        }
+    });
+
+});

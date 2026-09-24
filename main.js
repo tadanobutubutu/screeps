@@ -546,6 +546,8 @@ function validateLandmarkStructure(context = document, options = {}) {
   return result;
 }
 
+// TODO: This is the existing code that needs to be preserved
+
 // Exports for the functions
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = { addressAccessibilityIssues, calculateSum, calculateProduct, validateLandmarkStructure };

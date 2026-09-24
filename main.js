@@ -10,85 +10,18 @@ let isInitialized = false;
 const appData = {};
 let uniqueLandmarks = {};
 
-// Calculate distance between two points using Haversine formula
-function calculateDistance(lat1, lon1, lat2, lon2) {
-  const R = 6371; // Earth's radius in km
-  const dLat = toRad(lat2 - lat1);
-  const dLon = toRad(lon2 - lon1);
-  const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-            Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
-            Math.sin(dLon / 2) * Math.sin(dLon / 2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  return R * c;
-}
-
-// Convert degrees to radians
-function toRad(deg) {
-  return deg * (Math.PI / 180);
-}
-
-// Function for checking landmark elements
-function checkLandmarkElements(landmarks) {
-  if (!Array.isArray(landmarks)) {
-    return false;
-  }
-
-  if (landmarks.length === 0) {
-    return false;
-  }
-
-  return landmarks.every(landmark => {
-    if (!landmark) return false;
-    return landmark.id || landmark.name || landmark.ariaLabel;
-  });
-}
-
-// Function for ensuring unique landmarks
-function ensureUniqueLandmarks(insightReport) {
-  if (!Array.isArray(landmarks)) {
-    return [];
-  }
-
-  const seen = new Set();
-  return landmarks.filter(landmark => {
-    if (!landmark) return false;
-
-    const identifier = landmark.id || landmark.name || landmark.ariaLabel;
-
-    if (seen.has(identifier)) {
-      return false;
-    }
-    seen.add(identifier);
-    return true;
-  });
-}
-
-// Function for adding an id and aria-label to an element
-function addIdAndAriaLabel(element, id, ariaLabel) {
-  if (!element) return;
-
-  element.id = id;
-  element.setAttribute('aria-label', ariaLabel);
-}
-
-// Address accessibility issues
-function addressAccessibilityIssues() {
-  // REACT_015: Add lang attribute to HTML element
-  const htmlElement = document.documentElement;
-  if (!htmlElement.hasAttribute('lang')) {
-    const lang = htmlElement.getAttribute('xml:lang') || 'en';
-    htmlElement.setAttribute('lang', lang);
-  }
-
+function addressAccessibilityIssues(insightReport) {
   // Ensure the dependencyGraph container has a proper ARIA role
   // Support both class and data attribute selectors for compatibility
   const dependencyGraph = document.querySelector('[data-dependency-graph]') ||
     document.querySelector('.dependency-graph') ||
     document.querySelector('#dependency-graph') ||
-    document.querySelector('div[data-type="dependency-graph"]');
-
+    document.querySelector('div.dependency-graph');
+  
   if (dependencyGraph) {
-    dependencyGraph.setAttribute('role', 'tree');
+    if (!dependencyGraph.getAttribute('role')) {
+      dependencyGraph.setAttribute('role', 'tree');
+    }
     if (!dependencyGraph.getAttribute('aria-label')) {
       dependencyGraph.setAttribute('aria-label', 'Dependency Graph');
     }
@@ -103,44 +36,40 @@ function addressAccessibilityIssues() {
       }
     });
 
-    const focusable = document.querySelectorAll('a, button, input, select, textarea, [tabindex]');
+    const focusable = document.querySelectorAll('a[href], area[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled]), iframe, object, embed, [tabindex="0"], [contenteditable="true"]');
     focusable.forEach(el => {
       if (el.tabIndex < 0) el.tabIndex = 0;
     });
   }
 
-  function ensureUniqueLandmarks(insightReport) {
-    const landmarks = [];
-
-    insightReport.issues.forEach(issue => {
-      if (!issue.ariaRole) return;
-      landmarks.push(issue.ariaRole);
-    });
+  function processLandmarks(insightReport) {
+    const landmarks = [...new Set(insightReport
+      .filter(issue => issue.ariaRole)
+      .map(issue => issue.ariaRole))];
 
     // Check if all landmarks exist, re-add if necessary
     landmarks.forEach(uniqueLandmark => {
-      const elements = document.querySelectorAll(`[role="${uniqueLandmark}"]`);
-      if (elements.length < landmarks.length) {
-        const uniqueLandmarkMap = {};
-
-        landmarks.forEach(uniqueLand => {
-          let element = elements.filter(el => el.getAttribute('role') === uniqueLand);
-          if (!element[0]) {
-            element = document.createElement('div');
-            addIdAndAriaLabel(element, uniqueLandmark, uniqueLandmark);
-            if (!document.querySelector(`#${uniqueLandmark}`)) {
-              document.body.appendChild(element);
-            }
-            uniqueLandmarkMap[uniqueLandmark] = element;
-          }
-        });
+      let elements = document.querySelectorAll(`[role="${uniqueLandmark}"]`);
+      
+      if (elements.length === 0) {
+        const element = document.createElement('div');
+        element.setAttribute('role', uniqueLandmark);
+        
+        const id = uniqueLandmark.toLowerCase().replace(/\s+/g, '-');
+        element.setAttribute('id', id);
+        
+        document.body.appendChild(element);
       }
-
-      // Refresh landmarks for existing elements
-      elements.forEach(el => {
-        addIdAndAriaLabel(el, el.getAttribute('role'), el.getAttribute('role'));
-      });
+      
+      uniqueLandmarks[uniqueLandmark] = elements[0];
     });
+  }
+
+  // Execute accessibility improvements
+  improveAccessibility();
+  
+  if (insightReport && insightReport.length > 0) {
+    processLandmarks(insightReport);
   }
 }
 
@@ -164,18 +93,11 @@ function newFunction() {
   console.log("New Function has been called!");
 }
 
-// New function to implement the request
-function requestFunction() {
-  // Implement the logic for the request here
-}
-
-// Export functions for testing
+// Continue with existing exports, functions, or any other code that follows
 module.exports = {
-  calculateDistance,
-  toRad,
-  ensureUniqueLandmarks,
-  renderDependencyGraph,
-  displayModuleStructure,
+  addressAccessibilityIssues,
   newFunction,
-  addIdAndAriaLabel
+  isInitialized,
+  appData,
+  uniqueLandmarks
 };

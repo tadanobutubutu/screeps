@@ -1,7 +1,4 @@
-// TODO: Add back any required exports that might have been removed
-// TODO: This is the existing code that needs to be preserved
-// Address accessibility issues from insight report
-// ----- END ORIGINAL CODE-----
+// TODO: This is the existing code that needs to be preserved (This comment remains as-is)
 
 // Commit: 79bba944f656d0547ab90f80c463fa57891b9be7
 

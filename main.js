@@ -210,7 +210,8 @@ function renderDependencyGraph(dependencies) {
     const edges = [];
     
     for (const [name, version] of Object.entries(dependencies)) {
-        nodes.push({ id: name, label: `${name}@${version}` });
+        const versionStr = typeof version === 'string' ? version : version.version || '*';
+        nodes.push({ id: name, label: `${name}@${versionStr}` });
         
         // For nested dependencies, create edges
         if (typeof version === 'object' && version.dependencies) {
@@ -229,28 +230,14 @@ function renderDependencyGraph(dependencies) {
  * @returns {string} - HTML string for the index view
  */
 function renderIndexView(packages) {
-    let html = '<!DOCTYPE html><html lang="en"><head><title>Dependencies</title></head><body><main>';
+    let html = '<!DOCTYPE html><html lang="en">';
+    html += '<head><meta charset="UTF-8"><title>Dependency Index</title></head>';
+    html += '<body>';
     html += '<h1>Dependency Index</h1>';
     html += '<ul>';
     
-    for (let i = 0; i < args.length; i++) {
-        const arg = args[i];
-        
-        if (arg === 'help' || arg === '--help' || arg === '-h') {
-            parsed.options.help = true;
-            parsed.command = parsed.command || 'help';
-        } else if (arg === 'graph' || arg === 'index') {
-            parsed.command = arg;
-        } else if (arg.startsWith('--')) {
-            const option = arg.slice(2);
-            parsed.options[option] = args[++i] || true;
-        } else if (arg.startsWith('-')) {
-            const short = arg.slice(1);
-            if (short === 'v') parsed.options.verbose = true;
-            if (short === 'o') parsed.options.output = args[++i];
-        } else {
-            parsed.args.push(arg);
-        }
+    for (const pkg of packages) {
+        html += `<li>${pkg.name} - ${pkg.version || 'unknown'}</li>`;
     }
     
     html += '</ul></main></body></html>';
@@ -265,36 +252,10 @@ function main() {
     const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
 
     const graphData = renderDependencyGraph(packageJson.dependencies || {});
-    const indexHtml = renderIndexView([{ name: 'example', version: '1.0.0' }]);
-
-    // Add the new function to count dependencies
-    const numDependencies = countDependencies(packageJson.dependencies || {}); // Count local dependencies or empty object if undefined
-    const countDependencyMessage = numDependencies === 1 ? 'dependency' : 'dependencies';
-    const finalHtml = `
-        <!DOCTYPE html>
-        <html>
-            <head>
-                <title>Dependencies</title>
-            </head>
-            <body>
-                <h1>Dependency Index</h1>
-                <p>There are ${numDependencies} ${countDependencyMessage} found.</p>
-                ${indexHtml}
-            </body>
-        </html>
-    `;
-
-    return { graphData, finalHtml };
-}
-
-/**
- * Updates the HTML content to include accessibility improvements based on an insight report.
- * @param {string} htmlContent - The HTML content to update.
- * @returns {string} - The updated HTML content.
- */
-function updateAccessibility(htmlContent) {
-    // Example accessibility update: Add lang attribute to HTML element
-    const updatedHtml = htmlContent.replace(/<html>/g, '<html lang="en">');
+    const indexHtml = renderIndexView(Object.entries(packageJson.dependencies || {}).map(([name, version]) => ({
+        name,
+        version: typeof version === 'string' ? version : version.version || '*'
+    })));
     
     // Further accessibility updates can be added here following the insight report
     // ...

@@ -170,13 +170,33 @@ function startApp() {
 }
 
 /**
- * New function to hash data using SHA256 with crypto-js
- * @param {string} data - The data to hash
- * @returns {string} A Base64-encoded SHA256 hash value
+ * Gets the language attribute value for the HTML element
+ * @returns {string} The language attribute value (e.g., 'en', 'en-US')
  */
-function hashData(data) {
-  const hash = crypto.SHA256(data).toString(crypto.enc.Base64);
-  return hash;
+function getLangAttribute() {
+  // Default to 'en' for English if not specified
+  return process.env.LANG_ATTRIBUTE || 'en';
+}
+
+/**
+ * Creates an accessible in-page button element
+ * @param {string} text - The button text content
+ * @param {string} [id] - Optional button ID
+ * @param {string} [className] - Optional CSS class name
+ * @returns {object} Button configuration object with accessibility support
+ */
+function createInPageButton(text, id, className) {
+  return {
+    tag: 'button',
+    text: text,
+    id: id || null,
+    className: className || 'in-page-button',
+    attributes: {
+      type: 'button',
+      lang: getLangAttribute(),
+      'aria-label': text
+    }
+  };
 }
 
 // Export functions for testing
@@ -184,7 +204,8 @@ module.exports = {
   createServer,
   startApp,
   config,
-  hashData // Exporting the new function
+  getLangAttribute,
+  createInPageButton
 };
 
 // Function to render graph/index using new functions

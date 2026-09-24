@@ -221,23 +221,23 @@ const initAccessibility = () => {
 }
 
 // Main entry point
-function _main() {
+const mainFunction = function() {
   // Application initialization
-  return 'main function executed'
-}
+  return 'main function executed';
+};
 
 // Import and call the newer functions if they exist and are compatible
 if (acquiredMain) {
-  _main = acquiredMain;
+  mainFunction = acquiredMain;
 }
 if (affectedFunction) {
-  _main = _main.bind(null, affectedFunction);
+  mainFunction = mainFunction.bind(null, affectedFunction);
 }
 if (updateFunction) {
-  _main = _main.bind(null, updateFunction);
+  mainFunction = mainFunction.bind(null, updateFunction);
 }
 if (accessibleFunction) {
-  _main = _main.bind(null, accessibleFunction);
+  mainFunction = mainFunction.bind(null, accessibleFunction);
 }
 
 // Utility functions
@@ -317,7 +317,7 @@ function transformInputData (data) {
 
 // Export functions
 module.exports = {
-  main: _main,
+  main: mainFunction,
   myNewFunction,
   calculateSum,
   ensureElementHasId,
@@ -352,7 +352,7 @@ module.exports = {
 
 // Also attach to global scope for browser/standalone access
 if (typeof window !== 'undefined') {
-  window.main = _main;
+  window.main = mainFunction;
   window.myNewFunction = myNewFunction;
   window.calculateSum = calculateSum;
   window.ensureElementHasId = ensureElementHasId;

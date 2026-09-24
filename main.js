@@ -16,9 +16,9 @@ import { fetchUser, clearCache } from './utils/user';
 
 // Find the primary content element in the DOM
 const primaryContent = document.querySelector('.primary-content') ||
-                        document.querySelector('[role="main"]') ||
-                        document.getElementById('main-content') ||
-                        document.querySelector('#content');
+                      document.querySelector('[role="main"]') ||
+                      document.getElementById('main-content') ||
+                      document.querySelector('#content');
 
 // Function to wrap primary content in a <main> element
 function wrapPrimaryContentInMain() {
@@ -36,19 +36,6 @@ function wrapPrimaryContentInMain() {
     return mainElement;
   }
   return null;
-}
-
-// Function to ensure ARIA attributes are properly set for the dependency graph
-function ensureAccessibilityAttributes() {
-  // Ensure the document has proper lang attribute for accessibility
-  const lang = getLangAttribute();
-
-  // Set lang attribute on document root if not already set
-  if (typeof document !== 'undefined' && document.documentElement) {
-    if (!document.documentElement.lang) {
-      document.documentElement.lang = lang;
-    }
-  }
 }
 
 // Landmark data structure
@@ -1121,19 +1108,6 @@ function Main() {
       </div>
       <List itemLayout="vertical" dataSource={[]} renderItem={book => BookItemComponent(book)} />
       {/* Implement the required changes to improve accessibility for adding a new book */}
-      <form onSubmit={(e) => {
-        e.preventDefault();
-        addBookAction({});
-      }}>
-        <label htmlFor="title">Title:</label>
-        <input type="text" id="title" name="title" required aria-label="Book title" />
-        <label htmlFor="author">Author:</label>
-        <input type="text" id="author" name="author" required aria-label="Book author" />
-        <button type="submit">Add Book</button>
-      </form>
-
-      {/* Add Tower Defense Game Component */}
-      <TowerDefenseComponent />
     </div>
   );
 }

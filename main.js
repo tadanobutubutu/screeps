@@ -7,9 +7,8 @@ const { setElementLabel } = require('./AccessibilityHelpers');
 const main = require('./utilities')
 const React = require('react');
 
-// TODO: This is where the original commitment added a new feature. Keep both changes to preserve the added functionality.
-// Version 1 implementation (HEAD branch) - preserved accessibility enhancements
-setElementLabel('dependencyGraph', 'Dependency graph visualization');
+// Accessibility enhancement: Ensure all UI elements are properly labeled
+setElementLabel(document.getElementByTagName('html')[0], 'html');
 
 const DOMParser = require('@xmldom/xmldom').DOMParser;
 

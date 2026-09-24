@@ -1,4 +1,3 @@
-// TODO: This is the existing code that needs to be preserved
 // Addressed accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
 // - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
@@ -15,12 +14,13 @@ function getLangAttribute() {
   return 'en';
 }
 
-/**
- * Get the full language attribute string for the HTML element
- * @returns {string} The full lang attribute (e.g., "en" or "en-US")
- */
 function getFullLangAttribute() {
   return 'en-US';
+}
+
+function addLangAttribute(element) {
+  element.lang = getFullLangAttribute();
+  return element;
 }
 
 /**
@@ -410,6 +410,66 @@ function handleAccessibilityIssues(issues) {
     unhandled: unhandled.length,
     unhandledIssues: unhandled
   };
+}
+
+/**
+ * Creates an accessible book form with proper labels, ARIA attributes, and validation
+ * @param {Object} options - Form options
+ * @param {string} options.formId - ID for the form
+ * @param {string} options.title - Title for the form
+ * @param {Array} options.fields - Array of field configurations
+ * @param {Function} options.onSubmit - Submit handler function
+ * @returns {Object} Accessible form object
+ */
+function createAccessibleBookForm(options) {
+  // Validate required options
+  if (!options.formId || !options.title || !options.fields || !options.onSubmit) {
+    throw new Error('Missing required form options');
+  }
+
+  // Create form structure with proper ARIA attributes
+  const form = {
+    id: options.formId,
+    role: 'form',
+    'aria-labelledby': `${options.formId}-title`,
+    titleElement: {
+      id: `${options.formId}-title`,
+      text: options.title,
+      level: 2
+    },
+    fields: [],
+    submitButton: createInPageButton({
+      text: 'Submit Book',
+      ariaLabel: `Submit ${options.title} form`,
+      onClick: options.onSubmit
+    })
+  };
+
+  // Process each field with accessibility features
+  options.fields.forEach((field, index) => {
+    const fieldId = `${options.formId}-field-${index}`;
+    const accessibleField = {
+      id: fieldId,
+      type: field.type || 'text',
+      label: {
+        for: fieldId,
+        text: field.label || `Field ${index + 1}`
+      },
+      required: field.required || false,
+      'aria-required': field.required ? 'true' : 'false',
+      'aria-describedby': field.description ? `${fieldId}-description` : undefined,
+      description: field.description ? {
+        id: `${fieldId}-description`,
+        text: field.description
+      } : undefined,
+      value: field.value || '',
+      placeholder: field.placeholder || ''
+    };
+
+    form.fields.push(accessibleField);
+  });
+
+  return form;
 }
 
 /**

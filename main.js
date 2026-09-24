@@ -33,10 +33,10 @@
   },
 
   fixFakeLink: function() {
-    const fakeLinks = document.querySelectorAll('a:not([href])');
+    const fakeLinks = document.querySelectorAll('.fake-link');
     fakeLinks.forEach(el => {
-      if (!el.hasAttribute('tabindex')) el.setAttribute('tabindex', '0');
-      if (!el.hasAttribute('role')) el.setAttribute('role', 'link');
+      if (!el.getAttribute('tabindex')) el.setAttribute('tabindex', '0');
+      if (!el.getAttribute('role')) el.setAttribute('role', 'link');
       el.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();

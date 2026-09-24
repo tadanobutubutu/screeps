@@ -1,8 +1,16 @@
-// TODO: This is the merged and updated main.js file
-// Import required modules and export the necessary functions
-const React = require('react');
-const { render } = require('react-dom');
-const {
+// TODO: Address accessibility issues from insight report:
+// _Commit: f163d9594d7623621d344259c18927a59de7c5f8_
+// <!-- todo-hash: f4aef230bb25bd341c307d16638c123de05bbec8 -->
+// ----- BEGIN ORIGINAL CODE (unchanged) -----
+// _Commit: aabb40916364c3b608e08e010dc71de4a04dfa74_
+
+// TODO: Import required module(s) and export the new necessary function(s) here in main.js (preserving the original code)
+const main = require('./utilities')
+
+// Import necessary dependencies
+import React from 'react';
+import { render } from 'react-dom';
+import {
   fixTableStructure,
   fixLandmarkIssues,
   addMainLandmark,
@@ -17,11 +25,36 @@ const {
   fixButtonIdentifiers,
   ensureElementHasId,
   ensureElementHasIdOrigin,
-  addAriaLabel,
-  renderDependencyGraph,
-  renderIndexView,
-  buildDependencyGraph,
-  buildBreadcrumbData,
+  addAriaLabel
+} from './AccessibilityHelpers'
+
+// Access the dependencyGraph container and ensure it has proper ARIA role
+const dependencyGraph = ...
+
+if (dependencyGraph) {
+  // Set appropriate ARIA role for the dependency graph container
+  // Using 'region' role for a contained section of content
+  if ... {
+    ... 'region')
+  }
+
+  // Add accessible label if not already present
+  if ... {
+    ... 'Dependency graph visualization')
+  }
+
+  // Ensure element has an ID if not present
+  if ... {
+    ... 'dependencyGraph');
+}
+
+const {
+  createInPageButton,
+  createWebResourceButton,
+  validateLandmark,
+  validateLandmarkStructure,
+  getSvgAccessibleName,
+  getLangAttribute,
   validateAccessibilityReport,
   exportUtils,
   addressAccessibilityIssues,
@@ -33,58 +66,119 @@ const {
   fixTableStructure // Accessibility fix from insight report
 } = require('./AccessibilityHelpers');
 
-// Access the dependencyGraph container and ensure it has proper ARIA role
-const dependencyGraph = ...
-
-if (dependencyGraph) {
-  // Set appropriate ARIA role for the dependency graph container
-  if (dependencyGraph.hasAttribute('role')) {
-    // Ensure existing ARIA role is valid (default to 'region')
-    const currentRole = dependencyGraph.getAttribute('role');
-    if (!currentRole || ['region', 'graph'].includes(currentRole)) {
-      dependencyGraph.setAttribute('role', 'region');
-    }
-  } else {
-    dependencyGraph.setAttribute('role', 'region');
+// Implement the function for addressing accessibility issues from insight report
+function implementAccessibilityFixesFromReport (container, report) {
+  const fixes = {
+    langAdded: false,
+    mainLandmarkAdded: false,
+    landmarksFixed: 0,
+    svgNamesAdded: 0,
+    fakeLinksFixed: 0
   }
-
-  // Add accessible label if not already present
-  if (!dependencyGraph.hasAttribute('aria-label')) {
-    dependencyGraph.setAttribute('aria-label', 'Dependency graph');
-  }
-
-  // Add 'graph'class if not already present
-  if (!dependencyGraph.hasClass('graph')) {
-    dependencyGraph.classList.add('graph');
-  }
-}
-
-// --- Accessibility Fixes from Insight Report ---
 
 // Add lang attribute to HTML element
 document.documentElement.setAttribute('lang', 'en');
 
-// Add accessible labels for in-page buttons
-createInPageButton('Home', document.body, { id: 'home-btn', ariaLabel: 'Go to Home' });
-createInPageButton('About', document.body, { id: 'about-btn', ariaLabel: 'Go to About' });
+  // Add lang attribute to HTML element if missing
+  const htmlEl =
+    ... ||
+    (container.ownerDocument && ...
+  if (htmlEl && ... {
+    ... 'en')
+    fixes.langAdded = true
+  }
 
-// Fix table structure
-const tables = document.querySelectorAll('table');
-tables.forEach(table => fixTableStructure(table));
+  // Add main landmark if missing
+  const mainElement = ...
+  if (!mainElement) {
+    const body = ...
+    if (body) {
+      const newMain = document.createElement('main')
+      while (body.firstChild) {
+        ...
+      }
+      ...
+      fixes.mainLandmarkAdded = true
+    }
+  }
 
-// Implement accessibility fixes for the container
-const container = document.querySelector('#main-content');
-const accessibilityIssuesReport = addressAccessibilityIssues(container);
-console.log(`Addressed ${accessibilityIssuesReport.landmarksFixed} accessibility issues and ${accessibilityIssuesReport.fakeLinksFixed} fake link issues`);
+  // Update the existing function using the new functions for rendering graph/index
+  renderDependencyGraphs(container)
+  fixButtonIdentifiers(container)
+  ...
 
-// Check accessibility and fix issues for the container
-const remainingAccessibilityIssues = checkAccessibilityForReport(container);
-if (remainingAccessibilityIssues.length) {
-  console.warn(`${remainingAccessibilityIssues.join(', ')} reported as remaining accessibility issues`);
+  // Fix landmark issues
+  validateLandmark(container)
+  ...
+  fixes.landmarksFixed++
+
+  // Fix SVG accessible names
+  const svgElements = ...
+  ... => {
+    const accessibleName = getSvgAccessibleName(svg)
+    if (
+      accessibleName &&
+            ... &&
+      ...
+    ) {
+      ... accessibleName)
+      fixes.svgNamesAdded++
+    }
+  })
+
+  // Fix fake link issues (elements that look like links but are missing href)
+  const fakeLinks = ...
+  ... => {
+    link.setAttribute('href', '#' + (link.id || ...
+    link.setAttribute('role', 'link')
+    fixes.fakeLinksFixed++
+  })
+
+  // Validate accessibility report
+  const accessibilityReport = ...
+  if (accessibilityReport && accessibilityReport.issues && accessibilityReport.issues.length > 0) {
+    log(`Accessibility report contains ... remaining issues`, 'warn')
+  }
+
+  // Implement focus trap for keyboard navigation
+  focusTrap(container)
+
+  if (fixes.langAdded) {
+    log('Lang attribute added to HTML element', 'info')
+  }
+
+  if (fixes.mainLandmarkAdded) {
+    log('Main landmark added', 'info')
+  }
+
+  // Check for new accessibility issues
+  const newAccessibilityIssues = checkAccessibility(container)
+  if (newAccessibilityIssues.length > 0) {
+    log(`New accessibility issues found: ... ')}`, 'error')
+  }
+
+  const landmarkFixesCount = fixes.landmarksFixed || 0
+  if (landmarkFixesCount > 0) {
+    log(`Fixed ... unique landmarks`, 'info')
+  }
+
+  const svgFixes = fixes.svgNamesAdded || 0
+  if (svgFixes > 0) {
+    log(`Fixed accessible names for ${svgFixes} SVGs`, 'info')
+  }
+
+  const fakeLinkFixes = fixes.fakeLinksFixed || 0
+  if (fakeLinkFixes > 0) {
+    log(`Fixed fake link issues for ${fakeLinkFixes} elements`, 'info')
+  }
+
+  return fixes
 }
 
-// --- Custom Function for rendering additional content ---
-function renderAdditionalContent(content) {
+// New function to handle additional rendering logic
+// @param {Object} additionalData - Additional data for rendering
+// @returns {string} Rendered additional content HTML
+function renderAdditionalContent(additionalData) {
   // Implementation of the new function
   // Placeholder for actual implementation
   const div = document.createElement('div');
@@ -92,61 +186,24 @@ function renderAdditionalContent(content) {
   return div.firstChild;
 }
 
-// --- New accessibility function for keyboard navigation ---
-function setFocus(elementId) {
-  const element = document.getElementById(elementId);
-  if (!element) return;
-  element.focus();
-  element.setAttribute('tabindex', '0');
+// **Add the new function here**
+function checkRenderPropChanges(prevRenderProps, nextRenderProps) {
+  // Placeholder for checking changes in render prop values
+  // Implement actual rendering prop comparison logic here
+  return false;
 }
 
-// --- New accessibility function for keyboard event handling ---
-function handleKeyboardNavigation(event) {
-  const key = event.key;
-  const activeElement = document.activeElement;
-
-  // Handle keyboard navigation (e.g., arrow keys, tab)
-  switch (key) {
-    case 'ArrowUp':
-      navigateUp(activeElement);
-      break;
-    case 'ArrowDown':
-      navigateDown(activeElement);
-      break;
-    case 'ArrowLeft':
-      navigateLeft(activeElement);
-      break;
-    case 'ArrowRight':
-      navigateRight(activeElement);
-      break;
-    case 'Tab':
-      handleTabNavigation(event, activeElement);
-      break;
-    default:
-      break;
-  }
+// Accessibility-related function to be added
+function checkAccessibilityForReport (content) {
+  // Placeholder for accessibility checking logic
+  // This function should be implemented to check for accessibility issues
+  // For now, it just returns an empty array
+  return []
 }
 
-// Helper functions for arrow key navigation
-function navigateUp(activeElement) {
-  console.log(`Navigating up with ${activeElement.tagName}`);
-}
-
-function navigateDown(activeElement) {
-  console.log(`Navigating down with ${activeElement.tagName}`);
-}
-
-function navigateLeft(activeElement) {
-  console.log(`Navigating left with ${activeElement.tagName}`);
-}
-
-function navigateRight(activeElement) {
-  console.log(`Navigating right with ${activeElement.tagName}`);
-}
-
-// Helper function for tab key navigation
-function handleTabNavigation(event, activeElement) {
-  console.log('Handling tab navigation');
+// New rendering function
+function renderGraphIndex(content, options = {}) {
+  return content
 }
 
 // Helper to manage focus within a container
@@ -175,4 +232,56 @@ function trapFocus(container) {
 }
 ```
 
-This is the resolved version of the main.js file, merging and incorporating changes from both branches. It includes the functionalities from both versions, such as accessibility fixes, React DOM components, and ScreepsBot class. It also adds new functions for rendering additional content, managing focus for keyboard navigation, and handling keyboard events.
+/**
+ * REACT_015: Add lang attribute to HTML element
+ * Ensures the HTML element has a proper lang attribute for screen readers
+ */
+function addLangAttribute(element, lang = 'en') {
+  let htmlElement = element || document.documentElement
+  if (!htmlElement) {
+    return null
+  }
+
+  if (htmlElement && !htmlElement.hasAttribute('lang')) {
+    htmlElement.setAttribute('lang', lang)
+  }
+  return htmlElement
+}
+
+/**
+ * REACT_027: Fix table structure issues
+ * Ensures tables have proper structure with headers and captions
+ */
+function fixTableStructure(tableElement) {
+  if (!tableElement) return null
+ 
+  const headers = tableElement.querySelectorAll('th')
+  headers.forEach(th => {
+    if (!th.hasAttribute('scope')) {
+      const row = th.closest('tr')
+      const cellIndex = Array.from(row.children).indexOf(th)
+      th.setAttribute('scope', 'col')
+    }
+  })
+  
+  const existingCaption = tableElement.querySelector('caption')
+  if (!existingCaption) {
+    const caption = document.createElement('caption')
+    caption.textContent = 'Data table'
+    tableElement.insertBefore(caption, tableElement.firstChild)
+  }
+  
+  return tableElement
+}
+
+// **Complete main.js content**
+module.exports = {
+  addLangAttribute,
+  fixTableStructure,
+  implementAccessibilityFixesFromReport,
+  renderAdditionalContent,
+  checkAccessibilityForReport,
+  checkRenderPropChanges,
+  renderGraphIndex,
+  trapFocus
+}

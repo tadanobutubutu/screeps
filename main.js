@@ -109,7 +109,7 @@ function addSvgAccessibleNames(document) {
 // REACT_025: Ensure unique landmarks
 function ensureUniqueLandmarks(document) {
   // Ensure only one main landmark
-  const mains = document.querySelectorAll('[role="main"]');
+  const mains = document.querySelectorAll('[role="main"], main');
   
   if (mains.length > 1) {
     // Keep the first main, remove role="main" from others or convert them
@@ -124,7 +124,7 @@ function ensureUniqueLandmarks(document) {
     }
   }
   
-  // Ensure unique IDs for landmarks with label
+  // Ensure unique IDs for landmarks with labels
   const landmarks = document.querySelectorAll('[role="navigation"], [role="contentinfo"]');
   const seenIds = new Set();
   
@@ -132,7 +132,7 @@ function ensureUniqueLandmarks(document) {
     const id = landmark.id;
     if (id) {
       if (seenIds.has(id)) {
-        landmark.id = `landmark-${Math.random().toString(36).substr(2, 9)}`;
+        landmark.id = `${id}-${Math.random().toString(36).substr(2, 9)}`;
       }
       seenIds.add(landmark.id);
     }
@@ -144,7 +144,7 @@ function ensureUniqueLandmarks(document) {
 // REACT_036: Fix fake link issue
 function fixFakeLinkIssue(document) {
   // Find elements that look like links but aren't <a> tags
-  const clickableElements = document.querySelectorAll('[onclick]');
+  const clickableElements = document.querySelectorAll('[onclick], [role="link"]');
   let count = 0;
   
   clickableElements.forEach(element => {
@@ -154,9 +154,9 @@ function fixFakeLinkIssue(document) {
     if (tagName !== 'a' && !hasHref) {
       // Check if it should be a real link
       const isInteractive = element.getAttribute('role') === 'link' || 
-                           element.tabIndex >= 0 && element.onclick;
+                           (tagName === 'span' && element.style.cursor === 'pointer');
       
-      if (isInteractive && tagName !== 'button') {
+      if (isInteractive && tagName !== 'a') {
         // Add accessible name
         const text = element.textContent.trim();
         if (text) {
@@ -171,7 +171,7 @@ function fixFakeLinkIssue(document) {
 }
 
 // TODO: Implement this function for checking link and button accessibility
-function checkLinksAndButtonsAccessibility(document) {
+function checkLinksAndButtons(document) {
   const links = document.querySelectorAll('a, button, [role="button"]');
   const issues = {
     linksWithoutText: [],
@@ -217,26 +217,23 @@ function applyAccessibilityFixes(document, options = {}) {
   const lang = options.lang || 'en';
   
   return {
-    langAdded: addLangAttribute(document, lang),
     tablesFixed: fixTableStructureIssues(document),
     mainsAdded: addMainLandmark(document),
     svgsFixed: addSvgAccessibleNames(document),
     landmarksEnsured: ensureUniqueLandmarks(document),
     linksFixed: fixFakeLinkIssue(document),
-    linkButtonIssues: checkLinksAndButtonsAccessibility(document),
-    applyAccessibilityFixes: applyAccessibilityFixes
+    buttonsAndLinksChecked: checkLinksAndButtons(document),
   };
 }
 
 // Export all functions
 module.exports = {
   myFunction,
-  addLangAttribute,
   fixTableStructureIssues,
   addMainLandmark,
   addSvgAccessibleNames,
   ensureUniqueLandmarks,
   fixFakeLinkIssue,
-  checkLinksAndButtonsAccessibility,
+  checkLinksAndButtons,
   applyAccessibilityFixes
 };

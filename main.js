@@ -19,8 +19,13 @@ import { dataProcessor } from './dataProcessor.js';
  * @returns {HTMLElement} The created button element
  */
 function checkLandmarkElement(id) {
-  const element = ...
-  return element !== null;
+  const element = document.getElementById(id);
+  if (!element) {
+    return false;
+  }
+  const role = element.getAttribute('role');
+  const landmarkRoles = ['navigation', 'main', 'banner', 'contentinfo', 'complementary', 'search', 'form', 'region'];
+  return role && landmarkRoles.includes(role);
 }
 
 export function createInPageButton(buttonText, onClickHandler) {

@@ -119,178 +119,104 @@ function init() {
     }
   };
 
-  // REACT_041: Add accessible names to 2 SVGs
-  const addSvgAccessibleNames = () => {
-    if (typeof document !== 'undefined') {
-      const svgs = document.querySelectorAll('svg');
-      svgs.forEach((svg, index) => {
-        if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
-          svg.setAttribute('role', 'img');
-          svg.setAttribute('aria-label', `Graphic ${index + 1}`);
-        }
-      });
+// Add lang attribute to HTML element
+function addLangAttribute() {
+    // Implementation goes here
+    const htmlElement = document.querySelector('html');
+    if (htmlElement) {
+        htmlElement.setAttribute('lang', 'en'); // Example value, should be dynamically set
     }
-  };
+}
 
-  // REACT_036: Fix 1 fake link issue
-  const fixFakeLinkIssue = () => {
-    if (typeof document !== 'undefined') {
-      const spans = document.querySelectorAll('span[role="button"], span[onclick], a[href="#"]');
-      spans.forEach(span => {
-        span.setAttribute('tabindex', '0');
-        span.setAttribute('role', 'button');
-        if (!span.hasAttribute('aria-label') && !span.textContent.trim()) {
-          span.setAttribute('aria-label', 'Button');
-        }
-      });
-    }
-  };
-
-  // REACT_037: Google sign-in logic
-  const googleSignIn = () => {
-    if (typeof window !== 'undefined' && window.google) {
-      window.google.accounts.id.initialize({
-        client_id: 'your-client-id.apps.googleusercontent.com',
-        callback: (response) => {
-          console.log('Google sign-in response:', response);
-        }
-      });
-    }
-  };
-
-  // REACT_040: Replace my-button with actual button id for accessibility
-  const fixButtonIdentifiers = () => {
-    if (typeof document !== 'undefined') {
-      const myButtons = document.querySelectorAll('my-button');
-      myButtons.forEach(button => {
-        const newButton = document.createElement('button');
-        if (button.id) {
-          newButton.id = button.id;
-        } else {
-          newButton.id = `btn-${Math.random().toString(36).substr(2, 9)}`;
-        }
-        // Copy attributes
-        Array.from(button.attributes).forEach(attr => {
-          if (attr.name !== 'id') {
-            newButton.setAttribute(attr.name, attr.value);
-          }
-        });
-        while (button.firstChild) {
-          newButton.appendChild(button.firstChild);
-        }
-        button.parentNode.replaceChild(newButton, button);
-      });
-    }
-  };
-
-  // REACT_042: Ensure dependencyGraph container has proper ARIA role
-  const dependencyGraphContainer = () => {
-    if (typeof document !== 'undefined') {
-      const containers = document.querySelectorAll('[id="dependencyGraph"], .dependencyGraph, [data-dependency-graph]');
-      containers.forEach(container => {
-        if (!container.getAttribute('role')) {
-          container.setAttribute('role', 'region');
-        }
-        if (!container.getAttribute('aria-label') && !container.getAttribute('aria-labelledby')) {
-          container.setAttribute('aria-label', 'Dependency Graph');
-        }
-      });
-    }
-  };
-
-  // ADD: New function for handling the new accessibility issues from the insight report
-  function addressNewAccessibilityIssues() {
-    // ... code to handle the new accessibility issues
-    addLangAttribute();
-    fixTableStructure();
-    validateLandmark();
-    validateLandmarkStructure();
-    getSvgAccessibleName();
-    fixFakeLinkIssue();
-    fixButtonIdentifiers();
-    dependencyGraphContainer();
-  }
-
-  /**
-   * Function to address accessibility issues from an insight report.
-   * This function should implement the logic to take an insight report and apply fixes based on the report's findings.
-   *
-   * @param {Object} insightReport - An object containing details about the accessibility issues.
-   * @returns {void}
-   */
-  function addressAccessibilityInsights(insightReport) {
-    // Process the insight report and apply fixes based on findings.
-    // For now, we call the existing function that applies all fixes.
-    // In the future, this could use the insight report to apply specific fixes.
-    console.log('Processing accessibility insights report:', insightReport);
-    addressNewAccessibilityIssues();
-  }
-
-  // Call the additional accessibility functions
-  addLangAttribute();
-  fixTableStructure();
-  fixLandmarkIssues();
-  addMainLandmark();
-  addLandmarkRegions();
-  ensureUniqueLandmarks();
-  addSvgAccessibleNames();
-  fixFakeLinkIssue();
-  fixButtonIdentifiers();
-  dependencyGraphContainer();
+// Fix 26 table structure issues
+function fixTableStructure() {
+    // Implementation goes here
+    // Example: Ensure that tables have `role="table"` and `aria-label` attributes
+    const tables = document.querySelectorAll('table');
+    tables.forEach((table) => {
+        table.setAttribute('role', 'table');
+        const label = `Table: ${table.getAttribute('id') || 'Table'} `;
+        table.setAttribute('aria-label', label);
+    });
 }
 
 // Add/fix 4 landmark issues
 function fixLandmarkIssues() {
     // Implementation goes here
+    // Example: Add `role="navigation"` to `<nav>` elements
+    const navElements = document.querySelectorAll('nav');
+    navElements.forEach((nav) => {
+        nav.setAttribute('role', 'navigation');
+    });
 }
 
 function addMainLandmark() {
     // Implementation goes here
+    // Example: Add `role="main"` to `<main>` element
+    const mainElement = document.querySelector('main');
+    if (mainElement) {
+        mainElement.setAttribute('role', 'main');
+    }
 }
 
 function addLandmarkRegions() {
     // Implementation goes here
+    // Example: Add `role="region"` to `<section>` elements
+    const sectionElements = document.querySelectorAll('section');
+    sectionElements.forEach((section) => {
+        section.setAttribute('role', 'region');
+    });
 }
 
 // Ensure unique landmarks
 function ensureUniqueLandmarks() {
     // Implementation goes here
-    const landmarks = ['header', 'footer', 'nav', 'main', 'section', 'article'];
-    const seenLandmarks = new Set();
-
-    landmarks.forEach((landmark) => {
-        const elements = document.getElementsByTagName(landmark);
+    // Example: Ensure that landmark roles are unique across the document
+    const landmarkRoles = ['banner', 'navigation', 'search', 'main', 'article', 'region', 'contentinfo', 'complementary', 'form'];
+    const usedRoles = new Set();
+    landmarkRoles.forEach((role) => {
+        const elements = document.querySelectorAll(`[role="${role}"]`);
         elements.forEach((element) => {
-            if (!seenLandmarks.has(element.id)) {
-                seenLandmarks.add(element.id);
+            if (usedRoles.has(role)) {
+                console.warn(`Duplicate landmark role: ${role} on element: ${element}`);
             } else {
-                console.error(`Duplicate landmark element with id: ${element.id}`);
+                usedRoles.add(role);
             }
         });
     });
 }
 
-function uniqueLandmarks() {
-    // Implementation goes here
-    ensureUniqueLandmarks();
-}
-
 // Add accessible names to 2 SVGs
 function addSvgAccessibleNames() {
     // Implementation goes here
+    // Example: Add `aria-label` to SVGs
+    const svgs = document.querySelectorAll('svg');
+    svgs.forEach((svg) => {
+        const label = svg.getAttribute('title') || 'SVG Image';
+        svg.setAttribute('aria-label', label);
+    });
 }
 
 function addAccessibleNamesToSVGs() {
     // Implementation goes here
+    // Example: Add `aria-label` to SVGs
+    addSvgAccessibleNames();
 }
 
 // Fix 1 fake link issue
 function fixFakeLinkIssue() {
     // Implementation goes here
+    // Example: Add `role="presentation"` to fake links
+    const fakeLinks = document.querySelectorAll('.fake-link');
+    fakeLinks.forEach((link) => {
+        link.setAttribute('role', 'presentation');
+    });
 }
 
 function fixFakeLinkIssues() {
     // Implementation goes here
+    // Example: Add `role="presentation"` to fake links
+    fixFakeLinkIssue();
 }
 
 // Google sign-in logic
@@ -301,11 +227,21 @@ function googleSignIn() {
 // Replace my-button with actual button id for accessibility
 function fixButtonIdentifiers() {
     // Implementation goes here
+    // Example: Replace placeholder button id with an actual one
+    const button = document.getElementById('my-button');
+    if (button) {
+        button.id = 'actual-button-id';
+    }
 }
 
 // Ensure dependencyGraph container has proper ARIA role
 function ensureDependencyGraphARIA() {
     // Implementation goes here
+    // Example: Add `role="application"` to the dependency graph container
+    const dependencyGraph = document.getElementById('dependencyGraph');
+    if (dependencyGraph) {
+        dependencyGraph.setAttribute('role', 'application');
+    }
 }
 
 // New function to render dependency graphs

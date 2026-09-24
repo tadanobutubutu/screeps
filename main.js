@@ -623,6 +623,114 @@ const accessibilityUtils = {
     }
 };
 
+// New focus trap implementation with enhanced features
+function newFocusTrap(element, options = {}) {
+    const {
+        initialFocus = true,
+        returnFocusOnDeactivate = true,
+        escapeDeactivates = true
+    } = options;
+    
+    if (!element) {
+        throw new Error('newFocusTrap: element is required');
+    }
+
+    const focusableElements = element.querySelectorAll(
+        'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    );
+    
+    // If no focusable elements, delegate to original trapFocus
+    if (focusableElements.length === 0) {
+        return accessibilityUtils.trapFocus(element);
+    }
+
+    const first = focusableElements[0];
+    const last = focusableElements[focusableElements.length - 1];
+    let previouslyFocused = document.activeElement;
+
+    const handleTabKey = (e) => {
+        if (e.key !== 'Tab') return;
+        
+        if (e.shiftKey && document.activeElement === first) {
+            last.focus();
+            e.preventDefault();
+        } else if (!e.shiftKey && document.activeElement === last) {
+            first.focus();
+            e.preventDefault();
+        }
+    };
+
+    const handleEscape = (e) => {
+        if (e.key === 'Escape' && escapeDeactivates) {
+            deactivate();
+        }
+    };
+
+    const activate = () => {
+        element.addEventListener('keydown', handleTabKey);
+        element.addEventListener('keydown', handleEscape);
+        
+        if (initialFocus && first) {
+            first.focus();
+        }
+    };
+
+    const deactivate = () => {
+        element.removeEventListener('keydown', handleTabKey);
+        element.removeEventListener('keydown', handleEscape);
+        
+        if (returnFocusOnDeactivate && previouslyFocused && typeof previouslyFocused.focus === 'function') {
+            previouslyFocused.focus();
+        }
+    };
+
+    activate();
+
+    return {
+        activate,
+        deactivate,
+        updatePreviouslyFocused: (el) => {
+            previouslyFocused = el;
+        }
+    };
+}
+
+function renderDependencyGraph(data, containerId) {
+    const result = renderDependencyGraphs(data);
+    const container = document.getElementById(containerId || 'dependency-graph');
+    
+    if (container) {
+        fixDependencyGraphAria(container);
+        fixButtonIdentifiers(container);
+        addMainLandmarkToIndex(container);
+        
+        container.innerHTML = result.html || '';
+        container.setAttribute('role', 'region');
+        if (!container.getAttribute('aria-label')) {
+            container.setAttribute('aria-label', 'Dependency graph visualization');
+        }
+    }
+    
+    return result;
+}
+
+function renderIndex() {
+    // Implementation for rendering index
+}
+
+class ScreetsBot {
+    validateTableAccessibility(html) {
+        if (html) {
+            // Extract table structure from the provided HTML and check its accessibility according to the criteria
+            // ... (Add the logic to validate table accessibility)
+        }
+    }
+
+    validateTableStructure(html) {
+        // Implementation for validating table structure
+    }
+}
+
 // Utility functions for ensuring elements have IDs and adding labels
 const ensureElementIdLocal = (element) => {
   if (element && !element.id) {

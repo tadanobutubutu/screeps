@@ -142,12 +142,12 @@ function setConfig (config) {
  * Validates that all tables in the application meet accessibility standards
  * @returns {Object} Validation result with isValid flag and array of errors
  */
-function validateTableAccessibility () {
-  const errors = []
-  const tables = getTables()
+function validateTableAccessibility() {
+  const errors = [];
+  const tables = getTables();
 
   for (let i = 0; i < tables.length; i++) {
-    const table = tables[i]
+    const table = tables[i];
 
     // Check if table has headers
     if (!table.headers || !Array.isArray(table.headers) || table.headers.length === 0) {
@@ -189,7 +189,7 @@ function validateTableAccessibility () {
       if (svg.getAttribute('aria-label') === null) {
         svg.setAttribute('aria-label', 'SVG description')
       }
-    })
+    });
 
     // Ensure unique landmarks (2 issues)
     const landmarks = ['navigation', 'search', 'main', 'contentinfo', 'complementary', 'form']
@@ -402,18 +402,67 @@ function log (message, level = 'info') {
   console[level](`[${timestamp}] [${level.toUpperCase()}] ${message}`)
 }
 
-// TODO: This is the existing code that needs to be preserved
-// (This comment remains as-is)
-// _Commit: eef4b6be04a5e2cd61b75c43cfe2dff2da0857ca2_
-// <!-- todo-hash: 4798ccecb0ac0a8c0f11ea9eebbacc3bee5d9b2 -->
-// _Commit: f8051b788bad4952d8493f08d3c7d22a06ff80d3_
-// <!-- todo-hash: b498b47abee4b3f29c69a9762237d968a50cc419 -->
-// _Commit: 30b5f0892a59d5ec914a59aa66e32dc3a3eb059e_
-// <!-- todo-hash: 1f81632535b0749b809ac49f5e1c81cf4389f9c1 -->
+// New function to initialize accessibility features
+function initAccessibility() {
+  // Set language attribute if not present
+  if (!document.documentElement.lang) {
+    document.documentElement.lang = 'en';
+  }
 
-// _Commit: 77c7358bacc3abbeb20b032f1f59ff7b04023c4c_
+  // Add ARIA attributes to SVGs if missing
+  const svgs = document.querySelectorAll('svg');
+  svgs.forEach(svg => {
+    if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-hidden')) {
+      svg.setAttribute('aria-hidden', 'true');
+    }
+  });
 
-// <!-- todo-hash: 2940d94829911b172237e001ec7271ce7347833e -->
+  // Ensure main content has proper landmark
+  const mainContent = document.querySelector('main');
+  if (mainContent && !mainContent.getAttribute('role')) {
+    mainContent.setAttribute('role', 'main');
+  }
+
+  // Add skip link for keyboard users
+  const skipLink = document.createElement('a');
+  skipLink.href = '#main-content';
+  skipLink.className = 'skip-link';
+  skipLink.textContent = 'Skip to main content';
+  skipLink.style.position = 'absolute';
+  skipLink.style.left = '-9999px';
+  skipLink.style.top = '0';
+  skipLink.style.zIndex = '1000';
+  skipLink.addEventListener('focus', () => {
+    skipLink.style.left = '0';
+  });
+  skipLink.addEventListener('blur', () => {
+    skipLink.style.left = '-9999px';
+  });
+  document.body.insertBefore(skipLink, document.body.firstChild);
+
+  // Add focus styles for keyboard navigation
+  const style = document.createElement('style');
+  style.textContent = `
+    :focus:not(.focus-visible) {
+      outline: none;
+    }
+    .focus-visible {
+      outline: 2px solid #4D90FE;
+    }
+  `;
+  document.head.appendChild(style);
+
+  // Handle focus visibility
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Tab') {
+      document.body.classList.add('keyboard-navigation');
+    }
+  });
+
+  document.addEventListener('mousedown', () => {
+    document.body.classList.remove('keyboard-navigation');
+  });
+}
 
 module.exports = {
   accessibilityUtils,

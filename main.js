@@ -1,4 +1,4 @@
-// TODO: Address accessibility issues from insight report: ✓ Implemented
+// TODO: This is the existing code that needs to be preserved
 
 // main.js - Combined utility and accessibility features
 
@@ -172,7 +172,7 @@ function addressAccessibilityIssues(insightReport) {
       });
       break;
     default:
-      console.warn(`Unknown accessibility issue type: ${insightReport.issue}`);
+      console.warn(`Unknown accessibility issue type: ${insightReport.issue} `);
   }
 }
 
@@ -285,7 +285,7 @@ function initializeAccessibility() {
  * @returns {SVGElement} - The SVG element with accessibility props applied
  */
 function addSvgAccessibilityProps(svgElement, options = {}) {
-  // Return null/undefined as-is if not a valid SVG element
+  // Return null/undefined as-as if not a valid SVG element
   if (!svgElement) {
     return svgElement;
   }

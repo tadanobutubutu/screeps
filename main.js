@@ -31,6 +31,10 @@ const {
   fixTableStructure,
   addMainLandmark,
   ensureUniqueLandmarks,
+  // Removed duplicate 'uniqueLandmarks' and 'addSvgAccessibleNames' exports
+  // fixSvgAccessibleNames, // Assuming this is a typo for 'addSvgAccessibleNames'
+  fixFakeLinkIssue,
+  fixFakeLinkIssues,
   googleSignIn,
   decodeJwtResponse,
   fixLandmarkIssues,
@@ -602,6 +606,8 @@ module.exports = {
   fixTableStructure,
   addMainLandmark,
   ensureUniqueLandmarks,
+  fixFakeLinkIssue,
+  fixFakeLinkIssues,
   googleSignIn,
   decodeJwtResponse,
   fixLandmarkIssues,

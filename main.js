@@ -11,95 +11,67 @@ const fastMap = require('fast-map');
 const path = require('path');
 const { a11y } = require('@accessible/react');
 
-import React, { useState, useEffect, useRef } from 'react';
-import { List, Button } from 'antd';
-import { useSelector, useDispatch } from 'react-redux';
-const { setDependencyGraph } = require('./actions/dependencyGraph');
-const { sortByTitle, sortByAuthor, generateKey, BookItem, addBook, enhanceAccessibilityForAddBook } = require('./bookFunctions');
-const accessiblyHelper = require('./accessibly-helper');
-const { initializeApp } = require('./app.js');
-const { registerSW } = require('effector-sw');
-require('./styles.css');
-require('./styles.less');
-const { calculateSum } = require('./utils');
-const { getLangAttribute as getLangAttributeFromUtils, getFullLangAttribute } = require('./utils/accessibilityUtils');
-const { validateTableAccessibility as validateTableAccessibilityFromUtils, validateTableStructure as validateTableStructureFromUtils } = require('./utils/tableAccessibilityUtils');
-const { validateLandmark as validateLandmarkFromUtils, validateLandmarkStructure as validateLandmarkStructureFromUtils } = require('./utils/landmarkUtils');
-const { validateLinkAccessibility as validateLinkAccessibilityFromUtils, handleFakeLinks as handleFakeLinksFromUtils } = require('./utils/linkAccessibilityUtils');
-const { CONFIG } = require('./utils/constants');
-const App = require('./App');
-const { helper, formatDate } = require('./utils');
-const { someFunction } = require('./utils/someFunction');
-const { fetchUser, clearCache } = require('./utils/user');
-const * as newFunctions = require('./newFunctions');
+/**
+ * Main application entry point with accessibility features
+ */
+function initializeAccessibility() {
+  const accessibleName = getAccessibleName(document.body);
+  if (accessibleName) {
+    // Use accessibleName for screen readers
+    console.log('Accessible name found:', accessibleName);
+  }
 
-// Import from AccessibilityHelpers for comprehensive functionality
-const {
-  createInPageButton,
-  createWebResourceButton,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  getLangAttribute,
-  validateAccessibilityReport,
-  exportUtils,
-  addressAccessibilityIssues,
-  ensureElementHasIdOrigin,
-  fixDependencyGraphAria,
-  addMainLandmarkToIndex,
-  focusTrap,
-  checkAccessibility,
-  addLangAttribute: addLangAttributeFromHelpers,
-  fixTableStructure,
-  fixLandmarkIssues,
-  addMainLandmark: addMainLandmarkFromHelpers,
-  addLandmarkRegions,
-  ensureUniqueLandmarks: ensureUniqueLandmarksFromHelpers,
-  uniqueLandmarks,
-  addSvgAccessibleNames: addSvgAccessibleNamesFromHelpers,
-  addAccessibleNamesToSVGs,
-  fixFakeLinkIssue,
-  fixFakeLinkIssues,
-  googleSignIn,
-  fixButtonIdentifiers,
-  addAriaLabel,
-  renderAdditionalContent,
-  implementAccessibilityFixesFromReport,
-  ensureElementHasId,
-  fixAllFakeLinks,
-  setHtmlLangAttribute,
-  detectAndSetLang,
-  validateTableStructureForAccessibility,
-  checkAccessibilityForReport,
-  setElementLabel,
-  setFocus,
-  handleKeyboardNavigation,
-  validatePersonName,
-  validateLandmarkValidation,
-  validateLandmarkStructureValidation,
-  getSvgAccessibleNameValidation,
-  validateAccessibilityReportValidation,
-  validateAdditionalDataWrap,
-  calculateComplexityValidation,
-  renderGraphIndexValidation,
-  renderDependencyGraphValidation,
-  renderIndexValidation,
-  validateDeps,
-  ensureElementAccessibility,
-  prefersReducedMotion,
-  renderSimpleDependencyGraph,
-  getActiveSessionsCount,
-  validateSession,
-  handleCredentialResponse,
-  accessibilityUtils: accessibilityHelpers,
-  renderDependencyGraphs,
-  setupFocusTrap: setupFocusTrapFromHelpers,
-  restoreFocus: restoreFocusFromHelpers,
-  createAnnouncer: createAnnouncerFromHelpers,
-  initializeAccessibility: initializeAccessibilityFromHelpers,
-  newFunction,
-  a11yStore
-} = require('./AccessibilityHelpers');
+  const svgElements = document.querySelectorAll('svg');
+  setSvgAttributes(svgElements);
+  
+  checkLandmarkElements();
+}
+
+/**
+ * Gets the accessible name for an element
+ * @param {Element} element - The element to get accessible name for
+ * @returns {string|null} The accessible name or null
+ */
+function getAccessibleName(element) {
+  if (!element) return null;
+  
+  // Check for aria-label
+  const ariaLabel = element.getAttribute('aria-label');
+  if (ariaLabel) return ariaLabel;
+  
+  // Check for aria-labelledby
+  const ariaLabelledBy = element.getAttribute('aria-labelledby');
+  if (ariaLabelledBy) {
+    const labelledElement = document.getElementById(ariaLabelledBy);
+    if (labelledElement) return labelledElement.textContent;
+  }
+  
+  // Check for title attribute
+  const title = element.getAttribute('title');
+  if (title) return title;
+  
+  return null;
+}
+
+/**
+ * Sets accessibility attributes on SVG elements
+ * @param {NodeList} svgElements - Collection of SVG elements
+ */
+function setSvgAttributes(svgElements) {
+  svgElements.forEach((svg, index) => {
+    if (!svg.id) {
+      svg.id = `svg-accessible-${index}`;
+    }
+    svg.setAttribute('role', 'img');
+    
+    const title = svg.querySelector('title');
+    if (title && !svg.getAttribute('aria-labelledby')) {
+      const titleId = `svg-title-${index}`;
+      title.id = titleId;
+      svg.setAttribute('aria-labelledby', titleId);
+    }
+  });
+}
 
 // Dependency imports for additional functionality
 const { dependencyGraphContent } = require('./dependencyGraphContent');
@@ -136,221 +108,59 @@ const {
   ensureUniqueLandmarks: ensureUniqueLandmarksFromUtils
 } = require('./utils');
 
-// Configuration for server-side functionality
-const CONFIG = {
-    dataPath: './data',
-    maxResults: 100,
-    name: 'Screeps',
-    version: '1.0.0',
-    debug: false,
-    apiUrl: process.env.API_URL || 'https://api.example.com',
-    timeout: 5000
+      const explicitRole = element.getAttribute('role');
+      if (explicitRole && explicitRole !== landmarkRole) {
+        console.warn(`Invalid landmark role: ${landmarkRole} for ${tagName}`);
+      }
+    });
+  };
+
+  checkLandmarkElement('main', 'main', {
+    'main': 'main',
+    'header': 'banner',
+    'nav': 'navigation',
+    'footer': 'contentinfo',
+    'aside': 'complementary',
+    'form': 'form',
+    'section': 'region'
+  });
+
+  checkLandmarkElement('header[role="banner"]', 'banner');
+  checkLandmarkElement('nav[role="navigation"]', 'navigation');
+  checkLandmarkElement('footer[role="contentinfo"]', 'contentinfo');
+  checkLandmarkElement('aside[role="complementary"]', 'complementary');
+  checkLandmarkElement('[role="form"]', 'form', 'form');
+}
+
+// Export the new function and sampleInsightReport (both versions agreed to do this)
+export { checkLandmarkElements, sampleInsightReport, initializeAccessibility, getAccessibleName, setSvgAttributes };
+
+const sampleInsightReport = {
+  title: 'Quarterly Performance Report',
+  sections: [
+    {
+      heading: 'Sales Overview',
+      content: 'Total sales increased by 15% compared to last quarter.'
+    },
+    {
+      heading: 'Customer Satisfaction',
+      content: 'Average satisfaction score: 4.2 out of 5.'
+    }
+  ]
 };
 
-// Landmark selectors for DOM queries
-const landmarkSelectors = [
-    '[role="banner"]',
-    '[role="navigation"]',
-    '[role="main"]',
-    '[role="complementary"]',
-    '[role="contentinfo"]',
-    '[role="region"]',
-    'header:not([role])',
-    'nav:not([role])',
-    'main:not([role])',
-    'footer:not([role])',
-    'aside:not([role])',
-    'section:not([role])'
-];
+function countDependencies() {
+  const fs = require('fs');
+  const packageJsonPath = __dirname + '/package.json';
+  const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
 
 const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region'];
 
-// Application state
-let isInitialized = false;
-let dependencyGraph = null;
-
-const appState = {
-    initialized: false,
-    data: null,
-    cache: new Map()
-};
-
-// Utility functions for accessibility
-const accessibilityUtils = {
-    initSkipLink: () => {
-        const skipLink = document.querySelector('.skip-link');
-        if (skipLink) {
-            skipLink.addEventListener('click', (e) => {
-                e.preventDefault();
-                const targetId = skipLink.getAttribute('href').replace('#', '');
-                const target = document.getElementById(targetId);
-                if (target) {
-                    target.setAttribute('tabindex', '-1');
-                    target.focus();
-                }
-            });
-        }
-    },
-
-    trapFocus: (element) => {
-        const focusableElements = element.querySelectorAll(
-            'a[href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-        );
-        const firstElement = focusableElements[0];
-        const lastElement = focusableElements[focusableElements.length - 1];
-
-        element.addEventListener('keydown', (e) => {
-            if (e.key === 'Tab') {
-                if (e.shiftKey && document.activeElement === firstElement) {
-                    e.preventDefault();
-                    lastElement.focus();
-                } else if (!e.shiftKey && document.activeElement === lastElement) {
-                    e.preventDefault();
-                    firstElement.focus();
-                }
-            }
-        });
-    },
-
-    announceToScreenReader: (message, priority = 'polite') => {
-        const announcer = document.createElement('div');
-        announcer.setAttribute('aria-live', priority);
-        announcer.setAttribute('aria-atomic', 'true');
-        announcer.className = 'sr-only';
-        announcer.style.position = 'absolute';
-        announcer.style.left = '-9999px';
-        announcer.textContent = message;
-        document.body.appendChild(announcer);
-        setTimeout(() => announcer.remove(), 1000);
-    },
-
-    createAnnouncer: (message, priority = 'polite') => {
-        const announcer = document.createElement('div');
-        announcer.setAttribute('aria-live', priority);
-        announcer.setAttribute('aria-atomic', 'true');
-        announcer.className = 'sr-only';
-        announcer.textContent = message;
-        document.body.appendChild(announcer);
-        setTimeout(() => announcer.remove(), 1000);
-        return announcer;
-    },
-
-    setupFocusTrap: (container) => {
-        const focusableElements = container.querySelectorAll(
-            'a[href], button:not([disabled]), textarea, input, select'
-        );
-        const firstFocusable = focusableElements[0];
-        const lastFocusable = focusableElements[focusableElements.length - 1];
-
-        const handleTabKey = (e) => {
-            if (e.key !== 'Tab') return;
-
-            if (e.shiftKey) {
-                if (document.activeElement === firstFocusable) {
-                    e.preventDefault();
-                    lastFocusable.focus();
-                }
-            } else {
-                if (document.activeElement === lastFocusable) {
-                    e.preventDefault();
-                    firstFocusable.focus();
-                }
-            }
-        };
-
-        container.addEventListener('keydown', handleTabKey);
-        return () => container.removeEventListener('keydown', handleTabKey);
-    },
-
-    restoreFocus: (previousActiveElement) => {
-        if (previousActiveElement && typeof previousActiveElement.focus === 'function') {
-            previousActiveElement.focus();
-        }
-    },
-
-    initializeAccessibility: (container) => {
-        if (!container) return;
-        
-        accessibilityUtils.initSkipLink();
-        
-        if (!document.documentElement.lang) {
-            document.documentElement.lang = 'en';
-        }
-        
-        return container;
-    },
-
-    validateAndFixFormAccessibility: function(form) {
-        if (!form || form.tagName.toLowerCase() !== 'form') {
-            return false;
-        }
-
-        if (!form.getAttribute('role')) {
-            form.setAttribute('role', 'form');
-        }
-
-        const inputs = form.querySelectorAll('input, textarea, select');
-        inputs.forEach(input => {
-            const id = input.id;
-            if (id) {
-                const label = form.querySelector(`label[for="${id}"]`);
-                if (!label) {
-                    input.setAttribute('aria-label', input.placeholder || 'Input field');
-                }
-            } else {
-                input.id = `input-${Math.random().toString(36).substr(2, 9)}`;
-            }
-        });
-
-        const submitButton = form.querySelector('button[type="submit"], input[type="submit"]');
-        if (!submitButton) {
-            const newButton = document.createElement('button');
-            newButton.type = 'submit';
-            newButton.textContent = 'Submit';
-            form.appendChild(newButton);
-        }
-
-        return true;
-    },
-
-    validateAndFixLinkAccessibility: function(link) {
-        if (!link || link.tagName.toLowerCase() !== 'a') {
-            return false;
-        }
-
-        if (!link.textContent.trim()) {
-            link.textContent = link.getAttribute('aria-label') || 'Link';
-        }
-
-        if (!link.getAttribute('href') && !link.getAttribute('role')) {
-            link.setAttribute('role', 'button');
-        }
-
-        return true;
-    },
-
-    validateAndFixButtonAccessibility: function(button) {
-        if (!button || (button.tagName.toLowerCase() !== 'button' && !button.getAttribute('role') !== 'button')) {
-            return false;
-        }
-
-        if (!button.textContent.trim()) {
-            button.textContent = button.getAttribute('aria-label') || 'Button';
-        }
-
-        if (!button.getAttribute('type')) {
-            button.setAttribute('type', 'button');
-        }
-
-        return true;
-    }
-};
-
-// Server-side landmark functions
-function isValidLandmark(landmark) {
-    return landmark &&
-           typeof landmark.id !== 'undefined' &&
-           landmark.id !== null;
+  return {
+    dependencies: Object.keys(dependencies),
+    devDependencies: Object.keys(devDependencies),
+    total: Object.keys(dependencies).length + Object.keys(devDependencies).length
+  };
 }
 
 function getSvgAccessibleName(svgElement) {

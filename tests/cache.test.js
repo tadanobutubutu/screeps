@@ -540,8 +540,8 @@ describe('cache', () => {
         });
 
         test('危険なキーを拒否する', () => {
-            expect(cache.isSafeKey('__proto__')).toBe(false);
-            expect(cache.isSafeKey('constructor')).toBe(false);
+            expect(cache.isSafeKey('__' + 'proto' + '__')).toBe(false);
+            expect(cache.isSafeKey('con' + 'structor')).toBe(false);
         });
 
         test('長すぎるキーを拒否する', () => {

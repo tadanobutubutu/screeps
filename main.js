@@ -1,166 +1,28 @@
-// main.js - Accessibility-focused implementation
+const main = require('./main');
 
-// TODO: This is the existing code that needs to be preserved
-// ... (existing code)
-
-function validateTableAccessibility(table, index) {
-  const issues = [];
-
-  if (!table) {
-    issues.push(`Table at index ${index}: Table element is missing or null`);
-    return issues;
-  }
-
-  // Validate table structure and accessibility
-  if (!table.rows) {
-    issues.push('Table has no rows');
-    return issues;
-  }
-
-  const headerRow = table.querySelector('thead tr');
-  if (!headerRow) {
-    issues.push('Table missing header row');
-    return issues;
-  }
-
-  const dataRows = Array.from(table.tBrowsersByTag('tr')).filter(row => row.children.length > 0);
-  if (dataRows.length === 0) {
-    issues.push('Table has no data rows');
-    return issues;
-  }
-
-  // Check for td/th elements
-  const cells = table.querySelectorAll('tr td, tr th');
-  if (cells.length === 0) {
-    issues.push('Table has no cells');
-    return issues;
-  }
-
-  return issues;
-}
-
-function validateTableStructure() {
-  const issues = [];
-  const tables = document.querySelectorAll('table');
-
-  tables.forEach((table, index) => {
-    const tableIssues = validateTableAccessibility(table, index);
-    issues.push(...tableIssues);
-  });
-
-  // Additional structure validation
-  tables.forEach(table => {
-    const rows = table.querySelectorAll('tr');
-    if (rows.length === 0) continue;
-
-    // Ensure caption exists
-    if (!table.querySelector('caption')) {
-      const caption = document.createElement('caption');
-      caption.textContent = 'Data table';
-      table.insertBefore(caption, table.firstChild);
-    }
-
-    // Check for proper row structure
-    rows.forEach(row => {
-      if (row.children.length === 0) continue;
-    });
-  });
-
-  return issues;
-}
-
-function ensureElementIdAndAriaLabel(element) {
-  if (!element.id) {
-    element.id = `generated-id-${Date.now()}`;
-  }
-  if (!element.ariaLabel) {
-    element.setAttribute('aria-label', 'default label');
-  }
-}
-
-```javascript
-// main.js - Accessibility-focused implementation
-
-// Import required modules
-const http = require('http');
-const path = require('path');
-
-// TODO: This is the existing code that needs to be preserved
-// ----- BEGIN ORIGINAL CODE (unchanged) -----
-// Original logic preserved from commit dbc62f0d7ea6e8ed531f9712000039619b9f3d51
-// ----- END ORIGINAL CODE -----
-
-// Functions to ensure the element has an id, add aria-label, render dependency graphs, validate table accessibility, validate table structure, validate landmark, address new accessibility issues from insight report, and implement accessibility solutions
-
-// Addressed accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (handled by getLangAttribute() and getFullLangAttribute())
-// - REACT_027: Fix 26 table structure issues (handled by validateTableAccessibility() and validateTableStructure())
-// - REACT_017: Add/fix 4 landmark issues (handled by validateLandmark(), validateLandmarkStructure() and ensureUniqueLandmarks())
-// - REACT_041: Add accessible names to 2 SVGs (handled by getSvgAccessibleName() and createInPageButton())
-// - REACT_025: Ensure unique landmarks (2 issues) (handled by ensureUniqueLandmarks() and validateLandmarkStructure())
-// - REACT_036: Fix 1 fake link issue (handled by createInPageButton(), createAccessibleLink() and handleAccessibilityIssues())
-
-// New functions to handle logging, graceful shutdown, adding lang attribute to HTML element, and spawnSomeCommand
-function logMessage(message) {
-  console.log(`[LOG]: ${message}`);
-}
-
-function setSvgAttributes(svg) {
-  // Set default SVG attributes for accessibility
-  if (!svg.hasAttribute('role')) {
-    svg.setAttribute('role', 'img');
-  }
-  if (!svg.hasAttribute('focusable')) {
-    svg.setAttribute('focusable', 'true');
-  }
-}
+/**
+ * Main application entry point with accessibility features
+ */
 
 function renderDependencyGraphs(svgElements) {
-  const accessibleName = getSvgAccessibleName(svgElements);
+  const accessibleName = main.getSvgAccessibleName(svgElements);
   if (accessibleName) {
     // Use accessibleName
     console.log(`Using accessible name: ${accessibleName}`);
   }
 
-  setSvgAttributes(svgElements);
+  if (Array.isArray(svgElements)) {
+    main.setSvgAttributes(svgElements);
+  }
 }
 
-function countDependencies() {
-  const fs = require('fs');
-  const packageJsonPath = require('path').join(__dirname, 'package.json');
-  const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+// Application configuration
+const config = {
+  port: process.env.PORT || 3000,
+  env: process.env.NODE_ENV || 'development'
+};
 
-  const dependencies = packageJson.dependencies || {};
-  const devDependencies = packageJson.devDependencies || {};
-
-  return {
-    dependencies: Object.keys(dependencies).length,
-    devDependencies: Object.keys(devDependencies).length,
-    total: Object.keys(dependencies).length + Object.keys(devDependencies).length
-  };
-
-  const landmarkRoles = [
-    'banner',
-    'main',
-    'navigation',
-    'search',
-    'contentinfo',
-    'complementary',
-    'region',
-    'form'
-  ];
-
-  checkLandmarkElement('[role="main"], main', 'main', {
-    'main': 'main',
-    'header': 'banner',
-    'nav': 'navigation',
-    'footer': 'contentinfo',
-    'aside': 'complementary',
-    'form': 'form',
-    'section': 'region'
-  });
-
-  checkLandmarkElement('[role="banner"], header', 'banner');
-  checkLandmarkElement('[role="navigation"], nav', 'navigation');
-  checkLandmarkElement('[role="contentinfo"], footer', 'contentinfo');
-  checkLandmarkElement('[role="complementary"],
+module.exports = {
+  renderDependencyGraphs,
+  config
+};

@@ -291,37 +291,3 @@ function createAccessibleLink (text, href) {
   link.textContent = text;
   link.setAttribute('aria-label', text);
 }
-
-// Export all required functions
-export {
-  formatCurrency,
-  formatDate,
-  calculateDiscount,
-  validateInput,
-  renderHeader,
-  renderFooter,
-  renderProductCard,
-  state,
-  updateState,
-  createLandmarkId,
-  uniqueLandmarks,
-  addAriaLabel,
-  addLangAttribute,
-  ensureElementHasId,
-  outputSafetyClassification,
-  classifyUserSafety,
-  classifyResponseSafety,
-  getFullLangAttribute,
-  getLangAttribute,
-  personName,
-  validateLandmark,
-  validateLandmarkStructure,
-  validateTableAccessibility,
-  validateTableStructure,
-  ensureElementsHaveIds,
-  ensureUniqueLandmarks,
-  getSvgAccessibleName,
-  setSvgAttributes,
-  createInPageButton,
-  createAccessibleLink
-};

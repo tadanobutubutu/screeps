@@ -181,9 +181,10 @@ function startApp() {
   return server;
 }
 
-// New function requested in the issue
-function newFunction() {
-  console.log('This is a new function that has been added.');
+// New function added as per issue
+function handleRequest(req, res) {
+  res.writeHead(200, { 'Content-Type': 'text/plain' });
+  res.end('Request received\n');
 }
 
 // Export functions for testing
@@ -191,7 +192,7 @@ module.exports = {
   createServer,
   startApp,
   config,
-  newFunction // Exporting the new function
+  handleRequest
 };
 
 // Start the application if run directly (with new functions)

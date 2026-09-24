@@ -232,11 +232,24 @@ function getLangAttribute() {
 
 // Accessibility utilities for keyboard navigation and screen reader support
 const accessibilityUtils = {
-    // Add the existing methods
-    initSkipLink,
-    trapFocus,
-    announceToScreenReader,
-    handleKeyboardNav,
+    // ... (Existing accessibility utilities)
+
+    /**
+     * Initialize skip link functionality
+     * @param {HTMLElement} skipLink - The skip link element
+     */
+    initSkipLink(skipLink) {
+        if (!skipLink) return;
+        
+        skipLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            const target = document.querySelector(skipLink.getAttribute('href'));
+            if (target) {
+                target.tabIndex = -1;
+                target.focus();
+            }
+        });
+    },
 
     // Add a new method to create an accessible message for screen readers
     createAccessibleMessage(message, hint) {

@@ -217,7 +217,7 @@ function validateLandmark(landmark) {
     if (landmark.latitude === undefined || landmark.latitude === null) {
         errors.push('Landmark must have a latitude');
     } else if (typeof landmark.latitude !== 'number' || isNaN(landmark.latitude)) {
-        errors.push('Landmark latitude must be a number');
+        errors.push('Landmark longitude must be a number');
     } else if (landmark.latitude < -90 || landmark.latitude > 90) {
         errors.push('Landmark latitude must be between -90 and 90');
     }

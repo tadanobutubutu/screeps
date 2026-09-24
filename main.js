@@ -1,28 +1,3 @@
-Looking at the issue, I need to add harvest logic at line 168 where the TODO comment is. I'll preserve all existing code and add a proper harvest logic function that works with the Screeps game API.
-
-```javascript
-// TODO: This is the existing code that needs to be preserved
-// _Commit: 243c66538868c6b87845660312397ab39e0f830d_
-// <!-- todo-hash: ... -->
-
-// TODO: Add back any required exports that might have been removed
-// TODO: This is the existing code that needs to be preserved (This comment remains as-is)
-//_Commit: 243c66538868c6b87845660312397ab39e0f830d_
-//<!-- todo-hash: ... -->
-// TODO: New function added as requested in the issue
-function newFunction() {
-  // Implementation of the new function goes here
-  console.log('New function is active!');
-}
-
-// Importing the necessary functions (for illustration purposes)
-import { getLangAttribute, createInPageButton } from './utils/accessibilityUtils';
-import {
-    validateTableAccessibility,
-    validateTableStructure,
-} from './utils/tableAccessibilityUtils';
-import { validateLinkAccessibility, handleFakeLinks } from './utils/linkAccessibilityUtils';
-
 // REACT_015: Add lang attribute to the <html> element
 function getLangAttribute(html, lang = 'en') {
     if (typeof html !== 'string') return html;
@@ -479,107 +454,81 @@ function createInPageButton(buttonId, buttonText, buttonClass) {
     document.body.appendChild(button);
 }
 
-/**
- * Handles the credential response from authentication providers.
- * Processes the response object and determines if authentication was successful.
- * @param {Object} credentialResponse - The response object from the credential provider
- * @param {string} credentialResponse.credential - The JWT token from the credential response
- * @param {string} [credentialResponse.select_by] - How the credential was selected
- * @returns {Object} An object containing success status and parsed credential data
- */
-function newFunction(credentialResponse) {
-    // Validate input
-    if (!credentialResponse) {
-        return {
-            success: false,
-            error: 'No credential response provided'
-        };
-    }
+// Implement the logic to handle the credential response
+function handleCredentialResponse(response) {
+  // Validate the response object
+  if (!response || typeof response !== 'object') {
+    console.error('Invalid credential response: response must be an object');
+    return null;
+  }
 
-    // Check if credential exists
-    if (!credentialResponse.credential) {
-        return {
-            success: false,
-            error: 'No credential token found in response'
-        };
-    }
+  // Extract the credential (JWT) from the response
+  const credential = response.credential;
+  if (!credential || typeof credential !== 'string') {
+    console.error('Invalid credential response: missing credential');
+    return null;
+  }
 
+  // Decode the JWT payload (the middle part of the JWT)
+  let payload;
+  try {
+    const parts = credential.split('.');
+    if (parts.length < 2) {
+      throw new Error('Malformed JWT');
+    }
+    // Base64-url decode the payload
+    const base64Payload = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+    const padded = base64Payload + '='.repeat((4 - base64Payload.length % 4) % 4);
+    const decoded = atob(padded);
+    payload = JSON.parse(decoded);
+  } catch (err) {
+    console.error('Failed to decode credential JWT:', err);
+    return null;
+  }
+
+  // Build a normalized user object from the payload
+  const user = {
+    credential,
+    select_by: payload.select_by || null,
+    clientId: payload.aud || null,
+    sub: payload.sub || null,
+    email: payload.email || null,
+    email_verified: payload.email_verified === true,
+    name: payload.name || null,
+    given_name: payload.given_name || null,
+    family_name: payload.family_name || null,
+    picture: payload.picture || null,
+    locale: payload.locale || null,
+    iss: payload.iss || null,
+    iat: payload.iat || null,
+    exp: payload.exp || null
+  };
+
+  // Expose the user info globally so other modules can consume it
+  if (typeof window !== 'undefined') {
+    window.googleUser = user;
+    window.googleCredential = credential;
+
+    // Dispatch a custom event so the rest of the app can react to the sign-in
     try {
-        // Parse the JWT token to extract user information
-        const tokenParts = credentialResponse.credential.split('.');
-        
-        if (tokenParts.length !== 3) {
-            return {
-                success: false,
-                error: 'Invalid credential token format'
-            };
-        }
-
-        // Decode the payload (middle part of JWT)
-        const payload = JSON.parse(atob(tokenParts[1].replace(/-/g, '+').replace(/_/g, '/')));
-
-        // Extract relevant user information from the token
-        const userData = {
-            email: payload.email || null,
-            name: payload.name || null,
-            picture: payload.picture || null,
-            sub: payload.sub || null, // Unique user identifier
-            email_verified: payload.email_verified || false,
-            issued_at: payload.iat ? new Date(payload.iat * 1000) : null,
-            expiration: payload.exp ? new Date(payload.exp * 1000) : null
-        };
-
-        // Check if the token has expired
-        if (userData.expiration && new Date() > userData.expiration) {
-            return {
-                success: false,
-                error: 'Credential token has expired',
-                user: userData
-            };
-        }
-
-        // Return successful response with user data
-        return {
-            success: true,
-            user: userData,
-            select_by: credentialResponse.select_by || 'unknown',
-            raw_credential: credentialResponse.credential
-        };
-
-    } catch (error) {
-        return {
-            success: false,
-            error: `Failed to parse credential: ${error.message}`
-        };
+      const event = new CustomEvent('googleCredentialReceived', { detail: user });
+      window.dispatchEvent(event);
+    } catch (err) {
+      // Fallback for environments without CustomEvent support
+      const event = document.createEvent('CustomEvent');
+      event.initCustomEvent('googleCredentialReceived', false, false, user);
+      window.dispatchEvent(event);
     }
+  }
+
+  console.log('Credential response handled successfully:', user);
+  return user;
 }
 
 // Don't forget to test your new additions in the test file
 
-// Stub functions for missing exports
-function getLangAttribute() {
-  return 'en';
-}
-
-function validateTableAccessibility() {
-  return [];
-}
-
-function validateTableStructure() {
-  return [];
-}
-
-function validateLinkAccessibility() {
-  return [];
-}
-
-function handleFakeLinks() {
-  return [];
-}
-
-function newFunction() {
-  // Placeholder for newFunction
-}
+// Export the function for testing and external use
+module.exports = { newFunction, handleCredentialResponse };
 
 // Export accessibility utility functions
 export {
@@ -602,5 +551,6 @@ export {
   divide,
   wrapPrimaryContentInMain,
   ensureDependencyGraphContainerAccessibility,
-  ensureUniqueLandmarkIds
+  ensureUniqueLandmarkIds,
+  handleCredentialResponse
 };

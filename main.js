@@ -15,4 +15,8 @@ function updateDependencyGraph() {
   // Additional code to actually update the graph would go here
 }
 
+// TODO: Add back any required exports that might have been?
+// Add any missing exports here based on test requirements
+export { newFunction };
+
 // Don't forget to test your new additions in the test file

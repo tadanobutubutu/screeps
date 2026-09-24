@@ -416,21 +416,11 @@ function personName() {
 
 function processSvgElements() {
   const svgElements = document.querySelectorAll('svg');
-  if (!svgElements) return;
-  svgElements.forEach(svg => {
-    if (!svg.getAttribute('role')) {
-      svg.setAttribute('role', 'img');
-    }
-    let accessibleName = getSvgAccessibleName([svg]);
-    if (!accessibleName) {
-      const titleEl = svg.querySelector('title');
-      accessibleName = (titleEl && titleEl.textContent) ? titleEl.textContent.trim() : (svg.getAttribute('aria-label') || 'SVG image');
-      if (accessibleName && typeof accessibleName === 'string') {
-        addSvgAccessibleName(svg, accessibleName);
-      }
-    }
+
+  // Add accessible names to SVG elements (REACT_041)
+  svgElements.forEach((svg, index) => {
+    getSvgAccessibleName(svg, `SVG Icon ${index + 1}`);
   });
-  return svgElements;
 }
 
 // Function for addressing accessibility issues from insight report
@@ -1260,6 +1250,44 @@ function addSvgAccessibleName(svgElement, name) {
   return svgElement;
 }
 
+function getSvgAccessibleName(svgElement, fallbackName) {
+  if (!svgElement) {
+    return fallbackName || 'SVG element';
+  }
+
+  // Check for existing aria-label
+  const ariaLabel = svgElement.getAttribute('aria-label');
+  if (ariaLabel) {
+    return ariaLabel;
+  }
+
+  // Check for title element
+  const title = svgElement.querySelector('title');
+  if (title && title.textContent) {
+    return title.textContent;
+  }
+
+  // Check for aria-labelledby
+  const ariaLabelledBy = svgElement.getAttribute('aria-labelledby');
+  if (ariaLabelledBy) {
+    const labelledByElement = document.getElementById(ariaLabelledBy);
+    if (labelledByElement && labelledByElement.textContent) {
+      return labelledByElement.textContent;
+    }
+  }
+
+  // Use fallback name if provided
+  if (fallbackName) {
+    addSvgAccessibleName(svgElement, fallbackName);
+    return fallbackName;
+  }
+
+  // Generate a default name
+  const defaultName = `SVG icon`;
+  addSvgAccessibleName(svgElement, defaultName);
+  return defaultName;
+}
+
 function ensureElementHasId(element) {
   if (!element) return;
   const name = element.getAttribute('id');
@@ -1400,6 +1428,7 @@ function addressNewAccessibilityIssues(insightReport) {
 
       // Check for SVG accessibility issues
       if (section.content.includes('REACT_041') || section.content.includes('SVG')) {
+        processSvgElements();
         addressedIssues.push('REACT_041: SVG accessible name issue addressed');
       }
     }
@@ -1534,6 +1563,7 @@ module.exports = {
   ensureUniqueLandmarks,
   createInPageButton,
   addSvgAccessibleName,
+  getSvgAccessibleName,
   handleFakeLinks,
   countDependencies,
   countPackageDependencies,

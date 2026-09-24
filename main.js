@@ -401,39 +401,15 @@ function getInsightReport() {
   return issues;
 }
 
-export {
-  someFunction,
-  initialize,
-  initializeApp,
-  processData,
-  fetchUser,
-  clearCache,
-  helper,
-  formatDate,
-  validateInput,
-  getLangAttribute,
-  addLangAttribute,
-  setLanguageAttribute,
-  addLandmarkRoles,
-  fixFakeLinks,
-  validateTableAccessibility,
-  validateTableStructure,
-  fixTableStructure,
-  addMainLandmark,
-  validateLandmark,
-  validateLandmarkStructure,
-  validateLandmarkAttributes,
-  addLandmarkRegions,
-  getSvgAccessibleName,
-  setSvgAttributes,
-  ensureUniqueLandmarks,
-  createInPageButton,
-  validateLinkAccessibility,
-  handleFakeLinks,
-  getConfig,
-  getVersion,
-  ensureRootContainerAccessible,
-  addressAccessibilityIssues,
-  getInsightReport
-};
+// New function added to address the TODO comment
+function handleAddBookFormSubmission(event, title, author) {
+  event.preventDefault();
+  if (title.trim() && author.trim()) {
+    addBook({ title: title.trim(), author: author.trim() });
+  } else {
+    console.error('Both title and author are required');
+  }
+}
+
+export { someFunction };
 export default Main;

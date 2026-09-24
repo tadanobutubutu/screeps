@@ -290,9 +290,59 @@ function fixFakeLinks(container) {
   });
 }
 
-// Validate SVG accessibility
-function validateSvgAccessibility(svg) {
-  const errors = [];
+// New function to add a book with accessibility features
+function addBookWithAccessibility(bookData) {
+  const booksContainer = document.getElementById('books-container');
+
+  if (!booksContainer) {
+    console.error('Books container not found');
+    return;
+  }
+
+  // Create book element with proper ARIA attributes
+  const bookElement = document.createElement('div');
+  bookElement.className = 'book';
+  bookElement.setAttribute('role', 'article');
+  bookElement.setAttribute('aria-label', `Book: ${bookData.title}`);
+
+  // Create title element with proper heading level
+  const titleElement = document.createElement('h3');
+  titleElement.textContent = bookData.title;
+  titleElement.setAttribute('id', `book-title-${bookData.id}`);
+  bookElement.appendChild(titleElement);
+
+  // Create author element with proper label
+  const authorElement = document.createElement('p');
+  authorElement.textContent = `Author: ${bookData.author}`;
+  authorElement.setAttribute('aria-labelledby', `book-title-${bookData.id}`);
+  bookElement.appendChild(authorElement);
+
+  // Create description element with proper label
+  const descElement = document.createElement('p');
+  descElement.textContent = bookData.description;
+  descElement.setAttribute('aria-describedby', `book-title-${bookData.id}`);
+  bookElement.appendChild(descElement);
+
+  // Add keyboard navigation support
+  bookElement.setAttribute('tabindex', '0');
+  bookElement.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      // Simulate click for keyboard users
+      bookElement.click();
+    }
+  });
+
+  // Add click handler
+  bookElement.addEventListener('click', () => {
+    // Handle book selection
+    console.log(`Book selected: ${bookData.title}`);
+  });
+
+  booksContainer.appendChild(bookElement);
+}
+
+// Register the service worker
+registerSW();
 
   if (!svg) {
     errors.push('SVG element is required');
@@ -435,32 +485,29 @@ export {
   VisualizeDependencyTree,
   checkLandmarkElement,
   ensureUniqueLandmarks,
-  ensureLandmarkUniqueness,
-  validateLandmark,
-  renderDependencyGraphContent,
-  landmarks,
-  appData,
-  icons,
-  countDependencies,
-  addBook,
-  BookItem,
-  defaultSorting,
-  onTitleSort,
-  onAuthorSort,
-  Main,
-  landmarkStructureCheck,
-  setLanguageAttribute,
-  addLandmarkRoles,
-  fixFakeLinks,
-  isSecureContext,
-  ensureFocusableElements,
-  validateSvgAccessibility,
-  processUniqueElements,
-  addressInsightIssues,
-  renderDependencyGraph,
-  renderIndexView,
-  calculateSum,
+  createInPageButton,
+  validateLinkAccessibility,
+  handleFakeLinks,
+  addLandmarkRegions,
+  generateAccessibilityReport,
+  // Added from origin/main
+  someFunction: function() {
+    return 'some value';
+  },
+  CONFIG: {
+    apiUrl: process.env.API_URL || 'https://api.example.com',
+    timeout: 5000
+  },
+  helper: function(input) {
+    return input ? input.toUpperCase() : '';
+  },
+  formatDate: function(date) {
+    if (!(date instanceof Date)) {
+      date = new Date(date);
+    }
+    return date.toISOString().split('T')[0];
+  },
+  // Accessibility Functions
   addProperLandmarkRegions,
-  countDependencies,
-  addSvgAccessibilityProps
+  addBookWithAccessibility
 };

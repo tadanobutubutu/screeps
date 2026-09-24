@@ -228,6 +228,16 @@ function replaceFakeLinks() {
 
 // ... (other code in main.js)
 
+// Implemented function3 logic here
+function function3() {
+  const button = createInPageButton('Function3', function() {
+    console.log('Function3 clicked!');
+  });
+  document.body.appendChild(button);
+}
+
+// ... (other code in main.js)
+
 // Additional function
 export function newFunction() {
   const button = createInPageButton('New Function', function() {

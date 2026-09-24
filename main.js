@@ -1,16 +1,25 @@
-function checkLinkAndButtonAccessibility() {
-  // This function checks for accessibility issues with links and buttons
-  // Implement your logic here
-  console.log('Checking link and button accessibility...');
-  // Example placeholder for actual accessibility check code
+// existing code and exports from main.js
+
+// TODO: Implement this function for checking link and button accessibility
+function checkAccessibility() {
+  // Check if there are any links without alt text for images
+  const links = document.querySelectorAll('a');
+  links.forEach(link => {
+    if (link.rel === 'image') {
+      const image = link.nextElementSibling;
+      if (!image || !image.hasAttribute('alt')) {
+        console.error('Accessibility issue: Image link without alt text', link);
+      }
+    }
+  });
+
+  // Check if there are any buttons without proper text
+  const buttons = document.querySelectorAll('button');
+  buttons.forEach(button => {
+    if (!button.textContent.trim()) {
+      console.error('Accessibility issue: Button without text', button);
+    }
+  });
 }
 
-// Preserve existing code and exports
-// User Safety: unsafe
-// Safety Categories: PII/Privacy
-// ... (rest of the existing main.js code)
-
-// Add the new function
-checkLinkAndButtonAccessibility();
-
-// ... (rest of the existing main.js code)
+// Existing code and exports from main.js continue below

@@ -69,7 +69,7 @@ describe('role.medic', () => {
             pos: {
                 x: 1,
                 y: 1,
-                isNearTo: jest.fn().mockReturnValue(true),
+                x: 10, y: 10, isNearTo: jest.fn().mockReturnValue(true),
                 inRangeTo: jest.fn().mockReturnValue(true),
                 findClosestByRange: jest.fn().mockReturnValue(null),
             },
@@ -85,8 +85,8 @@ describe('role.medic', () => {
     test('medicがhealing mode的时候能正常切换', () => {
         const mockFind = jest
             .fn()
-            .mockReturnValueOnce([{ hits: 50, hitsMax: 100 }]) // _myCreeps
-            .mockReturnValueOnce([{ hits: 50, hitsMax: 100 }]) // _injuredCreeps
+            .mockReturnValueOnce([{ hits: 50, hitsMax: 100, pos: { x: 15, y: 15 } }]) // _myCreeps
+            .mockReturnValueOnce([{ hits: 50, hitsMax: 100, pos: { x: 15, y: 15 } }]) // _injuredCreeps
             .mockReturnValueOnce([]); // sources
 
         global.Game.time = 10;
@@ -123,7 +123,7 @@ describe('role.medic', () => {
 
     test('負傷者を治療しターゲットをキャッシュする', () => {
         global.Game.time = 11;
-        const injured = { id: 'creep1', hits: 10, hitsMax: 100 };
+        const injured = { id: 'creep1', hits: 10, hitsMax: 100, pos: { x: 15, y: 15 } };
         const creep = {
             memory: { healing: true },
             say: jest.fn(),
@@ -165,7 +165,7 @@ describe('role.medic', () => {
 
     test('エネルギーを採取していない時も負傷者を回復する', () => {
         global.Game.time = 12;
-        const injured = { id: 'creep1', hits: 20, hitsMax: 100 };
+        const injured = { id: 'creep1', hits: 20, hitsMax: 100, pos: { x: 15, y: 15 } };
         const creep = {
             memory: { healing: false },
             say: jest.fn(),
@@ -186,6 +186,7 @@ describe('role.medic', () => {
                 _activeSources: [],
             },
             pos: {
+                x: 10, y: 10,
                 isNearTo: jest.fn().mockReturnValue(true),
                 findClosestByRange: jest.fn().mockReturnValue(injured),
             },

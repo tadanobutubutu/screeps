@@ -52,7 +52,21 @@ function _getHealTarget(creep, injured) {
 
     // If target is invalid or fully healed, find a new one
     if (!target || target.hits === target.hitsMax) {
-        target = creep.pos.findClosestByRange(injured);
+        let closest = null;
+        let minRange = Infinity;
+        const originPos = creep.pos;
+        for (let i = 0, len = injured.length; i < len; i++) {
+            const obj = injured[i];
+            const targetPos = obj.pos || obj;
+            const dx = Math.abs(originPos.x - targetPos.x);
+            const dy = Math.abs(originPos.y - targetPos.y);
+            const range = dx > dy ? dx : dy;
+            if (range < minRange) {
+                minRange = range;
+                closest = obj;
+            }
+        }
+        target = closest;
         if (target) {
             creep.memory.healTargetId = target.id;
         } else {
@@ -67,7 +81,21 @@ function _getHarvestTarget(creep, sources) {
     let target = Game.getObjectById(creep.memory.harvestTargetId);
 
     if (!target || target.energy === 0) {
-        target = creep.pos.findClosestByRange(sources);
+        let closest = null;
+        let minRange = Infinity;
+        const originPos = creep.pos;
+        for (let i = 0, len = sources.length; i < len; i++) {
+            const obj = sources[i];
+            const targetPos = obj.pos || obj;
+            const dx = Math.abs(originPos.x - targetPos.x);
+            const dy = Math.abs(originPos.y - targetPos.y);
+            const range = dx > dy ? dx : dy;
+            if (range < minRange) {
+                minRange = range;
+                closest = obj;
+            }
+        }
+        target = closest;
         if (target) {
             creep.memory.harvestTargetId = target.id;
         } else {

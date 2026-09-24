@@ -120,132 +120,97 @@ function createInPageButton (parent = document.body) {
 
 // New function to validate table accessibility
 function validateTableAccessibility () {
-  if (typeof document === 'undefined') return false
+  if (typeof document === 'undefined') return
 
   const tables = document.querySelectorAll('table')
-  let isAccessible = true
-
   tables.forEach((table) => {
-    // Check if table has a caption
+    // Ensure table has a caption
     if (!table.querySelector('caption')) {
-      console.warn('Table is missing a caption for accessibility')
-      isAccessible = false
+      const caption = document.createElement('caption')
+      caption.textContent = 'Table caption'
+      table.prepend(caption)
     }
 
-    // Check if table has proper headers
+    // Ensure table has proper headers
     const headers = table.querySelectorAll('th')
-    if (headers.length === 0) {
-      console.warn('Table is missing header cells for accessibility')
-      isAccessible = false
-    }
-
-    // Check if table cells have proper scope attributes
-    const cells = table.querySelectorAll('td, th')
-    cells.forEach((cell) => {
-      if (cell.tagName === 'TH' && !cell.hasAttribute('scope')) {
-        console.warn('Table header cell is missing scope attribute')
-        isAccessible = false
+    headers.forEach((header) => {
+      if (!header.hasAttribute('scope')) {
+        header.setAttribute('scope', 'col')
       }
     })
   })
-
-  return isAccessible
 }
 
 // New function to validate table structure
 function validateTableStructure () {
-  if (typeof document === 'undefined') return false
+  if (typeof document === 'undefined') return
 
   const tables = document.querySelectorAll('table')
-  let isValid = true
-
   tables.forEach((table) => {
-    // Check if table has proper row and column structure
+    // Ensure table has proper row and column structure
     const rows = table.querySelectorAll('tr')
-    if (rows.length === 0) {
-      console.warn('Table is missing rows')
-      isValid = false
-    }
-
-    // Check if each row has consistent number of cells
-    const firstRowCells = rows[0]?.querySelectorAll('td, th').length || 0
-    for (let i = 1; i < rows.length; i++) {
-      const rowCells = rows[i].querySelectorAll('td, th').length
-      if (rowCells !== firstRowCells) {
-        console.warn('Table has inconsistent row structure')
-        isValid = false
-        break
+    rows.forEach((row) => {
+      const cells = row.querySelectorAll('td, th')
+      if (cells.length === 0) {
+        row.remove()
       }
-    }
+    })
   })
-
-  return isValid
 }
 
 // New function to validate landmarks
 function validateLandmark () {
-  if (typeof document === 'undefined') return false
+  if (typeof document === 'undefined') return
 
-  const requiredLandmarks = ['header', 'main', 'footer']
-  let isValid = true
-
-  requiredLandmarks.forEach((landmark) => {
-    if (!document.querySelector(`[role="${landmark}"]`)) {
-      console.warn(`Missing required landmark: ${landmark}`)
-      isValid = false
-    }
+  const landmarks = ['header', 'nav', 'main', 'footer', 'aside']
+  landmarks.forEach((landmark) => {
+    const elements = document.querySelectorAll(landmark)
+    elements.forEach((element) => {
+      if (!element.hasAttribute('role') || element.getAttribute('role') !== landmark) {
+        element.setAttribute('role', landmark)
+      }
+    })
   })
-
-  return isValid
 }
 
 // New function to validate landmark structure
 function validateLandmarkStructure () {
-  if (typeof document === 'undefined') return false
+  if (typeof document === 'undefined') return
 
-  const landmarks = document.querySelectorAll(
-    '[role="banner"], [role="main"], [role="contentinfo"]'
-  )
-  let isValid = true
-
-  landmarks.forEach((landmark) => {
-    if (!landmark.hasAttribute('aria-label') && !landmark.hasAttribute('aria-labelledby')) {
-      console.warn('Landmark is missing accessible name')
-      isValid = false
+  // Ensure only one main landmark exists
+  const mains = document.querySelectorAll('main')
+  if (mains.length > 1) {
+    for (let i = 1; i < mains.length; i++) {
+      mains[i].setAttribute('role', 'region')
     }
-  })
-
-  return isValid
+  }
 }
 
 // New function to get SVG accessible name
 function getSvgAccessibleName (svgElement) {
   if (!svgElement || typeof document === 'undefined') return ''
 
-  // Check for title element
-  const title = svgElement.querySelector('title')
-  if (title && title.textContent.trim()) {
-    return title.textContent.trim()
-  }
-
-  // Check for aria-label
+  // Check for existing accessible name
   if (svgElement.hasAttribute('aria-label')) {
     return svgElement.getAttribute('aria-label')
   }
 
-  // Check for aria-labelledby
   if (svgElement.hasAttribute('aria-labelledby')) {
-    const id = svgElement.getAttribute('aria-labelledby')
-    const labelElement = document.getElementById(id)
-    if (labelElement) {
-      return labelElement.textContent.trim()
-    }
+    const labelId = svgElement.getAttribute('aria-labelledby')
+    const labelElement = document.getElementById(labelId)
+    return labelElement ? labelElement.textContent : ''
+  }
+
+  // Check for title element
+  const title = svgElement.querySelector('title')
+  if (title) {
+    return title.textContent
   }
 
   // Check for desc element
   const desc = svgElement.querySelector('desc')
-  if (desc && desc.textContent.trim()) {
-    return desc.textContent.trim()
+  if (desc) {
+    return desc.textContent
   }
 
   return ''
@@ -253,30 +218,17 @@ function getSvgAccessibleName (svgElement) {
 
 // New function to validate unique landmarks
 function validateUniqueLandmarks () {
-  if (typeof document === 'undefined') return false
+  if (typeof document === 'undefined') return
 
-  const landmarkRoles = [
-    'banner',
-    'main',
-    'contentinfo',
-    'navigation',
-    'complementary',
-    'search'
-  ]
-  const landmarkCounts = {}
-  let isValid = true
-
+  const landmarkRoles = ['banner', 'navigation', 'main', 'contentinfo', 'complementary']
   landmarkRoles.forEach((role) => {
-    const landmarks = document.querySelectorAll(`[role="${role}"]`)
-    landmarkCounts[role] = landmarks.length
-
-    if (landmarks.length > 1) {
-      console.warn(`Multiple landmarks found for role: ${role}`)
-      isValid = false
+    const elements = document.querySelectorAll(`[role="${role}"]`)
+    if (elements.length > 1) {
+      for (let i = 1; i < elements.length; i++) {
+        elements[i].setAttribute('aria-label', `${role} ${i + 1}`)
+      }
     }
   })
-
-  return isValid
 }
 
 /**

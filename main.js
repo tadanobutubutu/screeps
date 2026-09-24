@@ -177,18 +177,16 @@ function initializeAccessibility() {
   };
 }
 
-/**
- * Adds accessibility properties to an SVG element
- * @param {SVGElement} svgElement - The SVG element to add accessibility props to
- * @param {Object} options - Accessibility options for the SVG
- * @param {string} [options.role='img'] - The ARIA role for the SVG
- * @param {string} [options.label] - The aria-label text
- * @param {string} [options.labelledBy] - The ID of an element that labels this SVG
- * @param {string} [options.description] - The aria-describedby text
- * @param {boolean} [options.focusable=true] - Whether the SVG is focusable
- * @param {boolean} [options.keyboardFocusable] - Whether the SVG can be focused via keyboard
- * @returns {SVGElement} - The SVG element with accessibility props applied
- */
+// Adds accessibility properties to an SVG element
+// @param {SVGElement} svgElement - The SVG element to add accessibility props to
+// @param {Object} options - Accessibility options for the SVG
+// @param {string} [options.role='img'] - The ARIA role for the SVG
+// @param {string} [options.label] - The aria-label text
+// @param {string} [options.labelledBy] - The ID of an element that labels this SVG
+// @param {string} [options.description] - The aria-describedby text
+// @param {boolean} [options.focusable=true] - Whether the SVG is focusable
+// @param {boolean} [options.keyboardFocusable=false] - Whether the SVG can be focused via keyboard
+// @returns {SVGElement} - The SVG element with accessibility props applied
 function addSvgAccessibilityProps(svgElement, options = {}) {
   // Return null/undefined as-is if not a valid SVG element
   if (!svgElement) {
@@ -243,53 +241,43 @@ function addSvgAccessibilityProps(svgElement, options = {}) {
   return svgElement;
 }
 
-/**
- * Checks if a value is an empty string, null, or undefined
- * @param {*} value - The value to check
- * @returns {boolean} - True if the value is empty
- */
+// Checks if a value is an empty string, null, or undefined
+// @param {*} value - The value to check
+// @returns {boolean} - True if the value is empty
 function isEmpty(value) {
   return value === null || value === undefined || value === '';
 }
 
-/**
- * Capitalizes the first letter of a string
- * @param {string} str - The string to capitalize
- * @returns {string} - The capitalized string
- */
+// Capitalizes the first letter of a string
+// @param {string} str - The string to capitalize
+// @returns {string} - The capitalized string
 function capitalize(str) {
   if (typeof str !== 'string' || str.length === 0) return str;
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
-/**
- * Generates a random integer between min and max (inclusive)
- * @param {number} min - Minimum value
- * @param {number} max - Maximum value
- * @returns {number} - Random integer
- */
+// Generates a random integer between min and max (inclusive)
+// @param {number} min - Minimum value
+// @param {number} max - Maximum value
+// @returns {number} - Random integer
 function getRandomInt(min, max) {
   min = Math.ceil(min);
   max = Math.floor(max);
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-/**
- * Clamps a number between min and max values
- * @param {number} num - Number to clamp
- * @param {number} min - Minimum value
- * @param {number} max - Maximum value
- * @returns {number} - Clamped number
- */
+// Clamps a number between min and max values
+// @param {number} num - Number to clamp
+// @param {number} min - Minimum value
+// @param {number} max - Maximum value
+// @returns {number} - Clamped number
 function clamp(num, min, max) {
   return Math.min(Math.max(num, min), max);
 }
 
-/**
- * Deep clones an object
- * @param {*} obj - Object to clone
- * @returns {*} - Cloned object
- */
+// Deep clones an object
+// @param {*} obj - Object to clone
+// @returns {*} - Cloned object
 function deepClone(obj) {
   if (obj === null || typeof obj !== 'object') return obj;
   if (obj instanceof Date) return new Date(obj.getTime());
@@ -306,15 +294,28 @@ function deepClone(obj) {
   return obj;
 }
 
-/**
- * Ensure unique main landmarks exist in the document.
- * Logs a warning if multiple main landmarks are detected.
- */
-function ensureUniqueLandmarks() {
-  const mains = document.querySelectorAll('main, [role="main"]');
-  if (mains.length > 1) {
-    console.warn('Multiple main landmarks detected. Ensure only one main landmark exists.');
-    throw new Error('Document should have at most one main landmark');
+// Renders a dependency graph visualization
+// @param {Object} dependencies - Graph data structure with nodes and edges
+// @param {string|HTMLElement} container - DOM element or selector to render the graph
+// @param {Object} options - Visualization options
+// @returns {Object} - Graph visualization control object
+function renderDependencyGraph(dependencies, container, options = {}) {
+  const defaultOptions = {
+    nodeWidth: 100,
+    nodeHeight: 40,
+    nodeColor: '#4a90e2',
+    nodeTextColor: '#ffffff',
+    edgeColor: '#999999',
+    animated: true,
+    ...options
+  };
+  
+  const containerEl = typeof container === 'string' 
+    ? document.querySelector(container) 
+    : container;
+  
+  if (!containerEl) {
+    throw new Error('Container element not found for dependency graph rendering');
   }
 }
 

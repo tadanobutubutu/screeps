@@ -40,10 +40,11 @@ function startApp() {
   return server;
 }
 
-// New function to implement logic after the existing code
+// TODO: Add the implementation of this function
 function newFunction() {
-  // TODO: Implement your logic here
-  console.log('New function logic executed');
+  // TODO: Define the implementation details of newFunction
+  console.log('New function has been called.');
+  return { status: 'New function executed successfully' };
 }
 
 // Export functions for testing
@@ -51,7 +52,7 @@ module.exports = {
   createServer,
   startApp,
   config,
-  newFunction // Add new function to exports
+  newFunction // Export the new function
 };
 
 // New function implementation as per the issue requirements

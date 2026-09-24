@@ -631,41 +631,88 @@ const a11yStore = {
         }
       });
     });
-  }
+  },
+
+  addSVGAccessibilityProps() {
+    const svgElements = document.querySelectorAll('svg');
+    svgElements.forEach((svg) => {
+      let titleElement = svg.querySelector('title');
+      if (!titleElement) {
+        titleElement = document.createElement('title');
+        titleElement.textContent = 'Image';
+        svg.insertBefore(titleElement, svg.firstChild);
+      }
+
+      if (!titleElement.id) {
+        titleElement.id = `svg-title-${Math.floor(Math.random() * 10000)}`;
+      }
+
+      svg.setAttribute('aria-labelledby', titleElement.id);
+
+      if (!svg.hasAttribute('role')) {
+        svg.setAttribute('role', 'img');
+      }
+    });
+  },
+
+  fixFakeLinks() {
+    const fakeLinks = document.querySelectorAll('[href]:not(a)');
+    fakeLinks.forEach((link) => {
+      link.setAttribute('role', 'link');
+      link.setAttribute('tabindex', '0');
+      link.setAttribute('data-interactive', 'true');
+    });
+  },
+
+  /**
+   * Ensure all interactive elements have proper ARIA roles
+   */
+  ensureInteractiveRoles() {
+    const interactiveElements = document.querySelectorAll('[onclick], [onkeydown], [onmouseup], [onmousedown], [onfocus], [onblur]');
+    interactiveElements.forEach((element) => {
+      if (!element.hasAttribute('role')) {
+        element.setAttribute('role', 'button');
+      }
+    });
+  },
+
+  /**
+   * Add ARIA labels to form controls if missing
+   */
+  addFormControlLabels() {
+    const formControls = document.querySelectorAll('input, select, textarea');
+    formControls.forEach((control, index) => {
+      if (!control.id) {
+        control.id = `form-control-${index}`;
+      }
+      const label = document.createElement('label');
+      label.setAttribute('for', control.id);
+      label.textContent = control.placeholder || 'Form control';
+      control.parentNode.insertBefore(label, control);
+    });
+  },
+
+  /**
+   * Ensure all images have alt text or ARIA attributes
+   */
+  ensureImageAccessibility() {
+    const images = document.querySelectorAll('img');
+    images.forEach((img) => {
+      if (!img.hasAttribute('alt') && !img.hasAttribute('aria-hidden') && !img.hasAttribute('role')) {
+        img.setAttribute('alt', '');
+      }
+    });
+  },
 };
 
-// New function to address REACT_027: Fix 26 table structure issues
-function validateTableAccessibility(tableElement) {
-  if (typeof document === 'undefined' || !tableElement) {
-    return { valid: false, errors: ['Table element not found or document not available'] };
-  }
-  
-  const errors = [];
-  
-  // Check if table has proper structure
-  const thead = ...
-  const thElements = thead ? ... : [];
-  
-  if (thElements.length === 0) {
-    errors.push('Table header row is missing <th> elements');
-  }
-  
-  // Check that all th elements have scope attributes
-  thElements.forEach((th, index) => {
-    if ... {
-      errors.push(`Table header cell ${index + 1} is missing scope attribute`);
-    }
-  });
-  
-  // Check for proper caption or summary
-  const hasCaption = ...
-  const hasSummary = ... || ...
-  
-  if (!hasCaption && !hasSummary) {
-    errors.push('Table is missing a caption or aria-describedby for accessibility');
-  }
-  
-  return { valid: errors.length === 0, errors };
+// Export the a11yStore object as required
+export default a11yStore;
+
+// New functions
+function ensureInteractiveElementsAccessible() {
+  a11yStore.ensureInteractiveRoles();
+  a11yStore.addFormControlLabels();
+  a11yStore.ensureImageAccessibility();
 }
 
 function validateTableStructure(tableElement) {

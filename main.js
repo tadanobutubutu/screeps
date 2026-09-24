@@ -172,10 +172,9 @@ const a11yStore = {
   // ... remaining a11yStore methods ...
 
   // New function
-  ensureInteractiveElementsAccessible() {
-    a11yStore.ensureInteractiveRoles();
-    a11yStore.addFormControlLabels();
-    a11yStore.ensureImageAccessibility();
+  calculateDiscount(originalPrice, discountPercentage) {
+    const discountAmount = (originalPrice * discountPercentage) / 100;
+    return originalPrice - discountAmount;
   }
 };
 

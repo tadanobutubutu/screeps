@@ -366,5 +366,22 @@ module.exports = {
   newFunction1,
   newFunction2,
   newFunction3,
-  newFunction4
+  newFunction4,
+  ensureHeadingHierarchy,
+  validateHeadingHierarchy
 };
+
+addLangAttribute();
+fixTableStructure();
+fixLandmarkIssues();
+addMainLandmark();
+ensureUniqueLandmarks();
+addSvgAccessibleNames();
+addAccessibleNamesToSVGs();
+fixFakeLinkIssue();
+fixFakeLinkIssues();
+googleSignIn();
+fixButtonIdentifiers();
+validateTableStructure(validateTableStructureForAccessibility); // Added validateTableStructure function call
+fixTableStructure();
+validateTableStructure();

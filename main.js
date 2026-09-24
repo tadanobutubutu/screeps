@@ -1,8 +1,5 @@
 // main.js - Combined utility and accessibility features
 
-// TODO: Address accessibility issues from insight report:
-// - REACT_025: Ensure unique landmarks
-
 // Accessibility helper function for keyboard navigation
 function setupKeyboardNavigation(element, options = {}) {
   const { onEnter, onEscape, onArrowUp, onArrowDown } = options;

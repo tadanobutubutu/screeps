@@ -1205,6 +1205,47 @@ function ensureDependencyGraphARIA(container) {
   return container;
 }
 
+// New function to address dependency graph accessibility
+function ensureDependencyGraphAccessibility(graphContainer) {
+  if (!graphContainer) {
+    return { valid: false, errors: ['Graph container element is required'] };
+  }
+
+  // Ensure the container has a proper ARIA role
+  if (!graphContainer.hasAttribute('role')) {
+    graphContainer.setAttribute('role', 'application');
+  }
+
+  // Ensure the container has a label
+  if (!graphContainer.hasAttribute('aria-label') && !graphContainer.hasAttribute('aria-labelledby')) {
+    graphContainer.setAttribute('aria-label', 'Dependency Graph Visualization');
+  }
+
+  // Ensure the container is focusable if interactive
+  if (graphContainer.querySelector('button, [role="button"]')) {
+    graphContainer.setAttribute('tabindex', '0');
+  }
+
+  // Check for proper keyboard navigation
+  const interactiveElements = graphContainer.querySelectorAll('[role="button"], [role="link"], [role="checkbox"]');
+  let hasKeyboardNavigation = false;
+
+  interactiveElements.forEach(el => {
+    if (el.hasAttribute('tabindex') || el.tagName === 'BUTTON' || el.tagName === 'A') {
+      hasKeyboardNavigation = true;
+    }
+  });
+
+  if (!hasKeyboardNavigation) {
+    return {
+      valid: false,
+      errors: ['Graph container lacks keyboard navigation support for interactive elements']
+    };
+  }
+
+  return { valid: true, errors: [] };
+}
+
 // Export functions
 module.exports = {
   fs,
@@ -1242,5 +1283,5 @@ module.exports = {
   displayModuleStructure,
   exportDependencyGraph,
   exportModuleStructure,
-  ensureDependencyGraphARIA
+  ensureDependencyGraphAccessibility
 };

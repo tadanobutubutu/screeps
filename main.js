@@ -164,6 +164,10 @@ function setConfig(config) {
 }
 
 // Implement the new function(s) here
+// Assuming that the new function3 is a simple function that logs the number of tables in the application data
+function function3() {
+    console.log(`There are ${getTables().length} tables in the application data.`);
+}
 
 // Access the dependencyGraph container and ensure it has proper ARIA role
 const dependencyGraph = document.getElementById('dependencyGraph');

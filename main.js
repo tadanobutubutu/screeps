@@ -271,29 +271,8 @@ function addressAccessibilityIssues() {
     return someFunction();
   }
 
-  module.exports = {
-    config,
-    logger,
-    improveAccessibility,
-    addressInsightReportIssues,
-    renderDependencyGraph,
-    renderIndexView,
-    calculateSum,
-    fixLandmarkIssues,
-    addLandmarkRoles,
-    ensureUniqueLandmarks,
-    fixFakeLinks,
-    fixTableStructureIssues,
-    fixTableHeaderCellScope,
-    addMainLandmark,
-    addSvgAccessibleNames,
-    implementNewFunction,
-    addLangAttribute,
-    main,
-    addressAccessibilityIssues,
-    renderDependencyGraphContent,
-    fixUniqueLandmarks,
-    capitalizeFirstLetter
-  };
+// Updated function for REACT_025 (ensuring unique landmarks)
+function fixUniqueLandmarks(insightReport = {}) {
+  const issues = insightReport.issues || [];
 
   main();

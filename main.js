@@ -170,5 +170,5 @@ module.exports = {
   addressAccessibilityIssues,
   renderDependencyGraphs,
   ...mainUtilities,
-  accessibilityUtils
+  accessibilityUtils // Exporting the new utility functions
 }

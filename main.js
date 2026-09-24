@@ -27,17 +27,17 @@
       const role = landmark.getAttribute('role') || landmark.tagName.toLowerCase();
       const count = (seen.get(role) || 0) + 1;
       seen.set(role, count);
-      if (count > 1 && !landmark.getAttribute('aria-label')) {
+      if (count > 1 && landmark.textContent.trim() === '') {
         landmark.setAttribute('aria-label', `${role} ${count}`);
       }
     });
   },
 
   fixFakeLink: function() {
-    const fakeLinks = document.querySelectorAll('a[href=""], a[href="#"], span.clickable, div.clickable');
+    const fakeLinks = document.querySelectorAll('[data-fake-link]');
     fakeLinks.forEach(el => {
-      if (!el.getAttribute('tabindex')) el.setAttribute('tabindex', '0');
-      if (!el.getAttribute('role')) el.setAttribute('role', 'link');
+      el.setAttribute('tabindex', '0');
+      el.setAttribute('role', 'link');
       el.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
@@ -45,6 +45,12 @@
         }
       });
     });
+  },
+
+  addLangAttribute: function() {
+    if (!document.documentElement.lang) {
+      document.documentElement.lang = 'en';
+    }
   },
 
   trapFocus: function(element) {
@@ -109,6 +115,9 @@
   rotateBack: function() {},
 
   initializeAccessibility: function() {
+    this.addLangAttribute();
+    this.ensureUniqueLandmarks();
+    this.addSvgAccessibleNames();
     this.fixFakeLink();
     this.rotateBack();
   },

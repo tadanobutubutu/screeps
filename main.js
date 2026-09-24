@@ -16,41 +16,6 @@ function setHtmlLangAttribute(lang) {
   return lang || 'en';
 }
 
-/**
- * Detects the language of the given content and sets the HTML lang attribute
- * @param {string} content - The text content to analyze
- * @returns {string} The detected language code
- */
-function detectAndSetLang(content) {
-  // Simple language detection based on common patterns
-  let lang = 'en'; // Default to English
-  
-  if (content) {
-    // Check for common non-ASCII characters to help detect language
-    if (/[\u4e00-\u9fff]/.test(content)) {
-      lang = 'zh'; // Chinese
-    } else if ... {
-      lang = 'ja'; // Japanese
-    } else if (/[\u0400-\u04ff]/.test(content)) {
-      lang = 'ru'; // Russian/Cyrillic
-    } else if (/[\u0600-\u06ff]/.test(content)) {
-      lang = 'ar'; // Arabic
-    } else if ... {
-      lang = 'fr'; // French
-    } else if (/[äöüß]/i.test(content)) {
-      lang = 'de'; // German
-    }
-  }
-  
-  ...
-  return lang;
-}
-
-// New function to address REACT_015: Add lang attribute to HTML element
-function getLangAttribute() {
-  return (typeof document !== 'undefined' && document.documentElement) ? document.documentElement.lang : 'en';
-}
-
 // Function to validate table accessibility
 const validateTableAccessibility = (html) => {
   const issues = [];
@@ -107,5 +72,50 @@ function validateTableStructure(table) {
   if (!table) {
     return issues;
   }
-  return { status: 'success', credential: credentialResponse };
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.textContent = '[...]';
+  btn.setAttribute('role', 'button');
+  btn.setAttribute('tabindex', '0');
+  
+  if (parent) {
+    parent.appendChild(btn);
+  }
+  
+  return btn;
 }
+
+const a11yStore = {
+  // ... existing methods ...
+  
+  prefersReducedMotion() {
+    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  },
+
+  prefersHighContrast() {
+    return window.matchMedia('(prefers-contrast: more)').matches;
+  },
+
+  updateLiveRegion(message, priority = 'polite') {
+    if (!this.liveRegion) this.createLiveRegion();
+    this.announce(message, priority);
+  },
+
+  checkLandmarkElements() {
+    const landmarkElements = ['main', 'nav', 'header', 'footer', 'aside'];
+    landmarkElements.forEach((element) => {
+      const landmarks = document.querySelectorAll(element);
+      landmarks.forEach((landmark, index) => {
+        if (landmark.id === '') {
+          landmark.setAttribute('id', `${element}-${index}`);
+        }
+
+        if (landmarks.length > 1) {
+          if (!landmark.hasAttribute('aria-label') && !landmark.hasAttribute('aria-labelledby')) {
+            landmark.setAttribute('aria-label', `${element} section ${index + 1}`);
+          }
+        }
+      });
+    });
+  }
+};

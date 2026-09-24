@@ -17,8 +17,8 @@ function secureRandomInt(max) {
     try {
         const crypto = require('crypto');
         if (crypto && crypto.randomBytes) {
-            const buf = crypto.randomBytes(4);
-            return buf.readUInt32LE(0) % max;
+            // The crypto object handles PRNG, so we use crypto.randomInt directly
+            return crypto.randomInt(max);
         }
     } catch (e) {
         // Fallback

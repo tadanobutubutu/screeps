@@ -142,6 +142,10 @@ describe('role.scout', () => {
         // Mock crypto to throw an error
         const crypto = require('crypto');
         const originalRandomBytes = crypto.randomBytes;
+        const originalRandomInt = crypto.randomInt;
+        crypto.randomInt = jest.fn().mockImplementation(() => {
+            throw new Error('Simulated crypto error');
+        });
         crypto.randomBytes = jest.fn().mockImplementation(() => {
             throw new Error('Simulated crypto error');
         });
@@ -164,6 +168,7 @@ describe('role.scout', () => {
 
         Math.random = originalRandom;
         crypto.randomBytes = originalRandomBytes;
+        crypto.randomInt = originalRandomInt;
     });
 
     test('falls back to Math.random when require("crypto") throws an error', () => {

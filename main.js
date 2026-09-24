@@ -106,63 +106,37 @@ function focusTrap() {}
 function enhanceAddBookFormAccessibility() {}
 
 module.exports = {
-    renderDependencyGraph,
-    renderIndex,
-    getLangAttribute,
-    accessibilityUtils,
-    createInPageButton,
-    createWebResourceButton,
-    validateLandmark,
-    validateLandmarkStructure,
-    validateAccessibilityReport,
-    getSvgAccessibleName,
-    getFullLangAttribute,
-    validateTableAccessibility,
-    validateTableStructure,
-    ensureUniqueLandmarks,
-    addAccessibleName,
-    handleAccessibilityErrors,
-    handleAccessibilityIssues,
-    createAccessibleLink,
-    newFocusTrap,
-    transformInputData,
-    renderIndexView,
-    renderDependencyGraphs,
-    indexTemplateContent,
-    addLangAttribute,
-    fixTableStructureIssues,
-    addMainLandmark,
-    _ensureUniqueLandmarks,
-    setSvgAccessibilityProps,
-    addSvgAccessibleNames,
-    addAccessibleNamesToSVGs,
-    fixFakeLinkIssue,
-    fixFakeLinkIssues,
-    fixFakeLinks,
-    fixLandmarkIssues,
-    addLandmarkRegions,
-    uniqueLandmarks,
-    fixImageAltTexts,
-    googleSignIn,
-    handleCredentialResponse,
-    ensureElementHasId,
-    ensureElementHasIdOrigin,
-    addAriaLabel,
-    fixButtonIdentifiers,
-    fixDependencyGraphAria,
-    addMainLandmarkToIndex,
-    announceToScreenReader,
-    handleKeyboardNav,
-    ensureElementAccessibility,
-    validateAndFixFormAccessibility,
-    validateAndFixLinkAccessibility,
-    validateAndFixButtonAccessibility,
-    validateAndFixTableStructure,
-    validateAndFixLandmark,
-    improveSvgAccessibility,
-    createAccessibleInPageButton,
-    log,
-    exportUtils,
-    focusTrap,
-    enhanceAddBookFormAccessibility
+    accessibilityUtils: accessibilityUtils,
+    implementAccessibilityFixesFromReport: implementAccessibilityFixesFromReport,
+    initAccessibility: initAccessibility,
+    handleCredentialResponse: handleCredentialResponse,
+    ensureElementId: ensureElementId,
+    addAriaLabel: addAriaLabel,
+    renderDependencyGraph: renderDependencyGraph,
+    calculateSum: calculateSum,
+    processData: processData,
+    filterValidItems: filterValidItems,
+    groupByCategory: groupByCategory,
+    validateTableAccessibility: validateTableAccessibility,
+    validateTableStructure: validateTableStructure,
+    validateLandmark: validateLandmark,
+    validateLandmarkStructure: validateLandmarkStructure,
+    ensureUniqueLandmarks: ensureUniqueLandmarks,
+    getSvgAccessibleName: getSvgAccessibleName,
+    createInPageButton: createInPageButton,
+    handleAccessibilityIssues: handleAccessibilityIssues,
+    newExportedFunction: newExportedFunction,
+    wrapPrimaryContentInMain: function(content) {
+        // New function to wrap primary content in <main> element
+        return `<main>${content}</main>`;
+    }
 };
+
+// Init on DOM ready
+if (typeof document !== 'undefined') {
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initAccessibility);
+    } else {
+        initAccessibility();
+    }
+}

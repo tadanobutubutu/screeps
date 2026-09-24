@@ -50,6 +50,7 @@ function newFunction() {
 }
 
 // New functions for addressing accessibility issues
+
 function setARIARoleForDependencyGraph() {
   if (typeof document === 'undefined') {
     return;

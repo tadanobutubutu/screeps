@@ -25,6 +25,64 @@ function initialize() {
   return true;
 }
 
+// Spawn a new button instance in the document body
+function spawnButton(buttonText, onClickHandler) {
+  const button = createInPageButton(buttonText, onClickHandler);
+  document.body.appendChild(button);
+}
+
+// If the `rotateBack` function is defined elsewhere in main.js, ensure it's called when the button is clicked.
+// If not, define it here:
+export function rotateBack() {
+  // Your code to rotate back
+  console.log('Reverting back the rotation.');
+}
+
+// ... (other code in main.js)
+
+// Additional accessibility-related code changes:
+// Ensure that all interactive elements have appropriate keyboard support
+// Check that ARIA attributes are correctly paired and have appropriate values
+
+// REACT_015: lang attribute should be added to the HTML element (typically in index.html)
+// <html lang="en">
+
+// REACT_017: Add landmark roles and fix landmark issues
+// Add main landmark role to main content area
+// Example: <main role="main">...</main>
+
+// REACT_025: Ensure unique landmarks
+// Ensure only one main landmark per page
+// Use unique aria-label or aria-labelledby for landmark regions
+
+// REACT_036: Fix fake link issue - convert <a href="#"> to <button> with proper ARIA
+function createUnrotateButton() {
+  const button = document.createElement('button');
+  button.id = 'unrotate';
+  button.setAttribute('role', 'button');
+  button.setAttribute('aria-label', 'rotate back');
+  button.textContent = 'rotate back';
+  button.addEventListener('click', rotateBack);
+  return button;
+}
+
+// Replace fake links with proper buttons
+const fakeLink = document.querySelector('a[href="#"]');
+if (fakeLink && fakeLink.tagName === 'A') {
+  const parent = fakeLink.parentElement;
+  const newButton = createUnrotateButton();
+  parent.replaceChild(newButton, fakeLink);
+}
+
+// Add lang attribute to HTML element
+if (typeof document !== 'undefined') {
+  document.documentElement.lang = 'en-US';
+}
+
+/**
+ * Get the application configuration
+ * @returns {Object} The configuration object with apiUrl and timeout properties
+ */
 function getConfig() {
   return CONFIG;
 }

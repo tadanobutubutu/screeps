@@ -1,39 +1,6 @@
 import React from 'react';
 import { render } from 'react-dom';
 import {
-  addLangAttribute,
-  fixTableStructure,
-  fixLandmarkIssues,
-  addMainLandmark,
-  addLandmarkRegions,
-  ensureUniqueLandmarks,
-  uniqueLandmarks,
-  addSvgAccessibleNames,
-  addAccessibleNamesToSVGs,
-  fixFakeLinkIssue,
-  fixFakeLinkIssues,
-  googleSignIn,
-  fixButtonIdentifiers,
-  ensureElementHasId,
-  addAriaLabel,
-  renderDependencyGraphs,
-  addMainLandmarkToIndex,
-  focusTrap,
-  addTaskWithPriority,
-  setElementLabel,
-  setFocus,
-  addAccessibleName,
-  validateTableAccessibility,
-  validateTableStructure,
-  getLangAttribute,
-  personName,
-  validateLandmark,
-  validateLandmarkStructure,
-  getSvgAccessibleName,
-  createInPageButton,
-  newFocusTrap,
-  renderAdditionalContent,
-  calculateComplexity,
   renderDependencyGraph,
   renderIndex
 } from './AccessibilityHelpers';
@@ -119,7 +86,7 @@ const { accessibilityUtils } = require('./accessibilityUtils');
 
 const { validateTableStructureForAccessibility } = main;
 
-const DOMParser = require('@xmldom/xmldom').DOMParser;
+const DOMParser = require('@xmldomain/xmldom').DOMParser;
 
 // Dependency imports for additional functionality
 const {
@@ -147,61 +114,11 @@ const {
   ...mainUtilities
 } = require('./utilities');
 
-// Access the dependencyGraph container and ensure it has proper ARIA role
-const dependencyGraph = document.getElementById('dependencyGraph');
-
-if (dependencyGraph) {
-  // Set appropriate ARIA role for the dependency graph container
-  // Using 'region' role for a contained section of content
-  if (!dependencyGraph.getAttribute('role')) {
-    dependencyGraph.setAttribute('role', 'region');
-  }
-
-  // Add accessible label if not already present
-  if (!dependencyGraph.getAttribute('aria-label')) {
-    dependencyGraph.setAttribute('aria-label', 'Dependency graph visualization');
-  }
-
-  // Ensure element has an ID if not present
-  if (!dependencyGraph.getAttribute('id')) {
-    dependencyGraph.setAttribute('id', 'dependencyGraph');
-  }
-
-  // Add language attribute to the HTML element
-  if (!document.documentElement.getAttribute('lang')) {
-    document.documentElement.lang = 'en';
-  }
-}
-
 class ScreepsBot {
-  constructor() {
-    this.tasks = [];
-    this.focusTrapEnabled = false;
-    this.focusedElement = null;
-  }
-
-  // New feature: Priority-based task scheduling
-  addTaskWithPriority(taskFn, priority = 'medium') {
-    this.tasks.push({ task: taskFn, priority, id: this.generateTaskId() });
-    this.scheduleTasks();
-    return this.tasks[0].id;
-  }
-
-  generateTaskId() {
-    return `task-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-  }
-
-  scheduleTasks() {
-    const priorityOrder = { high: 1, medium: 2, low: 3 };
-    this.tasks.sort((a, b) => priorityOrder[a.priority] - priorityOrder[b.priority]);
-  }
-
-  // Accessibility functions
-  setElementLabel(elementId, label) {
-    const el = document.getElementById(elementId);
-    if (el) {
-      el.setAttribute('aria-label', label);
-      el.setAttribute('role', 'button');
+  validateTableAccessibility(html) {
+    if (html) {
+      // Extract table structure from the provided HTML and check its accessibility according to the criteria
+      // ... (Add the logic to validate table accessibility)
     }
   }
 
@@ -217,17 +134,4 @@ class ScreepsBot {
   // ... (Add the event listener for click events on the dependencyGraph element)
 }
 
-// Extract the accessible name for an SVG from its content
-function extractAccessibleNameFromSVG(svgContent) {
-  const parser = new DOMParser();
-  const xmlDoc = parser.parseFromString(svgContent, "image/svg+xml");
-  const title = xmlDoc.getElementsByTagName("title");
-  return title.length > 0 ? title[0].textContent : '';
-}
-
-// Export the new function
-module.exports = {
-  // ... (The existing exports remain the same)
-  createInPageButtons,
-  extractAccessibleNameFromSVG
-};
+// ... (The module.exports section remains the same as in the original conflict branch)

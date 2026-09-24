@@ -323,13 +323,15 @@ function calculateProduct(a, b) {
   return a * b;
 }
 
-function countDependencies(dependencies) {
-  return Object.keys(dependencies || {}).length;
+// New function for rendering graph/index
+function renderGraphIndex(data) {
+  // Placeholder for the actual rendering logic
+  console.log('Rendering graph/index with data:', data);
 }
 
 // Exports for the functions
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { checkLinkAndButtonAccessibility, addressAccessibilityIssues, calculateSum, calculateProduct, countDependencies };
+  module.exports = { checkLinkAndButtonAccessibility, addressAccessibilityIssues, calculateSum, calculateProduct, renderGraphIndex };
 }
 
 // If running in browser context
@@ -338,5 +340,5 @@ if (typeof window !== 'undefined') {
   window.addressAccessibilityIssues = addressAccessibilityIssues;
   window.calculateSum = calculateSum;
   window.calculateProduct = calculateProduct;
-  window.countDependencies = countDependencies;
+  window.renderGraphIndex = renderGraphIndex;
 }

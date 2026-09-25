@@ -118,7 +118,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         `}</style>
             </head>
             <body>
-                <main>{children}</main>
+                <a href="#main-content" className="skip-link">
+                    メインコンテンツへスキップ
+                </a>
+                {children}
             </body>
         </html>
     );

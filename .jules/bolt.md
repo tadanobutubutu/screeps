@@ -24,3 +24,7 @@
 ## 2026-09-24 - Utilizing Pre-warmed Caches for room.find
 **Learning:** In Screeps roles that frequently call `room.find` (like `role.scout`), directly invoking `creep.room.find(FIND_DROPPED_RESOURCES)` on every tick evaluates an O(N) array search inside the game engine, causing high CPU load across many creeps. Replacing this with the pre-warmed `cache` module (`cache.getDroppedResources(creep.room)`) implements TTL-based caching. This reduces the native engine calls by drastically dropping the frequency of native `room.find` calls per tick.
 **Action:** When working with frequently queried collections in creep tick routines (e.g. dropped resources, structures), check if an equivalent helper function in `src/utils/cache.js` exists and use it instead of `room.find()`.
+
+## 2026-08-06 - Eliminating Dead-Code and Reversing Preset Search in Body Selection
+**Learning:** In Screeps spawn managers, calculating unused `bestBody` and iterating forward through cost-ascending presets forces unnecessary iterations on every tick. Reversing loop direction for backward indexed search enables early-exit on the highest affordable preset while eliminating dead-code calculations and object allocations.
+**Action:** Always search sorted preset arrays in reverse to exit early on the optimal choice and ensure calculated values are strictly required by return paths.

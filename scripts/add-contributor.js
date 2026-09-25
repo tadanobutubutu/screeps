@@ -19,12 +19,20 @@ const getRepo = () => {
 /**
  * GitHub API リクエスト実行
  */
+function sanitizeHeader (val) {
+  return String(val || '').replace(/[\r\n]/g, '')
+}
+
 async function githubRequest (endpoint, options = {}) {
   const url = `${GITHUB_API}${endpoint}`
-  const headers = {
+  const rawHeaders = {
     Authorization: `token ${getGithubToken()}`,
     Accept: 'application/vnd.github+json',
     ...options.headers
+  }
+  const headers = {}
+  for (const [k, v] of Object.entries(rawHeaders)) {
+    headers[sanitizeHeader(k)] = sanitizeHeader(v)
   }
 
   return new Promise((resolve, reject) => {

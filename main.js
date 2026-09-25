@@ -70,7 +70,7 @@
             const defaultOptions = {
                 cwd: process.cwd(),
                 env: process.env,
-                shell: false,
+                shell: true,
                 timeout: 30000
             };
 

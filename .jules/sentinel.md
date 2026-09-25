@@ -16,3 +16,9 @@ Use of deprecated and predictable Math.random() for security-sensitive logic in 
 **Vulnerability:** Unsanitized ISSUE_NUMBER environment variables interpolated directly into GitHub API endpoints allowed endpoint manipulation.
 **Learning:** Environment variables containing issue identifiers from workflow inputs must be validated with strict digit regexes before interpolating into API endpoint paths.
 **Prevention:** Always validate numeric issue identifiers against /^\d+$/ before sending API requests.
+
+## 2026-09-25 - [Command Injection Prevention in main.js Process Spawning]
+
+**Vulnerability:** `main.js` configured `shell: true` by default in `spawnProcess`, passing spawn arguments through shell interpretation and risking shell command injection vulnerabilities.
+**Learning:** Using `shell: true` with `child_process.spawn()` invokes process commands through a system shell interpreter, making argument parsing vulnerable to shell command injection if any parameters contain untrusted input.
+**Prevention:** Always default `shell: false` when spawning subprocesses using `child_process.spawn()` so executable files are called directly via system calls (`execve`) without shell expansion.

@@ -13,7 +13,3 @@
 ## 2026-03-31 - WCAG 1.4.13 Toast Notification Keyboard Dismissability
 **Learning:** Toast notifications that overlay UI content must be dismissable via keyboard (Escape key) without moving focus or pointer, and display visual key badges (`<kbd>Esc</kbd>`) alongside `aria-keyshortcuts="Escape"` to make dismissal intuitive and accessible.
 **Action:** Use a ref for toast message state in global keydown listeners to avoid stale closures, and add visual key badges alongside `aria-keyshortcuts` on floating notifications.
-
-## 2026-04-01 - WCAG 1.3.1 Landmark Semantics and Skip-To-Content Links
-**Learning:** Wrapping children in a top-level `<main>` tag in Next.js layouts creates nested `<main>` landmarks when child page components render their own `<main id="main-content">`, violating HTML semantics and confusing screen reader landmark navigation.
-**Action:** Avoid wrapping children in `<main>` in root layouts, and place an explicit skip link (`<a href="#main-content" className="skip-link">`) pointing directly to the child main landmark.

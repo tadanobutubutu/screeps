@@ -227,7 +227,8 @@ function tryCatch (fn, context, ...args) {
   try {
     return fn(...args)
   } catch (e) {
-    error(`[${context}] ${e.message}`, e)
+    const errMsg = e && e.message ? e.message : String(e)
+    error(`[${context}] ${errMsg}`, e)
     return undefined
   }
 }

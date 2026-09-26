@@ -22,3 +22,9 @@ Use of deprecated and predictable Math.random() for security-sensitive logic in 
 **Vulnerability:** `main.js` configured `shell: true` by default in `spawnProcess`, passing spawn arguments through shell interpretation and risking shell command injection vulnerabilities.
 **Learning:** Using `shell: true` with `child_process.spawn()` invokes process commands through a system shell interpreter, making argument parsing vulnerable to shell command injection if any parameters contain untrusted input.
 **Prevention:** Always default `shell: false` when spawning subprocesses using `child_process.spawn()` so executable files are called directly via system calls (`execve`) without shell expansion.
+
+## 2026-09-26 - [Safe Exception Message Extraction in tryCatch Wrappers]
+
+**Vulnerability:** In exception handling wrappers (`tryCatch` in `src/utils/logger.js` and `utils.logging.js`), direct property access on caught errors (`e.message`) caused secondary `TypeError: Cannot read properties of null` exceptions when non-Error primitives, strings, `null`, or `undefined` were thrown.
+**Learning:** In JavaScript, any value can be thrown (`throw null`, `throw "string"`, `throw undefined`). Assuming caught exception objects always possess a `.message` property causes secondary runtime crashes inside catch blocks.
+**Prevention:** Always extract error messages defensively using `const errMsg = e && e.message ? e.message : String(e)` before referencing error properties in exception handling and logging logic.

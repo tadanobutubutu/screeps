@@ -28,3 +28,8 @@
 ## 2026-08-06 - Eliminating Dead-Code and Reversing Preset Search in Body Selection
 **Learning:** In Screeps spawn managers, calculating unused `bestBody` and iterating forward through cost-ascending presets forces unnecessary iterations on every tick. Reversing loop direction for backward indexed search enables early-exit on the highest affordable preset while eliminating dead-code calculations and object allocations.
 **Action:** Always search sorted preset arrays in reverse to exit early on the optimal choice and ensure calculated values are strictly required by return paths.
+
+## 2026-09-26 - Short-Circuiting Tower Repair Scans for Full-Health Structures
+
+**Learning:** In tower structure repair scans (`towerManager._findDamagedStructure`), evaluating dictionary property lookups (`REPAIR_THRESHOLD[type]`) and floating-point ratio calculations (`s.hits / s.hitsMax`) for full-health structures on every tick wastes CPU across all rooms. Adding `if (s.hits >= s.hitsMax) continue;` short-circuits ~90-95% of undamaged room structures prior to threshold lookups and division operations.
+**Action:** Fast integer short-circuits (`if (s.hits >= s.hitsMax) continue;`) should always precede structure type threshold lookups and arithmetic operations in tower and creep repair routines.

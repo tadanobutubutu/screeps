@@ -373,6 +373,9 @@ function _findDamagedStructure (room) {
 
   for (let i = 0; i < allStructures.length; i++) {
     const s = allStructures[i]
+    // ⚡ PERFORMANCE OPTIMIZATION: Short-circuit full-health structures before threshold lookups and divisions
+    if (s.hits >= s.hitsMax) continue
+
     const type = s.structureType
 
     // Skip walls and ramparts (ramparts handled above or at different thresholds)

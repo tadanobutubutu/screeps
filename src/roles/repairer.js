@@ -245,60 +245,6 @@ function _getRepairTarget (creep) {
   creep.memory[MEMORY_KEYS.TARGET_ID] = bestTarget.id
   return bestTarget
 }
-/**
- * 壁の修復が必要か判断する
- * @param {Structure} structure
- * @param {number} targetHP
- * @returns {boolean}
- */
-function _needsWallRepair (structure, targetHP) {
-  return structure.hits < targetHP
-}
-
-/**
- * ランパートの修復が必要か判断する
- * @param {Structure} structure
- * @param {number} targetHP
- * @returns {boolean}
- */
-function _needsRampartRepair (structure, targetHP) {
-  return structure.hits < targetHP
-}
-
-/**
- * 一般構造物の修復が必要か判断する
- * @param {Structure} structure
- * @returns {boolean}
- */
-function _needsStandardRepair (structure) {
-  const threshold = REPAIR_THRESHOLD[structure.structureType] || REPAIR_THRESHOLD.OTHER
-  return structure.hits < structure.hitsMax * threshold
-}
-
-/**
- * 構造物が修復を必要とするか判断する
- * @param {Structure} structure
- * @param {Room} room
- * @param {number} [wallTarget]
- * @returns {boolean}
- */
-function _needsRepair (structure, room, wallTarget) {
-  const type = structure.structureType
-
-  if (type === STRUCTURE_WALL) {
-    const rcl = room.controller ? room.controller.level : 1
-    const target = wallTarget || WALL_HP_TARGET[rcl] || WALL_HP_TARGET[1]
-    return _needsWallRepair(structure, target)
-  }
-
-  if (type === STRUCTURE_RAMPART) {
-    const rcl = room.controller ? room.controller.level : 1
-    const target = wallTarget || WALL_HP_TARGET[rcl] || WALL_HP_TARGET[1]
-    return _needsRampartRepair(structure, target)
-  }
-
-  return _needsStandardRepair(structure)
-}
 
 /**
  * 修復中のビジュアルを表示する

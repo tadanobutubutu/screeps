@@ -33,3 +33,8 @@
 
 **Learning:** In tower structure repair scans (`towerManager._findDamagedStructure`), evaluating dictionary property lookups (`REPAIR_THRESHOLD[type]`) and floating-point ratio calculations (`s.hits / s.hitsMax`) for full-health structures on every tick wastes CPU across all rooms. Adding `if (s.hits >= s.hitsMax) continue;` short-circuits ~90-95% of undamaged room structures prior to threshold lookups and division operations.
 **Action:** Fast integer short-circuits (`if (s.hits >= s.hitsMax) continue;`) should always precede structure type threshold lookups and arithmetic operations in tower and creep repair routines.
+
+## 2026-09-27 - Pre-Computing Distances in sortByDistance Routine
+
+**Learning:** Invoking `origin.getRangeTo()` inside `Array.prototype.sort()` comparison callbacks executes distance calculations $O(N \log N)$ times. Pre-mapping distances into an intermediate structure reduces engine calls to $O(N)$.
+**Action:** Always pre-calculate expensive metrics or position calculations in single-pass array maps before sorting arrays.

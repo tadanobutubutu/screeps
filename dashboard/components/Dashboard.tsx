@@ -1171,13 +1171,13 @@ export default function Dashboard() {
                         onBlur={() => setSummaryDetailsFocused(false)}
                         title={
                             detailsOpen
-                                ? '生データを非表示にします (Alt + D)'
-                                : '生データを表示します (Alt + D)'
+                                ? `生データを確認 (${jsonSizeFormatted}) - 非表示にする (Alt + D)`
+                                : `生データを確認 (${jsonSizeFormatted}) - 表示する (Alt + D)`
                         }
                         aria-label={
                             detailsOpen
-                                ? '生データを非表示にします (Alt + D)'
-                                : '生データを表示します (Alt + D)'
+                                ? `生データを確認 (${jsonSizeFormatted}) - 非表示にする (Alt + D)`
+                                : `生データを確認 (${jsonSizeFormatted}) - 表示する (Alt + D)`
                         }
                         style={{
                             color:

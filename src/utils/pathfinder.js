@@ -215,12 +215,29 @@ function manhattan (a, b) {
   return Math.abs(a.x - b.x) + Math.abs(a.y - b.y)
 }
 
+/**
+ * ⚡ PERFORMANCE OPTIMIZATION: Pre-calculate distance once per object before sorting.
+ * Avoids repeated origin.getRangeTo() calls in Array.prototype.sort callback,
+ * reducing distance calculations from O(N log N) to O(N).
+ */
 function sortByDistance (origin, objects) {
-  return objects.slice().sort((a, b) => {
-    const da = origin.getRangeTo(a)
-    const db = origin.getRangeTo(b)
-    return da - db
-  })
+  if (!objects || objects.length === 0) return []
+  const hasGetRangeTo = origin && typeof origin.getRangeTo === 'function'
+  const len = objects.length
+  const mapped = new Array(len)
+  for (let i = 0; i < len; i++) {
+    const obj = objects[i]
+    mapped[i] = {
+      obj,
+      dist: hasGetRangeTo ? origin.getRangeTo(obj) : 0
+    }
+  }
+  mapped.sort((a, b) => a.dist - b.dist)
+  const result = new Array(len)
+  for (let i = 0; i < len; i++) {
+    result[i] = mapped[i].obj
+  }
+  return result
 }
 
 function closest (origin, objects) {

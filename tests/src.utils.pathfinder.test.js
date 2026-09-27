@@ -172,4 +172,14 @@ describe('src/utils/pathfinder', () => {
     expect(roadPositions).toHaveLength(2)
     expect(roadPositions).toEqual([roadPos1, roadPos2])
   })
+
+  test('sortByDistance sorts objects by distance with O(N) getRangeTo calls', () => {
+    const origin = { pos: { x: 0, y: 0 }, getRangeTo: jest.fn(obj => Math.max(Math.abs(obj.x), Math.abs(obj.y))) }
+    const objects = [{ x: 10, y: 10 }, { x: 2, y: 2 }, { x: 5, y: 5 }]
+
+    const sorted = pathfinder.sortByDistance(origin, objects)
+
+    expect(sorted).toEqual([{ x: 2, y: 2 }, { x: 5, y: 5 }, { x: 10, y: 10 }])
+    expect(origin.getRangeTo).toHaveBeenCalledTimes(3)
+  })
 })

@@ -28,3 +28,9 @@ Use of deprecated and predictable Math.random() for security-sensitive logic in 
 **Vulnerability:** In exception handling wrappers (`tryCatch` in `src/utils/logger.js` and `utils.logging.js`), direct property access on caught errors (`e.message`) caused secondary `TypeError: Cannot read properties of null` exceptions when non-Error primitives, strings, `null`, or `undefined` were thrown.
 **Learning:** In JavaScript, any value can be thrown (`throw null`, `throw "string"`, `throw undefined`). Assuming caught exception objects always possess a `.message` property causes secondary runtime crashes inside catch blocks.
 **Prevention:** Always extract error messages defensively using `const errMsg = e && e.message ? e.message : String(e)` before referencing error properties in exception handling and logging logic.
+
+## 2026-09-27 - [HTTP Header Injection Prevention in deploy.js Requests]
+
+**Vulnerability:** In `deploy.js`, `buildRequestOptions` and `validateToken` constructed HTTPS request headers (`X-Token`) and request paths without stripping CRLF characters (`\r` and `\n`), exposing request options to potential HTTP Header Injection and Response Splitting.
+**Learning:** Dynamic tokens or path parameters read from external environments or configurations can contain carriage returns or line feeds that manipulate HTTP request headers when constructing request options.
+**Prevention:** Always strip carriage return and line feed characters (`/[\r\n]/g`) from dynamic tokens and path strings before injecting them into HTTP request options and headers.

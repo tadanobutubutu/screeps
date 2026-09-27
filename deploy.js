@@ -9,10 +9,11 @@ function validateToken (token, label) {
   if (token === undefined || token === null || token === '') {
     return { valid: false, message: `${label} token is not set` }
   }
+  const cleanToken = typeof token === 'string' ? token.replace(/[\r\n]/g, '') : token
   // Screepsトークンの基本的な形式検証（通常は長い英数字文字列）
   const tokenPattern = /^[a-zA-Z0-9_-]{20,}$/
-  if (!tokenPattern.test(token)) {
-    if (typeof token === 'string' && /[^a-zA-Z0-9_-]/.test(token)) {
+  if (!tokenPattern.test(cleanToken)) {
+    if (typeof cleanToken === 'string' && /[^a-zA-Z0-9_-]/.test(cleanToken)) {
       return { valid: false, message: `${label} token contains invalid characters` }
     }
     return { valid: false, message: `${label} token format is invalid` }
@@ -148,15 +149,17 @@ function handleDeployResponse (res, label, resolve, reject) {
 }
 
 function buildRequestOptions (apiPath, bodyLength, token) {
+  const cleanToken = typeof token === 'string' ? token.replace(/[\r\n]/g, '') : token
+  const cleanPath = typeof apiPath === 'string' ? apiPath.replace(/[\r\n]/g, '') : apiPath
   return {
     hostname: 'screeps.com',
     port: 443,
-    path: apiPath,
+    path: cleanPath,
     method: 'POST',
     headers: {
       'Content-Type': 'application/json; charset=utf-8',
       'Content-Length': bodyLength,
-      'X-Token': token
+      'X-Token': cleanToken
     }
   }
 }

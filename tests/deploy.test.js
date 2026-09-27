@@ -171,6 +171,35 @@ describe('deploy.js', () => {
       ).resolves.toBeUndefined()
     })
 
+    test('ヘッダーおよびパスからCRLF文字を除去してヘッダーインジェクションを防止する', async () => {
+      const mockReq = {
+        write: jest.fn(),
+        end: jest.fn(),
+        on: jest.fn(),
+        setTimeout: jest.fn()
+      }
+      const mockRes = {
+        statusCode: 200,
+        on: jest.fn((event, callback) => {
+          if (event === 'data') callback(JSON.stringify({ ok: 1 }))
+          if (event === 'end') callback()
+        })
+      }
+      let capturedOptions = null
+      https.request.mockImplementation((options, callback) => {
+        capturedOptions = options
+        callback(mockRes)
+        return mockReq
+      })
+
+      const tokenWithCRLF = 'valid_token_12345678901234567890\r\n'
+      const pathWithCRLF = '/ptr/api/user/code\r\n'
+      await deployTo('PTR', pathWithCRLF, tokenWithCRLF, {})
+
+      expect(capturedOptions.headers['X-Token']).toBe('valid_token_12345678901234567890')
+      expect(capturedOptions.path).toBe('/ptr/api/user/code')
+    })
+
     test('デプロイ失敗時（ok !== 1）にrejectする', async () => {
       const mockReq = {
         write: jest.fn(),

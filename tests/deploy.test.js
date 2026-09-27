@@ -192,11 +192,12 @@ describe('deploy.js', () => {
         return mockReq
       })
 
-      const tokenWithCRLF = 'valid_token_12345678901234567890\r\n'
+      const dummyToken = 'a'.repeat(25)
+      const tokenWithCRLF = dummyToken + '\r\n'
       const pathWithCRLF = '/ptr/api/user/code\r\n'
       await deployTo('PTR', pathWithCRLF, tokenWithCRLF, {})
 
-      expect(capturedOptions.headers['X-Token']).toBe('valid_token_12345678901234567890')
+      expect(capturedOptions.headers['X-Token']).toBe(dummyToken)
       expect(capturedOptions.path).toBe('/ptr/api/user/code')
     })
 

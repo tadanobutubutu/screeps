@@ -36,7 +36,7 @@ importers:
         specifier: ^30.5.0
         version: 30.5.2(@types/node@26.6.2)(supports-color@8.1.1)
       testdriverai:
-        specifier: ^7.11.85-canary
+        specifier: ^7.11.171
         version: 7.11.171(@types/node@26.6.2)(debug@4.4.3(supports-color@8.1.1))(react@19.3.0)(supports-color@8.1.1)(vitest@4.1.11(@opentelemetry/api@1.9.1)(@types/node@26.6.2)(vite@8.3.0(@types/node@26.6.2)))
       vitest:
         specifier: ^4.1.11

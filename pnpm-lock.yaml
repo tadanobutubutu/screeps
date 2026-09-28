@@ -36,8 +36,8 @@ importers:
         specifier: ^30.5.0
         version: 30.5.2(@types/node@26.6.2)(supports-color@8.1.1)
       testdriverai:
-        specifier: ^7.11.171
-        version: 7.11.171(@types/node@26.6.2)(debug@4.4.3(supports-color@8.1.1))(react@19.3.0)(supports-color@8.1.1)(vitest@4.1.11(@opentelemetry/api@1.9.1)(@types/node@26.6.2)(vite@8.3.0(@types/node@26.6.2)))
+        specifier: ^7.11.85-canary
+        version: 7.11.171(@types/node@26.6.2)(debug@4.4.3(supports-color@8.1.1))(react@19.3.0)(supports-color@8.1.1)(vitest@5.0.1(@opentelemetry/api@1.9.1)(@types/node@26.6.2)(vite@8.3.0(@types/node@26.6.2)))
       vitest:
         specifier: ^4.1.11
         version: 4.1.11(@opentelemetry/api@1.9.1)(@types/node@26.6.2)(vite@8.3.0(@types/node@26.6.2))
@@ -3100,8 +3100,8 @@ packages:
   lru-cache@5.1.1:
     resolution: {integrity: sha512-KpNARQA3Iwv+jTA0utUVVbrh+Jlrr1Fv0e56GGzAFOXN7dk/FviaDW8LHmK52DlcH4WP2n6gI8vN1aesBFgo9w==}
 
-  magic-string@0.30.21:
-    resolution: {integrity: sha512-vd2F4YUyEXKGcLHoq+TEyCjxueSeHnFxyyjNp80yg0XV4vUhnDer/lvvlqM/arB5bXQN5K2/3oinyCRyx8T2CQ==}
+  magic-string@1.4.2:
+    resolution: {integrity: sha512-vG+rjFRj1PqdIBozIxAGMjPlOhaVe+GXpbttY/iSK7rGcJRMlwNJO7dcUwmUqkymsFLJiNGI06t4D7Fr7yRC9g==}
 
   make-dir@3.1.0:
     resolution: {integrity: sha512-g3FeP20LNwhALb/6Cz6Dd4F2ngze0jz7tbzrD2wAV+o9FeNHe4rL+yK2md0J/fiSf1sa1ADhXqi5+oVwOM/eGw==}
@@ -6277,7 +6277,7 @@ snapshots:
     dependencies:
       '@vitest/spy': 4.1.11
       estree-walker: 3.0.3
-      magic-string: 0.30.21
+      magic-string: 1.4.2
     optionalDependencies:
       vite: 8.3.0(@types/node@26.6.2)
 
@@ -7952,7 +7952,7 @@ snapshots:
     dependencies:
       yallist: 3.1.1
 
-  magic-string@0.30.21:
+  magic-string@1.4.2:
     dependencies:
       '@jridgewell/sourcemap-codec': 1.6.0
 
@@ -8832,7 +8832,7 @@ snapshots:
       glob: 10.5.0
       minimatch: 10.2.6
 
-  testdriverai@7.11.171(@types/node@26.6.2)(debug@4.4.3(supports-color@8.1.1))(react@19.3.0)(supports-color@8.1.1)(vitest@4.1.11(@opentelemetry/api@1.9.1)(@types/node@26.6.2)(vite@8.3.0(@types/node@26.6.2))):
+  testdriverai@7.11.171(@types/node@26.6.2)(debug@4.4.3(supports-color@8.1.1))(react@19.3.0)(supports-color@8.1.1)(vitest@5.0.1(@opentelemetry/api@1.9.1)(@types/node@26.6.2)(vite@8.3.0(@types/node@26.6.2))):
     dependencies:
       '@modelcontextprotocol/ext-apps': 1.7.5(@modelcontextprotocol/sdk@1.30.0(supports-color@8.1.1)(zod@3.25.76))(react@19.3.0)(zod@3.25.76)
       '@modelcontextprotocol/sdk': 1.30.0(supports-color@8.1.1)(zod@3.25.76)
@@ -9074,7 +9074,7 @@ snapshots:
       '@vitest/utils': 4.1.11
       es-module-lexer: 2.3.2
       expect-type: 1.4.0
-      magic-string: 0.30.21
+      magic-string: 1.4.2
       obug: 2.2.1
       pathe: 2.0.3
       picomatch: 4.0.7

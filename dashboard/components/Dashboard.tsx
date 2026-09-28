@@ -317,9 +317,10 @@ export default function Dashboard() {
     if (error)
         return (
             <main
-                role="alert"
+                id="main-content"
+                tabIndex={-1}
                 aria-live="assertive"
-                style={{ padding: '2rem', fontFamily: 'monospace' }}
+                style={{ padding: '2rem', fontFamily: 'monospace', outline: 'none' }}
             >
                 <h1 style={{ color: '#b71c1c' }}>⚠️ エラー</h1>
                 <pre

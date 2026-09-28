@@ -21,3 +21,7 @@
 ## 2026-04-01 - WCAG 4.1.2 Disclosure Summary Accessible Name Computation
 **Learning:** Setting an explicit `aria-label` or `title` on a `<summary>` disclosure element overrides all nested child nodes (including dynamic badges like size metrics) during accessible name computation.
 **Action:** Ensure dynamic badge data and complete text content are explicitly formatted inside the `aria-label` and `title` attributes of summary elements.
+
+## 2026-04-01 - WAI-ARIA role="alert" on Container Elements with Interactive Buttons
+**Learning:** Applying `role="alert"` directly to error container elements (`<main>` or `<div>`) that contain interactive controls like retry or copy `<button>` elements causes screen readers to read the container as static advisory text, suppressing button semantics and keyboard focus expectations.
+**Action:** Remove `role="alert"` from container elements enclosing buttons and rely on `aria-live="assertive"` on the container or localized error heading/text elements.

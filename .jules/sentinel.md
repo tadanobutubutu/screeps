@@ -34,3 +34,9 @@ Use of deprecated and predictable Math.random() for security-sensitive logic in 
 **Vulnerability:** In `deploy.js`, `buildRequestOptions` and `validateToken` constructed HTTPS request headers (`X-Token`) and request paths without stripping CRLF characters (`\r` and `\n`), exposing request options to potential HTTP Header Injection and Response Splitting.
 **Learning:** Dynamic tokens or path parameters read from external environments or configurations can contain carriage returns or line feeds that manipulate HTTP request headers when constructing request options.
 **Prevention:** Always strip carriage return and line feed characters (`/[\r\n]/g`) from dynamic tokens and path strings before injecting them into HTTP request options and headers.
+
+## 2026-09-28 - [Credential Exposure via URL Query Parameters in Gemini API Requests]
+
+**Vulnerability:** `scripts/ai_repo_intel.py` and `scripts/ai_update_readme.py` transmitted Gemini API keys in URL query parameters (`params={"key": key}`).
+**Learning:** Transmitting sensitive credentials via URL query parameters exposes secrets to proxy logs, server logs, referrer headers, and process listings.
+**Prevention:** Always transmit API credentials securely via HTTP headers (e.g., `x-goog-api-key`) and strip query string parameters containing secret tokens.

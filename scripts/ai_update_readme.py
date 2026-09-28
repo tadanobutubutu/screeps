@@ -103,7 +103,6 @@ def main():
                 json={"contents": [{"parts": [{"text": prompt}]}]},
                 headers=headers,
                 timeout=90,
-                params={"key": key},
             )
             if r.status_code == 200:
                 result = r.json()["candidates"][0]["content"]["parts"][0]["text"]

@@ -56,8 +56,8 @@ def ask_ai(prompt):
             r = requests.post(
                 url,
                 json={"contents": [{"parts": [{"text": prompt}]}]},
+                headers=headers,
                 timeout=60,
-                params={"key": key},
             )
             if r.status_code == 200:
                 return r.json()["candidates"][0]["content"]["parts"][0]["text"]

@@ -38,3 +38,8 @@
 
 **Learning:** Invoking `origin.getRangeTo()` inside `Array.prototype.sort()` comparison callbacks executes distance calculations $O(N \log N)$ times. Pre-mapping distances into an intermediate structure reduces engine calls to $O(N)$.
 **Action:** Always pre-calculate expensive metrics or position calculations in single-pass array maps before sorting arrays.
+
+## 2026-09-28 - Fast Short-Circuiting in Repairer Structure Scanning
+
+**Learning:** Over 90% of structures scanned by repairers during `_findBestRepairTarget` are at 100% full health. Consolidating duplicate `_needsRepair` implementations and adding `if (structure.hits >= structure.hitsMax && type !== STRUCTURE_WALL && type !== STRUCTURE_RAMPART) return false;` short-circuits full-health non-wall/rampart structures before threshold dictionary lookups and arithmetic operations.
+**Action:** Always place integer short-circuit checks prior to structure type threshold lookups and arithmetic calculations in structure health evaluation loops.

@@ -417,11 +417,12 @@ function _manageLinkNetwork (room) {
  * @returns {Object}
  */
 function getStats (room) {
-  const creepCounts = {}
-  for (const name in Game.creeps) {
-    const creep = Game.creeps[name]
-    if (creep.room.name !== room.name) continue
-    const role = creep.memory.role || 'unknown'
+  const creepCounts = Object.create(null)
+  const roomCreeps = cache.getMyCreeps(room) || []
+  for (let i = 0; i < roomCreeps.length; i++) {
+    const creep = roomCreeps[i]
+    if (!creep || (creep.room && creep.room.name !== room.name)) continue
+    const role = (creep.memory && creep.memory.role) || 'unknown'
     creepCounts[role] = (creepCounts[role] || 0) + 1
   }
 
@@ -439,8 +440,7 @@ function getStats (room) {
     energyCapacity: room.energyCapacityAvailable,
     storageEnergy: storage ? storage.store[RESOURCE_ENERGY] : 0,
     creepCounts,
-    totalCreeps: Object.keys(Game.creeps).filter((n) => Game.creeps[n].room.name === room.name)
-      .length,
+    totalCreeps: roomCreeps.length,
     constructionSites: cache.getConstructionSites(room).length,
     towers: towers.length,
     enemies: enemies.length,

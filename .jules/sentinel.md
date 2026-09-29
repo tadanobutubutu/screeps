@@ -40,3 +40,9 @@ Use of deprecated and predictable Math.random() for security-sensitive logic in 
 **Vulnerability:** `scripts/ai_repo_intel.py` and `scripts/ai_update_readme.py` transmitted Gemini API keys in URL query parameters (`params={"key": key}`).
 **Learning:** Transmitting sensitive credentials via URL query parameters exposes secrets to proxy logs, server logs, referrer headers, and process listings.
 **Prevention:** Always transmit API credentials securely via HTTP headers (e.g., `x-goog-api-key`) and strip query string parameters containing secret tokens.
+
+## 2026-09-29 - [Cryptographically Secure PRNG in Screeps Role Scouting]
+
+**Vulnerability:** `role.scout.js` contained duplicated syntax corruption that crashed the Jest parser and used non-cryptographic `Math.random()` for target room selection.
+**Learning:** Partial code edits or merge artifacts can duplicate module exports and object methods, creating strict-mode syntax errors that break test suites and module loading while leaving insecure PRNG calls in place.
+**Prevention:** Always run parser validation or isolated unit tests after refactoring role modules, and ensure random decisions use cryptographically secure `crypto.randomInt` or `secureRandomInt` helpers.

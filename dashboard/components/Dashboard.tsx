@@ -1047,7 +1047,7 @@ export default function Dashboard() {
                             }}
                         >
                             <span role="status" aria-live="polite">
-                                一致なし
+                                「{roomQuery}」に一致なし
                             </span>
                             <button
                                 onClick={clearSearchQuery}
@@ -1302,8 +1302,6 @@ export default function Dashboard() {
             {toastMsg && (
                 <div
                     key={toastMsg}
-                    role="status"
-                    aria-live="polite"
                     aria-keyshortcuts="Escape"
                     onMouseEnter={() => setToastHovered(true)}
                     onMouseLeave={() => setToastHovered(false)}
@@ -1333,7 +1331,7 @@ export default function Dashboard() {
                     }}
                 >
                     <span aria-hidden="true">✨</span>
-                    <span style={{ flex: 1 }}>{toastMsg}</span>
+                    <span role="status" aria-live="polite" style={{ flex: 1 }}>{toastMsg}</span>
                     <kbd
                         aria-label="Escキーで通知を閉じます"
                         title="Esc キーで閉じる"

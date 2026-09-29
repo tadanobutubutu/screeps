@@ -6,6 +6,10 @@
 **Learning:** Applying `role="status"` directly to container elements that enclose interactive controls like `<button>` causes screen readers to treat the container as static advisory text, overriding or obscuring button interactivity.
 **Action:** Remove `role="status"` from container elements with buttons and use `aria-live="polite"` on localized non-interactive status text elements.
 
+## 2026-04-01 - Context-Aware Empty Search State and Live Region Scope
+**Learning:** Displaying the exact active search query term in zero-match status messages (e.g. "「query」に一致なし") gives immediate clarity to users on why no items are shown, while keeping `role="status"` strictly localized on text nodes rather than parent containers prevents suppressing child button interactivity.
+**Action:** Include search query terms in empty state feedback text and scope live region roles strictly to non-interactive text elements.
+
 ## 2026-04-01 - WAI-ARIA role="alert" on Container Elements with Interactive Buttons
 **Learning:** Applying `role="alert"` directly to error container elements (`<main>` or `<div>`) that contain interactive controls like retry or copy `<button>` elements causes screen readers to read the container as static advisory text, suppressing button semantics and keyboard focus expectations.
 **Action:** Remove `role="alert"` from container elements enclosing buttons and rely on `aria-live="assertive"` on the container or localized error heading/text elements.

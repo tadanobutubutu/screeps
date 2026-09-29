@@ -43,3 +43,8 @@
 
 **Learning:** Over 90% of structures scanned by repairers during `_findBestRepairTarget` are at 100% full health. Consolidating duplicate `_needsRepair` implementations and adding `if (structure.hits >= structure.hitsMax && type !== STRUCTURE_WALL && type !== STRUCTURE_RAMPART) return false;` short-circuits full-health non-wall/rampart structures before threshold dictionary lookups and arithmetic operations.
 **Action:** Always place integer short-circuit checks prior to structure type threshold lookups and arithmetic calculations in structure health evaluation loops.
+
+## 2026-09-29 - Cached Room Creep Access in getStats
+
+**Learning:** Iterating over global `Game.creeps` and filtering by room name scales with total account creep count ($O(N_{total})$) and allocates temporary arrays on every invocation. Utilizing `cache.getMyCreeps(room)` reduces complexity to $O(N_{room})$ and reuses pre-cached room arrays.
+**Action:** Always prefer `cache.getMyCreeps(room)` over iterating global `Game.creeps` when querying room creep counts or roles.

@@ -269,50 +269,57 @@ export default function Dashboard() {
 
     if (loading)
         return (
-            <div
-                role="status"
-                aria-live="polite"
-                aria-busy="true"
+            <main
+                id="main-content"
+                tabIndex={-1}
                 style={{
                     display: 'flex',
                     alignItems: 'center',
                     gap: '0.75rem',
                     padding: '2rem',
                     fontFamily: 'monospace',
+                    outline: 'none',
                 }}
             >
-                <svg
-                    viewBox="0 0 24 24"
-                    style={{
-                        width: '1.5rem',
-                        height: '1.5rem',
-                        animation: 'spin 1s linear infinite',
-                        color: '#004b73',
-                    }}
-                    aria-hidden="true"
+                <div
+                    role="status"
+                    aria-live="polite"
+                    aria-busy="true"
+                    style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}
                 >
-                    <circle
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="3"
-                        fill="none"
-                        strokeDasharray="42"
-                        style={{ opacity: 0.2 }}
-                    />
-                    <path
-                        d="M12 2 C 6.48 2 2 6.48 2 12"
-                        stroke="currentColor"
-                        strokeWidth="3"
-                        strokeLinecap="round"
-                        fill="none"
-                    />
-                </svg>
-                <span style={{ animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite' }}>
-                    読み込み中...
-                </span>
-            </div>
+                    <svg
+                        viewBox="0 0 24 24"
+                        style={{
+                            width: '1.5rem',
+                            height: '1.5rem',
+                            animation: 'spin 1s linear infinite',
+                            color: '#004b73',
+                        }}
+                        aria-hidden="true"
+                    >
+                        <circle
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="currentColor"
+                            strokeWidth="3"
+                            fill="none"
+                            strokeDasharray="42"
+                            style={{ opacity: 0.2 }}
+                        />
+                        <path
+                            d="M12 2 C 6.48 2 2 6.48 2 12"
+                            stroke="currentColor"
+                            strokeWidth="3"
+                            strokeLinecap="round"
+                            fill="none"
+                        />
+                    </svg>
+                    <span style={{ animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite' }}>
+                        読み込み中...
+                    </span>
+                </div>
+            </main>
         );
     if (error)
         return (
@@ -1036,6 +1043,11 @@ export default function Dashboard() {
                                 </button>
                             )}
                         </div>
+                    )}
+                    {roomQuery && filteredRooms.length > 0 && (
+                        <span role="status" aria-live="polite" style={{ fontSize: '0.75rem', color: '#004b73' }}>
+                            「{roomQuery}」で {filteredRooms.length} 部屋が見つかりました
+                        </span>
                     )}
                     {roomQuery && filteredRooms.length === 0 && (
                         <span

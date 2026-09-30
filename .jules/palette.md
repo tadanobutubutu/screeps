@@ -14,6 +14,10 @@
 **Learning:** Applying `role="alert"` directly to error container elements (`<main>` or `<div>`) that contain interactive controls like retry or copy `<button>` elements causes screen readers to read the container as static advisory text, suppressing button semantics and keyboard focus expectations.
 **Action:** Remove `role="alert"` from container elements enclosing buttons and rely on `aria-live="assertive"` on the container or localized error heading/text elements.
 
+## 2026-04-01 - Main Landmark Continuity during Loading States
+**Learning:** Rendering non-landmark elements (`<div>`) during initial loading states breaks skip-to-content navigation (`href="#main-content"`) for keyboard/screen reader users before page data settles.
+**Action:** Always render `<main id="main-content" tabIndex={-1}>` as the root container across all component states (loading, error, success).
+
 ## 2026-03-31 - WCAG 1.4.13 Toast Notification Keyboard Dismissability
 **Learning:** Toast notifications that overlay UI content must be dismissable via keyboard (Escape key) without moving focus or pointer, and display visual key badges (`<kbd>Esc</kbd>`) alongside `aria-keyshortcuts="Escape"` to make dismissal intuitive and accessible.
 **Action:** Use a ref for toast message state in global keydown listeners to avoid stale closures, and add visual key badges alongside `aria-keyshortcuts` on floating notifications.

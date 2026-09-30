@@ -1,3 +1,8 @@
+## 2026-09-30 - Short-Circuiting Lower Priority Sites in Builder Target Selection
+
+**Learning:** In builder target selection routines (`_getTargetSite`), evaluating distance calculations (`creep.pos.getRangeTo(site)`) before checking priority causes redundant range computations for lower-priority construction sites. Adding an early integer priority check (`if (priority > minPriority) continue;`) skips distance math for lower-priority sites.
+**Action:** Always short-circuit priority comparisons before distance evaluations in target selection routines.
+
 ## 2026-08-25 - Hoisting Filter Predicates in Cache Utilities
 
 **Learning:** Defining inline anonymous functions inside Screeps `room.find()` calls causes unnecessary closure allocations every cache fetch. Hoisting static predicate functions to module scope eliminates callback allocation overhead.

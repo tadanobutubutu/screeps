@@ -134,10 +134,15 @@ function _getTargetSite (creep) {
   let minPriority = Infinity
   let minDistance = Infinity
 
+  // ⚡ PERFORMANCE OPTIMIZATION: Hoist position check outside loop and short-circuit lower priority sites to avoid range calculation overhead.
+  const hasGetRangeTo = creep.pos && typeof creep.pos.getRangeTo === 'function'
+
   for (let i = 0; i < sites.length; i++) {
     const site = sites[i]
     const priority = BUILD_PRIORITY[site.structureType] || 10
-    const distance = creep.pos.getRangeTo(site)
+    if (priority > minPriority) continue
+
+    const distance = hasGetRangeTo ? creep.pos.getRangeTo(site) : 0
 
     if (priority < minPriority) {
       minPriority = priority

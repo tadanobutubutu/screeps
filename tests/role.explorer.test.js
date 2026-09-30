@@ -126,13 +126,13 @@ describe('role.explorer', () => {
     Math.random = originalRandom
   })
 
-  test('falls back to Math.random when crypto.randomBytes throws an error', () => {
+  test('falls back to Math.random when crypto.randomInt throws an error', () => {
     global.Game.map.describeExits.mockReturnValue({ 1: 'W1N2', 3: 'W2N1' })
 
     // Mock crypto to throw an error
     const crypto = require('crypto')
-    const originalRandomBytes = crypto.randomBytes
-    crypto.randomBytes = jest.fn().mockImplementation(() => {
+    const originalRandomInt = crypto.randomInt
+    crypto.randomInt = jest.fn().mockImplementation(() => {
       throw new Error('Simulated crypto error')
     })
 
@@ -154,7 +154,7 @@ describe('role.explorer', () => {
     expect(Math.random).toHaveBeenCalled() // Verify fallback was reached
 
     Math.random = originalRandom
-    crypto.randomBytes = originalRandomBytes
+    crypto.randomInt = originalRandomInt
   })
 
   test('falls back to Math.random when require("crypto") throws an error', () => {

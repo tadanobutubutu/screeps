@@ -10,9 +10,8 @@ const PATH_STYLE_EXPLORE = { visualizePathStyle: { stroke: '#ffffff', opacity: 0
 function secureRandomInt (max) {
   try {
     const crypto = require('crypto')
-    if (crypto && crypto.randomBytes) {
-      const buf = crypto.randomBytes(4)
-      return buf.readUInt32LE(0) % max
+    if (crypto && crypto.randomInt) {
+      return crypto.randomInt(max)
     }
   } catch (e) {
     // Fallback

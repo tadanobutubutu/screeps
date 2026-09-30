@@ -46,3 +46,9 @@ Use of deprecated and predictable Math.random() for security-sensitive logic in 
 **Vulnerability:** `role.scout.js` contained duplicated syntax corruption that crashed the Jest parser and used non-cryptographic `Math.random()` for target room selection.
 **Learning:** Partial code edits or merge artifacts can duplicate module exports and object methods, creating strict-mode syntax errors that break test suites and module loading while leaving insecure PRNG calls in place.
 **Prevention:** Always run parser validation or isolated unit tests after refactoring role modules, and ensure random decisions use cryptographically secure `crypto.randomInt` or `secureRandomInt` helpers.
+
+## 2026-09-30 - [Cryptographically Secure PRNG in Screeps Role Explorer]
+
+**Vulnerability:** `role.explorer.js` used non-standard `crypto.randomBytes` modulo arithmetic in `secureRandomInt`, which lacked uniform integer distribution and risked falling back to `Math.random()`.
+**Learning:** Using `crypto.randomBytes(4).readUInt32LE(0) % max` introduces modulo bias for non-power-of-two bounds; using `crypto.randomInt(max)` ensures unbiased cryptographically secure uniform random integers in Node.js.
+**Prevention:** Always use `crypto.randomInt(max)` for discrete uniform random integer generation in JavaScript/Node.js environments.

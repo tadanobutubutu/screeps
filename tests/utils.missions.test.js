@@ -184,15 +184,14 @@ describe('utils.missions', () => {
   test('createRandomMission does not rely on Math.random (PRNG vulnerability fixed)', () => {
     MissionSystem.initMemory()
 
-    // Mock crypto.randomBytes
+    // Mock crypto.randomInt
     const crypto = require('crypto')
-    const originalRandomBytes = crypto.randomBytes
+    const originalRandomInt = crypto.randomInt
 
     let called = false
-    crypto.randomBytes = jest.fn().mockImplementation((size) => {
+    crypto.randomInt = jest.fn().mockImplementation((max) => {
       called = true
-      // Return a fixed buffer to simulate randomness
-      return Buffer.alloc(size, 0)
+      return 0
     })
 
     global.Game = { rooms: { W1N1: { name: 'W1N1' } }, time: 10 }
@@ -200,9 +199,9 @@ describe('utils.missions', () => {
     const mission = MissionSystem.createRandomMission()
     expect(mission).toBeDefined()
 
-    // Ensure crypto.randomBytes was called during the process
+    // Ensure crypto.randomInt was called during the process
     expect(called).toBe(true)
 
-    crypto.randomBytes = originalRandomBytes
+    crypto.randomInt = originalRandomInt
   })
 })

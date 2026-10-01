@@ -52,3 +52,9 @@ Use of deprecated and predictable Math.random() for security-sensitive logic in 
 **Vulnerability:** `role.explorer.js` used non-standard `crypto.randomBytes` modulo arithmetic in `secureRandomInt`, which lacked uniform integer distribution and risked falling back to `Math.random()`.
 **Learning:** Using `crypto.randomBytes(4).readUInt32LE(0) % max` introduces modulo bias for non-power-of-two bounds; using `crypto.randomInt(max)` ensures unbiased cryptographically secure uniform random integers in Node.js.
 **Prevention:** Always use `crypto.randomInt(max)` for discrete uniform random integer generation in JavaScript/Node.js environments.
+
+## 2026-10-01 - [Cryptographically Secure PRNG in Mission Utility System]
+
+**Vulnerability:** `utils.missions.js` used `crypto.randomBytes(4).readUInt32LE(0) % max` in `secureRandomInt`, which suffered from modulo bias and failed to check for Node.js `crypto.randomInt`.
+**Learning:** Performing modulo arithmetic on raw random byte integers introduces biased integer sampling for non-power-of-two upper bounds. Node's native `crypto.randomInt(max)` eliminates modulo bias and avoids potential fallback bugs.
+**Prevention:** Always check for and utilize `crypto.randomInt(max)` when generating bounded random integers in Node.js modules.

@@ -41,9 +41,8 @@ function secureRandomInt (max) {
   if (typeof max !== 'number' || max <= 0) return 0
   try {
     const crypto = require('crypto')
-    if (crypto && crypto.randomBytes) {
-      const buf = crypto.randomBytes(4)
-      return buf.readUInt32LE(0) % max
+    if (crypto && crypto.randomInt) {
+      return crypto.randomInt(max)
     }
   } catch (e) {
     // Fallback

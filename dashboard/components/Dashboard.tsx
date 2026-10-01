@@ -416,8 +416,23 @@ export default function Dashboard() {
                             style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
                         >
                             <kbd
-                                aria-label="キーボードショートカット一覧を表示するには ? キーを押します"
-                                title="? キーでショートカット一覧を表示"
+                                role="button"
+                                tabIndex={0}
+                                onClick={() =>
+                                    showToast(
+                                        '⌨️ ショートカット: Alt+R (更新), Alt+S (検索), Alt+D (詳細), Alt+C (コピー), Alt+A (自動更新)'
+                                    )
+                                }
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter' || e.key === ' ') {
+                                        e.preventDefault();
+                                        showToast(
+                                            '⌨️ ショートカット: Alt+R (更新), Alt+S (検索), Alt+D (詳細), Alt+C (コピー), Alt+A (自動更新)'
+                                        );
+                                    }
+                                }}
+                                aria-label="キーボードショートカット一覧を表示"
+                                title="クリックまたは ? キーでショートカット一覧を表示"
                                 style={{
                                     backgroundColor: '#f7fafc',
                                     border: '1px solid #cbd5e0',
@@ -426,6 +441,7 @@ export default function Dashboard() {
                                     fontSize: '0.7rem',
                                     color: '#4a5568',
                                     boxShadow: '0 1px 1px rgba(0,0,0,0.1)',
+                                    cursor: 'pointer',
                                 }}
                             >
                                 ?

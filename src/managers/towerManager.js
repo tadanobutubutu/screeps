@@ -167,12 +167,21 @@ function _selectAttackTarget (tower, enemies) {
     return null
   }
 
-  return (
+  if (_attackTargetTick === Game.time && _attackTargetRoom === tower.room.name) {
+    return _attackTargetCache
+  }
+
+  const target = (
     _findCriticalTarget(tower, enemies, TOWER_ATTACK_PRIORITY_HP) ||
         _findClaimerTarget(tower, enemies) ||
         _findAttackerTarget(tower, enemies) ||
         _findWeakestTarget(tower, enemies)
   )
+
+  _attackTargetCache = target
+  _attackTargetTick = Game.time
+  _attackTargetRoom = tower.room.name
+  return target
 }
 
 /**
@@ -279,6 +288,11 @@ function _selectHealTarget (tower, injured) {
   if (injured.length === 0) {
     return null
   }
+
+  if (_healTargetTick === Game.time && _healTargetRoom === tower.room.name) {
+    return _healTargetCache
+  }
+
   // ⚡ PERFORMANCE: Use standard for loop instead of reduce for better performance in Screeps/V8.
   let bestTarget = null
   let minRatio = Infinity
@@ -290,6 +304,10 @@ function _selectHealTarget (tower, injured) {
       bestTarget = creep
     }
   }
+
+  _healTargetCache = bestTarget
+  _healTargetTick = Game.time
+  _healTargetRoom = tower.room.name
   return bestTarget
 }
 

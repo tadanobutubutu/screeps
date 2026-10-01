@@ -1,3 +1,8 @@
+## 2026-10-01 - Room-Level Per-Tick Target Caching for Tower Operations
+
+**Learning:** In rooms with multiple towers, each tower executing `_selectAttackTarget` or `_selectHealTarget` independently evaluates multi-pass target priority loops. Since target state (enemy positions/HP and injured creeps) remains constant during a single tick execution, caching the selected target on `_attackTargetCache` and `_healTargetCache` with `Game.time` and `room.name` validation allows second and subsequent towers in the same room to acquire targets in $O(1)$ time.
+**Action:** When multiple static structures (like towers) execute target selection logic within the same room and tick, cache selected targets at the room-tick level to bypass redundant search loops.
+
 ## 2026-09-30 - Short-Circuiting Lower Priority Sites in Builder Target Selection
 
 **Learning:** In builder target selection routines (`_getTargetSite`), evaluating distance calculations (`creep.pos.getRangeTo(site)`) before checking priority causes redundant range computations for lower-priority construction sites. Adding an early integer priority check (`if (priority > minPriority) continue;`) skips distance math for lower-priority sites.

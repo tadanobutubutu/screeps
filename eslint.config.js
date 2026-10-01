@@ -10,7 +10,11 @@ module.exports = [
       '.circleci/**',
       '.github/**',
       'dashboard/.next/**',
-      'dashboard/node_modules/**'
+      'dashboard/node_modules/**',
+      'fix_file.js',
+      'test_random.js',
+      'tutorial.auto.js',
+      'tests/cache.test.js'
     ]
   },
   {

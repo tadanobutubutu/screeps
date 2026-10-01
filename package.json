@@ -1,10 +1,8 @@
 {
-  "name": "my-app",
+  "name": "ace-screeps-ai",
   "version": "1.0.0",
-  "description": "A sample application",
-  "main": "index.js",
+  "description": "Screeps AI bot and development tooling",
   "scripts": {
-    "start": "node src/index.js",
     "test": "jest"
   },
   "dependencies": {
@@ -23,6 +21,6 @@
     "testdriverai": "^7.11.85-canary",
     "vitest": "^5.0.3"
   },
-  "author": "Your Name",
-  "license": "MIT"
+  "license": "MIT",
+  "private": true
 }

@@ -1,13 +1,13 @@
-const cache = require('./src/utils/cache');
+const cache = require('./src/utils/cache')
 /**
  * Security: Limits for memory-intensive structures to prevent Memory DoS.
  * Screeps memory is limited to 2MB; unbounded objects can crash the AI.
  */
 /* global ERR_NO_PATH, ERR_INVALID_ARGS */
-const MAX_VISITED_ROOMS = 100;
+const MAX_VISITED_ROOMS = 100
 
 // ⚡ PERFORMANCE: Hoisted constant path styles to reduce per-tick object allocation.
-const PATH_STYLE_SCOUT = { visualizePathStyle: { stroke: '#ffffff', opacity: 0.2 } };
+const PATH_STYLE_SCOUT = { visualizePathStyle: { stroke: '#ffffff', opacity: 0.2 } }
 
 /**
  * Generates a secure random integer between 0 and max-1.
@@ -15,43 +15,43 @@ const PATH_STYLE_SCOUT = { visualizePathStyle: { stroke: '#ffffff', opacity: 0.2
  * @param {number} max
  * @returns {number}
  */
-function secureRandomInt(max) {
+function secureRandomInt (max) {
   try {
-    const crypto = require('crypto');
+    const crypto = require('crypto')
     if (crypto && crypto.randomInt) {
-      return crypto.randomInt(max);
+      return crypto.randomInt(max)
     }
   } catch (e) {
     // Fallback
   }
-  return Math.floor(Math.random() * max);
+  return Math.floor(Math.random() * max)
 }
 
 const roleScout = {
   run: function (creep) {
     if (!creep.memory.targetRoom) {
-      this._chooseTargetRoom(creep);
+      this._chooseTargetRoom(creep)
     }
 
     if (creep.memory.targetRoom) {
       if (creep.room.name !== creep.memory.targetRoom) {
-        this._moveToTargetRoom(creep);
+        this._moveToTargetRoom(creep)
       } else {
-        this._recordRoomState(creep);
+        this._recordRoomState(creep)
       }
     }
   },
 
   _chooseTargetRoom: function (creep) {
     // Note: Game.map.describeExits() can return null
-    const exits = Game.map.describeExits(creep.room.name);
+    const exits = Game.map.describeExits(creep.room.name)
 
     if (exits && Object.keys(exits).length > 0) {
-      const exitValues = Object.values(exits);
-      creep.memory.targetRoom = exitValues[secureRandomInt(exitValues.length)];
+      const exitValues = Object.values(exits)
+      creep.memory.targetRoom = exitValues[secureRandomInt(exitValues.length)]
     } else {
       // No exits found, stay in current room
-      creep.say('⚠️');
+      creep.say('⚠️')
     }
   },
 
@@ -61,35 +61,38 @@ const roleScout = {
     const result = creep.moveTo(
       new RoomPosition(25, 25, creep.memory.targetRoom),
       PATH_STYLE_SCOUT
-    );
+    )
 
     if (result === ERR_NO_PATH || result === ERR_INVALID_ARGS) {
       // Path not found, reset target
-      creep.memory.targetRoom = undefined;
-      creep.say('🚫');
+      creep.memory.targetRoom = undefined
+      creep.say('🚫')
     }
   },
 
   _recordRoomState: function (creep) {
     // Arrived at target room
-    creep.say('🔍');
+    creep.say('🔍')
 
     // ⚡ PERFORMANCE: Use pre-warmed room caches for hostiles and structures.
-    const hostiles = creep.room._hostileCreeps || [];
-    const structures = creep.room._allStructures || [];
+    const hostiles = creep.room._hostileCreeps || []
+    const structures = creep.room._allStructures || []
 
-    const resources = cache && typeof cache.getDroppedResources === 'function'
-      ? cache.getDroppedResources(creep.room)
-      : (creep.room.find ? creep.room.find(106) : []);
+    const resources =
+            cache && typeof cache.getDroppedResources === 'function'
+              ? cache.getDroppedResources(creep.room)
+              : creep.room.find
+                ? creep.room.find(106)
+                : []
 
     // Initialize visited memory if needed
     if (!creep.memory.visited) {
-      creep.memory.visited = {};
-      creep.memory.visitedCount = 0;
+      creep.memory.visited = {}
+      creep.memory.visitedCount = 0
     }
 
     // Record visit
-    const roomName = creep.room.name;
+    const roomName = creep.room.name
     // Security: Enforce size limits on the visited object to prevent Memory DoS.
     // While room names are engine-provided, unbounded growth still poses a risk.
     if (!Object.prototype.hasOwnProperty.call(creep.memory.visited, roomName)) {
@@ -100,14 +103,14 @@ const roleScout = {
           hostiles: hostiles.length,
           resources: resources.length,
           structures: structures.length
-        };
-        creep.memory.visitedCount = (creep.memory.visitedCount || 0) + 1;
+        }
+        creep.memory.visitedCount = (creep.memory.visitedCount || 0) + 1
       }
     }
 
     // Reset target to find new room
-    creep.memory.targetRoom = undefined;
+    creep.memory.targetRoom = undefined
   }
-};
+}
 
-module.exports = roleScout;
+module.exports = roleScout

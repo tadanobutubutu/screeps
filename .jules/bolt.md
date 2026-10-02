@@ -1,3 +1,8 @@
+## 2026-10-02 - Hoisting Controller Position in Upgrader Container Search
+
+**Learning:** In `_getEnergyFromContainer` (`src/roles/upgrader.js`), accessing `controller.pos` inside the container iteration loop (`container.pos.getRangeTo(controller) <= 5`) forces redundant property resolution of `controller.pos` for every container in the room. Hoisting `const ctrlPos = controller.pos` outside the search loop eliminates repeated property evaluation calls per candidate container per tick.
+**Action:** Always hoist target position references (like `controller.pos`) to a local variable outside search loops before evaluating distance checks.
+
 ## 2026-10-01 - Room-Level Per-Tick Target Caching for Tower Operations
 
 **Learning:** In rooms with multiple towers, each tower executing `_selectAttackTarget` or `_selectHealTarget` independently evaluates multi-pass target priority loops. Since target state (enemy positions/HP and injured creeps) remains constant during a single tick execution, caching the selected target on `_attackTargetCache` and `_healTargetCache` with `Game.time` and `room.name` validation allows second and subsequent towers in the same room to acquire targets in $O(1)$ time.

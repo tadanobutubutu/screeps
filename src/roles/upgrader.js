@@ -177,13 +177,14 @@ function _getEnergyFromContainer (creep, room) {
     // ⚡ PERFORMANCE: Use single-pass for loop to avoid filter array allocation and find closest.
     let bestContainer = null
     let minDistance = Infinity
-    // ⚡ PERFORMANCE OPTIMIZATION: Hoist position method check outside search loop to prevent redundant evaluations per iteration.
+    // ⚡ PERFORMANCE OPTIMIZATION: Hoist controller position reference & position method check outside search loop to prevent redundant property evaluations per iteration.
+    const ctrlPos = controller.pos || controller
     const hasGetRangeTo = creep.pos && typeof creep.pos.getRangeTo === 'function'
     for (let i = 0; i < containers.length; i++) {
       const container = containers[i]
       if (
         container.store[RESOURCE_ENERGY] >= 100 &&
-                container.pos.getRangeTo(controller) <= 5
+                container.pos.getRangeTo(ctrlPos) <= 5
       ) {
         const dist = hasGetRangeTo ? creep.pos.getRangeTo(container) : 0
         if (dist < minDistance) {

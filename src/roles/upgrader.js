@@ -182,7 +182,10 @@ function _getEnergyFromContainer (creep, room) {
     const hasGetRangeTo = creep.pos && typeof creep.pos.getRangeTo === 'function'
     for (let i = 0; i < containers.length; i++) {
       const container = containers[i]
-      if (container.store[RESOURCE_ENERGY] >= 100 && container.pos.getRangeTo(ctrlPos) <= 5) {
+      if (
+        container.store[RESOURCE_ENERGY] >= 100 &&
+                container.pos.getRangeTo(ctrlPos) <= 5
+      ) {
         const dist = hasGetRangeTo ? creep.pos.getRangeTo(container) : 0
         if (dist < minDistance) {
           minDistance = dist

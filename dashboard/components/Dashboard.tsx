@@ -65,10 +65,13 @@ export default function Dashboard() {
         }, 2500);
     }, []);
 
-    const showToast = useCallback((msg: string) => {
-        setToastMsg(msg);
-        startToastTimer();
-    }, [startToastTimer]);
+    const showToast = useCallback(
+        (msg: string) => {
+            setToastMsg(msg);
+            startToastTimer();
+        },
+        [startToastTimer]
+    );
 
     useEffect(() => {
         if (toastMsg && !toastHovered && !toastFocused) {
@@ -182,7 +185,9 @@ export default function Dashboard() {
 
             if (e.key === '?' || (e.key === '/' && e.shiftKey)) {
                 e.preventDefault();
-                showToast('⌨️ ショートカット: Alt+R (更新), Alt+S (検索), Alt+D (詳細), Alt+C (コピー), Alt+A (自動更新)');
+                showToast(
+                    '⌨️ ショートカット: Alt+R (更新), Alt+S (検索), Alt+D (詳細), Alt+C (コピー), Alt+A (自動更新)'
+                );
                 return;
             }
 
@@ -400,7 +405,11 @@ export default function Dashboard() {
             </main>
         );
     return (
-        <main id="main-content" tabIndex={-1} style={{ padding: '2rem', fontFamily: 'monospace', outline: 'none' }}>
+        <main
+            id="main-content"
+            tabIndex={-1}
+            style={{ padding: '2rem', fontFamily: 'monospace', outline: 'none' }}
+        >
             <div
                 style={{
                     display: 'flex',
@@ -462,7 +471,8 @@ export default function Dashboard() {
                                 style={{
                                     fontSize: '0.75rem',
                                     padding: '0.2rem 0.5rem',
-                                    backgroundColor: helpHover || helpFocused ? '#edf2f7' : 'transparent',
+                                    backgroundColor:
+                                        helpHover || helpFocused ? '#edf2f7' : 'transparent',
                                     border: '1px solid #cbd5e0',
                                     borderRadius: '4px',
                                     color: '#4a5568',
@@ -471,7 +481,8 @@ export default function Dashboard() {
                                     alignItems: 'center',
                                     gap: '0.25rem',
                                     transition: 'all 0.2s ease-in-out',
-                                    transform: helpHover || helpFocused ? 'scale(1.05)' : 'scale(1)',
+                                    transform:
+                                        helpHover || helpFocused ? 'scale(1.05)' : 'scale(1)',
                                     outline: helpFocused ? '2px solid #004b73' : 'none',
                                     outlineOffset: '2px',
                                 }}
@@ -526,7 +537,8 @@ export default function Dashboard() {
                                     alignItems: 'center',
                                     gap: '0.25rem',
                                     transition: 'all 0.2s ease-in-out',
-                                    transform: summaryHover || summaryFocused ? 'scale(1.05)' : 'scale(1)',
+                                    transform:
+                                        summaryHover || summaryFocused ? 'scale(1.05)' : 'scale(1)',
                                     outline: summaryFocused ? '2px solid #004b73' : 'none',
                                     outlineOffset: '2px',
                                 }}
@@ -814,7 +826,9 @@ export default function Dashboard() {
                             marginBottom: '0.25rem',
                         }}
                     >
-                        <span id="cpu-progress-label">📊 CPU 使用率: {stats?.cpuUsed?.toFixed(2) || '0.00'}</span>
+                        <span id="cpu-progress-label">
+                            📊 CPU 使用率: {stats?.cpuUsed?.toFixed(2) || '0.00'}
+                        </span>
                         <span style={{ fontSize: '0.85rem' }}>
                             {stats?.cpuUsed !== undefined
                                 ? `${Math.min(100, stats.cpuUsed).toFixed(1)}%`
@@ -1011,7 +1025,9 @@ export default function Dashboard() {
                                     border: `1px solid ${searchFocused ? '#004b73' : '#cbd5e0'}`,
                                     borderRadius: '4px',
                                     outline: 'none',
-                                    boxShadow: searchFocused ? '0 0 0 2px rgba(0, 75, 115, 0.2)' : 'none',
+                                    boxShadow: searchFocused
+                                        ? '0 0 0 2px rgba(0, 75, 115, 0.2)'
+                                        : 'none',
                                     transition: 'all 0.2s ease-in-out',
                                     width: searchFocused || roomQuery ? '160px' : '100px',
                                 }}
@@ -1063,7 +1079,11 @@ export default function Dashboard() {
                         </div>
                     )}
                     {roomQuery && filteredRooms.length > 0 && (
-                        <span role="status" aria-live="polite" style={{ fontSize: '0.75rem', color: '#004b73' }}>
+                        <span
+                            role="status"
+                            aria-live="polite"
+                            style={{ fontSize: '0.75rem', color: '#004b73' }}
+                        >
                             「{roomQuery}」で {filteredRooms.length} 部屋が見つかりました
                         </span>
                     )}
@@ -1117,10 +1137,14 @@ export default function Dashboard() {
                                   onFocus={() => setFocusedRoom(room)}
                                   onBlur={() => setFocusedRoom(null)}
                                   aria-label={
-                                      copiedRoom === room ? `部屋名 ${room} をコピーしました` : `部屋名 ${room} をコピー`
+                                      copiedRoom === room
+                                          ? `部屋名 ${room} をコピーしました`
+                                          : `部屋名 ${room} をコピー`
                                   }
                                   title={
-                                      copiedRoom === room ? `部屋名 ${room} をコピーしました` : `部屋名 ${room} をコピー`
+                                      copiedRoom === room
+                                          ? `部屋名 ${room} をコピーしました`
+                                          : `部屋名 ${room} をコピー`
                                   }
                                   style={{
                                       fontSize: '0.75rem',
@@ -1136,7 +1160,10 @@ export default function Dashboard() {
                                       color: copiedRoom === room ? '#22543d' : '#2d3748',
                                       cursor: 'pointer',
                                       transition: 'all 0.2s ease-in-out',
-                                      transform: hoveredRoom === room || focusedRoom === room ? 'scale(1.06)' : 'scale(1)',
+                                      transform:
+                                          hoveredRoom === room || focusedRoom === room
+                                              ? 'scale(1.06)'
+                                              : 'scale(1)',
                                       boxShadow:
                                           hoveredRoom === room
                                               ? '0 2px 4px rgba(0,0,0,0.1)'
@@ -1302,7 +1329,8 @@ export default function Dashboard() {
                                     color: copiedJson ? 'white' : '#4a5568',
                                     cursor: 'pointer',
                                     transition: 'all 0.2s ease-in-out',
-                                    transform: jsonHover || jsonFocused ? 'scale(1.05)' : 'scale(1)',
+                                    transform:
+                                        jsonHover || jsonFocused ? 'scale(1.05)' : 'scale(1)',
                                     boxShadow: jsonHover ? '0 2px 4px rgba(0,0,0,0.1)' : 'none',
                                     outline: jsonFocused ? '2px solid #004b73' : 'none',
                                     outlineOffset: '2px',
@@ -1361,7 +1389,9 @@ export default function Dashboard() {
                     }}
                 >
                     <span aria-hidden="true">✨</span>
-                    <span role="status" aria-live="polite" style={{ flex: 1 }}>{toastMsg}</span>
+                    <span role="status" aria-live="polite" style={{ flex: 1 }}>
+                        {toastMsg}
+                    </span>
                     <kbd
                         aria-label="Escキーで通知を閉じます"
                         title="Esc キーで閉じる"

@@ -1006,7 +1006,7 @@ export default function Dashboard() {
                                 style={{
                                     fontSize: '0.75rem',
                                     padding: roomQuery
-                                        ? '0.15rem 1.4rem 0.15rem 0.4rem'
+                                        ? '0.15rem 1.75rem 0.15rem 0.4rem'
                                         : '0.15rem 0.4rem',
                                     border: `1px solid ${searchFocused ? '#004b73' : '#cbd5e0'}`,
                                     borderRadius: '4px',
@@ -1030,7 +1030,9 @@ export default function Dashboard() {
                                     title="検索をクリア (Escape)"
                                     style={{
                                         position: 'absolute',
-                                        right: '4px',
+                                        right: '2px',
+                                        top: '50%',
+                                        transform: 'translateY(-50%)',
                                         background:
                                             searchClearHover || searchClearFocused
                                                 ? '#cbd5e0'
@@ -1041,15 +1043,15 @@ export default function Dashboard() {
                                                 ? '#2d3748'
                                                 : '#718096',
                                         cursor: 'pointer',
-                                        padding: '0.1rem',
+                                        padding: 0,
                                         display: 'inline-flex',
                                         alignItems: 'center',
                                         justifyContent: 'center',
-                                        fontSize: '0.7rem',
+                                        fontSize: '0.75rem',
                                         lineHeight: 1,
                                         borderRadius: '50%',
-                                        width: '14px',
-                                        height: '14px',
+                                        width: '24px',
+                                        height: '24px',
                                         transition: 'background-color 0.1s, color 0.1s',
                                         outline: searchClearFocused ? '2px solid #004b73' : 'none',
                                         outlineOffset: '1px',

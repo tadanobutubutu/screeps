@@ -14,6 +14,10 @@
 **Learning:** Applying `role="alert"` directly to error container elements (`<main>` or `<div>`) that contain interactive controls like retry or copy `<button>` elements causes screen readers to read the container as static advisory text, suppressing button semantics and keyboard focus expectations.
 **Action:** Remove `role="alert"` from container elements enclosing buttons and rely on `aria-live="assertive"` on the container or localized error heading/text elements.
 
+## 2026-04-01 - WCAG 2.5.8 Target Size Minimum for Inline Triggers
+**Learning:** Inline interactive triggers (such as input clear buttons or icon action controls) sized below 24x24 CSS pixels present significant usability barriers on touch screens and pointer devices.
+**Action:** Always ensure a minimum dimensions of 24x24 CSS pixels (e.g. `width: '24px', height: '24px'`) and adjust input inline right padding accordingly to prevent text overlapping action triggers.
+
 ## 2026-04-01 - Accessible Interactive Keyboard Shortcut Badges (<kbd>)
 **Learning:** Making visual keyboard shortcut badges (`<kbd>`) interactive requires explicit button semantics (`role="button"`), keyboard focusability (`tabIndex={0}`), Enter/Space key listeners (`onKeyDown`), and pointer feedback (`cursor: pointer`) to ensure both mouse/touch and screen reader users can activate shortcut actions seamlessly without WCAG accessibility defects.
 **Action:** Always pair `role="button"`, `tabIndex={0}`, `onKeyDown` (for Enter/Space), and `onClick` when making visual shortcut key badges interactive.

@@ -18,7 +18,7 @@ const PATH_STYLE_SCOUT = { visualizePathStyle: { stroke: '#ffffff', opacity: 0.2
 function secureRandomInt(max) {
   try {
     const crypto = require('crypto');
-    if (crypto && crypto.randomBytes) {
+    if (crypto && crypto.randomInt) {
       return crypto.randomInt(max);
     }
   } catch (e) {

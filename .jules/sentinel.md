@@ -58,3 +58,9 @@ Use of deprecated and predictable Math.random() for security-sensitive logic in 
 **Vulnerability:** `utils.missions.js` used `crypto.randomBytes(4).readUInt32LE(0) % max` in `secureRandomInt`, which suffered from modulo bias and failed to check for Node.js `crypto.randomInt`.
 **Learning:** Performing modulo arithmetic on raw random byte integers introduces biased integer sampling for non-power-of-two upper bounds. Node's native `crypto.randomInt(max)` eliminates modulo bias and avoids potential fallback bugs.
 **Prevention:** Always check for and utilize `crypto.randomInt(max)` when generating bounded random integers in Node.js modules.
+
+## 2026-10-02 - [Direct PRNG Feature Detection in role.scout.js]
+
+**Vulnerability:** `role.scout.js` checked for `crypto.randomBytes` before invoking `crypto.randomInt(max)`, creating a potential runtime mismatch and forcing unnecessary fallbacks.
+**Learning:** Checking a different API method (`randomBytes`) than the one actually invoked (`randomInt`) risks runtime exceptions or improper fallback paths if an environment supports one method but not the other.
+**Prevention:** Always check feature availability for the exact function being called (`crypto && crypto.randomInt`).

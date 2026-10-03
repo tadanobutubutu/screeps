@@ -1,3 +1,8 @@
+## 2026-10-03 - Short-Circuiting Full-Health Structures in Backup Repair and Deferring Distance Math in Target Selection
+
+**Learning:** In builder backup repair loops (`_repairAsBackup`), iterating over all room structures without checking `s.hits >= s.hitsMax` forces floating point arithmetic (`s.hitsMax * 0.8`) and structure type comparisons for ~90-95% undamaged structures. Furthermore, in harvester target selection (`_findPrimaryTarget`), calculating distance (`creep.pos.getRangeTo(s)`) before checking structure type evaluates range math on non-target structures. Adding `if (s.hits >= s.hitsMax) continue;` in structure scans and deferring distance evaluation inside structure type conditionals skips redundant arithmetic and distance operations.
+**Action:** Always short-circuit undamaged structures before arithmetic evaluations in repair routines, and defer range calculations until after structure type matching.
+
 ## 2026-10-02 - Hoisting Controller Position in Upgrader Container Search
 
 **Learning:** In `_getEnergyFromContainer` (`src/roles/upgrader.js`), accessing `controller.pos` inside the container iteration loop (`container.pos.getRangeTo(controller) <= 5`) forces redundant property resolution of `controller.pos` for every container in the room. Hoisting `const ctrlPos = controller.pos` outside the search loop eliminates repeated property evaluation calls per candidate container per tick.

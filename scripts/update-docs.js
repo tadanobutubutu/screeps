@@ -60,15 +60,75 @@ const totalLines = jsFiles.reduce((sum, file) => {
 
 console.log(`✅ Total ${jsFiles.length} JS files with ${totalLines} lines`)
 
+// --- バッヂ生成・検証仕様（ちゃんとしたバッヂのみ生成・更新） ---
+let existingReadme = '';
+try {
+    if (fs.existsSync('README.md')) {
+        existingReadme = fs.readFileSync('README.md', 'utf8');
+    }
+} catch (e) {
+    console.warn('⚠️ Could not read existing README.md for badge fallback:', e.message);
+}
+
+function extractExistingBadge(text, pattern) {
+    if (!text) return null;
+    const match = text.match(pattern);
+    return match ? match[0] : null;
+}
+
+function isValidMetric(val, min = 1) {
+    return typeof val === 'number' && Number.isFinite(val) && !Number.isNaN(val) && val >= min;
+}
+
+// 1. CI ステータスバッヂ（GitHub Actions 公式ワークフロー実ステータス）
+const ciBadge = '[![CI](https://github.com/tadanobutubutu/screeps/actions/workflows/ci.yml/badge.svg)](https://github.com/tadanobutubutu/screeps/actions/workflows/ci.yml)';
+
+// 2. ワークフロー数バッヂ（検証済みのみ生成・更新、異常値なら既存バッヂを維持）
+let workflowBadge = null;
+if (isValidMetric(workflowFiles.length, 1)) {
+    workflowBadge = `[![Workflows](https://img.shields.io/badge/Workflows-${workflowFiles.length}-green)](WORKFLOWS.md)`;
+} else {
+    workflowBadge = extractExistingBadge(existingReadme, /\[!\[Workflows\]\(https:\/\/img\.shields\.io\/badge\/Workflows-[^)]+\)\]\([^)]+\)/);
+    if (!workflowBadge) {
+        console.warn('⚠️ Workflow metric invalid and no fallback found. Omitting badge.');
+    }
+}
+
+// 3. ロール数バッヂ（検証済みのみ生成・更新、適切なアンカーリンク設定）
+let rolesBadge = null;
+if (isValidMetric(roleFiles.length, 1)) {
+    rolesBadge = `[![Roles](https://img.shields.io/badge/Roles-${roleFiles.length}-orange)](#-実装済みロール-${roleFiles.length}個)`;
+} else {
+    rolesBadge = extractExistingBadge(existingReadme, /\[!\[Roles\]\(https:\/\/img\.shields\.io\/badge\/Roles-[^)]+\)\]\([^)]+\)/);
+    if (!rolesBadge) {
+        console.warn('⚠️ Role metric invalid and no fallback found. Omitting badge.');
+    }
+}
+
+// 4. コード行数バッヂ（検証済みのみ生成・更新、統計情報へのアンカーリンク）
+let linesBadge = null;
+if (isValidMetric(totalLines, 100)) {
+    linesBadge = `[![Lines](https://img.shields.io/badge/Lines-${totalLines}-purple)](#-統計情報)`;
+} else {
+    linesBadge = extractExistingBadge(existingReadme, /\[!\[Lines\]\(https:\/\/img\.shields\.io\/badge\/Lines-[^)]+\)\]\([^)]+\)/);
+    if (!linesBadge) {
+        console.warn('⚠️ Total lines metric invalid and no fallback found. Omitting badge.');
+    }
+}
+
+// 5. ライセンスバッヂ（正規のMITライセンス）
+const licenseBadge = '[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)';
+
+// 有効なバッヂのみを結合（壊れた・不正なバッヂは一切出力されない）
+const validBadges = [ciBadge, workflowBadge, rolesBadge, linesBadge, licenseBadge].filter(Boolean);
+const badgeBlock = validBadges.join('\n');
+
 // README.md を更新
 const readme = `# 🎮 Screeps AI - 完全自動化リポジトリ
 
 > Screeps AI code repository with **full automation** - no API keys required!
 
-[![GitHub Actions](https://img.shields.io/badge/Automation-GitHub%20Actions-blue)](https://github.com/tadanobutubutu/screeps/actions)
-[![Workflows](https://img.shields.io/badge/Workflows-${workflowFiles.length}-green)](.github/workflows)
-[![Roles](https://img.shields.io/badge/Roles-${roleFiles.length}-orange)](./)
-[![Lines](https://img.shields.io/badge/Lines-${totalLines}-purple)](./)
+${badgeBlock}
 
 ## 🚀 特徴
 

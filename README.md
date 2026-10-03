@@ -1,10 +1,162 @@
-# ACE（Autonomous Colony Engine）
+# 🎮 Screeps AI - 完全自動化リポジトリ
 
-[GitHub Actions](https://github.com/tadanobutubutu/screeps/actions) · [MIT License](https://github.com/tadanobutubutu/screeps/blob/main/LICENSE)
+> Screeps AI code repository with **full automation** - no API keys required!
 
-## 1️⃣ ACEの概要
+[![CI](https://github.com/tadanobutubutu/screeps/actions/workflows/ci.yml/badge.svg)](https://github.com/tadanobutubutu/screeps/actions/workflows/ci.yml)
+[![Workflows](https://img.shields.io/badge/Workflows-33-green)](WORKFLOWS.md)
+[![Roles](https://img.shields.io/badge/Roles-10-orange)](#-実装済みロール-10個)
+[![Lines](https://img.shields.io/badge/Lines-6132-purple)](#-統計情報)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-ACEは**自律進化・自己修復**を実現するScreeps用AI開発環境です。
+## 🚀 特徴
 
-- **多数の自動化ワークフロー**：コード生成、テスト、デプロイ、監査、リリース管理までを自動化
-- **10の動的ロール**：GitHub Actions、CodeQL、SonarCloud、Jest、Puter.js、H
+- ✅ **API不要**: 外部APIキー不要で完全無料
+- 🤖 **完全自動化**: 放置で自動改善・拡張
+- 📊 **リアルタイム監視**: ゲーム状況をGitHubで確認
+- 🆕 **自動拡張**: 新しいロールが週次で追加
+
+## 📊 ゲーム状況
+
+**現在の状況を確認**: [`GAME_STATUS.md`](./GAME_STATUS.md)
+
+毎時自動更新されるリアルタイムレポート：
+- 👤 プレイヤー情報 (GCL, CPU, Credits)
+- 🏰 所有部屋の状況
+- 🐛 クリープ統計
+- 💾 メモリ使用率
+
+## 🤖 自動化システム
+
+### 📋 稼働中のワークフロー (33個)
+
+- **AI Auto-Coder (Full Lifecycle Agent)** (`ai-autocoder.yml`) - 定期実行
+- **AI Code Maintenance** (`ai-code-maintenance.yml`) - 定期実行
+- **AI Repo Governance (Intel & Maintenance)** (`ai-governance.yml`) - 定期実行
+- **AI Sentinel (Ultimate Security & Quality Shield)** (`ai-guardian.yml`) - 定期実行
+- **👤 Auto Assign Issues and PRs** (`auto-assign.yml`) - イベント駆動
+- **Continuous Quality & Coverage Monitor** (`auto-issue.yml`) - 定期実行
+- **Auto Merge PRs - Force Penetration (Instant CI)** (`auto-merge-pr.yml`) - 定期実行
+- **Instant Merge Single Incoming PR** (`auto-merge-single-pr.yml`) - イベント駆動
+- **🤖 Auto PR from Issues** (`auto-pr-from-issues.yml`) - イベント駆動
+- **🔖 Auto Zenodo DOI Release** (`auto-zenodo-release.yml`) - 定期実行
+- **🔍 Dependency Review** (`dependency-review.yml`) - イベント駆動
+- **Deploy GitHub Pages Dashboard** (`deploy-pages.yml`) - イベント駆動
+- **Deploy to Screeps PTR** (`deploy.yml`) - イベント駆動
+- **🚨 Emergency: Restore API Mode** (`emergency-api-restore.yml`) - 定期実行
+- **Fix undici - Regenerate package-lock.json** (`fix-undici-lockfile.yml`) - イベント駆動
+- **⏱️ Game Monitor (Hybrid Mode)** (`game-monitor-15min.yml`) - 定期実行
+- **gitStream** (`gitstream.yml`) - イベント駆動
+- **🎫 Issue Management** (`issue-management.yml`) - イベント駆動
+- **JAIPilot Generate** (`jaipilot-generate.yml`) - イベント駆動
+- **Label Sync** (`label-sync.yml`) - イベント駆動
+- **🏷️ PR Auto Labeler** (`pr-labeler.yml`) - イベント駆動
+- **🎲 Random Experiment** (`random-experiment.yml`) - 定期実行
+- **Release Agent** (`release-agent.yml`) - イベント駆動
+- **📦 Release Drafter** (`release-drafter.yml`) - イベント駆動
+- **Security Autofix (Dependabot & npm audit)** (`security-autofix.yml`) - 定期実行
+- **🗑️ Stale Issue and PR Management** (`stale.yml`) - 定期実行
+- **Supabase KeepAlive** (`supabase-keepalive.yml`) - 定期実行
+- **🧪 Test Auto PR System** (`test-api.yml`) - イベント駆動
+- **🧪 Test Auto PR System** (`test-auto-pr.yml`) - イベント駆動
+- **TestDriver.ai Tests** (`testdriver.yml`) - イベント駆動
+- **📚 Update Wiki** (`update-wiki.yml`) - イベント駆動
+- **Validate Versions** (`validate-versions.yml`) - イベント駆動
+- **📊 Weekly Quality Report** (`weekly-quality-report.yml`) - 定期実行
+
+詳しくは [`WORKFLOWS.md`](./WORKFLOWS.md) を参照してください。
+
+## 🐛 実装済みロール (10個)
+
+1. **attacker** - `role.attacker.js`
+2. **builder** - `role.builder.js`
+3. **explorer** - `role.explorer.js`
+4. **harvester** - `role.harvester.js`
+5. **healer** - `role.healer.js`
+6. **medic** - `role.medic.js`
+7. **repairer** - `role.repairer.js`
+8. **scout** - `role.scout.js`
+9. **transporter** - `role.transporter.js`
+10. **upgrader** - `role.upgrader.js`
+
+## 📈 統計情報
+
+- 📄 **JSファイル数**: 43
+- 📝 **総コード行数**: 6132
+- 🔄 **ワークフロー数**: 33
+- 🎭 **ロール数**: 10
+
+*最終更新: 2026-10-03*
+
+## 🔧 セットアップ
+
+### 1. Steam版購入後
+
+1. Screeps公式サイトでログイン
+2. Account Settings → API Access でトークン生成
+3. GitHubリポジトリ Settings → Secrets で `SCREEPS_TOKEN` に設定
+4. mainブランチにpushすれば自動デプロイ開始
+
+### 2. ローカル開発 (オプション)
+
+```bash
+git clone https://github.com/tadanobutubutu/screeps.git
+cd screeps
+npm install
+```
+
+## 📁 ファイル構成
+
+```
+.
+├── .github/workflows/     # 自動化ワークフロー (33個)
+├── role.*.js              # クリープロール (10個)
+├── utils.*.js             # ユーティリティ関数
+├── main.js                # メインループ
+├── deploy.js              # デプロイスクリプト
+├── GAME_STATUS.md         # リアルタイムゲーム状況
+├── WORKFLOWS.md           # ワークフロー詳細説明
+└── game-history/          # 日付別履歴
+```
+
+## 📚 ドキュメント
+
+- [`WORKFLOWS.md`](./WORKFLOWS.md) - 自動化ワークフローの詳細
+- [`GAME_STATUS.md`](./GAME_STATUS.md) - リアルタイムゲーム状況
+- [`META-CHANGELOG.md`](./META-CHANGELOG.md) - システム変更履歴
+- [`SECURITY.md`](./SECURITY.md) - セキュリティポリシー
+
+## ✨ 主な機能
+
+### 🔧 ルールベース自動改善
+
+- `console.log` の削除
+- `var` を `const` に変更
+- 非効率なループの最適化
+- メモリクリーンアップの自動追加
+
+### 🎲 ランダム実験
+
+毎週以下のいずれかを自動追加：
+- 📊 パフォーマンスモニター
+- 🧭 パスファインディングキャッシュ
+- 🎯 スマートスポーン優先度
+- 🛡️ タワー最適化
+- ⚡ エネルギー効率トラッキング
+
+### 🆕 自動ロール作成
+
+毎週新しいロールを自動生成して `main.js` に統合します。
+
+## 👨‍💻 貢献
+
+改善提案やバグ報告はIssuesでお願いします。
+
+## 📝 ライセンス
+
+MIT License
+
+---
+
+**Enjoy your fully automated Screeps experience!** 🎮🤖
+
+*このREADMEは自動更新されます - 最終更新: 2026-10-03T12:18:05.084Z*

@@ -64,3 +64,9 @@ Use of deprecated and predictable Math.random() for security-sensitive logic in 
 **Vulnerability:** `role.scout.js` checked for `crypto.randomBytes` before invoking `crypto.randomInt(max)`, creating a potential runtime mismatch and forcing unnecessary fallbacks.
 **Learning:** Checking a different API method (`randomBytes`) than the one actually invoked (`randomInt`) risks runtime exceptions or improper fallback paths if an environment supports one method but not the other.
 **Prevention:** Always check feature availability for the exact function being called (`crypto && crypto.randomInt`).
+
+## 2026-10-03 - [Validate issueNumber in auto-pr-generator against Endpoint Path Traversal]
+
+**Vulnerability:** `scripts/auto-pr-generator.js` interpolated unsanitized `issueNumber` parameters directly into GitHub REST API endpoint paths (`/repos/${repo}/issues/${issueNumber}`), allowing path traversal and endpoint manipulation.
+**Learning:** External parameters or environment variables parsed as issue IDs must be validated before interpolating into URL path structures.
+**Prevention:** Always validate numeric issue parameters against `/^\d+$/` before constructing GitHub API endpoint URLs.

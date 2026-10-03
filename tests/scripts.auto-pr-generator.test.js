@@ -104,6 +104,15 @@ describe('auto-pr-generator', () => {
       const result = await getIssueDetails(123)
       expect(result).toEqual({ number: 123, title: 'test issue' })
     })
+
+    it('should throw error on invalid/malicious issue number format', async () => {
+      await expect(getIssueDetails('123/comments')).rejects.toThrow(
+        'Invalid issue number format: 123/comments'
+      )
+      await expect(getIssueDetails('../pulls')).rejects.toThrow(
+        'Invalid issue number format: ../pulls'
+      )
+    })
   })
 
   describe('analyzeIssueWithClaude', () => {

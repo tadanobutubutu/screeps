@@ -46,9 +46,13 @@ async function githubRequest (endpoint, options = {}) {
  * Issue の詳細情報を取得
  */
 async function getIssueDetails (issueNumber) {
-  console.log(`📋 Fetching issue #${issueNumber}...`)
+  const strNum = String(issueNumber || '').trim()
+  if (!/^\d+$/.test(strNum)) {
+    throw new Error(`Invalid issue number format: ${issueNumber}`)
+  }
+  console.log(`📋 Fetching issue #${strNum}...`)
   const repo = getSanitizedRepo()
-  const issue = await githubRequest(`/repos/${repo}/issues/${issueNumber}`)
+  const issue = await githubRequest(`/repos/${repo}/issues/${strNum}`)
   return issue
 }
 

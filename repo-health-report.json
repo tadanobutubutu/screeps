@@ -1,42 +1,12 @@
 {
-  "timestamp": "2026-10-04T06:49:08.492Z",
+  "timestamp": "2026-10-01T07:05:39.434Z",
   "status": "unhealthy",
   "issues": [
     {
-      "type": "lint",
-      "fingerprint": "lint:fix_file.js:1:unknown",
+      "type": "config_error",
+      "fingerprint": "lint:execution-failed",
       "severity": "error",
-      "file": "fix_file.js",
-      "line": 1,
-      "message": "Parsing error: Unexpected character '’'",
-      "ruleId": null
-    },
-    {
-      "type": "lint",
-      "fingerprint": "lint:test_random.js:1:unknown",
-      "severity": "error",
-      "file": "test_random.js",
-      "line": 1,
-      "message": "Parsing error: Unexpected token is",
-      "ruleId": null
-    },
-    {
-      "type": "lint",
-      "fingerprint": "lint:tests/cache.test.js:183:unknown",
-      "severity": "error",
-      "file": "tests/cache.test.js",
-      "line": 183,
-      "message": "Parsing error: Unexpected token }",
-      "ruleId": null
-    },
-    {
-      "type": "lint",
-      "fingerprint": "lint:tutorial.auto.js:1:unknown",
-      "severity": "error",
-      "file": "tutorial.auto.js",
-      "line": 1,
-      "message": "Parsing error: Unexpected token :",
-      "ruleId": null
+      "message": "ESLint の実行に失敗しました: \nOops! Something went wrong! :(\n\nESLint: 10.11.0\n\nError: Cannot find module 'globals'\nRequire stack:\n- /app/eslint.config.js\n    at Function._resolveFilename (node:internal/modules/cjs/loader:1383:15)\n    at defaultResolveImpl (node:internal/modules/cjs/loader:1025:19)\n    at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1030:22)\n    at Function._load (node:internal/modules/cjs/loader:1192:37)\n    at TracingChannel.traceSync (node:diagnostics_channel:328:14)\n    at wrapModuleLoad (nod"
     },
     {
       "type": "test_failure",

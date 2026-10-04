@@ -60,14 +60,7 @@ function main () {
 
   // 1. ESLint 静的解析（--fix なし、出力ファイル経由で確実にパース）
   console.log('ESLint を実行中...')
-  const eslintResult = runCommand('npx', [
-    'eslint',
-    '.',
-    '--format',
-    'json',
-    '--output-file',
-    ESLINT_REPORT
-  ])
+  const eslintResult = runCommand('npx', ['eslint', '.', '--format', 'json', '--output-file', ESLINT_REPORT])
   const eslintData = readJsonFile(ESLINT_REPORT)
 
   if (eslintData && Array.isArray(eslintData)) {
@@ -104,14 +97,7 @@ function main () {
 
   // 2. Jest テスト + カバレッジ（npm scripts 経由でプロジェクト設定と一致）
   console.log('Jest テストとカバレッジを実行中...')
-  const jestResult = runCommand(PKG_MANAGER, [
-    'run',
-    'test:coverage',
-    '--',
-    '--json',
-        `--outputFile=${JEST_REPORT}`,
-        '--coverageReporters=json-summary'
-  ])
+  const jestResult = runCommand(PKG_MANAGER, ['run', 'test:coverage', '--', '--json', `--outputFile=${JEST_REPORT}`, '--coverageReporters=json-summary'])
   const jestData = readJsonFile(JEST_REPORT)
 
   if (jestData && Array.isArray(jestData.testResults)) {

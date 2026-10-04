@@ -1,5 +1,4 @@
 ## Security Issue
-
 Use of deprecated and predictable Math.random() for security-sensitive logic in `role.explorer.js`.
 
 **Vulnerability:** The console logger was missing the actual output execution line (`console.log`), resulting in silent failure where sanitized, redacted, and HTML-escaped logs were not printed. This crippled security logging visibility, making it impossible to audit potential console injection attacks or log-based information disclosure.

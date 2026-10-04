@@ -70,3 +70,9 @@ Use of deprecated and predictable Math.random() for security-sensitive logic in 
 **Vulnerability:** `scripts/auto-pr-generator.js` interpolated unsanitized `issueNumber` parameters directly into GitHub REST API endpoint paths (`/repos/${repo}/issues/${issueNumber}`), allowing path traversal and endpoint manipulation.
 **Learning:** External parameters or environment variables parsed as issue IDs must be validated before interpolating into URL path structures.
 **Prevention:** Always validate numeric issue parameters against `/^\d+$/` before constructing GitHub API endpoint URLs.
+
+## 2026-10-04 - [Command Injection Prevention in check_repo_health.js Execution]
+
+**Vulnerability:** `scripts/check_repo_health.js` interpolated unsanitized `PKG_MANAGER` environment variables into shell command strings via `execSync(command)` and executed immediately at module level upon import.
+**Learning:** Interpolating environment variables directly into `child_process.execSync` string commands allows arbitrary command injection if variables contain shell metacharacters, and executing script logic top-level on require interferes with test module isolation.
+**Prevention:** Validate package manager inputs against strict allowlists (`['npm', 'pnpm', 'yarn', 'bun']`), pass arguments as discrete arrays using `execFileSync`, and guard top-level script execution with `if (require.main === module)`.

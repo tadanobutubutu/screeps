@@ -1,3 +1,8 @@
+## 2026-10-04 - Short-Circuiting Lower Priority Structures in Repairer Target Selection
+
+**Learning:** In repairer structure scanning (`_findBestRepairTarget` in `src/roles/repairer.js`), evaluating floating-point hit ratios (`s.hits / s.hitsMax`) and distance calculations (`creep.pos.getRangeTo(s)`) for lower-priority structures after a higher-priority damaged structure (e.g. container) is already selected wastes CPU cycles. Adding `if (priority > minPriority) continue;` right after priority lookup skips division, range evaluation, and sub-function comparison logic for lower-priority candidates.
+**Action:** Always short-circuit lower-priority items prior to arithmetic operations and distance evaluations in priority-ordered target search loops.
+
 ## 2026-10-03 - Short-Circuiting Full-Health Structures in Backup Repair and Deferring Distance Math in Target Selection
 
 **Learning:** In builder backup repair loops (`_repairAsBackup`), iterating over all room structures without checking `s.hits >= s.hitsMax` forces floating point arithmetic (`s.hitsMax * 0.8`) and structure type comparisons for ~90-95% undamaged structures. Furthermore, in harvester target selection (`_findPrimaryTarget`), calculating distance (`creep.pos.getRangeTo(s)`) before checking structure type evaluates range math on non-target structures. Adding `if (s.hits >= s.hitsMax) continue;` in structure scans and deferring distance evaluation inside structure type conditionals skips redundant arithmetic and distance operations.

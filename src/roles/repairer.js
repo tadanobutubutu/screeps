@@ -175,6 +175,9 @@ function _findBestRepairTarget (creep, room, wallTarget) {
     if (!_needsRepair(s, room, wallTarget)) continue
 
     const priority = REPAIR_PRIORITY[s.structureType] || 9
+    // ⚡ PERFORMANCE OPTIMIZATION: Short-circuit lower-priority structures to avoid unnecessary division and distance calculations
+    if (priority > minPriority) continue
+
     const hitsRatio = s.hits / s.hitsMax
     const distance = hasGetRangeTo ? creep.pos.getRangeTo(s) : 0
 

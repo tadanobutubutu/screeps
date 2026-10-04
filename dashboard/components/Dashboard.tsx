@@ -73,6 +73,19 @@ export default function Dashboard() {
         [startToastTimer]
     );
 
+    const toggleAutoRefresh = useCallback(
+        (enabled?: boolean) => {
+            setAutoRefresh((prev) => {
+                const nextState = enabled !== undefined ? enabled : !prev;
+                showToast(
+                    nextState ? '自動更新を有効にしました' : '自動更新を無効にしました'
+                );
+                return nextState;
+            });
+        },
+        [showToast]
+    );
+
     useEffect(() => {
         if (toastMsg && !toastHovered && !toastFocused) {
             startToastTimer();
@@ -207,13 +220,7 @@ export default function Dashboard() {
                     copySummary();
                 } else if (e.key.toLowerCase() === 'a') {
                     e.preventDefault();
-                    setAutoRefresh((prev) => {
-                        const nextState = !prev;
-                        showToast(
-                            nextState ? '自動更新を有効にしました' : '自動更新を無効にしました'
-                        );
-                        return nextState;
-                    });
+                    toggleAutoRefresh();
                 }
             }
         };
@@ -627,7 +634,7 @@ export default function Dashboard() {
                             <input
                                 type="checkbox"
                                 checked={autoRefresh}
-                                onChange={(e) => setAutoRefresh(e.target.checked)}
+                                onChange={(e) => toggleAutoRefresh(e.target.checked)}
                                 onFocus={() => setAutoRefreshFocused(true)}
                                 onBlur={() => setAutoRefreshFocused(false)}
                                 style={{
@@ -829,6 +836,20 @@ export default function Dashboard() {
                     >
                         <span id="cpu-progress-label">
                             📊 CPU 使用率: {stats?.cpuUsed?.toFixed(2) || '0.00'}
+                            {(stats?.cpuUsed || 0) > 80 && (
+                                <span
+                                    style={{
+                                        marginLeft: '0.4rem',
+                                        fontSize: '0.75rem',
+                                        color: '#e53e3e',
+                                        fontWeight: 'bold',
+                                    }}
+                                    title="CPU使用率が80%を超えています"
+                                    aria-label="警告: CPU使用率が高負荷状態です"
+                                >
+                                    ⚠️ 高負荷
+                                </span>
+                            )}
                         </span>
                         <span style={{ fontSize: '0.85rem' }}>
                             {stats?.cpuUsed !== undefined

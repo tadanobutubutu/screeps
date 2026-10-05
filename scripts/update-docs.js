@@ -1,16 +1,23 @@
 const fs = require('fs')
 const path = require('path')
+const { writeFilesTransactionally } = require('./atomic-write')
+const { createBadgeBlock, isValidMetric } = require('./readme-badges')
 
 console.log('📊 Analyzing repository...')
 
 const rootDir = process.cwd()
 const workflowDir = path.join(rootDir, '.github', 'workflows')
-const readFile = (filePath) => fs.readFileSync(path.join(rootDir, filePath), 'utf8')
-const writeFile = (filePath, content) => fs.writeFileSync(path.join(rootDir, filePath), content)
-const today = new Date().toISOString().split('T')[0]
-const now = new Date().toISOString()
+const readFile = (filePath) => fs.readFileSync(filePath, 'utf8')
+const generatedAt = new Date()
+const today = generatedAt.toISOString().slice(0, 10)
+const now = generatedAt.toISOString()
 
-const countLines = (content) => content.split('\n').length
+const countLines = (content) => {
+  if (content.length === 0) return 0
+  const lines = content.split(/\r\n|\r|\n/)
+  if (lines[lines.length - 1] === '') lines.pop()
+  return lines.length
+}
 const extractWorkflowName = (content, fallback) => {
   const nameMatch = content.match(/^name:\s*(.+)$/m)
   return nameMatch ? nameMatch[1].trim().replace(/^['"]|['"]$/g, '') : fallback
@@ -19,39 +26,45 @@ const hasScheduledTrigger = (content) => /(^|\n)\s*schedule:\s*$/m.test(content)
 
 // ワークフローファイルを取得
 const workflowFiles = fs
-  .readdirSync(workflowDir)
-  .filter((f) => f.endsWith('.yml') || f.endsWith('.yaml'))
-  .map((f) => {
-    try {
-      const content = readFile(path.join('.github', 'workflows', f))
-      return {
-        file: f,
-        name: extractWorkflowName(content, f),
-        hasSchedule: hasScheduledTrigger(content)
-      }
-    } catch (e) {
-      return {
-        file: f,
-        name: f,
-        hasSchedule: false
-      }
+  .readdirSync(workflowDir, { withFileTypes: true })
+  .filter((entry) => entry.name.endsWith('.yml') || entry.name.endsWith('.yaml'))
+  .map((entry) => {
+    if (!entry.isFile()) {
+      throw new Error(`Workflow entry is not a regular file: ${entry.name}`)
+    }
+    const safeName = path.basename(entry.name)
+    if (safeName !== entry.name || safeName === '.' || safeName === '..') {
+      throw new Error(`Workflow entry has an invalid filename: ${entry.name}`)
+    }
+    const content = readFile(`${workflowDir}${path.sep}${safeName}`)
+    if (content.trim().length === 0) {
+      throw new Error(`Workflow file is empty: ${entry.name}`)
+    }
+    return {
+      file: entry.name,
+      name: extractWorkflowName(content, entry.name),
+      hasSchedule: hasScheduledTrigger(content),
     }
   })
+  .sort((a, b) => (a.file < b.file ? -1 : a.file > b.file ? 1 : 0))
 
 console.log(`✅ Found ${workflowFiles.length} workflows`)
 
 // ロールファイルを取得
 const roleFiles = fs
-  .readdirSync(rootDir)
-  .filter((f) => f.startsWith('role.') && f.endsWith('.js'))
-  .map((f) => f.replace('role.', '').replace('.js', ''))
+  .readdirSync(rootDir, { withFileTypes: true })
+  .filter((entry) => entry.isFile() && entry.name.startsWith('role.') && entry.name.endsWith('.js'))
+  .map((entry) => entry.name.replace('role.', '').replace('.js', ''))
+  .sort()
 
 console.log(`✅ Found ${roleFiles.length} role files`)
 
 // JSファイルを取得（統計用）
 const jsFiles = fs
-  .readdirSync(rootDir)
-  .filter((f) => f.endsWith('.js') && !f.startsWith('node_modules'))
+  .readdirSync(rootDir, { withFileTypes: true })
+  .filter((entry) => entry.isFile() && entry.name.endsWith('.js'))
+  .map((entry) => entry.name)
+  .sort()
 
 const totalLines = jsFiles.reduce((sum, file) => {
   const content = readFile(file)
@@ -60,88 +73,54 @@ const totalLines = jsFiles.reduce((sum, file) => {
 
 console.log(`✅ Total ${jsFiles.length} JS files with ${totalLines} lines`)
 
-// --- バッヂ生成・検証仕様（ちゃんとしたバッヂのみ生成・更新） ---
-let existingReadme = '';
+// 不正値では既存バッヂを流用せず、その項目のバッヂを出さない。
+for (const [label, value] of [
+  ['Workflow file count', workflowFiles.length],
+  ['Role file count', roleFiles.length],
+  ['Root JavaScript line count', totalLines],
+]) {
+  if (!isValidMetric(value)) {
+    throw new Error(`${label} could not be verified; README and stats were not updated.`)
+  }
+}
+
+let packageJsonText
+let licenseText
 try {
-    if (fs.existsSync('README.md')) {
-        existingReadme = fs.readFileSync('README.md', 'utf8');
-    }
-} catch (e) {
-    console.warn('⚠️ Could not read existing README.md for badge fallback:', e.message);
+  packageJsonText = fs.readFileSync('package.json', 'utf8')
+  licenseText = fs.readFileSync('LICENSE', 'utf8')
+} catch {
+  // Missing or unreadable license sources omit the MIT badge.
 }
 
-function extractExistingBadge(text, pattern) {
-    if (!text) return null;
-    const match = text.match(pattern);
-    return match ? match[0] : null;
-}
-
-function isValidMetric(val, min = 1) {
-    return typeof val === 'number' && Number.isFinite(val) && !Number.isNaN(val) && val >= min;
-}
-
-// 1. CI ステータスバッヂ（GitHub Actions 公式ワークフロー実ステータス）
-const ciBadge = '[![CI](https://github.com/tadanobutubutu/screeps/actions/workflows/ci.yml/badge.svg)](https://github.com/tadanobutubutu/screeps/actions/workflows/ci.yml)';
-
-// 2. ワークフロー数バッヂ（検証済みのみ生成・更新、異常値なら既存バッヂを維持）
-let workflowBadge = null;
-if (isValidMetric(workflowFiles.length, 1)) {
-    workflowBadge = `[![Workflows](https://img.shields.io/badge/Workflows-${workflowFiles.length}-green)](WORKFLOWS.md)`;
-} else {
-    workflowBadge = extractExistingBadge(existingReadme, /\[!\[Workflows\]\(https:\/\/img\.shields\.io\/badge\/Workflows-[^)]+\)\]\([^)]+\)/);
-    if (!workflowBadge) {
-        console.warn('⚠️ Workflow metric invalid and no fallback found. Omitting badge.');
-    }
-}
-
-// 3. ロール数バッヂ（検証済みのみ生成・更新、適切なアンカーリンク設定）
-let rolesBadge = null;
-if (isValidMetric(roleFiles.length, 1)) {
-    rolesBadge = `[![Roles](https://img.shields.io/badge/Roles-${roleFiles.length}-orange)](#-実装済みロール-${roleFiles.length}個)`;
-} else {
-    rolesBadge = extractExistingBadge(existingReadme, /\[!\[Roles\]\(https:\/\/img\.shields\.io\/badge\/Roles-[^)]+\)\]\([^)]+\)/);
-    if (!rolesBadge) {
-        console.warn('⚠️ Role metric invalid and no fallback found. Omitting badge.');
-    }
-}
-
-// 4. コード行数バッヂ（検証済みのみ生成・更新、統計情報へのアンカーリンク）
-let linesBadge = null;
-if (isValidMetric(totalLines, 100)) {
-    linesBadge = `[![Lines](https://img.shields.io/badge/Lines-${totalLines}-purple)](#-統計情報)`;
-} else {
-    linesBadge = extractExistingBadge(existingReadme, /\[!\[Lines\]\(https:\/\/img\.shields\.io\/badge\/Lines-[^)]+\)\]\([^)]+\)/);
-    if (!linesBadge) {
-        console.warn('⚠️ Total lines metric invalid and no fallback found. Omitting badge.');
-    }
-}
-
-// 5. ライセンスバッヂ（正規のMITライセンス）
-const licenseBadge = '[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)';
-
-// 有効なバッヂのみを結合（壊れた・不正なバッヂは一切出力されない）
-const validBadges = [ciBadge, workflowBadge, rolesBadge, linesBadge, licenseBadge].filter(Boolean);
-const badgeBlock = validBadges.join('\n');
+const badgeBlock = createBadgeBlock({
+  rootDir,
+  workflowFiles,
+  roleFiles,
+  totalLines,
+  packageJsonText,
+  licenseText,
+})
 
 // README.md を更新
-const readme = `# 🎮 Screeps AI - 完全自動化リポジトリ
+const readme = `# 🎮 Screeps AI and Automation
 
-> Screeps AI code repository with **full automation** - no API keys required!
+> Screeps AI bot and supporting GitHub Actions automation.
 
 ${badgeBlock}
 
 ## 🚀 特徴
 
-- ✅ **API不要**: 外部APIキー不要で完全無料
-- 🤖 **完全自動化**: 放置で自動改善・拡張
-- 📊 **リアルタイム監視**: ゲーム状況をGitHubで確認
-- 🆕 **自動拡張**: 新しいロールが週次で追加
+- 🤖 **自動化ワークフロー**: メンテナンス、デプロイ、レポートなどのタスクをGitHub Actionsで実行
+- 🔑 **設定要件**: 外部サービスを使うワークフローでは必要なトークンやSecretsを設定
+- 📊 **ゲーム状況の記録**: 状況レポートをリポジトリ上で確認
+- 🆕 **ロール作成の提案**: スケジュール実行でロール作成Issueを作成
 
 ## 📊 ゲーム状況
 
 **現在の状況を確認**: [\`GAME_STATUS.md\`](./GAME_STATUS.md)
 
-毎時自動更新されるリアルタイムレポート：
+毎時のスケジュール実行で更新を試みるゲーム状況レポート：
 - 👤 プレイヤー情報 (GCL, CPU, Credits)
 - 🏰 所有部屋の状況
 - 🐛 クリープ統計
@@ -149,22 +128,22 @@ ${badgeBlock}
 
 ## 🤖 自動化システム
 
-### 📋 稼働中のワークフロー (${workflowFiles.length}個)
+### 📋 ワークフローファイル (${workflowFiles.length}個)
 
-${workflowFiles.map((wf) => `- **${wf.name}** (\`${wf.file}\`)${wf.hasSchedule ? ' - 定期実行' : ' - イベント駆動'}`).join('\n')}
+${workflowFiles.map((wf) => `- **${wf.name}** (\`${wf.file}\`)`).join('\n')}
 
 詳しくは [\`WORKFLOWS.md\`](./WORKFLOWS.md) を参照してください。
 
-## 🐛 実装済みロール (${roleFiles.length}個)
+## 🐛 ロールファイル (${roleFiles.length}個)
 
 ${roleFiles.map((role, i) => `${i + 1}. **${role}** - \`role.${role}.js\``).join('\n')}
 
 ## 📈 統計情報
 
-- 📄 **JSファイル数**: ${jsFiles.length}
-- 📝 **総コード行数**: ${totalLines}
-- 🔄 **ワークフロー数**: ${workflowFiles.length}
-- 🎭 **ロール数**: ${roleFiles.length}
+- 📄 **ルート直下のJSファイル数**: ${jsFiles.length}
+- 🔄 **ワークフローファイル数**: ${workflowFiles.length}
+- 🎭 **ロールファイル数**: ${roleFiles.length}
+- 📝 **ルート直下のJS行数**: ${totalLines}
 
 *最終更新: ${today}*
 
@@ -194,7 +173,7 @@ npm install
 ├── utils.*.js             # ユーティリティ関数
 ├── main.js                # メインループ
 ├── deploy.js              # デプロイスクリプト
-├── GAME_STATUS.md         # リアルタイムゲーム状況
+├── GAME_STATUS.md         # ゲーム状況レポート
 ├── WORKFLOWS.md           # ワークフロー詳細説明
 └── game-history/          # 日付別履歴
 \`\`\`
@@ -202,7 +181,7 @@ npm install
 ## 📚 ドキュメント
 
 - [\`WORKFLOWS.md\`](./WORKFLOWS.md) - 自動化ワークフローの詳細
-- [\`GAME_STATUS.md\`](./GAME_STATUS.md) - リアルタイムゲーム状況
+- [\`GAME_STATUS.md\`](./GAME_STATUS.md) - ゲーム状況レポート
 - [\`META-CHANGELOG.md\`](./META-CHANGELOG.md) - システム変更履歴
 - [\`SECURITY.md\`](./SECURITY.md) - セキュリティポリシー
 
@@ -217,7 +196,7 @@ npm install
 
 ### 🎲 ランダム実験
 
-毎週以下のいずれかを自動追加：
+毎週、次の候補から1つを選び、同じ変更がまだない場合に \`main.js\` への追加を試みます：
 - 📊 パフォーマンスモニター
 - 🧭 パスファインディングキャッシュ
 - 🎯 スマートスポーン優先度
@@ -226,7 +205,7 @@ npm install
 
 ### 🆕 自動ロール作成
 
-毎週新しいロールを自動生成して \`main.js\` に統合します。
+毎週、新しいロールの追加を提案するIssueを作成します（ロール自体の自動生成・統合ではありません）。
 
 ## 👨‍💻 貢献
 
@@ -238,15 +217,14 @@ MIT License
 
 ---
 
-**Enjoy your fully automated Screeps experience!** 🎮🤖
+**Enjoy your Screeps experience!** 🎮🤖
 
-*このREADMEは自動更新されます - 最終更新: ${now}*
+*このREADMEは生成スクリプトで更新されます - 最終更新: ${now}*
 `
 
-writeFile('README.md', readme)
-console.log('✅ README.md updated!')
+const generatedOutputs = { 'README.md': readme }
 
-// WORKFLOWS.mdのヘッダーを更新
+// WORKFLOWS.mdのヘッダーを更新（既存の内容は、追加変更が必要な場合だけ出力対象にする）
 if (fs.existsSync(path.join(rootDir, 'WORKFLOWS.md'))) {
   let workflows = readFile('WORKFLOWS.md')
 
@@ -255,14 +233,13 @@ if (fs.existsSync(path.join(rootDir, 'WORKFLOWS.md'))) {
 
   if (!workflows.includes('📊 **統計**')) {
     workflows = workflows.replace('# 🤖', `# 🤖${statsSection}`)
-    writeFile('WORKFLOWS.md', workflows)
-    console.log('✅ WORKFLOWS.md updated!')
+    generatedOutputs['WORKFLOWS.md'] = workflows
   }
 }
 
 // 統計ファイル作成
 const stats = {
-  updated: new Date().toISOString(),
+  updated: now,
   workflows: workflowFiles.length,
   roles: roleFiles.length,
   jsFiles: jsFiles.length,
@@ -275,8 +252,12 @@ const stats = {
   roleList: roleFiles
 }
 
-writeFile('repo-stats.json', JSON.stringify(stats, null, 2))
-console.log('✅ repo-stats.json created!')
+generatedOutputs['repo-stats.json'] = `${JSON.stringify(stats, null, 2)}\n`
+
+// 全内容の読み込み・検証・生成後に一時領域へ書き、失敗時は以前のファイルを復元する。
+writeFilesTransactionally(rootDir, generatedOutputs)
+console.log('✅ README.md and repo-stats.json updated!')
+if (Object.hasOwn(generatedOutputs, 'WORKFLOWS.md')) console.log('✅ WORKFLOWS.md updated!')
 
 console.log('\n📈 Summary:')
 console.log(`  Workflows: ${workflowFiles.length}`)

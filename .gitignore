@@ -53,6 +53,7 @@ junit.xml
 # Temporary files
 *.tmp
 *.temp
+/.docs-update-*/
 .cache/
 coverage/
 docs/plato-report/

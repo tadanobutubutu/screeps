@@ -2,7 +2,7 @@
 
 const fs = require('fs')
 const path = require('path')
-const { execSync, execFileSync } = require('child_process')
+const { execFileSync } = require('child_process')
 
 const GITHUB_API = 'https://api.github.com'
 // Dynamic env evaluation for testing
@@ -125,7 +125,7 @@ function updateAllContributorsConfig (config) {
 function updateReadme () {
   try {
     console.log('📝 Updating README with all-contributors...')
-    execSync('npx all-contributors-cli generate', { stdio: 'inherit' })
+    execFileSync('npx', ['all-contributors-cli', 'generate'], { stdio: 'inherit' })
     console.log('✅ README updated')
   } catch (error) {
     console.warn('⚠️  Failed to update README:', error.message)

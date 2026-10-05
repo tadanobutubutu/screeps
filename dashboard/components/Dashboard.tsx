@@ -42,6 +42,8 @@ export default function Dashboard() {
     const [summaryDetailsFocused, setSummaryDetailsFocused] = useState(false);
     const [noMatchClearHover, setNoMatchClearHover] = useState(false);
     const [noMatchClearFocused, setNoMatchClearFocused] = useState(false);
+    const [matchClearHover, setMatchClearHover] = useState(false);
+    const [matchClearFocused, setMatchClearFocused] = useState(false);
     const [searchClearHover, setSearchClearHover] = useState(false);
     const [searchClearFocused, setSearchClearFocused] = useState(false);
     const [toastHovered, setToastHovered] = useState(false);
@@ -1102,11 +1104,42 @@ export default function Dashboard() {
                     )}
                     {roomQuery && filteredRooms.length > 0 && (
                         <span
-                            role="status"
-                            aria-live="polite"
-                            style={{ fontSize: '0.75rem', color: '#004b73' }}
+                            style={{
+                                fontSize: '0.75rem',
+                                color: '#004b73',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                            }}
                         >
-                            「{roomQuery}」で {filteredRooms.length} 部屋が見つかりました
+                            <span role="status" aria-live="polite">
+                                「{roomQuery}」で {filteredRooms.length} 部屋が見つかりました
+                            </span>
+                            <button
+                                onClick={clearSearchQuery}
+                                onMouseEnter={() => setMatchClearHover(true)}
+                                onMouseLeave={() => setMatchClearHover(false)}
+                                onFocus={() => setMatchClearFocused(true)}
+                                onBlur={() => setMatchClearFocused(false)}
+                                aria-label="検索フィルターをクリア (Escape)"
+                                aria-keyshortcuts="Escape"
+                                title="検索をクリア (Escape)"
+                                style={{
+                                    marginLeft: '0.25rem',
+                                    fontSize: '0.75rem',
+                                    color: '#004b73',
+                                    backgroundColor: matchClearHover ? '#edf2f7' : 'transparent',
+                                    border: 'none',
+                                    cursor: 'pointer',
+                                    textDecoration: 'underline',
+                                    padding: '0.1rem 0.25rem',
+                                    borderRadius: '2px',
+                                    outline: matchClearFocused ? '2px solid #004b73' : 'none',
+                                    outlineOffset: '1px',
+                                    transition: 'all 0.15s ease-in-out',
+                                }}
+                            >
+                                クリア
+                            </button>
                         </span>
                     )}
                     {roomQuery && filteredRooms.length === 0 && (

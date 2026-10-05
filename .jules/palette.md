@@ -6,6 +6,10 @@
 **Learning:** Applying `role="status"` directly to container elements that enclose interactive controls like `<button>` causes screen readers to treat the container as static advisory text, overriding or obscuring button interactivity.
 **Action:** Remove `role="status"` from container elements with buttons and use `aria-live="polite"` on localized non-interactive status text elements.
 
+## 2026-04-02 - Inline Clear Action in Active Search Match Live Regions
+**Learning:** Providing an inline clear button (`クリア`) directly adjacent to active search result count feedback (e.g., "「query」で N 部屋が見つかりました") allows users to reset filters in a single click without refocusing the input element; scoping `role="status"` strictly to the text node preserves screen reader button semantics and keyboard interaction expectations.
+**Action:** Always provide inline clear buttons in active filter feedback labels while wrapping only non-interactive text inside `role="status"`.
+
 ## 2026-04-01 - Context-Aware Empty Search State and Live Region Scope
 **Learning:** Displaying the exact active search query term in zero-match status messages (e.g. "「query」に一致なし") gives immediate clarity to users on why no items are shown, while keeping `role="status"` strictly localized on text nodes rather than parent containers prevents suppressing child button interactivity.
 **Action:** Include search query terms in empty state feedback text and scope live region roles strictly to non-interactive text elements.

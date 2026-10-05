@@ -2,8 +2,12 @@
   "name": "ace-screeps-ai",
   "version": "1.0.0",
   "description": "Screeps AI bot and development tooling",
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
-    "test": "jest"
+    "test": "node scripts/test.js",
+    "test:readme-badges": "node --test scripts/update-docs-badges.node-test.cjs"
   },
   "dependencies": {
     "dotenv": "^18.0.5",

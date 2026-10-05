@@ -221,42 +221,46 @@ function _deliver (creep) {
  * @returns {Structure|null}
  */
 function _findPrimaryTarget (creep) {
-  // ⚡ PERFORMANCE OPTIMIZATION: Use single-pass for loop to identify candidates for all priorities.
-  // Hoist getRangeTo method check outside target search loop.
   const needingEnergy = cache.getStructuresNeedingEnergy(creep.room)
+  if (needingEnergy.length === 0) return null
 
+  const hasGetRangeTo = creep.pos && typeof creep.pos.getRangeTo === 'function'
+
+  // ⚡ PERFORMANCE OPTIMIZATION: Separate priority passes, defer lower-priority tower distance calculations, and early-exit on adjacent targets (dist <= 1).
   let closestSpawnExt = null
   let minSpawnExtDist = Infinity
-  let closestTower = null
-  let minTowerDist = Infinity
-  const hasGetRangeTo = creep.pos && typeof creep.pos.getRangeTo === 'function'
 
   for (let i = 0; i < needingEnergy.length; i++) {
     const s = needingEnergy[i]
     const type = s.structureType
-
-    // 1. スポーン・エクステンションの優先探索
     if (type === STRUCTURE_SPAWN || type === STRUCTURE_EXTENSION) {
       const dist = hasGetRangeTo ? creep.pos.getRangeTo(s) : 0
       if (dist < minSpawnExtDist) {
         minSpawnExtDist = dist
         closestSpawnExt = s
-      }
-    }
-    // 2. タワーの探索 (200以上の空き容量があるものを優先)
-    else if (type === STRUCTURE_TOWER && s.store.getFreeCapacity(RESOURCE_ENERGY) > 200) {
-      const dist = hasGetRangeTo ? creep.pos.getRangeTo(s) : 0
-      if (dist < minTowerDist) {
-        minTowerDist = dist
-        closestTower = s
+        if (dist <= 1) break
       }
     }
   }
 
   if (closestSpawnExt) return closestSpawnExt
-  if (closestTower) return closestTower
 
-  return null
+  let closestTower = null
+  let minTowerDist = Infinity
+
+  for (let i = 0; i < needingEnergy.length; i++) {
+    const s = needingEnergy[i]
+    if (s.structureType === STRUCTURE_TOWER && s.store.getFreeCapacity(RESOURCE_ENERGY) > 200) {
+      const dist = hasGetRangeTo ? creep.pos.getRangeTo(s) : 0
+      if (dist < minTowerDist) {
+        minTowerDist = dist
+        closestTower = s
+        if (dist <= 1) break
+      }
+    }
+  }
+
+  return closestTower
 }
 
 /**

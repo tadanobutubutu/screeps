@@ -1,3 +1,13 @@
+## 2026-10-04 - Deferring Low Priority Target Scans and Early Exit on Adjacent Targets in Harvester Role
+
+**Learning:** In harvester delivery target selection (`_findPrimaryTarget`), calculating tower distance during spawn/extension iteration evaluates range math on lower-priority towers even when a spawn or extension target is selected. Separating priority passes defers tower evaluation until needed and adding an early exit (`if (dist <= 1) break`) skips distance math for remaining candidates when an adjacent target is found.
+**Action:** Defer distance math for lower-priority targets and exit search loops early when an adjacent target (range <= 1) is identified.
+
+## 2026-10-04 - Controller Target ID Caching in Upgrader Role
+
+**Learning:** In upgrader creeps during upgrade mode, accessing `creep.room.controller` on every tick performs repeated room structure lookups. Caching `controller.id` in `creep.memory[TARGET_KEY]` allows O(1) direct retrieval via `Game.getObjectById(targetId)` while upgrading.
+**Action:** Cache controller and static structure references in creep memory during persistent actions to avoid repeated room property queries.
+
 ## 2026-10-04 - Short-Circuiting Lower Priority Structures in Repairer Target Selection
 
 **Learning:** In repairer structure scanning (`_findBestRepairTarget` in `src/roles/repairer.js`), evaluating floating-point hit ratios (`s.hits / s.hitsMax`) and distance calculations (`creep.pos.getRangeTo(s)`) for lower-priority structures after a higher-priority damaged structure (e.g. container) is already selected wastes CPU cycles. Adding `if (priority > minPriority) continue;` right after priority lookup skips division, range evaluation, and sub-function comparison logic for lower-priority candidates.

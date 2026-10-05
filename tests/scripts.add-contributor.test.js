@@ -224,7 +224,11 @@ describe('add-contributor', () => {
   describe('updateReadme', () => {
     it('should run all-contributors-cli', () => {
       script.updateReadme()
-      expect(require('child_process').execFileSync).toHaveBeenCalledWith('npx', ['all-contributors-cli', 'generate'], { stdio: 'inherit' })
+      expect(require('child_process').execFileSync).toHaveBeenCalledWith(
+        'npx',
+        ['all-contributors-cli', 'generate'],
+        { stdio: 'inherit' }
+      )
       expect(console.log).toHaveBeenCalledWith('✅ README updated')
     })
 
@@ -326,7 +330,11 @@ describe('add-contributor', () => {
 
       expect(require('https').request).toHaveBeenCalled()
       expect(require('fs').writeFileSync).toHaveBeenCalled()
-      expect(require('child_process').execFileSync).toHaveBeenCalledWith('npx', ['all-contributors-cli', 'generate'], { stdio: 'inherit' })
+      expect(require('child_process').execFileSync).toHaveBeenCalledWith(
+        'npx',
+        ['all-contributors-cli', 'generate'],
+        { stdio: 'inherit' }
+      )
       expect(require('child_process').execFileSync).toHaveBeenCalledTimes(4)
       expect(console.log).toHaveBeenCalledWith('✅ testuser added as a contributor!')
     })

@@ -79,9 +79,7 @@ export default function Dashboard() {
         (enabled?: boolean) => {
             setAutoRefresh((prev) => {
                 const nextState = enabled !== undefined ? enabled : !prev;
-                showToast(
-                    nextState ? '自動更新を有効にしました' : '自動更新を無効にしました'
-                );
+                showToast(nextState ? '自動更新を有効にしました' : '自動更新を無効にしました');
                 return nextState;
             });
         },

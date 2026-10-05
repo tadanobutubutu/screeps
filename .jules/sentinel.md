@@ -76,3 +76,10 @@ Use of deprecated and predictable Math.random() for security-sensitive logic in 
 **Vulnerability:** `scripts/check_repo_health.js` interpolated unsanitized `PKG_MANAGER` environment variables into shell command strings via `execSync(command)` and executed immediately at module level upon import.
 **Learning:** Interpolating environment variables directly into `child_process.execSync` string commands allows arbitrary command injection if variables contain shell metacharacters, and executing script logic top-level on require interferes with test module isolation.
 **Prevention:** Validate package manager inputs against strict allowlists (`['npm', 'pnpm', 'yarn', 'bun']`), pass arguments as discrete arrays using `execFileSync`, and guard top-level script execution with `if (require.main === module)`.
+
+
+## 2026-10-05 - [Command Injection Prevention in add-contributor.js Execution]
+
+**Vulnerability:** scripts/add-contributor.js used execSync with a shell command string to execute all-contributors-cli generate.
+**Learning:** Executing CLI tools via execSync with shell string commands introduces shell command injection risks if arguments or shell environments are untrusted.
+**Prevention:** Always use execFileSync with explicit binary and argument array parameters (e.g. execFileSync('npx', ['all-contributors-cli', 'generate'])) to bypass shell interpretation.

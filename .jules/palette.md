@@ -23,11 +23,6 @@
 **Learning:** Applying `role="alert"` directly to error container elements (`<main>` or `<div>`) that contain interactive controls like retry or copy `<button>` elements causes screen readers to read the container as static advisory text, suppressing button semantics and keyboard focus expectations.
 **Action:** Remove `role="alert"` from container elements enclosing buttons and rely on `aria-live="assertive"` on the container or localized error heading/text elements.
 
-## 2026-04-02 - WCAG 2.5.8 Inline Text Button Target Size Minimum
-
-**Learning:** Inline text-style buttons (such as clear filter triggers) embedded within status/live regions present severe touch and pointer accessibility barriers when undersized; enforcing `minWidth: '24px'` and `minHeight: '24px'` with `display: 'inline-flex'` ensures WCAG 2.5.8 target size compliance without disrupting line height or text flow.
-**Action:** Always apply explicit 24x24px minimum dimensions and flex alignment to inline text action triggers.
-
 ## 2026-04-02 - WCAG 1.4.1 Use of Color and Accessible Status Feedback
 
 **Learning:** Relying solely on color changes (such as red bar fills) for high resource metrics like CPU usage creates accessibility barriers for colorblind users; pairing color shifts with textual warning badges (e.g. ⚠️ 高負荷) ensures multi-modal status perception.

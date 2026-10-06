@@ -174,24 +174,24 @@ function _planSourceContainers (room) {
  * @param {Array} cachedSites
  * @returns {boolean}
  */
-function _hasStructureOrSite (room, pos, cachedStructures, cachedSites) {
-  const structures = room.lookForAt(LOOK_STRUCTURES, pos.x, pos.y)
-  if (structures && structures.length > 0) return true
+function _hasStructureOrSite(room, pos, cachedStructures, cachedSites) {
+    const structures = room.lookForAt(LOOK_STRUCTURES, pos.x, pos.y);
+    if (structures && structures.length > 0) return true;
 
-  const sites = room.lookForAt(LOOK_CONSTRUCTION_SITES, pos.x, pos.y)
-  if (sites && sites.length > 0) return true
+    const sites = room.lookForAt(LOOK_CONSTRUCTION_SITES, pos.x, pos.y);
+    if (sites && sites.length > 0) return true;
 
-  for (let k = 0; k < cachedStructures.length; k++) {
-    const s = cachedStructures[k]
-    if (s.pos && s.pos.x === pos.x && s.pos.y === pos.y) return true
-  }
+    for (let k = 0; k < cachedStructures.length; k++) {
+        const s = cachedStructures[k];
+        if (s.pos && s.pos.x === pos.x && s.pos.y === pos.y) return true;
+    }
 
-  for (let k = 0; k < cachedSites.length; k++) {
-    const s = cachedSites[k]
-    if (s.pos && s.pos.x === pos.x && s.pos.y === pos.y) return true
-  }
+    for (let k = 0; k < cachedSites.length; k++) {
+        const s = cachedSites[k];
+        if (s.pos && s.pos.x === pos.x && s.pos.y === pos.y) return true;
+    }
 
-  return false
+    return false;
 }
 
 /**
@@ -236,29 +236,29 @@ function _planRoads (room) {
  * @param {Room} room
  * @returns {number}
  */
-function _getNeededExtensionCount (room) {
-  const rcl = room.controller ? room.controller.level : 0
-  const maxExtensions =
+function _getNeededExtensionCount(room) {
+    const rcl = room.controller ? room.controller.level : 0;
+    const maxExtensions =
         (typeof CONTROLLER_STRUCTURES !== 'undefined' &&
             CONTROLLER_STRUCTURES.extension &&
             CONTROLLER_STRUCTURES.extension[rcl]) ||
-        0
+        0;
 
-  if (maxExtensions === 0) return 0
+    if (maxExtensions === 0) return 0;
 
-  const existing = cache.getMyStructures(room, STRUCTURE_EXTENSION)
-  const sites = cache.getConstructionSites(room)
-  let extensionSites = 0
-  for (let i = 0; i < sites.length; i++) {
-    if (sites[i].structureType === STRUCTURE_EXTENSION) {
-      extensionSites++
+    const existing = cache.getMyStructures(room, STRUCTURE_EXTENSION);
+    const sites = cache.getConstructionSites(room);
+    let extensionSites = 0;
+    for (let i = 0; i < sites.length; i++) {
+        if (sites[i].structureType === STRUCTURE_EXTENSION) {
+            extensionSites++;
+        }
     }
-  }
 
-  const currentCount = existing.length + extensionSites
-  if (currentCount >= maxExtensions) return 0
+    const currentCount = existing.length + extensionSites;
+    if (currentCount >= maxExtensions) return 0;
 
-  return Math.min(5, maxExtensions - currentCount)
+    return Math.min(5, maxExtensions - currentCount);
 }
 
 /**

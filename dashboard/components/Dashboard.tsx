@@ -274,8 +274,6 @@ export default function Dashboard() {
             room.toLowerCase().includes(roomQuery.toLowerCase())
         ) || [];
 
-
-
     const copyAllRooms = () => {
         if (filteredRooms.length === 0) return;
         const roomsStr = filteredRooms.join(', ');

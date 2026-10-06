@@ -177,16 +177,33 @@ export default function Dashboard() {
         return () => clearInterval(interval);
     }, [autoRefresh, fetchStats]);
 
+    const clearSearchQuery = useCallback(() => {
+        setRoomQuery((prev) => {
+            if (prev) {
+                showToast('検索フィルターをクリアしました');
+            }
+            return '';
+        });
+        searchInputRef.current?.focus();
+    }, [showToast]);
+
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
-            if (e.key === 'Escape' && toastMsgRef.current) {
-                e.preventDefault();
-                setToastMsg(null);
-                if (toastTimeoutRef.current) {
-                    clearTimeout(toastTimeoutRef.current);
-                    toastTimeoutRef.current = null;
+            if (e.key === 'Escape') {
+                if (toastMsgRef.current) {
+                    e.preventDefault();
+                    setToastMsg(null);
+                    if (toastTimeoutRef.current) {
+                        clearTimeout(toastTimeoutRef.current);
+                        toastTimeoutRef.current = null;
+                    }
+                    return;
                 }
-                return;
+                if (roomQuery) {
+                    e.preventDefault();
+                    clearSearchQuery();
+                    return;
+                }
             }
 
             const isEditing =
@@ -226,7 +243,7 @@ export default function Dashboard() {
         };
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [fetchStats, refreshing, copySummary, stats]);
+    }, [fetchStats, refreshing, copySummary, stats, roomQuery, clearSearchQuery]);
 
     const copyErr = () =>
         error &&
@@ -257,13 +274,7 @@ export default function Dashboard() {
             room.toLowerCase().includes(roomQuery.toLowerCase())
         ) || [];
 
-    const clearSearchQuery = () => {
-        if (roomQuery) {
-            setRoomQuery('');
-            showToast('検索フィルターをクリアしました');
-        }
-        searchInputRef.current?.focus();
-    };
+
 
     const copyAllRooms = () => {
         if (filteredRooms.length === 0) return;
@@ -1134,6 +1145,11 @@ export default function Dashboard() {
                                     outline: matchClearFocused ? '2px solid #004b73' : 'none',
                                     outlineOffset: '1px',
                                     transition: 'all 0.15s ease-in-out',
+                                    minWidth: '24px',
+                                    minHeight: '24px',
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
                                 }}
                             >
                                 クリア
@@ -1174,6 +1190,11 @@ export default function Dashboard() {
                                     outline: noMatchClearFocused ? '2px solid #004b73' : 'none',
                                     outlineOffset: '1px',
                                     transition: 'all 0.15s ease-in-out',
+                                    minWidth: '24px',
+                                    minHeight: '24px',
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
                                 }}
                             >
                                 クリア

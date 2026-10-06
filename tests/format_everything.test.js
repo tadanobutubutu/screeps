@@ -1,20 +1,17 @@
+const child_process = require('child_process')
+const { formatEverything } = require('../format_everything.js')
+
 jest.mock('child_process', () => ({
   execFileSync: jest.fn()
 }))
 
 describe('format_everything.js', () => {
   beforeEach(() => {
-    jest.resetModules()
     jest.clearAllMocks()
   })
 
   it('executes prettier and eslint successfully', () => {
-    const child_process = require('child_process')
-    child_process.execFileSync = jest.fn()
-
-    jest.doMock('child_process', () => child_process)
-
-    require('../format_everything.js')
+    formatEverything()
 
     expect(child_process.execFileSync).toHaveBeenCalledWith(
       'npx',
@@ -29,15 +26,12 @@ describe('format_everything.js', () => {
   })
 
   it('catches and ignores errors from execFileSync', () => {
-    const child_process = require('child_process')
-    child_process.execFileSync = jest.fn().mockImplementation(() => {
+    child_process.execFileSync.mockImplementationOnce(() => {
       throw new Error('Mock error')
     })
 
-    jest.doMock('child_process', () => child_process)
-
     expect(() => {
-      require('../format_everything.js')
+      formatEverything()
     }).not.toThrow()
 
     expect(child_process.execFileSync).toHaveBeenCalledWith(

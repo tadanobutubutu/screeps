@@ -87,3 +87,8 @@
 
 **Learning:** Iterating over global `Game.creeps` and filtering by room name scales with total account creep count ($O(N_{total})$) and allocates temporary arrays on every invocation. Utilizing `cache.getMyCreeps(room)` reduces complexity to $O(N_{room})$ and reuses pre-cached room arrays.
 **Action:** Always prefer `cache.getMyCreeps(room)` over iterating global `Game.creeps` when querying room creep counts or roles.
+
+## 2026-10-05 - Avoid Global Game.creeps Iteration in RoomManager Safe Mode Check
+
+**Learning:** In `_checkSafeMode` (`src/managers/roomManager.js`), using `Object.values(Game.creeps).filter(...)` scans all global creeps across all rooms and allocates temporary arrays on every check. Utilizing `cache.getMyCreeps(room)` with an indexed `for` loop reduces complexity from O(N_global) to O(N_room) and avoids array allocations.
+**Action:** Use `cache.getMyCreeps(room)` instead of `Object.values(Game.creeps)` when counting room-specific creeps.

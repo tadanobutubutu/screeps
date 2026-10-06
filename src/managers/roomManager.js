@@ -343,13 +343,17 @@ function _checkSafeMode (room) {
 
   if (dangerousEnemies.length >= SAFE_MODE_TRIGGER_HOSTILES) {
     // 自室のディフェンダー数
-    const defenders = Object.values(Game.creeps).filter(
-      (c) =>
-        c.room.name === room.name &&
-                (c.getActiveBodyparts(ATTACK) > 0 || c.getActiveBodyparts(RANGED_ATTACK) > 0)
-    )
+    // ⚡ PERFORMANCE OPTIMIZATION: Use cache.getMyCreeps(room) and standard for loop to avoid global Game.creeps iteration.
+    let defenderCount = 0
+    const myCreeps = cache.getMyCreeps(room)
+    for (let i = 0; i < myCreeps.length; i++) {
+      const c = myCreeps[i]
+      if (c.getActiveBodyparts(ATTACK) > 0 || c.getActiveBodyparts(RANGED_ATTACK) > 0) {
+        defenderCount++
+      }
+    }
 
-    if (defenders.length < dangerousEnemies.length) {
+    if (defenderCount < dangerousEnemies.length) {
       const result = controller.activateSafeMode()
       if (result === OK) {
         logger.warn(

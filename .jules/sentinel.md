@@ -83,3 +83,9 @@ Use of deprecated and predictable Math.random() for security-sensitive logic in 
 **Vulnerability:** scripts/add-contributor.js used execSync with a shell command string to execute all-contributors-cli generate.
 **Learning:** Executing CLI tools via execSync with shell string commands introduces shell command injection risks if arguments or shell environments are untrusted.
 **Prevention:** Always use execFileSync with explicit binary and argument array parameters (e.g. execFileSync('npx', ['all-contributors-cli', 'generate'])) to bypass shell interpretation.
+
+## 2026-10-06 - [Command Injection Prevention in format_everything.js Execution]
+
+**Vulnerability:** `format_everything.js` used `execSync` with shell command strings to execute `prettier` and `eslint`.
+**Learning:** Invoking formatting or linting CLI commands via `execSync` with command strings passes arguments through shell interpretation, introducing shell command injection risks.
+**Prevention:** Always use `execFileSync` with explicit binary names (`npx`) and argument arrays (`['prettier', '--write', ...]`) to execute subprocesses directly via system calls without shell expansion.

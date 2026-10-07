@@ -18,14 +18,16 @@ describe('Security - githubRequest endpoint path validation in add-contributor.j
   })
 
   test('should throw error when endpoint is not a string', async () => {
-    await expect(githubRequest(123)).rejects.toThrow('Invalid GitHub API endpoint path: 123')
-    await expect(githubRequest(null)).rejects.toThrow('Invalid GitHub API endpoint path: null')
+    await expect(githubRequest(123)).rejects.toThrow(
+      'Invalid GitHub API endpoint path: 123'
+    )
+    await expect(githubRequest(null)).rejects.toThrow(
+      'Invalid GitHub API endpoint path: null'
+    )
   })
 
   test('should accept valid endpoint starting with slash', async () => {
     // Should pass endpoint validation and fail on mock network/HTTP rather than endpoint validation
-    await expect(githubRequest('/users/octocat')).rejects.toThrow(
-      /GitHub API error|fetch|ENOTFOUND|ECONNREFUSED/
-    )
+    await expect(githubRequest('/users/octocat')).rejects.toThrow(/GitHub API error|fetch|ENOTFOUND|ECONNREFUSED/)
   })
 })

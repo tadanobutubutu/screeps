@@ -1,5 +1,4 @@
 ## Security Issue
-
 Use of deprecated and predictable Math.random() for security-sensitive logic in `role.explorer.js`.
 
 **Vulnerability:** The console logger was missing the actual output execution line (`console.log`), resulting in silent failure where sanitized, redacted, and HTML-escaped logs were not printed. This crippled security logging visibility, making it impossible to audit potential console injection attacks or log-based information disclosure.
@@ -77,6 +76,7 @@ Use of deprecated and predictable Math.random() for security-sensitive logic in 
 **Vulnerability:** `scripts/check_repo_health.js` interpolated unsanitized `PKG_MANAGER` environment variables into shell command strings via `execSync(command)` and executed immediately at module level upon import.
 **Learning:** Interpolating environment variables directly into `child_process.execSync` string commands allows arbitrary command injection if variables contain shell metacharacters, and executing script logic top-level on require interferes with test module isolation.
 **Prevention:** Validate package manager inputs against strict allowlists (`['npm', 'pnpm', 'yarn', 'bun']`), pass arguments as discrete arrays using `execFileSync`, and guard top-level script execution with `if (require.main === module)`.
+
 
 ## 2026-10-05 - [Command Injection Prevention in add-contributor.js Execution]
 

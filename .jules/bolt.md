@@ -92,3 +92,8 @@
 
 **Learning:** In `_checkSafeMode` (`src/managers/roomManager.js`), using `Object.values(Game.creeps).filter(...)` scans all global creeps across all rooms and allocates temporary arrays on every check. Utilizing `cache.getMyCreeps(room)` with an indexed `for` loop reduces complexity from O(N_global) to O(N_room) and avoids array allocations.
 **Action:** Use `cache.getMyCreeps(room)` instead of `Object.values(Game.creeps)` when counting room-specific creeps.
+
+## 2026-10-06 - Hoisting Fallback Patrol Points and Short-Circuiting Self-Heal in Defender Role
+
+**Learning:** In `src/roles/defender.js`, `_getPatrolPoints` re-allocated a 5-element array of point objects on every patrol tick when no ramparts were present. Additionally, `run()` evaluated `creep.getActiveBodyparts(HEAL)` before checking `creep.hits < creep.hitsMax * 0.9`, forcing body part array scanning on full-health creeps. Hoisting fallback patrol points to module scope and reordering the health condition eliminates per-tick object allocations and skips body scanning for healthy defenders.
+**Action:** Hoist fallback position arrays to module scope and evaluate simple scalar checks (`hits < hitsMax`) before body part inspection routines (`getActiveBodyparts`).

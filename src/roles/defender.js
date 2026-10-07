@@ -31,6 +31,15 @@ const RANGED_RANGE = 3
 /** 安全HP率（これ以下になったら撤退） */
 const RETREAT_THRESHOLD = 0.3
 
+/** フォールバック用パトロールポイント（モジュールスコープにホイストして再割り当てを防止） */
+const FALLBACK_PATROL_POINTS = [
+  { x: 5, y: 5 },
+  { x: 44, y: 5 },
+  { x: 44, y: 44 },
+  { x: 5, y: 44 },
+  { x: 25, y: 25 } // 中央
+]
+
 // ============================================================
 // メイン制御
 // ============================================================
@@ -50,7 +59,8 @@ function run (creep) {
     }
 
     // 自己修復（HEALパーツがある場合）
-    if (creep.getActiveBodyparts(HEAL) > 0 && creep.hits < creep.hitsMax * 0.9) {
+    // ⚡ PERFORMANCE OPTIMIZATION: Check health ratio before calling getActiveBodyparts(HEAL) to avoid scanning body array on healthy creeps
+    if (creep.hits < creep.hitsMax * 0.9 && creep.getActiveBodyparts(HEAL) > 0) {
       creep.heal(creep)
     }
   } catch (e) {
@@ -269,13 +279,8 @@ function _getPatrolPoints (room) {
   }
 
   // ランパートがなければルームの角付近をパトロール
-  return [
-    { x: 5, y: 5 },
-    { x: 44, y: 5 },
-    { x: 44, y: 44 },
-    { x: 5, y: 44 },
-    { x: 25, y: 25 } // 中央
-  ]
+  // ⚡ PERFORMANCE OPTIMIZATION: Return static module-scoped array to avoid allocation on every patrol tick
+  return FALLBACK_PATROL_POINTS
 }
 
 // ============================================================

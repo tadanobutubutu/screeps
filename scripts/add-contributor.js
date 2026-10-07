@@ -20,6 +20,9 @@ const getRepo = () => {
  * GitHub API リクエスト実行
  */
 async function githubRequest (endpoint, options = {}) {
+  if (typeof endpoint !== 'string' || !endpoint.startsWith('/')) {
+    throw new Error(`Invalid GitHub API endpoint path: ${endpoint}`)
+  }
   const url = `${GITHUB_API}${endpoint}`
   const headers = {
     Authorization: `token ${getGithubToken()}`,

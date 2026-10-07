@@ -1,4 +1,5 @@
 ## Security Issue
+
 Use of deprecated and predictable Math.random() for security-sensitive logic in `role.explorer.js`.
 
 **Vulnerability:** The console logger was missing the actual output execution line (`console.log`), resulting in silent failure where sanitized, redacted, and HTML-escaped logs were not printed. This crippled security logging visibility, making it impossible to audit potential console injection attacks or log-based information disclosure.
@@ -77,7 +78,6 @@ Use of deprecated and predictable Math.random() for security-sensitive logic in 
 **Learning:** Interpolating environment variables directly into `child_process.execSync` string commands allows arbitrary command injection if variables contain shell metacharacters, and executing script logic top-level on require interferes with test module isolation.
 **Prevention:** Validate package manager inputs against strict allowlists (`['npm', 'pnpm', 'yarn', 'bun']`), pass arguments as discrete arrays using `execFileSync`, and guard top-level script execution with `if (require.main === module)`.
 
-
 ## 2026-10-05 - [Command Injection Prevention in add-contributor.js Execution]
 
 **Vulnerability:** scripts/add-contributor.js used execSync with a shell command string to execute all-contributors-cli generate.
@@ -89,3 +89,9 @@ Use of deprecated and predictable Math.random() for security-sensitive logic in 
 **Vulnerability:** `format_everything.js` used `execSync` with shell command strings to execute `prettier` and `eslint`.
 **Learning:** Invoking formatting or linting CLI commands via `execSync` with command strings passes arguments through shell interpretation, introducing shell command injection risks.
 **Prevention:** Always use `execFileSync` with explicit binary names (`npx`) and argument arrays (`['prettier', '--write', ...]`) to execute subprocesses directly via system calls without shell expansion.
+
+## 2026-10-07 - [Validate Endpoint Paths in GitHub API Requests Against Path Traversal]
+
+**Vulnerability:** In `scripts/add-contributor.js`, `githubRequest` accepted unvalidated `endpoint` string paths, allowing API path traversal or endpoint redirection if malformed endpoints were passed.
+**Learning:** Functions wrapping HTTP clients for REST APIs must validate that dynamic endpoint paths are valid non-empty strings starting with `/` before appending to base API URLs.
+**Prevention:** Always enforce strict endpoint path validation (`typeof endpoint === 'string' && endpoint.startsWith('/')`) in API wrapper functions.

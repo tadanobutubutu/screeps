@@ -1,3 +1,8 @@
+## 2026-04-02 - Keyboard Focus Parity for Action Buttons
+
+**Learning:** Tracking keyboard focus state (`onFocus`/`onBlur`) without binding it to visual styles (`outline`, `transform`, `backgroundColor`) creates an invisible focus state for keyboard users, impairing navigation clarity.
+**Action:** Always include focus state flags alongside hover state flags when deriving interactive button background colors, scale transforms, and focus outlines.
+
 ## 2026-03-31 - WCAG 2.1.4 Keyboard Shortcuts Accessibility
 
 **Learning:** Single-key shortcuts can trigger unexpectedly for screen readers or when typing; using Alt modifier or dedicated helper overlay (?) improves accessibility and discoverability.

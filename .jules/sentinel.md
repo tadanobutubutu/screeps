@@ -89,3 +89,9 @@ Use of deprecated and predictable Math.random() for security-sensitive logic in 
 **Vulnerability:** `format_everything.js` used `execSync` with shell command strings to execute `prettier` and `eslint`.
 **Learning:** Invoking formatting or linting CLI commands via `execSync` with command strings passes arguments through shell interpretation, introducing shell command injection risks.
 **Prevention:** Always use `execFileSync` with explicit binary names (`npx`) and argument arrays (`['prettier', '--write', ...]`) to execute subprocesses directly via system calls without shell expansion.
+
+## 2026-10-07 - [Validate Endpoint Paths in GitHub API Requests Against Path Traversal]
+
+**Vulnerability:** In `scripts/add-contributor.js`, `githubRequest` accepted unvalidated `endpoint` string paths, allowing API path traversal or endpoint redirection if malformed endpoints were passed.
+**Learning:** Functions wrapping HTTP clients for REST APIs must validate that dynamic endpoint paths are valid non-empty strings starting with `/` before appending to base API URLs.
+**Prevention:** Always enforce strict endpoint path validation (`typeof endpoint === 'string' && endpoint.startsWith('/')`) in API wrapper functions.

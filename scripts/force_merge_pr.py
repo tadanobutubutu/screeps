@@ -64,6 +64,8 @@ CONFLICT_RE = re.compile(r"^(<<<<<<< |=======$|>>>>>>> )", re.MULTILINE)
 SHRINK_MIN_LINES = 50
 SHRINK_RATIO = 0.6
 MAX_MERGES_PER_RUN = 10
+# 1 回の実行で、ファイルを取得して詳しく判定する PR の上限（API 呼び出しの上限）
+MAX_EVALUATIONS = 100
 # 検索結果の上限は 1000 件。CI 失敗の古い PR が先頭を埋めても、新しい PR に届くようにする
 DEFAULT_BATCH = 1000
 # API でファイルを取得する前に、マージの可能性がある状態だけを通す（CI 待ちの PR を省くため）
@@ -208,6 +210,15 @@ def merge_decision(pr, paths, touched):
     return "merge", "all gates passed"
 
 
+def needs_detail(pr):
+    """API を呼ばずに分かる範囲で、ファイルを取得して詳しく判定する対象かを返す。"""
+    return (
+        cheap_skip_reason(pr) is None
+        and check_state(pr.get("statusCheckRollup")) == "pass"
+        and pr.get("mergeStateStatus") in MERGEABLE_STATES
+    )
+
+
 def decide(pr, files, base_lines, main_js_problem, touched):
     """API を呼ばずに判定する。戻り値は (action, reason)。"""
     skip = cheap_skip_reason(pr)
@@ -310,7 +321,7 @@ def is_merged(repo, number):
 
 def merge_pr(repo, pr):
     """検証時の head SHA を指定してマージする。失敗時はエラー文字列を返す。
-    応答が返らなかった場合も、実際にマージされていれば成功として扱う。"""
+    タイムアウトの場合は、実際にマージされていれば成功として扱う。"""
     res = gh(
         [
             "api",
@@ -325,7 +336,9 @@ def merge_pr(repo, pr):
             f"commit_title={pr['title']} (#{pr['number']})",
         ]
     )
-    if res.returncode == 0 or is_merged(repo, pr["number"]):
+    if res.returncode == 0:
+        return None
+    if res.returncode == 124 and is_merged(repo, pr["number"]):
         return None
     return res.stderr.strip()[:200]
 
@@ -379,15 +392,16 @@ def process_pr(repo, pr, touched, merges, dry_run):
 
 
 def attempt_merge(repo, pr, files, touched, dry_run):
-    """マージを実行し、(状態, マージしたか) を返す。成功した場合は触れたパスを同じ実行内で記録する。"""
+    """マージを実行し、(状態, マージしたか) を返す。
+    結果が確定しなくても同じ実行内では触れたパスを予約し、同じファイルを変える PR を後回しにする。"""
     paths = {p for f in files for p in (f["filename"], base_path(f))}
     if dry_run:
         touched.update(paths)
         return "would merge", True
+    touched.update(paths)
     error = merge_pr(repo, pr)
     if error:
         return f"merge failed: {error}", False
-    touched.update(paths)
     return "merged", True
 
 
@@ -468,9 +482,15 @@ def main(argv=None):
     if prs is None:
         return 1
 
-    touched, merges = set(), 0
+    touched, merges, evaluations = set(), 0, 0
     lines = [f"mode: {'dry-run' if dry_run else 'live'}, candidates: {len(prs)}"]
     for pr in prs:
+        if needs_detail(pr):
+            # 上限に達したら、API を使う詳しい判定はやめる（残りは次の実行で判定する）
+            if merges >= MAX_MERGES_PER_RUN or evaluations >= MAX_EVALUATIONS:
+                lines.append(f"#{pr['number']} {pr['title'][:60]!r}: skip (run limit reached)")
+                continue
+            evaluations += 1
         status, merged = process_pr(repo, pr, touched, merges, dry_run)
         if merged:
             merges += 1

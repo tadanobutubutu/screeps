@@ -64,7 +64,10 @@ CONFLICT_RE = re.compile(r"^(<<<<<<< |=======$|>>>>>>> )", re.MULTILINE)
 SHRINK_MIN_LINES = 50
 SHRINK_RATIO = 0.6
 MAX_MERGES_PER_RUN = 10
-DEFAULT_BATCH = 100
+# 検索結果の上限は 1000 件。CI 失敗の古い PR が先頭を埋めても、新しい PR に届くようにする
+DEFAULT_BATCH = 1000
+# API でファイルを取得する前に、マージの可能性がある状態だけを通す（CI 待ちの PR を省くため）
+MERGEABLE_STATES = ("CLEAN", "BEHIND", "DIRTY")
 GH_TIMEOUT_SECONDS = 120
 PR_FIELDS = (
     "number,title,isDraft,isCrossRepository,baseRefName,headRefOid,"
@@ -243,6 +246,9 @@ def evaluate(repo, pr, touched):
     state = check_state(pr.get("statusCheckRollup"))
     if state != "pass":
         return [], ("skip", CI_SKIP_REASONS[state])
+    merge_state = pr.get("mergeStateStatus")
+    if merge_state not in MERGEABLE_STATES:
+        return [], ("skip", f"merge state {merge_state}")
 
     base = pr.get("baseRefName") or "main"
     files = list_pr_files(repo, pr["number"])
@@ -296,8 +302,15 @@ def update_pr(repo, pr):
     return res.returncode == 0
 
 
+def is_merged(repo, number):
+    """PR が実際にマージ済みか確認する（タイムアウト後にサーバー側で完了していることがあるため）。"""
+    res = gh(["api", f"repos/{repo}/pulls/{number}", "--jq", ".merged"])
+    return res.returncode == 0 and res.stdout.strip() == "true"
+
+
 def merge_pr(repo, pr):
-    """検証時の head SHA を指定してマージする。失敗時はエラー文字列を返す。"""
+    """検証時の head SHA を指定してマージする。失敗時はエラー文字列を返す。
+    応答が返らなかった場合も、実際にマージされていれば成功として扱う。"""
     res = gh(
         [
             "api",
@@ -312,7 +325,9 @@ def merge_pr(repo, pr):
             f"commit_title={pr['title']} (#{pr['number']})",
         ]
     )
-    return None if res.returncode == 0 else res.stderr.strip()[:200]
+    if res.returncode == 0 or is_merged(repo, pr["number"]):
+        return None
+    return res.stderr.strip()[:200]
 
 
 def run_action(repo, pr, action, dry_run):

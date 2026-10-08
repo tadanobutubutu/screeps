@@ -47,4 +47,4 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
-        run: python3 scripts/force_merge_pr.py --batch 100
+        run: python3 scripts/force_merge_pr.py --batch 1000

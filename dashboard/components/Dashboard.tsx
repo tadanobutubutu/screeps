@@ -384,9 +384,12 @@ export default function Dashboard() {
                         borderRadius: '4px',
                         cursor: 'pointer',
                         transition: 'all 0.2s ease-in-out',
-                        transform: errCopyHover ? 'scale(1.05)' : 'scale(1)',
-                        boxShadow: errCopyHover ? '0 4px 10px rgba(0, 75, 115, 0.3)' : 'none',
-                        filter: errCopyHover ? 'brightness(1.1)' : 'none',
+                        transform: errCopyHover || errCopyFocused ? 'scale(1.05)' : 'scale(1)',
+                        boxShadow:
+                            errCopyHover || errCopyFocused
+                                ? '0 4px 10px rgba(0, 75, 115, 0.3)'
+                                : 'none',
+                        filter: errCopyHover || errCopyFocused ? 'brightness(1.1)' : 'none',
                         outline: errCopyFocused ? '2px solid #004b73' : 'none',
                         outlineOffset: '2px',
                     }}
@@ -411,10 +414,18 @@ export default function Dashboard() {
                         border: '1px solid #cbd5e0',
                         borderRadius: '4px',
                         transition: 'all 0.2s ease-in-out',
-                        transform: errRetryHover && !refreshing ? 'scale(1.05)' : 'scale(1)',
+                        transform:
+                            (errRetryHover || errRetryFocused) && !refreshing
+                                ? 'scale(1.05)'
+                                : 'scale(1)',
                         boxShadow:
-                            errRetryHover && !refreshing ? '0 4px 10px rgba(0,0,0,0.05)' : 'none',
-                        filter: errRetryHover && !refreshing ? 'brightness(0.95)' : 'none',
+                            (errRetryHover || errRetryFocused) && !refreshing
+                                ? '0 4px 10px rgba(0,0,0,0.05)'
+                                : 'none',
+                        filter:
+                            (errRetryHover || errRetryFocused) && !refreshing
+                                ? 'brightness(0.95)'
+                                : 'none',
                         outline: errRetryFocused ? '2px solid #004b73' : 'none',
                         outlineOffset: '2px',
                     }}
@@ -1138,7 +1149,10 @@ export default function Dashboard() {
                                     marginLeft: '0.25rem',
                                     fontSize: '0.75rem',
                                     color: '#004b73',
-                                    backgroundColor: matchClearHover ? '#edf2f7' : 'transparent',
+                                    backgroundColor:
+                                        matchClearHover || matchClearFocused
+                                            ? '#edf2f7'
+                                            : 'transparent',
                                     border: 'none',
                                     cursor: 'pointer',
                                     textDecoration: 'underline',
@@ -1183,7 +1197,10 @@ export default function Dashboard() {
                                     marginLeft: '0.25rem',
                                     fontSize: '0.75rem',
                                     color: '#004b73',
-                                    backgroundColor: noMatchClearHover ? '#edf2f7' : 'transparent',
+                                    backgroundColor:
+                                        noMatchClearHover || noMatchClearFocused
+                                            ? '#edf2f7'
+                                            : 'transparent',
                                     border: 'none',
                                     cursor: 'pointer',
                                     textDecoration: 'underline',
@@ -1241,7 +1258,7 @@ export default function Dashboard() {
                                               ? 'scale(1.06)'
                                               : 'scale(1)',
                                       boxShadow:
-                                          hoveredRoom === room
+                                          hoveredRoom === room || focusedRoom === room
                                               ? '0 2px 4px rgba(0,0,0,0.1)'
                                               : 'none',
                                       outline: focusedRoom === room ? '2px solid #004b73' : 'none',
@@ -1407,7 +1424,10 @@ export default function Dashboard() {
                                     transition: 'all 0.2s ease-in-out',
                                     transform:
                                         jsonHover || jsonFocused ? 'scale(1.05)' : 'scale(1)',
-                                    boxShadow: jsonHover ? '0 2px 4px rgba(0,0,0,0.1)' : 'none',
+                                    boxShadow:
+                                        jsonHover || jsonFocused
+                                            ? '0 2px 4px rgba(0,0,0,0.1)'
+                                            : 'none',
                                     outline: jsonFocused ? '2px solid #004b73' : 'none',
                                     outlineOffset: '2px',
                                 }}

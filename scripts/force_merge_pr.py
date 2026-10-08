@@ -488,7 +488,9 @@ def main(argv=None):
         if needs_detail(pr):
             # 上限に達したら、API を使う詳しい判定はやめる（残りは次の実行で判定する）
             if merges >= MAX_MERGES_PER_RUN or evaluations >= MAX_EVALUATIONS:
-                lines.append(f"#{pr['number']} {pr['title'][:60]!r}: skip (run limit reached)")
+                lines.append(
+                    f"#{pr['number']} {pr['title'][:60]!r}: skip (run limit reached)"
+                )
                 continue
             evaluations += 1
         status, merged = process_pr(repo, pr, touched, merges, dry_run)

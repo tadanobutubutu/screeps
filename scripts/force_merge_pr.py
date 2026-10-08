@@ -206,7 +206,7 @@ def merge_decision(pr, paths, touched):
         return "skip", f"merge state {merge_state}"
     overlap = sorted(paths & touched)
     if overlap:
-        return "skip", f"{overlap[0]} already merged in this run"
+        return "skip", f"{overlap[0]} already merged or attempted in this run"
     return "merge", "all gates passed"
 
 

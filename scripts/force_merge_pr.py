@@ -72,7 +72,11 @@ PR_FIELDS = (
 )
 # 検索段階で対象外を除き、古い順に取得する（最新 N 件だけを見ないようにするため）
 PR_SEARCH = 'sort:created-asc draft:false -label:needs-human -label:"automerge:hold"'
-CI_SKIP_REASONS = {"fail": "CI failing", "pending": "CI pending", "none": "no CI checks"}
+CI_SKIP_REASONS = {
+    "fail": "CI failing",
+    "pending": "CI pending",
+    "none": "no CI checks",
+}
 CHECK_OUTCOMES = {
     "SUCCESS": "pass",
     "PENDING": "pending",

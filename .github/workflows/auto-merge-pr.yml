@@ -22,6 +22,9 @@ permissions:
   contents: write
   pull-requests: write
   issues: write
+  # statusCheckRollup（CI の結果）を読むのに必要。無いと CI が「なし」扱いになる
+  checks: read
+  statuses: read
 
 jobs:
   sweep:
@@ -31,6 +34,8 @@ jobs:
       - name: Checkout (default branch)
         uses: actions/checkout@v4
         with:
+          # 手動実行でも既定ブランチのゲートだけを使う
+          ref: ${{ github.event.repository.default_branch }}
           persist-credentials: false
 
       - name: Set up Python

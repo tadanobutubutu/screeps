@@ -219,6 +219,13 @@ def needs_detail(pr):
     )
 
 
+def over_run_limit(pr, merges, evaluations):
+    """詳しい判定の対象で、マージまたは判定の上限に達しているかを返す（API を使う前に確認する）。"""
+    return needs_detail(pr) and (
+        merges >= MAX_MERGES_PER_RUN or evaluations >= MAX_EVALUATIONS
+    )
+
+
 def decide(pr, files, base_lines, main_js_problem, touched):
     """API を呼ばずに判定する。戻り値は (action, reason)。"""
     skip = cheap_skip_reason(pr)
@@ -261,9 +268,15 @@ def evaluate(repo, pr, touched):
     if merge_state not in MERGEABLE_STATES:
         return [], ("skip", f"merge state {merge_state}")
 
-    base = pr.get("baseRefName") or "main"
     files = list_pr_files(repo, pr["number"])
+    base = pr.get("baseRefName") or "main"
+    base_text, base_lines = fetch_base_contents(repo, files, base)
+    main_js_problem = check_main_js(repo, pr, files, base_text)
+    return files, decide(pr, files, base_lines, main_js_problem, touched)
 
+
+def fetch_base_contents(repo, files, base):
+    """判定に必要な変更前の内容だけを取得する。戻り値は（内容の辞書, 行数の辞書）。"""
     base_text, base_lines = {}, {}
     for f in files:
         path = base_path(f)
@@ -276,9 +289,7 @@ def evaluate(repo, pr, touched):
         if text is not None:
             base_text[path] = text
             base_lines[path] = len(text.splitlines())
-
-    main_js_problem = check_main_js(repo, pr, files, base_text)
-    return files, decide(pr, files, base_lines, main_js_problem, touched)
+    return base_text, base_lines
 
 
 def ensure_hold_label(repo):
@@ -478,6 +489,24 @@ def load_prs(repo, args):
     return sorted(prs, key=lambda pr: pr["number"])
 
 
+def sweep(repo, prs, dry_run):
+    """PR を古い順に判定し、結果の行を返す。マージ・詳しい判定の上限はここで数える。"""
+    touched, merges, evaluations = set(), 0, 0
+    lines = []
+    for pr in prs:
+        if over_run_limit(pr, merges, evaluations):
+            title = pr["title"][:60]
+            lines.append(f"#{pr['number']} {title!r}: skip (run limit reached)")
+            continue
+        if needs_detail(pr):
+            evaluations += 1
+        status, attempted = process_pr(repo, pr, touched, merges, dry_run)
+        if attempted:
+            merges += 1
+        lines.append(f"#{pr['number']} {pr['title'][:60]!r}: {status}")
+    return lines
+
+
 def main(argv=None):
     """引数を解釈し、対象 PR を判定してマージ・保留・最新化を実行する。"""
     args = parse_args(argv)
@@ -490,24 +519,10 @@ def main(argv=None):
     if prs is None:
         return 1
 
-    touched, merges, evaluations = set(), 0, 0
     lines = [f"mode: {'dry-run' if dry_run else 'live'}, candidates: {len(prs)}"]
     if prs and not dry_run:
         ensure_hold_label(repo)
-    for pr in prs:
-        if needs_detail(pr):
-            # 上限に達したら、API を使う詳しい判定はやめる（残りは次の実行で判定する）
-            if merges >= MAX_MERGES_PER_RUN or evaluations >= MAX_EVALUATIONS:
-                lines.append(
-                    f"#{pr['number']} {pr['title'][:60]!r}: skip (run limit reached)"
-                )
-                continue
-            evaluations += 1
-        status, attempted = process_pr(repo, pr, touched, merges, dry_run)
-        if attempted:
-            merges += 1
-        lines.append(f"#{pr['number']} {pr['title'][:60]!r}: {status}")
-
+    lines += sweep(repo, prs, dry_run)
     write_summary(lines)
     return 0
 

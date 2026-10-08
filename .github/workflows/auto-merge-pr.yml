@@ -1,75 +1,46 @@
-name: Auto Merge PRs - Force Penetration (Instant CI)
+name: Auto Merge PRs (gated sweep)
 
+# 定期的に open PR を判定し、条件を満たしたものだけを自動マージする。
+# 判定の中身は scripts/force_merge_pr.py を参照。
 on:
   schedule:
-    - cron: "*/5 * * * *"
+    - cron: "*/15 * * * *"
   workflow_dispatch:
     inputs:
-      batch_limit:
-        description: 'Batch size per cycle'
+      dry_run:
+        description: '判定のみ行い、マージやラベル付けをしない'
         required: false
-        default: '100'
-      runtime_mins:
-        description: 'Max runtime in minutes (continuous loop)'
-        required: false
-        default: '240'
-      push_every:
-        description: 'Push commits every N merges'
-        required: false
-        default: '10'
+        type: boolean
+        default: false
 
+# auto-merge-single-pr.yml と同じグループにして、マージを 1 つずつ直列に実行する
 concurrency:
-  group: auto-merge-batch-runner
+  group: auto-merge-gate
   cancel-in-progress: false
 
 permissions:
   contents: write
   pull-requests: write
-  actions: write
   issues: write
 
 jobs:
-  force-merge:
+  sweep:
     runs-on: ubuntu-latest
-    timeout-minutes: 360
+    timeout-minutes: 30
     steps:
-      - name: Checkout
+      - name: Checkout (default branch)
         uses: actions/checkout@v4
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          fetch-depth: 0
+          persist-credentials: false
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.14'
+          python-version: '3.12'
 
-      - name: Force Merge PRs (Ultra-Fast Continuous Loop)
+      - name: Gated sweep
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          OPENROUTER_TOKEN: ${{ secrets.OPENROUTER_TOKEN }}
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-          GIT_AUTHOR_NAME: "github-actions[bot]"
-          GIT_AUTHOR_EMAIL: "41898282+github-actions[bot]@users.noreply.github.com"
-          GIT_COMMITTER_NAME: "github-actions[bot]"
-          GIT_COMMITTER_EMAIL: "41898282+github-actions[bot]@users.noreply.github.com"
-          BATCH_LIMIT: ${{ inputs.batch_limit || '100' }}
-          RUNTIME_MINS: ${{ inputs.runtime_mins || '240' }}
-          PUSH_EVERY: ${{ inputs.push_every || '10' }}
-        run: |
-          echo "Starting Ultra-Fast Continuous Merge: Batch=$BATCH_LIMIT, PushEvery=$PUSH_EVERY, Runtime=${RUNTIME_MINS}m"
-          python3 scripts/force_merge_pr.py --batch "$BATCH_LIMIT" --push-every "$PUSH_EVERY" --runtime "$RUNTIME_MINS" || true
-
-      - name: Self-Chaining Trigger (Ensure Continuous Runner)
-        if: always()
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          REMAINING=$(gh pr list --state open --limit 1 --json number --jq 'length' || echo "0")
-          if [ "$REMAINING" -gt 0 ]; then
-            echo "🚀 Open PRs still remain! Triggering next workflow run to keep runner active..."
-            gh workflow run auto-merge-pr.yml || true
-          else
-            echo "🎉 All PRs are merged! Repository is 100% clean!"
-          fi
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          DRY_RUN: ${{ inputs.dry_run || 'false' }}
+        run: python3 scripts/force_merge_pr.py --batch 30

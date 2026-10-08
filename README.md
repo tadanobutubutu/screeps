@@ -35,8 +35,8 @@
 - **AI Sentinel (Ultimate Security & Quality Shield)** (`ai-guardian.yml`) - 定期実行
 - **👤 Auto Assign Issues and PRs** (`auto-assign.yml`) - イベント駆動
 - **Continuous Quality & Coverage Monitor** (`auto-issue.yml`) - 定期実行
-- **Auto Merge PRs - Force Penetration (Instant CI)** (`auto-merge-pr.yml`) - 定期実行
-- **Instant Merge Single Incoming PR** (`auto-merge-single-pr.yml`) - イベント駆動
+- **Auto Merge PRs (gated sweep)** (`auto-merge-pr.yml`) - 15分ごと。条件を満たした PR だけを API で squash マージ（判定は `scripts/force_merge_pr.py`）
+- **Auto Merge PR on CI completion** (`auto-merge-single-pr.yml`) - CI 完了時に同じゲートで判定
 - **🤖 Auto PR from Issues** (`auto-pr-from-issues.yml`) - イベント駆動
 - **🔖 Auto Zenodo DOI Release** (`auto-zenodo-release.yml`) - 定期実行
 - **🔍 Dependency Review** (`dependency-review.yml`) - イベント駆動

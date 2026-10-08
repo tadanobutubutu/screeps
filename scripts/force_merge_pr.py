@@ -2,354 +2,296 @@
 """
 scripts/force_merge_pr.py
 
-Ultra-Fast Robust PR Auto-Merger with Automatic Conflict Resolution.
-Optimized for high-throughput batch merging in Screeps repository.
+自動マージゲート（安全版）。条件を満たした PR だけを自動でマージする。
 
-Key Optimizations:
-1. One-shot batch metadata fetching (1 API call for up to 100 PRs).
-2. Bulk Push: commits every N merges (default 10) instead of every single PR.
-3. In-memory deduplication set (`seen_merged_prs`) to prevent re-merging lag.
-4. Immediate batch PR & Issue closing upon push.
-5. Continuous Execution Loop: runs for up to `max_runtime_minutes` (default 240 mins)
-   processing batch after batch until no open PRs remain or time expires.
-6. 100% commit author strictly as github-actions[bot].
-7. Workflow directory (.github/workflows) is ALWAYS protected against regression.
+旧版は PR を git merge して main に直接 push し、衝突時は PR 側のファイル全体を
+採用していた（git checkout --theirs）。そのため main.js の内容が繰り返し消えた。
+この版は次の方針に変える。
+
+- ローカルの git merge / git push は行わず、GitHub API でマージする
+- マージは検証時の head SHA を指定する。検証後に PR が更新されていればマージは拒否される
+- 競合は AI や theirs で解決せず、needs-human ラベルを付けて人に渡す
+- 自動化の設定（.github/workflows/** と本スクリプト）を変える PR は自動マージしない
+- 大量の行を消す変更や、main.js から exports.loop が消える変更は保留する
+- Draft の PR は ready にしない。フォーク PR は対象外
+
+マージ条件（すべて満たした PR だけをマージする）:
+  1. 同じリポジトリのブランチ（フォーク PR は対象外）
+  2. Draft ではない
+  3. automerge:hold / needs-human ラベルがない
+  4. 保護対象（.github/workflows/**、本スクリプト）を変更していない
+  5. 行数 50 以上のファイルの 60% 以上を削除していない
+  6. main.js を変更する場合、変更前に exports.loop があれば変更後も残っており、
+     コンフリクトマーカーがない
+  7. CI チェックが 1 件以上あり、すべて成功している（保留中・失敗は対象外）
+  8. mergeStateStatus が CLEAN
+
+判定:
+  merge  : 条件を満たしたのでマージする
+  hold   : 人の判断が必要。needs-human を付ける（人がラベルを外すまで対象外）
+  update : BEHIND。update-branch で最新化し、次回の実行でマージする
+  skip   : 今回は対象外（draft、CI 待ち、CI 失敗、CI なしなど）
+
+1 回の実行では、同じファイルを変更する PR を 1 件だけマージし、マージ数にも上限を設ける。
+
+使い方:
+  python3 scripts/force_merge_pr.py               # open PR を古い順に判定する
+  python3 scripts/force_merge_pr.py 123 456       # 指定した PR だけを判定する
+  python3 scripts/force_merge_pr.py --dry-run     # 判定のみ（マージ・ラベル付けはしない）
+  --push-every / --runtime は旧ワークフローとの互換のため受け付けて無視する
 """
 
+import argparse
 import json
 import os
 import re
 import subprocess
 import sys
-import time
+from urllib.parse import quote
 
-try:
-    from ai_providers import clean_plain_response, generate_with_fallback, normalize_token
-    HAS_AI = True
-except ImportError:
-    HAS_AI = False
+HOLD_LABELS = {"automerge:hold", "needs-human"}
+PROTECTED_PREFIXES = (".github/workflows/",)
+PROTECTED_FILES = {"scripts/force_merge_pr.py"}
+LOOP_FILE = "main.js"
+LOOP_PATTERN = "exports.loop"
+CONFLICT_RE = re.compile(r"^(<<<<<<< |=======$|>>>>>>> )", re.MULTILINE)
+SHRINK_MIN_LINES = 50
+SHRINK_RATIO = 0.6
+MAX_MERGES_PER_RUN = 10
+DEFAULT_BATCH = 30
+PR_FIELDS = (
+    "number,title,isDraft,isCrossRepository,baseRefName,headRefOid,"
+    "labels,mergeStateStatus,statusCheckRollup"
+)
 
-BOT_NAME = "github-actions[bot]"
-BOT_EMAIL = "41898282+github-actions[bot]@users.noreply.github.com"
-
-
-def run_cmd(args, check=True, capture=True):
-    res = subprocess.run(args, capture_output=capture, text=True)
-    if check and res.returncode != 0:
-        print(f"Error running {' '.join(args)}: returncode {res.returncode}")
-        if res.stdout:
-            print(f"Stdout: {res.stdout.strip()[:500]}")
-        if res.stderr:
-            print(f"Stderr: {res.stderr.strip()[:500]}")
-    return res
+_label_ready = False
 
 
-def setup_git_config():
-    run_cmd(["git", "config", "user.name", BOT_NAME], check=False)
-    run_cmd(["git", "config", "user.email", BOT_EMAIL], check=False)
-    os.environ["GIT_AUTHOR_NAME"] = BOT_NAME
-    os.environ["GIT_AUTHOR_EMAIL"] = BOT_EMAIL
-    os.environ["GIT_COMMITTER_NAME"] = BOT_NAME
-    os.environ["GIT_COMMITTER_EMAIL"] = BOT_EMAIL
+def gh(args):
+    return subprocess.run(["gh", *args], capture_output=True, text=True)
 
 
-def protect_workflows():
-    """Guarantee that .github/workflows/ is never altered or rolled back by incoming PRs."""
-    run_cmd(["git", "checkout", "HEAD", "--", ".github/workflows/"], check=False)
-
-
-def resolve_file_conflict_with_ai(file_content, filename):
-    if not HAS_AI:
+def gh_json(args):
+    res = gh(args)
+    if res.returncode != 0:
+        print(f"gh {' '.join(args[:2])} failed: {res.stderr.strip()[:300]}")
         return None
-    token = normalize_token(os.environ.get("OPENROUTER_TOKEN"))
-    gemini_key = normalize_token(os.environ.get("GEMINI_API_KEY"))
-    if not token and not gemini_key:
-        return None
-
-    prompt = f"""You are a Senior JavaScript/Node.js Developer resolving a Git merge conflict in a Screeps repository.
-File: '{filename}'
-Conflict content:
-=========================================
-{file_content}
-=========================================
-Resolve the conflict cleanly by integrating both changes if possible, or choosing the newer/extended logic.
-Respond with ONLY the resolved file content, no markdown wrappers, no backticks, no explanations.
-"""
-    try:
-        result, provider = generate_with_fallback(
-            prompt,
-            gemini_key=gemini_key,
-            openrouter_token=token,
-            min_length=20,
-        )
-        if result:
-            return clean_plain_response(result)
-    except Exception as e:
-        print(f"AI conflict resolver exception: {e}")
-    return None
+    return json.loads(res.stdout) if res.stdout.strip() else None
 
 
-def force_resolve_remaining_conflict_markers(filepath):
-    """Fallback: strip git conflict markers and keep theirs (incoming) or combined content."""
-    try:
-        with open(filepath, "r", encoding="utf-8", errors="ignore") as f:
-            lines = f.readlines()
-        
-        resolved_lines = []
-        in_conflict = False
-        in_theirs = False
-        has_markers = False
-        
-        for line in lines:
-            if line.startswith("<<<<<<<"):
-                in_conflict = True
-                in_theirs = False
-                has_markers = True
-                continue
-            elif line.startswith("======="):
-                in_theirs = True
-                continue
-            elif line.startswith(">>>>>>>"):
-                in_conflict = False
-                in_theirs = False
-                continue
-            
-            if not in_conflict:
-                resolved_lines.append(line)
-            else:
-                if in_theirs:
-                    resolved_lines.append(line)
-
-        if has_markers:
-            with open(filepath, "w", encoding="utf-8") as f:
-                f.writelines(resolved_lines)
-            return True
-    except Exception as e:
-        print(f"Failed to strip conflict markers in {filepath}: {e}")
-    return False
+def gh_raw(repo, path, ref):
+    """ref 時点のファイル本文を返す。存在しなければ None。"""
+    url = f"repos/{repo}/contents/{quote(path)}?ref={quote(ref)}"
+    res = gh(["api", "-H", "Accept: application/vnd.github.raw", url])
+    return res.stdout if res.returncode == 0 else None
 
 
-def close_linked_issues(body):
-    if not body:
-        return
-    matches = re.findall(r'(?:closes|fixes|resolves)\s+(?:https://github\.com/[^/]+/[^/]+/issues/|#)(\d+)', body, re.IGNORECASE)
-    for issue_no in set(matches):
-        run_cmd(["gh", "issue", "close", issue_no, "-c", "Resolved via merged PR."], check=False)
-
-
-def push_with_retry(max_retries=3):
-    """Push local main to origin main with automatic rebase on conflict."""
-    for attempt in range(max_retries):
-        push_res = run_cmd(["git", "push", "origin", "main"], check=False)
-        if push_res.returncode == 0:
-            return True
-        print(f"Push attempt {attempt + 1} failed. Re-fetching and rebasing...")
-        run_cmd(["git", "pull", "--rebase", "origin", "main"], check=False)
-        protect_workflows()
-        run_cmd(["git", "add", ".github/workflows/"], check=False)
-        run_cmd(["git", "rebase", "--continue"], check=False)
-    final_push = run_cmd(["git", "push", "origin", "main"], check=False)
-    return final_push.returncode == 0
-
-
-def get_oldest_open_prs_detailed(limit=100):
-    """Retrieve oldest open pull requests with metadata in a single fast API call."""
-    res = run_cmd([
-        "gh", "pr", "list",
-        "--state", "open",
-        "--search", "sort:created-asc",
-        "--limit", str(limit),
-        "--json", "number,id,isDraft,headRefName,body"
-    ], check=False)
-    if res.returncode != 0 or not res.stdout:
-        return []
-    try:
-        return json.loads(res.stdout)
-    except Exception as e:
-        print(f"Error parsing PR list: {e}")
-        return []
-
-
-def merge_single_pr_git(pr_info):
-    """Perform in-memory / local git merge for a single PR without pushing yet."""
-    pr_no = pr_info["number"]
-    head_ref = pr_info.get("headRefName", f"pr-{pr_no}")
-    is_draft = pr_info.get("isDraft", False)
-    body = pr_info.get("body", "")
-
-    if is_draft:
-        run_cmd(["gh", "pr", "ready", str(pr_no)], check=False)
-
-    temp_branch = f"temp-pr-{pr_no}"
-    run_cmd(["git", "branch", "-D", temp_branch], check=False)
-    fetch_res = run_cmd(["git", "fetch", "--no-tags", "origin", f"pull/{pr_no}/head:{temp_branch}"], check=False)
-    if fetch_res.returncode != 0:
-        run_cmd(["git", "fetch", "--no-tags", "origin", f"{head_ref}:{temp_branch}"], check=False)
-
-    merge_cmd = [
-        "git", "merge", temp_branch,
-        "-m", f"Merge pull request #{pr_no} from {head_ref} [auto-resolve-conflict]",
-        "-X", "theirs",
-        "--allow-unrelated-histories"
-    ]
-    merge_res = run_cmd(merge_cmd, check=False)
-
-    if merge_res.returncode != 0:
-        diff_res = run_cmd(["git", "diff", "--name-only", "--diff-filter=U"], check=False)
-        conflicts = [f.strip() for f in diff_res.stdout.splitlines() if f.strip()]
-        for cf in conflicts:
-            if not os.path.exists(cf):
-                run_cmd(["git", "rm", "-f", cf], check=False)
-                continue
-            with open(cf, "r", encoding="utf-8", errors="ignore") as f:
-                content = f.read()
-            ai_content = resolve_file_conflict_with_ai(content, cf)
-            if ai_content:
-                with open(cf, "w", encoding="utf-8") as f:
-                    f.write(ai_content)
-            else:
-                force_resolve_remaining_conflict_markers(cf)
-                run_cmd(["git", "checkout", "--theirs", cf], check=False)
-            run_cmd(["git", "add", cf], check=False)
-
-    protect_workflows()
-    run_cmd(["git", "add", ".github/workflows/"], check=False)
-
-    run_cmd([
-        "git", "commit", "--no-verify",
-        "-m", f"Merge pull request #{pr_no} from {head_ref} [auto-resolved conflicts]"
-    ], check=False)
-
-    run_cmd(["git", "branch", "-D", temp_branch], check=False)
-    return True, body
-
-
-def run_continuous_batch_merger(batch_size=100, push_every=10, max_runtime_minutes=240):
-    """
-    Continuous merger: runs in a loop for up to max_runtime_minutes,
-    merging batches of PRs and pushing in groups of `push_every` for maximum throughput.
-    """
-    setup_git_config()
-    start_time = time.time()
-    max_duration_secs = max_runtime_minutes * 60
-    total_merged = 0
-    seen_merged_prs = set()
-
-    print(f"🚀 Starting Ultra-Fast Continuous PR Merger")
-    print(f"   Batch Size: {batch_size} | Push Every: {push_every} PRs | Max Runtime: {max_runtime_minutes} mins")
-
-    run_cmd(["git", "checkout", "main"], check=True)
-    run_cmd(["git", "pull", "--ff-only", "origin", "main"], check=False)
-
+def list_pr_files(repo, number):
+    files, page = [], 1
     while True:
-        elapsed = time.time() - start_time
-        if elapsed >= max_duration_secs:
-            print(f"⏱️ Time limit reached ({elapsed/60:.1f} mins >= {max_runtime_minutes} mins). Gracefully finishing.")
-            break
+        res = gh(["api", f"repos/{repo}/pulls/{number}/files?per_page=100&page={page}"])
+        if res.returncode != 0:
+            raise RuntimeError(f"files of #{number}: {res.stderr.strip()[:200]}")
+        batch = json.loads(res.stdout)
+        files.extend(batch)
+        if len(batch) < 100:
+            return files
+        page += 1
 
-        print(f"\n--- Fetching next batch of {batch_size} oldest open PRs ---")
-        raw_prs = get_oldest_open_prs_detailed(limit=batch_size)
-        prs = [p for p in raw_prs if p["number"] not in seen_merged_prs]
 
-        if not prs:
-            if not raw_prs:
-                print("🎉 No more open pull requests found! All PRs are merged!")
-                break
+def check_state(rollup):
+    """CI の集計。戻り値は fail / pending / pass / none のいずれか。"""
+    if not rollup:
+        return "none"
+    failing = pending = passing = False
+    for check in rollup:
+        if "state" in check:  # StatusContext
+            if check["state"] in ("FAILURE", "ERROR"):
+                failing = True
+            elif check["state"] in ("PENDING", "EXPECTED"):
+                pending = True
+            elif check["state"] == "SUCCESS":
+                passing = True
+        else:  # CheckRun
+            if check.get("status") != "COMPLETED":
+                pending = True
+            elif check.get("conclusion") == "SUCCESS":
+                passing = True
+            elif check.get("conclusion") not in ("NEUTRAL", "SKIPPED"):
+                failing = True
+    if failing:
+        return "fail"
+    if pending:
+        return "pending"
+    return "pass" if passing else "none"
+
+
+def decide(pr, files, base_lines, main_js_problem, touched):
+    """API を呼ばずに判定する。戻り値は (action, reason)。"""
+    labels = {label["name"] for label in pr.get("labels") or []}
+    paths = [f["filename"] for f in files]
+
+    if pr.get("isDraft"):
+        return "skip", "draft"
+    if pr.get("isCrossRepository"):
+        return "skip", "fork PR"
+    if labels & HOLD_LABELS:
+        return "skip", f"hold label: {', '.join(sorted(labels & HOLD_LABELS))}"
+
+    for path in paths:
+        if path.startswith(PROTECTED_PREFIXES) or path in PROTECTED_FILES:
+            return "hold", f"protected file changed: {path}"
+    for f in files:
+        base = base_lines.get(f["filename"], 0)
+        if base >= SHRINK_MIN_LINES and f.get("deletions", 0) >= SHRINK_RATIO * base:
+            return "hold", f"{f['filename']}: {f['deletions']} of {base} lines deleted"
+    if main_js_problem:
+        return "hold", main_js_problem
+
+    state = check_state(pr.get("statusCheckRollup"))
+    if state != "pass":
+        reasons = {"fail": "CI failing", "pending": "CI pending", "none": "no CI checks"}
+        return "skip", reasons[state]
+
+    merge_state = pr.get("mergeStateStatus")
+    if merge_state == "DIRTY":
+        return "hold", "merge conflict"
+    if merge_state == "BEHIND":
+        return "update", "behind base branch"
+    if merge_state != "CLEAN":
+        return "skip", f"merge state {merge_state}"
+
+    overlap = sorted(set(paths) & touched)
+    if overlap:
+        return "skip", f"{overlap[0]} already merged in this run"
+    return "merge", "all gates passed"
+
+
+def evaluate(repo, pr, touched):
+    """PR の事実を集めて判定する。戻り値は (files, (action, reason))。"""
+    base = pr.get("baseRefName") or "main"
+    files = list_pr_files(repo, pr["number"])
+
+    base_text, base_lines = {}, {}
+    for f in files:
+        if f.get("status") == "added":
+            continue
+        text = gh_raw(repo, f["filename"], base)
+        if text is not None:
+            base_text[f["filename"]] = text
+            base_lines[f["filename"]] = len(text.splitlines())
+
+    main_js_problem = None
+    if any(f["filename"] == LOOP_FILE for f in files):
+        head = gh_raw(repo, LOOP_FILE, pr["headRefOid"]) or ""
+        had_loop = LOOP_PATTERN in base_text.get(LOOP_FILE, "")
+        if had_loop and LOOP_PATTERN not in head:
+            main_js_problem = f"{LOOP_FILE} loses {LOOP_PATTERN}"
+        elif CONFLICT_RE.search(head):
+            main_js_problem = f"{LOOP_FILE} contains conflict markers"
+
+    return files, decide(pr, files, base_lines, main_js_problem, touched)
+
+
+def ensure_label(repo):
+    global _label_ready
+    if not _label_ready:
+        gh(["label", "create", "needs-human", "-R", repo, "--color", "FBCA04",
+            "--description", "自動マージを保留。人の判断が必要", "--force"])
+        _label_ready = True
+
+
+def hold_pr(repo, number):
+    ensure_label(repo)
+    gh(["pr", "edit", str(number), "-R", repo, "--add-label", "needs-human"])
+
+
+def update_pr(repo, pr):
+    gh(["api", "-X", "PUT", f"repos/{repo}/pulls/{pr['number']}/update-branch",
+        "-f", f"expected_head_sha={pr['headRefOid']}"])
+
+
+def merge_pr(repo, pr):
+    """検証時の head SHA を指定してマージする。失敗時はエラー文字列を返す。"""
+    res = gh(["api", "-X", "PUT", f"repos/{repo}/pulls/{pr['number']}/merge",
+              "-f", "merge_method=squash",
+              "-f", f"sha={pr['headRefOid']}",
+              "-f", f"commit_title={pr['title']} (#{pr['number']})"])
+    return None if res.returncode == 0 else res.stderr.strip()[:200]
+
+
+def write_summary(lines):
+    for line in lines:
+        print(line)
+    summary = os.environ.get("GITHUB_STEP_SUMMARY")
+    if summary:
+        with open(summary, "a", encoding="utf-8") as fh:
+            fh.write("## 自動マージゲート\n\n")
+            fh.writelines(f"- {line}\n" for line in lines)
+
+
+def main(argv=None):
+    parser = argparse.ArgumentParser(description="自動マージゲート")
+    parser.add_argument("numbers", nargs="*", type=int, help="判定する PR 番号（省略時は open PR 全体）")
+    parser.add_argument("--batch", type=int, default=DEFAULT_BATCH, help="sweep で判定する PR の上限")
+    parser.add_argument("--dry-run", action="store_true", help="判定のみ行う")
+    parser.add_argument("--push-every", type=int, help=argparse.SUPPRESS)
+    parser.add_argument("--runtime", type=int, help=argparse.SUPPRESS)
+    args = parser.parse_args(argv)
+    dry_run = args.dry_run or os.environ.get("DRY_RUN", "").lower() in ("1", "true")
+
+    repo = os.environ.get("GITHUB_REPOSITORY")
+    if not repo:
+        info = gh_json(["repo", "view", "--json", "nameWithOwner"])
+        if not info:
+            return 1
+        repo = info["nameWithOwner"]
+
+    if args.numbers:
+        prs = [gh_json(["pr", "view", str(n), "-R", repo, "--json", PR_FIELDS]) for n in args.numbers]
+        prs = [pr for pr in prs if pr]
+    else:
+        prs = gh_json(["pr", "list", "-R", repo, "--state", "open",
+                       "--limit", str(args.batch), "--json", PR_FIELDS])
+        if prs is None:
+            return 1
+    prs.sort(key=lambda pr: pr["number"])
+
+    touched = set()
+    merges = 0
+    lines = [f"mode: {'dry-run' if dry_run else 'live'}, candidates: {len(prs)}"]
+    for pr in prs:
+        number = pr["number"]
+        try:
+            files, (action, reason) = evaluate(repo, pr, touched)
+        except Exception as exc:  # 判定できない PR は何もしない（安全側）
+            lines.append(f"#{number}: skip (evaluation error: {exc})")
+            continue
+
+        if action == "merge" and merges >= MAX_MERGES_PER_RUN:
+            action, reason = "skip", f"merge limit {MAX_MERGES_PER_RUN} reached"
+
+        status = f"{action}: {reason}"
+        if action == "hold" and not dry_run:
+            hold_pr(repo, number)
+        elif action == "update" and not dry_run:
+            update_pr(repo, pr)
+        elif action == "merge":
+            error = None if dry_run else merge_pr(repo, pr)
+            if dry_run:
+                status = "would merge"
+            elif error:
+                status = f"merge failed: {error}"
             else:
-                print("⏳ All retrieved PRs were recently merged. Waiting 5s for GitHub state sync...")
-                time.sleep(5)
-                continue
+                status = "merged"
+            if dry_run or not error:
+                touched.update(f["filename"] for f in files)
+                merges += 1
+        lines.append(f"#{number} {pr['title'][:60]!r}: {status}")
 
-        print(f"Found {len(prs)} fresh PRs to merge in this batch.")
-        unpushed_count = 0
-        merged_in_batch = 0
-        batch_pushed_prs = []
-
-        for pr_info in prs:
-            pr_no = pr_info["number"]
-            try:
-                success, body = merge_single_pr_git(pr_info)
-                if success:
-                    seen_merged_prs.add(pr_no)
-                    unpushed_count += 1
-                    merged_in_batch += 1
-                    total_merged += 1
-                    batch_pushed_prs.append((pr_no, body))
-                    print(f"[{total_merged}] ✅ Merged PR #{pr_no} locally (unpushed: {unpushed_count})")
-            except Exception as e:
-                print(f"⚠️ Exception merging PR #{pr_no}: {e}")
-
-            # Bulk push
-            if unpushed_count >= push_every:
-                print(f"📦 Pushing {unpushed_count} accumulated merge commits to origin/main...")
-                if push_with_retry():
-                    print("🚀 Push successful!")
-                    for p_no, b in batch_pushed_prs:
-                        run_cmd(["gh", "pr", "close", str(p_no), "-c", f"Merged into main by {BOT_NAME} with auto-conflict resolution.", "-d"], check=False)
-                        close_linked_issues(b)
-                    batch_pushed_prs = []
-                    unpushed_count = 0
-                else:
-                    print("❌ Push failed after retries.")
-
-            if time.time() - start_time >= max_duration_secs:
-                print("⏱️ Time limit reached during batch.")
-                break
-
-        # Flush any remaining unpushed commits
-        if unpushed_count > 0:
-            print(f"📦 Flushing {unpushed_count} final merge commits to origin/main...")
-            if push_with_retry():
-                print("🚀 Push successful!")
-                for p_no, b in batch_pushed_prs:
-                    run_cmd(["gh", "pr", "close", str(p_no), "-c", f"Merged into main by {BOT_NAME} with auto-conflict resolution.", "-d"], check=False)
-                    close_linked_issues(b)
-            unpushed_count = 0
-
-        print(f"✅ Batch completed: {merged_in_batch} PRs processed. Total so far: {total_merged}")
-
-    print(f"\n==========================================")
-    print(f"🏁 Continuous Merger Finished! Total PRs merged: {total_merged}")
-    print(f"==========================================")
-    return total_merged
-
-
-def main():
-    if len(sys.argv) > 1 and sys.argv[1].isdigit():
-        pr_no = int(sys.argv[1])
-        prs = [{"number": pr_no, "isDraft": False, "headRefName": f"pr-{pr_no}", "body": ""}]
-        setup_git_config()
-        run_cmd(["git", "checkout", "main"], check=True)
-        run_cmd(["git", "pull", "--ff-only", "origin", "main"], check=False)
-        merge_single_pr_git(prs[0])
-        push_with_retry()
-        sys.exit(0)
-
-    batch_size = 100
-    push_every = 10
-    runtime_mins = 240
-
-    if "--batch" in sys.argv:
-        idx = sys.argv.index("--batch")
-        if idx + 1 < len(sys.argv) and sys.argv[idx + 1].isdigit():
-            batch_size = int(sys.argv[idx + 1])
-
-    if "--runtime" in sys.argv:
-        idx = sys.argv.index("--runtime")
-        if idx + 1 < len(sys.argv) and sys.argv[idx + 1].isdigit():
-            runtime_mins = int(sys.argv[idx + 1])
-
-    if "--push-every" in sys.argv:
-        idx = sys.argv.index("--push-every")
-        if idx + 1 < len(sys.argv) and sys.argv[idx + 1].isdigit():
-            push_every = int(sys.argv[idx + 1])
-
-    run_continuous_batch_merger(
-        batch_size=batch_size,
-        push_every=push_every,
-        max_runtime_minutes=runtime_mins
-    )
+    write_summary(lines)
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

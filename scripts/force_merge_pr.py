@@ -35,6 +35,8 @@ scripts/force_merge_pr.py
   skip   : 今回は対象外（draft、CI 待ち、CI 失敗、CI なしなど）
 
 1 回の実行では、同じファイルを変更する PR を 1 件だけマージし、マージ数にも上限を設ける。
+マージ数は成功（または結果が確定しないもの）だけを数え、GitHub が拒否したものは数えない。
+書き込み（マージ・保留・最新化）の総数にも上限を設け、書き込み同士は間隔を空ける。
 対象の PR は、検索段階で draft や保留ラベル付きを除き、古い順に取得する。
 
 使い方:
@@ -54,6 +56,7 @@ import re
 import shutil
 import subprocess
 import sys
+import time
 from urllib.parse import quote
 
 HOLD_LABELS = {"automerge:hold", "needs-human"}
@@ -67,6 +70,12 @@ SHRINK_RATIO = 0.6
 MAX_MERGES_PER_RUN = 10
 # 1 回の実行で、ファイルを取得して詳しく判定する PR の上限（API 呼び出しの上限）
 MAX_EVALUATIONS = 100
+# 1 回の実行での書き込み（マージ・保留・最新化）の上限。拒否されたものも数える
+MAX_WRITES_PER_RUN = 30
+# 書き込みの間隔（秒）。GitHub の二次レート制限（1 分 80 件）を超えないようにする
+WRITE_INTERVAL_SECONDS = 1.0
+# 4xx はサーバーがリクエストを拒否したこと（マージされていない）を表す
+REJECTED_RE = re.compile(r"HTTP 4\d\d")
 # 検索結果の上限は 1000 件。CI 失敗の古い PR が先頭を埋めても、新しい PR に届くようにする
 DEFAULT_BATCH = 1000
 # API でファイルを取得する前に、マージの可能性がある状態だけを通す（CI 待ちの PR を省くため）
@@ -128,6 +137,12 @@ def gh_raw(repo, path, ref):
     if "HTTP 404" in res.stderr:
         return None
     raise RuntimeError(f"fetch {path}@{ref}: {res.stderr.strip()[:200]}")
+
+
+def gh_write(args):
+    """書き込み系の gh 呼び出し。書き込みの間隔を空けてから実行する。"""
+    time.sleep(WRITE_INTERVAL_SECONDS)
+    return gh(args)
 
 
 def base_path(f):
@@ -299,7 +314,7 @@ def fetch_base_contents(repo, files, base):
 
 def ensure_hold_label(repo):
     """needs-human ラベルを作成（または更新）する。実行ごとに 1 回だけ呼ぶ。"""
-    gh(
+    gh_write(
         [
             "label",
             "create",
@@ -317,13 +332,13 @@ def ensure_hold_label(repo):
 
 def hold_pr(repo, number):
     """PR に needs-human ラベルを付けて保留にする。付与できたら True。"""
-    res = gh(["pr", "edit", str(number), "-R", repo, "--add-label", "needs-human"])
+    res = gh_write(["pr", "edit", str(number), "-R", repo, "--add-label", "needs-human"])
     return res.returncode == 0
 
 
 def update_pr(repo, pr):
     """BEHIND の PR を base ブランチの変更で最新化する。成功したら True。"""
-    res = gh(
+    res = gh_write(
         [
             "api",
             "-X",
@@ -343,10 +358,13 @@ def is_merged(repo, number):
 
 
 def merge_pr(repo, pr):
-    """検証時の head SHA を指定してマージする。失敗時はエラー文字列を返す。
-    タイムアウトの場合は、実際にマージされていれば成功として扱う。
+    """検証時の head SHA を指定してマージし、(結果, メッセージ) を返す。
+    結果は次のいずれか。
+      "merged"        : マージされた（タイムアウト後に実際にマージされていた場合を含む）
+      "rejected"      : 4xx で拒否され、マージされていない
+      "indeterminate" : タイムアウトや 5xx など。後からマージされうる
     """
-    res = gh(
+    res = gh_write(
         [
             "api",
             "-X",
@@ -361,10 +379,15 @@ def merge_pr(repo, pr):
         ]
     )
     if res.returncode == 0:
-        return None
-    if res.returncode == 124 and is_merged(repo, pr["number"]):
-        return None
-    return res.stderr.strip()[:200]
+        return "merged", ""
+    if res.returncode == 124:
+        if is_merged(repo, pr["number"]):
+            return "merged", ""
+        return "indeterminate", "timed out"
+    message = res.stderr.strip()[:200]
+    if REJECTED_RE.search(res.stderr):
+        return "rejected", message
+    return "indeterminate", message
 
 
 def run_action(repo, pr, action, dry_run):
@@ -397,39 +420,60 @@ def resolve_action(repo, pr, action, reason):
     return action, reason
 
 
-def process_pr(repo, pr, touched, merges, dry_run):
-    """1 件の PR を判定して必要な操作を行い、(状態, マージを試みたか) を返す。
-    マージの結果が確定しない場合もあるため、試みた数を上限に数える。
-    """
+class RunState:
+    """1 回の実行で共有する状態。上限の数え方はここで決める。"""
+
+    def __init__(self):
+        self.touched = set()  # 今回触れたパス。同じファイルを変える PR は後回しにする
+        self.merges = 0  # 成功、または結果が確定しないマージの数（拒否は数えない）
+        self.writes = 0  # 書き込みの試行数（拒否されたものも数える）
+        self.evaluations = 0  # ファイルを取得して詳しく判定した PR の数
+
+
+def process_pr(repo, pr, state, dry_run):
+    """1 件の PR を判定して必要な操作を行い、結果の状態を返す。"""
     try:
-        files, (action, reason) = evaluate(repo, pr, touched)
+        files, (action, reason) = evaluate(repo, pr, state.touched)
     except Exception as exc:  # 判定できない PR は何もしない（安全側）
-        return f"skip (evaluation error: {exc})", False
+        return f"skip (evaluation error: {exc})"
 
     action, reason = resolve_action(repo, pr, action, reason)
-    if action == "merge" and merges >= MAX_MERGES_PER_RUN:
-        action, reason = "skip", f"merge limit {MAX_MERGES_PER_RUN} reached"
-    if action != "merge":
-        written = run_action(repo, pr, action, dry_run)
-        suffix = "" if written else " (write failed)"
-        return f"{action}: {reason}{suffix}", False
+    if action == "merge":
+        if state.merges >= MAX_MERGES_PER_RUN:
+            return f"skip: merge limit {MAX_MERGES_PER_RUN} reached"
+        if state.writes >= MAX_WRITES_PER_RUN:
+            return f"skip: write limit {MAX_WRITES_PER_RUN} reached"
+        return attempt_merge(repo, pr, files, state, dry_run)
+    if action == "skip":
+        return f"skip: {reason}"
+    if state.writes >= MAX_WRITES_PER_RUN:
+        return f"skip: write limit {MAX_WRITES_PER_RUN} reached ({action} deferred)"
+    state.writes += 1
+    written = run_action(repo, pr, action, dry_run)
+    suffix = "" if written else " (write failed)"
+    return f"{action}: {reason}{suffix}"
 
-    return attempt_merge(repo, pr, files, touched, dry_run), True
 
-
-def attempt_merge(repo, pr, files, touched, dry_run):
-    """マージを実行し、状態を返す。
-    結果が確定しなくても同じ実行内では触れたパスを予約し、同じファイルを変える PR を後回しにする。
+def attempt_merge(repo, pr, files, state, dry_run):
+    """マージを試み、結果の状態を返す。
+    拒否された場合は回数に数えず、この PR のために予約したパスを解放する（マージされていないため）。
+    結果が確定しない場合は、同じ実行内でパスを予約したままにする（後から完了しうるため）。
     """
     paths = {p for f in files for p in (f["filename"], base_path(f))}
+    new_paths = paths - state.touched
+    state.touched.update(paths)
+    state.writes += 1
     if dry_run:
-        touched.update(paths)
+        state.merges += 1
         return "would merge"
-    touched.update(paths)
-    error = merge_pr(repo, pr)
-    if error:
-        return f"merge failed: {error}"
-    return "merged"
+    outcome, message = merge_pr(repo, pr)
+    if outcome == "rejected":
+        state.touched.difference_update(new_paths)
+        return f"merge rejected: {message}"
+    state.merges += 1
+    if outcome == "merged":
+        return "merged"
+    return f"merge failed: {message}"
 
 
 def write_summary(lines):
@@ -498,19 +542,17 @@ def load_prs(repo, args):
 
 
 def sweep(repo, prs, dry_run):
-    """PR を古い順に判定し、結果の行を返す。マージ・詳しい判定の上限はここで数える。"""
-    touched, merges, evaluations = set(), 0, 0
+    """PR を古い順に判定し、結果の行を返す。上限の数え方は RunState に従う。"""
+    state = RunState()
     lines = []
     for pr in prs:
-        if over_run_limit(pr, merges, evaluations):
+        if over_run_limit(pr, state.merges, state.evaluations):
             title = pr["title"][:60]
             lines.append(f"#{pr['number']} {title!r}: skip (run limit reached)")
             continue
         if needs_detail(pr):
-            evaluations += 1
-        status, attempted = process_pr(repo, pr, touched, merges, dry_run)
-        if attempted:
-            merges += 1
+            state.evaluations += 1
+        status = process_pr(repo, pr, state, dry_run)
         lines.append(f"#{pr['number']} {pr['title'][:60]!r}: {status}")
     return lines
 

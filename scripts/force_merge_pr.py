@@ -332,7 +332,9 @@ def ensure_hold_label(repo):
 
 def hold_pr(repo, number):
     """PR に needs-human ラベルを付けて保留にする。付与できたら True。"""
-    res = gh_write(["pr", "edit", str(number), "-R", repo, "--add-label", "needs-human"])
+    res = gh_write(
+        ["pr", "edit", str(number), "-R", repo, "--add-label", "needs-human"]
+    )
     return res.returncode == 0
 
 

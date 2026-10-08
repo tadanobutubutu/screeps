@@ -37,7 +37,7 @@
 - **👤 Auto Assign Issues and PRs** (`auto-assign.yml`) - イベント駆動
 - **Continuous Quality & Coverage Monitor** (`auto-issue.yml`) - 定期実行
 - **Auto Merge PRs (gated sweep)** (`auto-merge-pr.yml`) - 15分ごと。条件を満たした PR だけを API で squash マージ（判定は `scripts/force_merge_pr.py`）
-- **Auto Merge PR on CI completion** (`auto-merge-single-pr.yml`) - CI 完了時に同じゲートで判定
+- **Auto Merge PR on CI completion** (`auto-merge-single-pr.yml`) - CI 完了時に同じゲートで全 open PR を再判定（sweep 方式）
 - **🤖 Auto PR from Issues** (`auto-pr-from-issues.yml`) - イベント駆動
 - **🔖 Auto Zenodo DOI Release** (`auto-zenodo-release.yml`) - 定期実行
 - **🔍 Dependency Review** (`dependency-review.yml`) - イベント駆動

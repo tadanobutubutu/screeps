@@ -1,9 +1,11 @@
 name: Auto Merge PR on CI completion
 
-# CI が完了した時点で、その PR を判定する（同じゲートを使う）。
+# CI が完了した時点で、open PR 全体を同じゲートで判定する（sweep）。
 # PR のコードは実行しない。判定は既定ブランチのスクリプトだけで行う。
 # 注意: GitHub は Actions が作成した check suite では check_suite を起動しない。
-# Actions の CI 完了後の反映は、定期 sweep（auto-merge-pr.yml）に任される。
+# その場合の反映は定期 sweep（auto-merge-pr.yml）に任される。
+# sweep 方式にしているのは、同時に走った複数の完了イベントを
+# concurrency で捨てても、最後の実行が全 PR を再判定して取りこぼさないため。
 on:
   check_suite:
     types: [completed]
@@ -27,12 +29,13 @@ jobs:
       github.event.check_suite.conclusion == 'success' &&
       toJSON(github.event.check_suite.pull_requests) != '[]'
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 30
     steps:
       - name: Checkout (default branch)
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.repository.default_branch }}
+          # 既定ブランチのゲートだけを使う（既定ブランチ名は main に固定）
+          ref: main
           persist-credentials: false
 
       - name: Set up Python
@@ -40,14 +43,8 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Gated check for the PRs in this check suite
+      - name: Gated sweep
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
-          PR_NUMBERS: ${{ join(github.event.check_suite.pull_requests.*.number, ' ') }}
-        run: |
-          if [ -z "$PR_NUMBERS" ]; then
-            echo "No pull requests attached to this check suite."
-            exit 0
-          fi
-          python3 scripts/force_merge_pr.py $PR_NUMBERS
+        run: python3 scripts/force_merge_pr.py --batch 100

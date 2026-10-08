@@ -64,7 +64,7 @@ CONFLICT_RE = re.compile(r"^(<<<<<<< |=======$|>>>>>>> )", re.MULTILINE)
 SHRINK_MIN_LINES = 50
 SHRINK_RATIO = 0.6
 MAX_MERGES_PER_RUN = 10
-DEFAULT_BATCH = 30
+DEFAULT_BATCH = 100
 GH_TIMEOUT_SECONDS = 120
 PR_FIELDS = (
     "number,title,isDraft,isCrossRepository,baseRefName,headRefOid,"
@@ -239,6 +239,10 @@ def evaluate(repo, pr, touched):
     skip = cheap_skip_reason(pr)
     if skip:
         return [], ("skip", skip)
+    # CI の結果は一覧に含まれているので、先に確認して API 呼び出しを省く
+    state = check_state(pr.get("statusCheckRollup"))
+    if state != "pass":
+        return [], ("skip", CI_SKIP_REASONS[state])
 
     base = pr.get("baseRefName") or "main"
     files = list_pr_files(repo, pr["number"])

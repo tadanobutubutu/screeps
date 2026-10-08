@@ -328,13 +328,19 @@ def run_action(repo, pr, action, dry_run):
 
 def confirm_conflict(repo, number):
     """DIRTY の判定を最新の mergeStateStatus で再確認する（反映遅延による誤保留を避ける）。"""
-    info = gh_json(["pr", "view", str(number), "-R", repo, "--json", "mergeStateStatus"])
+    info = gh_json(
+        ["pr", "view", str(number), "-R", repo, "--json", "mergeStateStatus"]
+    )
     return bool(info) and info.get("mergeStateStatus") == "DIRTY"
 
 
 def resolve_action(repo, pr, action, reason):
     """書き込みの前に判定を確定させる。DIRTY は最新の状態で再確認する。"""
-    if action == "hold" and reason == "merge conflict" and not confirm_conflict(repo, pr["number"]):
+    if (
+        action == "hold"
+        and reason == "merge conflict"
+        and not confirm_conflict(repo, pr["number"])
+    ):
         return "skip", "merge state no longer DIRTY, re-check next run"
     return action, reason
 

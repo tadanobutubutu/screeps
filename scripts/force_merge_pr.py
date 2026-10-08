@@ -266,9 +266,10 @@ def evaluate(repo, pr, touched):
 
     base_text, base_lines = {}, {}
     for f in files:
-        if f.get("status") == "added":
-            continue
         path = base_path(f)
+        # 縮小チェックは削除行がある場合だけ、main.js の確認は main.js の場合だけ変更前の内容が要る
+        if f.get("status") == "added" or (f.get("deletions", 0) == 0 and path != LOOP_FILE):
+            continue
         text = gh_raw(repo, path, base)
         if text is not None:
             base_text[path] = text

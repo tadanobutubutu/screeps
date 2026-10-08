@@ -92,6 +92,21 @@ describe('auto-pr-generator', () => {
 
       await expect(githubRequest('/test')).rejects.toThrow('GitHub API error: 404 Not Found')
     })
+
+    it('should throw error on invalid/malicious endpoint path attempting path traversal or URL redirection', async () => {
+      await expect(githubRequest('https://evil.com/api')).rejects.toThrow(
+        'Invalid GitHub API endpoint path: https://evil.com/api'
+      )
+      await expect(githubRequest('invalid-endpoint')).rejects.toThrow(
+        'Invalid GitHub API endpoint path: invalid-endpoint'
+      )
+      await expect(githubRequest(123)).rejects.toThrow(
+        'Invalid GitHub API endpoint path: 123'
+      )
+      await expect(githubRequest(null)).rejects.toThrow(
+        'Invalid GitHub API endpoint path: null'
+      )
+    })
   })
 
   describe('getIssueDetails', () => {

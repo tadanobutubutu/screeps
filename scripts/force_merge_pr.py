@@ -70,6 +70,8 @@ SHRINK_RATIO = 0.6
 MAX_MERGES_PER_RUN = 10
 # 1 回の実行で、ファイルを取得して詳しく判定する PR の上限（API 呼び出しの上限）
 MAX_EVALUATIONS = 100
+# files API が返すファイル数の上限。これ以上は全件を確認できないので判定しない
+PR_FILES_CAP = 3000
 # 1 回の実行での書き込み（マージ・保留・最新化）の上限。拒否されたものも数える
 MAX_WRITES_PER_RUN = 30
 # 書き込みの間隔（秒）。GitHub の二次レート制限（1 分 80 件）を超えないようにする
@@ -151,7 +153,9 @@ def base_path(f):
 
 
 def list_pr_files(repo, number):
-    """PR の変更ファイル一覧を全ページ分取得する。"""
+    """PR の変更ファイル一覧を全ページ分取得する。
+    上限（PR_FILES_CAP）に達した場合は、後ろのファイルを確認できないので失敗にする（安全側）。
+    """
     files, page = [], 1
     while True:
         res = gh(["api", f"repos/{repo}/pulls/{number}/files?per_page=100&page={page}"])
@@ -160,6 +164,10 @@ def list_pr_files(repo, number):
         batch = json.loads(res.stdout)
         files.extend(batch)
         if len(batch) < 100:
+            if len(files) >= PR_FILES_CAP:
+                raise RuntimeError(
+                    f"files of #{number}: {len(files)} 件（上限）のため全件を確認できない"
+                )
             return files
         page += 1
 
@@ -543,11 +551,24 @@ def load_prs(repo, args):
     return sorted(prs, key=lambda pr: pr["number"])
 
 
+def rotate_for_fairness(prs):
+    """詳しい判定の上限を超える PR があるとき、実行ごとに先頭を MAX_EVALUATIONS 件ずつずらす。
+    古い順に固定すると、先頭の PR が毎回枠を使い切り、後ろの PR が判定されないため。
+    GITHUB_RUN_NUMBER が無いとき（手元の実行など）はずらさない。
+    """
+    run = int(os.environ.get("GITHUB_RUN_NUMBER") or 0)
+    detailed = sum(1 for pr in prs if needs_detail(pr))
+    if run == 0 or detailed <= MAX_EVALUATIONS:
+        return prs
+    offset = (run * MAX_EVALUATIONS) % len(prs)
+    return prs[offset:] + prs[:offset]
+
+
 def sweep(repo, prs, dry_run):
-    """PR を古い順に判定し、結果の行を返す。上限の数え方は RunState に従う。"""
+    """PR を判定し、結果の行を返す。上限の数え方は RunState に従う。"""
     state = RunState()
     lines = []
-    for pr in prs:
+    for pr in rotate_for_fairness(prs):
         if over_run_limit(pr, state.merges, state.evaluations):
             title = pr["title"][:60]
             lines.append(f"#{pr['number']} {title!r}: skip (run limit reached)")

@@ -278,8 +278,8 @@ def evaluate(repo, pr, touched):
     return files, decide(pr, files, base_lines, main_js_problem, touched)
 
 
-def hold_pr(repo, number):
-    """PR に needs-human ラベルを付けて保留にする。付与できたら True。"""
+def ensure_hold_label(repo):
+    """needs-human ラベルを作成（または更新）する。実行ごとに 1 回だけ呼ぶ。"""
     gh(
         [
             "label",
@@ -294,6 +294,10 @@ def hold_pr(repo, number):
             "--force",
         ]
     )
+
+
+def hold_pr(repo, number):
+    """PR に needs-human ラベルを付けて保留にする。付与できたら True。"""
     res = gh(["pr", "edit", str(number), "-R", repo, "--add-label", "needs-human"])
     return res.returncode == 0
 
@@ -374,7 +378,8 @@ def resolve_action(repo, pr, action, reason):
 
 
 def process_pr(repo, pr, touched, merges, dry_run):
-    """1 件の PR を判定して必要な操作を行い、(状態, マージしたか) を返す。"""
+    """1 件の PR を判定して必要な操作を行い、(状態, マージを試みたか) を返す。
+    マージの結果が確定しない場合もあるため、試みた数を上限に数える。"""
     try:
         files, (action, reason) = evaluate(repo, pr, touched)
     except Exception as exc:  # 判定できない PR は何もしない（安全側）
@@ -388,21 +393,21 @@ def process_pr(repo, pr, touched, merges, dry_run):
         suffix = "" if written else " (write failed)"
         return f"{action}: {reason}{suffix}", False
 
-    return attempt_merge(repo, pr, files, touched, dry_run)
+    return attempt_merge(repo, pr, files, touched, dry_run), True
 
 
 def attempt_merge(repo, pr, files, touched, dry_run):
-    """マージを実行し、(状態, マージしたか) を返す。
+    """マージを実行し、状態を返す。
     結果が確定しなくても同じ実行内では触れたパスを予約し、同じファイルを変える PR を後回しにする。"""
     paths = {p for f in files for p in (f["filename"], base_path(f))}
     if dry_run:
         touched.update(paths)
-        return "would merge", True
+        return "would merge"
     touched.update(paths)
     error = merge_pr(repo, pr)
     if error:
-        return f"merge failed: {error}", False
-    return "merged", True
+        return f"merge failed: {error}"
+    return "merged"
 
 
 def write_summary(lines):
@@ -484,6 +489,8 @@ def main(argv=None):
 
     touched, merges, evaluations = set(), 0, 0
     lines = [f"mode: {'dry-run' if dry_run else 'live'}, candidates: {len(prs)}"]
+    if prs and not dry_run:
+        ensure_hold_label(repo)
     for pr in prs:
         if needs_detail(pr):
             # 上限に達したら、API を使う詳しい判定はやめる（残りは次の実行で判定する）
@@ -493,8 +500,8 @@ def main(argv=None):
                 )
                 continue
             evaluations += 1
-        status, merged = process_pr(repo, pr, touched, merges, dry_run)
-        if merged:
+        status, attempted = process_pr(repo, pr, touched, merges, dry_run)
+        if attempted:
             merges += 1
         lines.append(f"#{pr['number']} {pr['title'][:60]!r}: {status}")
 

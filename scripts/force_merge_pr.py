@@ -68,10 +68,12 @@ _label_ready = False
 
 
 def gh(args):
+    """gh CLI を実行し、結果（CompletedProcess）を返す。"""
     return subprocess.run(["gh", *args], capture_output=True, text=True)
 
 
 def gh_json(args):
+    """gh の JSON 出力を解析して返す。失敗時は None。"""
     res = gh(args)
     if res.returncode != 0:
         print(f"gh {' '.join(args[:2])} failed: {res.stderr.strip()[:300]}")
@@ -87,6 +89,7 @@ def gh_raw(repo, path, ref):
 
 
 def list_pr_files(repo, number):
+    """PR の変更ファイル一覧を全ページ分取得する。"""
     files, page = [], 1
     while True:
         res = gh(["api", f"repos/{repo}/pulls/{number}/files?per_page=100&page={page}"])
@@ -198,6 +201,7 @@ def evaluate(repo, pr, touched):
 
 
 def ensure_label(repo):
+    """needs-human ラベルが存在することを 1 回の実行につき 1 度だけ確認する。"""
     global _label_ready
     if not _label_ready:
         gh(
@@ -218,11 +222,13 @@ def ensure_label(repo):
 
 
 def hold_pr(repo, number):
+    """PR に needs-human ラベルを付けて保留にする。"""
     ensure_label(repo)
     gh(["pr", "edit", str(number), "-R", repo, "--add-label", "needs-human"])
 
 
 def update_pr(repo, pr):
+    """BEHIND の PR を base ブランチの変更で最新化する（次回の実行でマージ対象になる）。"""
     gh(
         [
             "api",
@@ -255,6 +261,7 @@ def merge_pr(repo, pr):
 
 
 def write_summary(lines):
+    """判定結果を標準出力に出し、GitHub Actions のステップサマリーにも追記する。"""
     for line in lines:
         print(line)
     summary = os.environ.get("GITHUB_STEP_SUMMARY")
@@ -265,6 +272,7 @@ def write_summary(lines):
 
 
 def main(argv=None):
+    """引数を解釈し、対象 PR を判定してマージ・保留・最新化を実行する。"""
     parser = argparse.ArgumentParser(description="自動マージゲート")
     parser.add_argument(
         "numbers", nargs="*", type=int, help="判定する PR 番号（省略時は open PR 全体）"

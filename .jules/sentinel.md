@@ -95,3 +95,9 @@ Use of deprecated and predictable Math.random() for security-sensitive logic in 
 **Vulnerability:** In `scripts/add-contributor.js`, `githubRequest` accepted unvalidated `endpoint` string paths, allowing API path traversal or endpoint redirection if malformed endpoints were passed.
 **Learning:** Functions wrapping HTTP clients for REST APIs must validate that dynamic endpoint paths are valid non-empty strings starting with `/` before appending to base API URLs.
 **Prevention:** Always enforce strict endpoint path validation (`typeof endpoint === 'string' && endpoint.startsWith('/')`) in API wrapper functions.
+
+## 2026-10-08 - [Validate Endpoint Paths in GitHub API Requests in auto-pr-generator.js]
+
+**Vulnerability:** `scripts/auto-pr-generator.js` passed unvalidated `endpoint` parameters to `githubRequest`, allowing arbitrary URL path traversal or redirection when constructing GitHub API request URLs.
+**Learning:** Functions executing HTTP request wrappers against REST APIs must strictly validate that endpoint path parameters are valid strings starting with `/` to prevent API endpoint manipulation.
+**Prevention:** Always enforce strict endpoint path validation (`typeof endpoint === 'string' && endpoint.startsWith('/')`) in API wrapper functions.

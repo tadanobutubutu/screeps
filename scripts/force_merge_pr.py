@@ -51,6 +51,7 @@ import argparse
 import json
 import os
 import re
+import shutil
 import subprocess
 import sys
 from urllib.parse import quote
@@ -93,16 +94,20 @@ CHECK_OUTCOMES = {
 
 def gh(args):
     """gh CLI を実行し、結果（CompletedProcess）を返す。タイムアウトは失敗扱いにする。"""
+    # 実行ファイルは完全なパスで起動する（PATH の解決を任せない）
+    exe = shutil.which("gh")
+    if exe is None:
+        return subprocess.CompletedProcess(["gh", *args], 127, "", "gh not found")
     try:
         return subprocess.run(
-            ["gh", *args],
+            [exe, *args],
             capture_output=True,
             text=True,
             check=False,
             timeout=GH_TIMEOUT_SECONDS,
         )
     except subprocess.TimeoutExpired:
-        return subprocess.CompletedProcess(["gh", *args], 124, "", "gh timed out")
+        return subprocess.CompletedProcess([exe, *args], 124, "", "gh timed out")
 
 
 def gh_json(args):
@@ -339,7 +344,8 @@ def is_merged(repo, number):
 
 def merge_pr(repo, pr):
     """検証時の head SHA を指定してマージする。失敗時はエラー文字列を返す。
-    タイムアウトの場合は、実際にマージされていれば成功として扱う。"""
+    タイムアウトの場合は、実際にマージされていれば成功として扱う。
+    """
     res = gh(
         [
             "api",
@@ -393,7 +399,8 @@ def resolve_action(repo, pr, action, reason):
 
 def process_pr(repo, pr, touched, merges, dry_run):
     """1 件の PR を判定して必要な操作を行い、(状態, マージを試みたか) を返す。
-    マージの結果が確定しない場合もあるため、試みた数を上限に数える。"""
+    マージの結果が確定しない場合もあるため、試みた数を上限に数える。
+    """
     try:
         files, (action, reason) = evaluate(repo, pr, touched)
     except Exception as exc:  # 判定できない PR は何もしない（安全側）
@@ -412,7 +419,8 @@ def process_pr(repo, pr, touched, merges, dry_run):
 
 def attempt_merge(repo, pr, files, touched, dry_run):
     """マージを実行し、状態を返す。
-    結果が確定しなくても同じ実行内では触れたパスを予約し、同じファイルを変える PR を後回しにする。"""
+    結果が確定しなくても同じ実行内では触れたパスを予約し、同じファイルを変える PR を後回しにする。
+    """
     paths = {p for f in files for p in (f["filename"], base_path(f))}
     if dry_run:
         touched.update(paths)

@@ -1,46 +1,47 @@
-name: Instant Merge Single Incoming PR
+name: Auto Merge PR on CI completion
 
+# CI が完了した時点で、その PR を判定する（同じゲートを使う）。
+# PR のコードは実行しない。判定は base ブランチ側のスクリプトだけで行う。
 on:
-  pull_request_target:
-    types: [opened, synchronize, reopened, ready_for_review]
+  check_suite:
+    types: [completed]
 
+# auto-merge-pr.yml と同じグループにして、マージを 1 つずつ直列に実行する
 concurrency:
-  group: auto-merge-single-${{ github.event.pull_request.number }}
+  group: auto-merge-gate
   cancel-in-progress: false
 
 permissions:
   contents: write
   pull-requests: write
-  actions: write
   issues: write
 
 jobs:
-  single-merge:
+  gate:
+    if: >-
+      github.event.check_suite.conclusion == 'success' &&
+      toJSON(github.event.check_suite.pull_requests) != '[]'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - name: Checkout
+      - name: Checkout (default branch)
         uses: actions/checkout@v4
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          fetch-depth: 0
+          persist-credentials: false
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.14'
+          python-version: '3.12'
 
-      - name: Merge Incoming PR
+      - name: Gated check for the PRs in this check suite
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          OPENROUTER_TOKEN: ${{ secrets.OPENROUTER_TOKEN }}
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-          GIT_AUTHOR_NAME: "github-actions[bot]"
-          GIT_AUTHOR_EMAIL: "41898282+github-actions[bot]@users.noreply.github.com"
-          GIT_COMMITTER_NAME: "github-actions[bot]"
-          GIT_COMMITTER_EMAIL: "41898282+github-actions[bot]@users.noreply.github.com"
-          EVENT_PR: ${{ github.event.pull_request.number }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          PR_NUMBERS: ${{ join(github.event.check_suite.pull_requests.*.number, ' ') }}
         run: |
-          echo "Immediately merging incoming PR #$EVENT_PR..."
-          python3 scripts/force_merge_pr.py "$EVENT_PR" || true
+          if [ -z "$PR_NUMBERS" ]; then
+            echo "No pull requests attached to this check suite."
+            exit 0
+          fi
+          python3 scripts/force_merge_pr.py $PR_NUMBERS

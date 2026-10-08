@@ -150,7 +150,11 @@ def decide(pr, files, base_lines, main_js_problem, touched):
 
     state = check_state(pr.get("statusCheckRollup"))
     if state != "pass":
-        reasons = {"fail": "CI failing", "pending": "CI pending", "none": "no CI checks"}
+        reasons = {
+            "fail": "CI failing",
+            "pending": "CI pending",
+            "none": "no CI checks",
+        }
         return "skip", reasons[state]
 
     merge_state = pr.get("mergeStateStatus")
@@ -196,8 +200,20 @@ def evaluate(repo, pr, touched):
 def ensure_label(repo):
     global _label_ready
     if not _label_ready:
-        gh(["label", "create", "needs-human", "-R", repo, "--color", "FBCA04",
-            "--description", "自動マージを保留。人の判断が必要", "--force"])
+        gh(
+            [
+                "label",
+                "create",
+                "needs-human",
+                "-R",
+                repo,
+                "--color",
+                "FBCA04",
+                "--description",
+                "自動マージを保留。人の判断が必要",
+                "--force",
+            ]
+        )
         _label_ready = True
 
 
@@ -207,16 +223,34 @@ def hold_pr(repo, number):
 
 
 def update_pr(repo, pr):
-    gh(["api", "-X", "PUT", f"repos/{repo}/pulls/{pr['number']}/update-branch",
-        "-f", f"expected_head_sha={pr['headRefOid']}"])
+    gh(
+        [
+            "api",
+            "-X",
+            "PUT",
+            f"repos/{repo}/pulls/{pr['number']}/update-branch",
+            "-f",
+            f"expected_head_sha={pr['headRefOid']}",
+        ]
+    )
 
 
 def merge_pr(repo, pr):
     """検証時の head SHA を指定してマージする。失敗時はエラー文字列を返す。"""
-    res = gh(["api", "-X", "PUT", f"repos/{repo}/pulls/{pr['number']}/merge",
-              "-f", "merge_method=squash",
-              "-f", f"sha={pr['headRefOid']}",
-              "-f", f"commit_title={pr['title']} (#{pr['number']})"])
+    res = gh(
+        [
+            "api",
+            "-X",
+            "PUT",
+            f"repos/{repo}/pulls/{pr['number']}/merge",
+            "-f",
+            "merge_method=squash",
+            "-f",
+            f"sha={pr['headRefOid']}",
+            "-f",
+            f"commit_title={pr['title']} (#{pr['number']})",
+        ]
+    )
     return None if res.returncode == 0 else res.stderr.strip()[:200]
 
 
@@ -232,8 +266,12 @@ def write_summary(lines):
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description="自動マージゲート")
-    parser.add_argument("numbers", nargs="*", type=int, help="判定する PR 番号（省略時は open PR 全体）")
-    parser.add_argument("--batch", type=int, default=DEFAULT_BATCH, help="sweep で判定する PR の上限")
+    parser.add_argument(
+        "numbers", nargs="*", type=int, help="判定する PR 番号（省略時は open PR 全体）"
+    )
+    parser.add_argument(
+        "--batch", type=int, default=DEFAULT_BATCH, help="sweep で判定する PR の上限"
+    )
     parser.add_argument("--dry-run", action="store_true", help="判定のみ行う")
     parser.add_argument("--push-every", type=int, help=argparse.SUPPRESS)
     parser.add_argument("--runtime", type=int, help=argparse.SUPPRESS)
@@ -248,11 +286,26 @@ def main(argv=None):
         repo = info["nameWithOwner"]
 
     if args.numbers:
-        prs = [gh_json(["pr", "view", str(n), "-R", repo, "--json", PR_FIELDS]) for n in args.numbers]
+        prs = [
+            gh_json(["pr", "view", str(n), "-R", repo, "--json", PR_FIELDS])
+            for n in args.numbers
+        ]
         prs = [pr for pr in prs if pr]
     else:
-        prs = gh_json(["pr", "list", "-R", repo, "--state", "open",
-                       "--limit", str(args.batch), "--json", PR_FIELDS])
+        prs = gh_json(
+            [
+                "pr",
+                "list",
+                "-R",
+                repo,
+                "--state",
+                "open",
+                "--limit",
+                str(args.batch),
+                "--json",
+                PR_FIELDS,
+            ]
+        )
         if prs is None:
             return 1
     prs.sort(key=lambda pr: pr["number"])

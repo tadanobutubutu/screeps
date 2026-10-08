@@ -22,6 +22,9 @@ permissions:
   contents: write
   pull-requests: write
   issues: write
+  # statusCheckRollup（CI の結果）を読むのに必要。無いと CI が「なし」扱いになる
+  checks: read
+  statuses: read
 
 jobs:
   sweep:
@@ -31,6 +34,8 @@ jobs:
       - name: Checkout (default branch)
         uses: actions/checkout@v4
         with:
+          # 手動実行でも既定ブランチのゲートだけを使う（既定ブランチ名は main に固定）
+          ref: main
           persist-credentials: false
 
       - name: Set up Python
@@ -43,4 +48,4 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           DRY_RUN: ${{ inputs.dry_run || 'false' }}
-        run: python3 scripts/force_merge_pr.py --batch 30
+        run: python3 scripts/force_merge_pr.py --batch 1000

@@ -20,6 +20,7 @@
 **現在の状況を確認**: [`GAME_STATUS.md`](./GAME_STATUS.md)
 
 毎時自動更新されるリアルタイムレポート：
+
 - 👤 プレイヤー情報 (GCL, CPU, Credits)
 - 🏰 所有部屋の状況
 - 🐛 クリープ統計
@@ -36,7 +37,7 @@
 - **👤 Auto Assign Issues and PRs** (`auto-assign.yml`) - イベント駆動
 - **Continuous Quality & Coverage Monitor** (`auto-issue.yml`) - 定期実行
 - **Auto Merge PRs (gated sweep)** (`auto-merge-pr.yml`) - 15分ごと。条件を満たした PR だけを API で squash マージ（判定は `scripts/force_merge_pr.py`）
-- **Auto Merge PR on CI completion** (`auto-merge-single-pr.yml`) - CI 完了時に同じゲートで判定
+- **Auto Merge PR on CI completion** (`auto-merge-single-pr.yml`) - CI 完了時に同じゲートで古い順に最大 1000 件の open PR を再判定（sweep 方式）
 - **🤖 Auto PR from Issues** (`auto-pr-from-issues.yml`) - イベント駆動
 - **🔖 Auto Zenodo DOI Release** (`auto-zenodo-release.yml`) - 定期実行
 - **🔍 Dependency Review** (`dependency-review.yml`) - イベント駆動
@@ -85,7 +86,7 @@
 - 🔄 **ワークフロー数**: 33
 - 🎭 **ロール数**: 10
 
-*最終更新: 2026-10-03*
+_最終更新: 2026-10-03_
 
 ## 🔧 セットアップ
 
@@ -137,6 +138,7 @@ npm install
 ### 🎲 ランダム実験
 
 毎週以下のいずれかを自動追加：
+
 - 📊 パフォーマンスモニター
 - 🧭 パスファインディングキャッシュ
 - 🎯 スマートスポーン優先度
@@ -159,4 +161,4 @@ MIT License
 
 **Enjoy your fully automated Screeps experience!** 🎮🤖
 
-*このREADMEは自動更新されます - 最終更新: 2026-10-03T12:18:05.084Z*
+_このREADMEは自動更新されます - 最終更新: 2026-10-03T12:18:05.084Z_

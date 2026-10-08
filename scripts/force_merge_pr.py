@@ -552,15 +552,17 @@ def load_prs(repo, args):
 
 
 def rotate_for_fairness(prs):
-    """詳しい判定の上限を超える PR があるとき、実行ごとに先頭を MAX_EVALUATIONS 件ずつずらす。
+    """上限（マージ数が最も小さい）で処理が打ち切られる件数を超える PR があるとき、実行ごとに先頭をずらす。
     古い順に固定すると、先頭の PR が毎回枠を使い切り、後ろの PR が判定されないため。
+    ずらす幅は、判定の上限を超えるなら MAX_EVALUATIONS、そうでなければマージ数の上限。
     GITHUB_RUN_NUMBER が無いとき（手元の実行など）はずらさない。
     """
     run = int(os.environ.get("GITHUB_RUN_NUMBER") or 0)
     detailed = sum(1 for pr in prs if needs_detail(pr))
-    if run == 0 or detailed <= MAX_EVALUATIONS:
+    if run == 0 or detailed <= MAX_MERGES_PER_RUN:
         return prs
-    offset = (run * MAX_EVALUATIONS) % len(prs)
+    step = MAX_EVALUATIONS if detailed > MAX_EVALUATIONS else MAX_MERGES_PER_RUN
+    offset = (run * step) % len(prs)
     return prs[offset:] + prs[:offset]
 
 

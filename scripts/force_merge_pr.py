@@ -63,13 +63,19 @@ PR_FIELDS = (
     "number,title,isDraft,isCrossRepository,baseRefName,headRefOid,"
     "labels,mergeStateStatus,statusCheckRollup"
 )
-
-_label_ready = False
+CI_SKIP_REASONS = {"fail": "CI failing", "pending": "CI pending", "none": "no CI checks"}
+CHECK_OUTCOMES = {
+    "SUCCESS": "pass",
+    "PENDING": "pending",
+    "EXPECTED": "pending",
+    "FAILURE": "fail",
+    "ERROR": "fail",
+}
 
 
 def gh(args):
-    """gh CLI を実行し、結果（CompletedProcess）を返す。"""
-    return subprocess.run(["gh", *args], capture_output=True, text=True)
+    """gh CLI を実行し、結果（CompletedProcess）を返す。失敗時の例外は送出しない。"""
+    return subprocess.run(["gh", *args], capture_output=True, text=True, check=False)
 
 
 def gh_json(args):
@@ -102,64 +108,47 @@ def list_pr_files(repo, number):
         page += 1
 
 
+def _check_outcome(check):
+    """1 件のチェックの結果を返す。pass / pending / fail / ignored のいずれか。"""
+    if "state" in check:  # StatusContext
+        return CHECK_OUTCOMES.get(check["state"], "ignored")
+    if check.get("status") != "COMPLETED":
+        return "pending"
+    conclusion = check.get("conclusion")
+    if conclusion == "SUCCESS":
+        return "pass"
+    if conclusion in ("NEUTRAL", "SKIPPED"):
+        return "ignored"
+    return "fail"
+
+
 def check_state(rollup):
     """CI の集計。戻り値は fail / pending / pass / none のいずれか。"""
     if not rollup:
         return "none"
-    failing = pending = passing = False
-    for check in rollup:
-        if "state" in check:  # StatusContext
-            if check["state"] in ("FAILURE", "ERROR"):
-                failing = True
-            elif check["state"] in ("PENDING", "EXPECTED"):
-                pending = True
-            elif check["state"] == "SUCCESS":
-                passing = True
-        else:  # CheckRun
-            if check.get("status") != "COMPLETED":
-                pending = True
-            elif check.get("conclusion") == "SUCCESS":
-                passing = True
-            elif check.get("conclusion") not in ("NEUTRAL", "SKIPPED"):
-                failing = True
-    if failing:
+    outcomes = {_check_outcome(check) for check in rollup}
+    if "fail" in outcomes:
         return "fail"
-    if pending:
+    if "pending" in outcomes:
         return "pending"
-    return "pass" if passing else "none"
+    return "pass" if "pass" in outcomes else "none"
 
 
-def decide(pr, files, base_lines, main_js_problem, touched):
-    """API を呼ばずに判定する。戻り値は (action, reason)。"""
-    labels = {label["name"] for label in pr.get("labels") or []}
-    paths = [f["filename"] for f in files]
-
-    if pr.get("isDraft"):
-        return "skip", "draft"
-    if pr.get("isCrossRepository"):
-        return "skip", "fork PR"
-    if labels & HOLD_LABELS:
-        return "skip", f"hold label: {', '.join(sorted(labels & HOLD_LABELS))}"
-
-    for path in paths:
+def hold_reason(files, base_lines, main_js_problem):
+    """人の判断が必要な理由を返す。問題がなければ None。"""
+    for f in files:
+        path = f["filename"]
         if path.startswith(PROTECTED_PREFIXES) or path in PROTECTED_FILES:
-            return "hold", f"protected file changed: {path}"
+            return f"protected file changed: {path}"
     for f in files:
         base = base_lines.get(f["filename"], 0)
         if base >= SHRINK_MIN_LINES and f.get("deletions", 0) >= SHRINK_RATIO * base:
-            return "hold", f"{f['filename']}: {f['deletions']} of {base} lines deleted"
-    if main_js_problem:
-        return "hold", main_js_problem
+            return f"{f['filename']}: {f['deletions']} of {base} lines deleted"
+    return main_js_problem
 
-    state = check_state(pr.get("statusCheckRollup"))
-    if state != "pass":
-        reasons = {
-            "fail": "CI failing",
-            "pending": "CI pending",
-            "none": "no CI checks",
-        }
-        return "skip", reasons[state]
 
+def merge_decision(pr, paths, touched):
+    """CI 通過後のマージ可否を判定する。戻り値は (action, reason)。"""
     merge_state = pr.get("mergeStateStatus")
     if merge_state == "DIRTY":
         return "hold", "merge conflict"
@@ -167,11 +156,42 @@ def decide(pr, files, base_lines, main_js_problem, touched):
         return "update", "behind base branch"
     if merge_state != "CLEAN":
         return "skip", f"merge state {merge_state}"
-
     overlap = sorted(set(paths) & touched)
     if overlap:
         return "skip", f"{overlap[0]} already merged in this run"
     return "merge", "all gates passed"
+
+
+def decide(pr, files, base_lines, main_js_problem, touched):
+    """API を呼ばずに判定する。戻り値は (action, reason)。"""
+    labels = {label["name"] for label in pr.get("labels") or []}
+    if pr.get("isDraft"):
+        return "skip", "draft"
+    if pr.get("isCrossRepository"):
+        return "skip", "fork PR"
+    if labels & HOLD_LABELS:
+        return "skip", f"hold label: {', '.join(sorted(labels & HOLD_LABELS))}"
+
+    reason = hold_reason(files, base_lines, main_js_problem)
+    if reason:
+        return "hold", reason
+
+    state = check_state(pr.get("statusCheckRollup"))
+    if state != "pass":
+        return "skip", CI_SKIP_REASONS[state]
+    return merge_decision(pr, [f["filename"] for f in files], touched)
+
+
+def check_main_js(repo, pr, files, base_text):
+    """main.js の変更がループの export やマージの整合性を壊していないか確認する。問題があれば理由を返す。"""
+    if not any(f["filename"] == LOOP_FILE for f in files):
+        return None
+    head = gh_raw(repo, LOOP_FILE, pr["headRefOid"]) or ""
+    if LOOP_PATTERN in base_text.get(LOOP_FILE, "") and LOOP_PATTERN not in head:
+        return f"{LOOP_FILE} loses {LOOP_PATTERN}"
+    if CONFLICT_RE.search(head):
+        return f"{LOOP_FILE} contains conflict markers"
+    return None
 
 
 def evaluate(repo, pr, touched):
@@ -188,42 +208,26 @@ def evaluate(repo, pr, touched):
             base_text[f["filename"]] = text
             base_lines[f["filename"]] = len(text.splitlines())
 
-    main_js_problem = None
-    if any(f["filename"] == LOOP_FILE for f in files):
-        head = gh_raw(repo, LOOP_FILE, pr["headRefOid"]) or ""
-        had_loop = LOOP_PATTERN in base_text.get(LOOP_FILE, "")
-        if had_loop and LOOP_PATTERN not in head:
-            main_js_problem = f"{LOOP_FILE} loses {LOOP_PATTERN}"
-        elif CONFLICT_RE.search(head):
-            main_js_problem = f"{LOOP_FILE} contains conflict markers"
-
+    main_js_problem = check_main_js(repo, pr, files, base_text)
     return files, decide(pr, files, base_lines, main_js_problem, touched)
 
 
-def ensure_label(repo):
-    """needs-human ラベルが存在することを 1 回の実行につき 1 度だけ確認する。"""
-    global _label_ready
-    if not _label_ready:
-        gh(
-            [
-                "label",
-                "create",
-                "needs-human",
-                "-R",
-                repo,
-                "--color",
-                "FBCA04",
-                "--description",
-                "自動マージを保留。人の判断が必要",
-                "--force",
-            ]
-        )
-        _label_ready = True
-
-
 def hold_pr(repo, number):
-    """PR に needs-human ラベルを付けて保留にする。"""
-    ensure_label(repo)
+    """PR に needs-human ラベルを付けて保留にする。ラベルがなければ作成する。"""
+    gh(
+        [
+            "label",
+            "create",
+            "needs-human",
+            "-R",
+            repo,
+            "--color",
+            "FBCA04",
+            "--description",
+            "自動マージを保留。人の判断が必要",
+            "--force",
+        ]
+    )
     gh(["pr", "edit", str(number), "-R", repo, "--add-label", "needs-human"])
 
 
@@ -260,6 +264,40 @@ def merge_pr(repo, pr):
     return None if res.returncode == 0 else res.stderr.strip()[:200]
 
 
+def run_action(repo, pr, action, dry_run):
+    """保留・最新化の書き込みを行う。dry-run では何もしない。"""
+    if dry_run:
+        return
+    if action == "hold":
+        hold_pr(repo, pr["number"])
+    elif action == "update":
+        update_pr(repo, pr)
+
+
+def process_pr(repo, pr, touched, merges, dry_run):
+    """1 件の PR を判定して必要な操作を行い、(状態, マージしたか) を返す。"""
+    try:
+        files, (action, reason) = evaluate(repo, pr, touched)
+    except Exception as exc:  # 判定できない PR は何もしない（安全側）
+        return f"skip (evaluation error: {exc})", False
+
+    if action == "merge" and merges >= MAX_MERGES_PER_RUN:
+        action, reason = "skip", f"merge limit {MAX_MERGES_PER_RUN} reached"
+    if action != "merge":
+        run_action(repo, pr, action, dry_run)
+        return f"{action}: {reason}", False
+
+    paths = [f["filename"] for f in files]
+    if dry_run:
+        touched.update(paths)
+        return "would merge", True
+    error = merge_pr(repo, pr)
+    if error:
+        return f"merge failed: {error}", False
+    touched.update(paths)
+    return "merged", True
+
+
 def write_summary(lines):
     """判定結果を標準出力に出し、GitHub Actions のステップサマリーにも追記する。"""
     for line in lines:
@@ -271,8 +309,8 @@ def write_summary(lines):
             fh.writelines(f"- {line}\n" for line in lines)
 
 
-def main(argv=None):
-    """引数を解釈し、対象 PR を判定してマージ・保留・最新化を実行する。"""
+def parse_args(argv):
+    """コマンドライン引数を解釈して返す。"""
     parser = argparse.ArgumentParser(description="自動マージゲート")
     parser.add_argument(
         "numbers", nargs="*", type=int, help="判定する PR 番号（省略時は open PR 全体）"
@@ -283,16 +321,20 @@ def main(argv=None):
     parser.add_argument("--dry-run", action="store_true", help="判定のみ行う")
     parser.add_argument("--push-every", type=int, help=argparse.SUPPRESS)
     parser.add_argument("--runtime", type=int, help=argparse.SUPPRESS)
-    args = parser.parse_args(argv)
-    dry_run = args.dry_run or os.environ.get("DRY_RUN", "").lower() in ("1", "true")
+    return parser.parse_args(argv)
 
+
+def resolve_repo():
+    """対象リポジトリ（owner/name）を返す。取得できなければ None。"""
     repo = os.environ.get("GITHUB_REPOSITORY")
-    if not repo:
-        info = gh_json(["repo", "view", "--json", "nameWithOwner"])
-        if not info:
-            return 1
-        repo = info["nameWithOwner"]
+    if repo:
+        return repo
+    info = gh_json(["repo", "view", "--json", "nameWithOwner"])
+    return info["nameWithOwner"] if info else None
 
+
+def load_prs(repo, args):
+    """判定対象の PR を古い順に返す。open PR の取得に失敗したら None。"""
     if args.numbers:
         prs = [
             gh_json(["pr", "view", str(n), "-R", repo, "--json", PR_FIELDS])
@@ -315,40 +357,29 @@ def main(argv=None):
             ]
         )
         if prs is None:
-            return 1
-    prs.sort(key=lambda pr: pr["number"])
+            return None
+    return sorted(prs, key=lambda pr: pr["number"])
 
-    touched = set()
-    merges = 0
+
+def main(argv=None):
+    """引数を解釈し、対象 PR を判定してマージ・保留・最新化を実行する。"""
+    args = parse_args(argv)
+    dry_run = args.dry_run or os.environ.get("DRY_RUN", "").lower() in ("1", "true")
+
+    repo = resolve_repo()
+    if repo is None:
+        return 1
+    prs = load_prs(repo, args)
+    if prs is None:
+        return 1
+
+    touched, merges = set(), 0
     lines = [f"mode: {'dry-run' if dry_run else 'live'}, candidates: {len(prs)}"]
     for pr in prs:
-        number = pr["number"]
-        try:
-            files, (action, reason) = evaluate(repo, pr, touched)
-        except Exception as exc:  # 判定できない PR は何もしない（安全側）
-            lines.append(f"#{number}: skip (evaluation error: {exc})")
-            continue
-
-        if action == "merge" and merges >= MAX_MERGES_PER_RUN:
-            action, reason = "skip", f"merge limit {MAX_MERGES_PER_RUN} reached"
-
-        status = f"{action}: {reason}"
-        if action == "hold" and not dry_run:
-            hold_pr(repo, number)
-        elif action == "update" and not dry_run:
-            update_pr(repo, pr)
-        elif action == "merge":
-            error = None if dry_run else merge_pr(repo, pr)
-            if dry_run:
-                status = "would merge"
-            elif error:
-                status = f"merge failed: {error}"
-            else:
-                status = "merged"
-            if dry_run or not error:
-                touched.update(f["filename"] for f in files)
-                merges += 1
-        lines.append(f"#{number} {pr['title'][:60]!r}: {status}")
+        status, merged = process_pr(repo, pr, touched, merges, dry_run)
+        if merged:
+            merges += 1
+        lines.append(f"#{pr['number']} {pr['title'][:60]!r}: {status}")
 
     write_summary(lines)
     return 0

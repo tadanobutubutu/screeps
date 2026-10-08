@@ -97,3 +97,8 @@
 
 **Learning:** In `src/roles/defender.js`, `_getPatrolPoints` re-allocated a 5-element array of point objects on every patrol tick when no ramparts were present. Additionally, `run()` evaluated `creep.getActiveBodyparts(HEAL)` before checking `creep.hits < creep.hitsMax * 0.9`, forcing body part array scanning on full-health creeps. Hoisting fallback patrol points to module scope and reordering the health condition eliminates per-tick object allocations and skips body scanning for healthy defenders.
 **Action:** Hoist fallback position arrays to module scope and evaluate simple scalar checks (`hits < hitsMax`) before body part inspection routines (`getActiveBodyparts`).
+
+## 2026-10-06 - Hoisting Priority Check Before Health Evaluation in Repairer Target Search
+
+**Learning:** In structure search loops sorted by priority, placing priority short-circuit checks (`if (priority > minPriority) continue;`) before structure health checks (`_needsRepair(s, room, wallTarget)`) prevents executing function calls, dictionary threshold lookups, and scalar health comparisons on lower-priority candidates when a higher-priority damaged target is already found.
+**Action:** Always check structure priority against `minPriority` before evaluating complex health checks or `_needsRepair` sub-functions in structure scan loops.

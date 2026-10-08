@@ -63,7 +63,11 @@ PR_FIELDS = (
     "number,title,isDraft,isCrossRepository,baseRefName,headRefOid,"
     "labels,mergeStateStatus,statusCheckRollup"
 )
-CI_SKIP_REASONS = {"fail": "CI failing", "pending": "CI pending", "none": "no CI checks"}
+CI_SKIP_REASONS = {
+    "fail": "CI failing",
+    "pending": "CI pending",
+    "none": "no CI checks",
+}
 CHECK_OUTCOMES = {
     "SUCCESS": "pass",
     "PENDING": "pending",

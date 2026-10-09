@@ -102,3 +102,8 @@
 
 **Learning:** In structure search loops sorted by priority, placing priority short-circuit checks (`if (priority > minPriority) continue;`) before structure health checks (`_needsRepair(s, room, wallTarget)`) prevents executing function calls, dictionary threshold lookups, and scalar health comparisons on lower-priority candidates when a higher-priority damaged target is already found.
 **Action:** Always check structure priority against `minPriority` before evaluating complex health checks or `_needsRepair` sub-functions in structure scan loops.
+
+## 2026-10-07 - Single-Pass Target Range Evaluation in Transporter Search
+
+**Learning:** In `role.transporter.js`, invoking native `creep.pos.findClosestByRange(targets)` invokes C++ engine wrapper allocations and callback overhead per search call. Implementing a manual single-pass indexed `for` loop with early-exit on adjacent targets (`dist <= 1`) bypasses engine marshalling overhead and cuts CPU processing time during target search.
+**Action:** Replace native `findClosestByRange` calls in high-frequency role modules with single-pass indexed `for` loops and `dist <= 1` short-circuits.

@@ -132,12 +132,17 @@ export default function Dashboard() {
                 : 'Rooms: none';
         const summaryText = `🐛 Screeps AI Status | ${gclStr} | ${gplStr} | ${cpuStr} | ${roomsStr}`;
 
-        navigator.clipboard.writeText(summaryText).then(() => {
-            setCopiedSummary(true);
-            setTimeout(() => setCopiedSummary(false), 2000);
-            showToast('ステータスのサマリーをクリップボードにコピーしました');
-        });
-    }, [stats]);
+        navigator.clipboard
+            .writeText(summaryText)
+            .then(() => {
+                setCopiedSummary(true);
+                setTimeout(() => setCopiedSummary(false), 2000);
+                showToast('ステータスのサマリーをクリップボードにコピーしました');
+            })
+            .catch(() => {
+                showToast('サマリーのコピーに失敗しました');
+            });
+    }, [stats, showToast]);
 
     const fetchStats = useCallback(async (isManual = false) => {
         if (isManual) setRefreshing(true);
@@ -247,26 +252,41 @@ export default function Dashboard() {
 
     const copyErr = () =>
         error &&
-        navigator.clipboard.writeText(error).then(() => {
-            setCopied(true);
-            setTimeout(() => setCopied(false), 2000);
-            showToast('エラーメッセージをクリップボードにコピーしました');
-        });
+        navigator.clipboard
+            .writeText(error)
+            .then(() => {
+                setCopied(true);
+                setTimeout(() => setCopied(false), 2000);
+                showToast('エラーメッセージをクリップボードにコピーしました');
+            })
+            .catch(() => {
+                showToast('エラーメッセージのコピーに失敗しました');
+            });
 
     const copyRoom = (room: string) => {
-        navigator.clipboard.writeText(room).then(() => {
-            setCopiedRoom(room);
-            setTimeout(() => setCopiedRoom(null), 2000);
-            showToast(`部屋名 ${room} をクリップボードにコピーしました`);
-        });
+        navigator.clipboard
+            .writeText(room)
+            .then(() => {
+                setCopiedRoom(room);
+                setTimeout(() => setCopiedRoom(null), 2000);
+                showToast(`部屋名 ${room} をクリップボードにコピーしました`);
+            })
+            .catch(() => {
+                showToast(`部屋名 ${room} のコピーに失敗しました`);
+            });
     };
 
     const copyRawData = () => {
-        navigator.clipboard.writeText(JSON.stringify(stats, null, 2)).then(() => {
-            setCopiedJson(true);
-            setTimeout(() => setCopiedJson(false), 2000);
-            showToast('生データをクリップボードにコピーしました');
-        });
+        navigator.clipboard
+            .writeText(JSON.stringify(stats, null, 2))
+            .then(() => {
+                setCopiedJson(true);
+                setTimeout(() => setCopiedJson(false), 2000);
+                showToast('生データをクリップボードにコピーしました');
+            })
+            .catch(() => {
+                showToast('生データのコピーに失敗しました');
+            });
     };
 
     const filteredRooms =
@@ -279,15 +299,20 @@ export default function Dashboard() {
     const copyAllRooms = () => {
         if (filteredRooms.length === 0) return;
         const roomsStr = filteredRooms.join(', ');
-        navigator.clipboard.writeText(roomsStr).then(() => {
-            setCopiedAllRooms(true);
-            setTimeout(() => setCopiedAllRooms(false), 2000);
-            showToast(
-                roomQuery
-                    ? 'フィルター結果の部屋名をコピーしました'
-                    : 'すべての部屋名をコピーしました'
-            );
-        });
+        navigator.clipboard
+            .writeText(roomsStr)
+            .then(() => {
+                setCopiedAllRooms(true);
+                setTimeout(() => setCopiedAllRooms(false), 2000);
+                showToast(
+                    roomQuery
+                        ? 'フィルター結果の部屋名をコピーしました'
+                        : 'すべての部屋名をコピーしました'
+                );
+            })
+            .catch(() => {
+                showToast('部屋名のコピーに失敗しました');
+            });
     };
 
     if (loading)

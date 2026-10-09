@@ -1,3 +1,8 @@
+## 2026-04-18 - Clipboard Rejection Error Feedback and Accessible Notifications
+
+**Learning:** When async clipboard actions (`navigator.clipboard.writeText(...)`) encounter permission denials or system errors, unhandled promise rejections leave users without feedback, creating confusion when expected copy operations silently fail.
+**Action:** Always attach explicit `.catch()` rejection handlers to clipboard API calls that notify users via accessible toast live regions (`showToast(...)`).
+
 ## 2026-04-08 - Visual Elevation Parity Across Keyboard Focus States
 
 **Learning:** When interactive controls support both mouse hover (`onMouseEnter`/`onMouseLeave`) and keyboard focus (`onFocus`/`onBlur`), applying elevation effects (such as `scale()`, `boxShadow`, and `brightness()`) only to mouse hover states results in an uneven user experience where keyboard users miss out on visual micro-interactions.

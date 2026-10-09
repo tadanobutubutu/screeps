@@ -101,3 +101,9 @@ Use of deprecated and predictable Math.random() for security-sensitive logic in 
 **Vulnerability:** `scripts/auto-pr-generator.js` passed unvalidated `endpoint` parameters to `githubRequest`, allowing arbitrary URL path traversal or redirection when constructing GitHub API request URLs.
 **Learning:** Functions executing HTTP request wrappers against REST APIs must strictly validate that endpoint path parameters are valid strings starting with `/` to prevent API endpoint manipulation.
 **Prevention:** Always enforce strict endpoint path validation (`typeof endpoint === 'string' && endpoint.startsWith('/')`) in API wrapper functions.
+
+## 2026-10-09 - [HTTP Header Injection and Auth Hardening in ai_branch_cleaner.py]
+
+**Vulnerability:** `scripts/ai_branch_cleaner.py` constructed HTTP request options using un-sanitized environment variable `GEMINI_API_KEY` without stripping CRLF characters (`\r`, `\n`) and omitted the `x-goog-api-key` header when calling Gemini API.
+**Learning:** External or environment API key variables used in HTTP headers can introduce CRLF header injection if newlines are present, and missing required API key headers causes silent authentication failures.
+**Prevention:** Always sanitize HTTP header values by stripping carriage return and line feed characters (`re.sub(r"[\r\n]", "", key.strip())`) and ensure API authentication headers are explicitly attached.

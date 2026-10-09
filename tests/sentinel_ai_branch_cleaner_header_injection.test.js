@@ -1,6 +1,6 @@
 describe('scripts/ai_branch_cleaner.py header injection and auth hardening', () => {
   it('should sanitize CRLF characters in GEMINI_API_KEY and set x-goog-api-key header', () => {
-    const { execFileSync } = require('child_process');
+    const { execFileSync } = require('child_process')
     const pythonCode = `
 import os
 import sys
@@ -45,8 +45,8 @@ with patch('subprocess.run', side_effect=mock_subprocess_run), patch('urllib.req
     assert '\\n' not in req.headers['X-goog-api-key']
 
 print('SUCCESS')
-`;
-    const result = execFileSync('python3', ['-c', pythonCode], { encoding: 'utf8' });
-    expect(result.trim()).toContain('SUCCESS');
-  });
-});
+`
+    const result = execFileSync('python3', ['-c', pythonCode], { encoding: 'utf8' })
+    expect(result.trim()).toContain('SUCCESS')
+  })
+})

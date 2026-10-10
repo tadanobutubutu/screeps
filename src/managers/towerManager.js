@@ -362,17 +362,15 @@ function _selectRepairTarget (tower, room) {
 function _findUrgentRampart (room, threshold) {
   let urgentRampart = null
   let minRampartHits = Infinity
-  const myStructures = cache.getMyStructures(room)
+  // ⚡ PERFORMANCE OPTIMIZATION: Query ramparts directly via getMyStructures(room, STRUCTURE_RAMPART) to avoid scanning non-rampart structures.
+  const ramparts = cache.getMyStructures(room, STRUCTURE_RAMPART)
 
-  // ⚡ PERFORMANCE: Filter for ramparts manually to avoid multiple array passes.
-  for (let i = 0; i < myStructures.length; i++) {
-    const s = myStructures[i]
-    if (s.structureType === STRUCTURE_RAMPART) {
-      if (s.hits < threshold) {
-        if (s.hits < minRampartHits) {
-          minRampartHits = s.hits
-          urgentRampart = s
-        }
+  for (let i = 0; i < ramparts.length; i++) {
+    const s = ramparts[i]
+    if (s.hits < threshold) {
+      if (s.hits < minRampartHits) {
+        minRampartHits = s.hits
+        urgentRampart = s
       }
     }
   }

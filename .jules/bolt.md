@@ -102,3 +102,8 @@
 
 **Learning:** In structure search loops sorted by priority, placing priority short-circuit checks (`if (priority > minPriority) continue;`) before structure health checks (`_needsRepair(s, room, wallTarget)`) prevents executing function calls, dictionary threshold lookups, and scalar health comparisons on lower-priority candidates when a higher-priority damaged target is already found.
 **Action:** Always check structure priority against `minPriority` before evaluating complex health checks or `_needsRepair` sub-functions in structure scan loops.
+
+## 2026-10-07 - Direct Rampart Structure Type Querying in Tower Urgent Rampart Scan
+
+**Learning:** In `towerManager._findUrgentRampart`, calling `cache.getMyStructures(room)` without specifying `STRUCTURE_RAMPART` retrieves all owned structures (extensions, spawns, towers, links) and iterates through each to filter by structure type. Calling `cache.getMyStructures(room, STRUCTURE_RAMPART)` utilizes the structure-type cached array directly, reducing iteration complexity from $O(N_{myStructures})$ to $O(N_{ramparts})$ and eliminating type checks for non-rampart structures.
+**Action:** Pass `STRUCTURE_RAMPART` directly to `cache.getMyStructures` when searching exclusively for rampart targets.

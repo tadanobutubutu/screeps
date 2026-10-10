@@ -197,4 +197,34 @@ describe('utils.tasks', () => {
     TaskQueue.removeTask(longName)
     expect(TaskQueue.tasks.size).toBe(0)
   })
+
+  test('registerTask sanitizes non-numeric or invalid interval values to 1', () => {
+    TaskQueue.registerTask('badInterval1', -5, () => {})
+    TaskQueue.registerTask('badInterval2', 'invalid', () => {})
+    TaskQueue.registerTask('badInterval3', NaN, () => {})
+
+    expect(TaskQueue.tasks.get('badInterval1').interval).toBe(1)
+    expect(TaskQueue.tasks.get('badInterval2').interval).toBe(1)
+    expect(TaskQueue.tasks.get('badInterval3').interval).toBe(1)
+  })
+
+  test('run catches errors thrown in condition callback without crashing TaskQueue', () => {
+    const action = jest.fn()
+    const throwingCondition = () => {
+      throw new Error('Condition Exception')
+    }
+
+    TaskQueue.registerTask('throwingCondTask', 1, action, throwingCondition)
+
+    expect(() => TaskQueue.run()).not.toThrow()
+    expect(action).not.toHaveBeenCalled()
+
+    const task = TaskQueue.tasks.get('throwingCondTask')
+    expect(task.failures).toBe(1)
+    expect(logger.error).toHaveBeenCalledWith(
+      expect.stringContaining(
+        'Error running periodic task throwingCondTask: Condition Exception'
+      )
+    )
+  })
 })

@@ -23,10 +23,13 @@ const TaskQueue = {
         if (!utilsMemory.isSafeKey(name)) return;
         const sanitizedName = String(name).substring(0, MAX_TASK_NAME_LENGTH);
 
+        // Security: Validate interval parameter to enforce positive integer >= 1
+        const validInterval = typeof interval === 'number' && Number.isFinite(interval) && interval > 0 ? Math.floor(interval) : 1;
+
         // Check for duplicates to prevent queue bloating
         const existingTask = this.tasks.get(sanitizedName);
         if (existingTask) {
-            existingTask.interval = interval;
+            existingTask.interval = validInterval;
             existingTask.action = action;
             existingTask.condition = condition;
             // Security: Reset failure count when task is updated
@@ -41,7 +44,7 @@ const TaskQueue = {
             return;
         }
 
-        this.tasks.set(sanitizedName, { name: sanitizedName, interval, action, condition, failures: 0 });
+        this.tasks.set(sanitizedName, { name: sanitizedName, interval: validInterval, action, condition, failures: 0 });
     },
 
     /**
@@ -63,9 +66,11 @@ const TaskQueue = {
         for (const task of this.tasks.values()) {
             if (task.failures >= MAX_TASK_FAILURES) continue;
             if (currentTick % task.interval === 0) {
-                if (task.condition && !task.condition()) continue;
                 try {
-                    task.action();
+                    if (typeof task.condition === 'function' && !task.condition()) continue;
+                    if (typeof task.action === 'function') {
+                        task.action();
+                    }
                 } catch (e) {
                     task.failures++;
                     const errMsg = e && e.message ? e.message : String(e);

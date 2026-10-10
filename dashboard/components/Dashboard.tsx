@@ -294,6 +294,8 @@ export default function Dashboard() {
             room.toLowerCase().includes(roomQuery.toLowerCase())
         ) || [];
 
+
+
     const copyAllRooms = () => {
         if (filteredRooms.length === 0) return;
         const roomsStr = filteredRooms.join(', ');
@@ -1012,7 +1014,7 @@ export default function Dashboard() {
                                         ? '#edf2f7'
                                         : copiedAllRooms
                                           ? '#c6f6d5'
-                                          : copyAllHover || copyAllFocused
+                                              : copyAllHover || copyAllFocused
                                             ? '#e2e8f0'
                                             : '#edf2f7',
                                 border: '1px solid #cbd5e0',
@@ -1030,11 +1032,11 @@ export default function Dashboard() {
                                 gap: '0.2rem',
                                 transition: 'all 0.2s ease-in-out',
                                 transform:
-                                    (copyAllHover || copyAllFocused) && filteredRooms.length > 0
+                                        (copyAllHover || copyAllFocused) && filteredRooms.length > 0
                                         ? 'scale(1.05)'
                                         : 'scale(1)',
-                                outline: copyAllFocused ? '2px solid #004b73' : 'none',
-                                outlineOffset: '2px',
+                                    outline: copyAllFocused ? '2px solid #004b73' : 'none',
+                                    outlineOffset: '2px',
                             }}
                         >
                             {copiedAllRooms

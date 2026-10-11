@@ -102,3 +102,8 @@
 
 **Learning:** In structure search loops sorted by priority, placing priority short-circuit checks (`if (priority > minPriority) continue;`) before structure health checks (`_needsRepair(s, room, wallTarget)`) prevents executing function calls, dictionary threshold lookups, and scalar health comparisons on lower-priority candidates when a higher-priority damaged target is already found.
 **Action:** Always check structure priority against `minPriority` before evaluating complex health checks or `_needsRepair` sub-functions in structure scan loops.
+
+## 2026-10-07 - Deferring Distance Math in Construction Site Selection and Reordering Structure Type Checks in Backup Repair
+
+**Learning:** In `_getTargetSite` (`src/roles/builder.js`), computing `creep.pos.getRangeTo(site)` before comparing priority evaluates distance math for initial higher-priority candidates that are later superseded by lower-priority-number (higher priority) candidates. Deferring distance calculations inside `priority < minPriority` and `priority === minPriority` branches eliminates redundant distance math. Additionally, reordering structure type comparisons (`s.structureType !== STRUCTURE_WALL && s.structureType !== STRUCTURE_RAMPART`) before floating-point hit calculations (`s.hits < s.hitsMax * 0.8`) in `_repairAsBackup` skips floating-point arithmetic for wall and rampart structures.
+**Action:** Defer distance math until priority conditions require range comparison, and place fast scalar/type equality checks before floating-point arithmetic.

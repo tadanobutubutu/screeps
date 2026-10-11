@@ -179,8 +179,8 @@ function _repairAsBackup (creep) {
 
     if (
       s.structureType !== STRUCTURE_WALL &&
-            s.structureType !== STRUCTURE_RAMPART &&
-            s.hits < s.hitsMax * 0.8
+      s.structureType !== STRUCTURE_RAMPART &&
+      s.hits < s.hitsMax * 0.8
     ) {
       const dist = hasGetRangeTo ? creep.pos.getRangeTo(s) : 0
       if (dist < minDistance) {

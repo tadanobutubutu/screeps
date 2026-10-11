@@ -101,3 +101,9 @@ Use of deprecated and predictable Math.random() for security-sensitive logic in 
 **Vulnerability:** `scripts/auto-pr-generator.js` passed unvalidated `endpoint` parameters to `githubRequest`, allowing arbitrary URL path traversal or redirection when constructing GitHub API request URLs.
 **Learning:** Functions executing HTTP request wrappers against REST APIs must strictly validate that endpoint path parameters are valid strings starting with `/` to prevent API endpoint manipulation.
 **Prevention:** Always enforce strict endpoint path validation (`typeof endpoint === 'string' && endpoint.startsWith('/')`) in API wrapper functions.
+
+## 2026-10-09 - [Task Queue Condition Evaluation & Interval Sanitization]
+
+**Vulnerability:** In `utils.tasks.js`, task condition callbacks (`task.condition()`) were evaluated outside the `try...catch` block in `run()`, allowing unhandled exceptions in conditions to crash the entire task queue execution loop. Additionally, non-positive or non-numeric `interval` arguments were not sanitized, leading to `NaN` modulo results and task starvation.
+**Learning:** Evaluating user-supplied or dynamic callbacks outside exception handlers in queue schedulers bypasses circuit breaker mechanisms and allows single task errors to crash all scheduled tasks.
+**Prevention:** Always wrap all task condition and execution callbacks inside `try...catch` blocks within task queue schedulers, and sanitize interval parameters to positive integers (`>= 1`).

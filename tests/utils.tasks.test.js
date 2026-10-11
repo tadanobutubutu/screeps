@@ -222,9 +222,7 @@ describe('utils.tasks', () => {
     const task = TaskQueue.tasks.get('badConditionTask')
     expect(task.failures).toBe(1)
     expect(logger.error).toHaveBeenCalledWith(
-      expect.stringContaining(
-        'Error running periodic task badConditionTask: Condition failure'
-      )
+      expect.stringContaining('Error running periodic task badConditionTask: Condition failure')
     )
   })
 })

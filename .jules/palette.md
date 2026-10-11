@@ -3,6 +3,11 @@
 **Learning:** When interactive controls support both mouse hover (`onMouseEnter`/`onMouseLeave`) and keyboard focus (`onFocus`/`onBlur`), applying elevation effects (such as `scale()`, `boxShadow`, and `brightness()`) only to mouse hover states results in an uneven user experience where keyboard users miss out on visual micro-interactions.
 **Action:** Always couple focus state flags (`*Focused`) with hover state flags (`*Hover`) when evaluating dynamic style transformations, elevation box-shadows, and filter effects on action buttons.
 
+## 2026-04-08 - Interactive Keyboard Shortcut Badges (<kbd>) in Toast Live Regions
+
+**Learning:** Visual keyboard shortcut badges (`<kbd>Esc</kbd>`) rendered within floating toast notifications are frequently clicked or tapped by users expecting direct dismissal; making `<kbd>` elements interactive via `role="button"`, `tabIndex={0}`, Enter/Space key listeners, and explicit pointer styles provides an intuitive dual-modal interaction pattern for both mouse/touch and keyboard navigation.
+**Action:** Always pair `role="button"`, `tabIndex={0}`, `onKeyDown` (for Enter/Space), and `cursor: 'pointer'` when rendering visual shortcut badges in notification banners.
+
 ## 2026-04-02 - Keyboard Focus Parity for Action Buttons
 
 **Learning:** Tracking keyboard focus state (`onFocus`/`onBlur`) without binding it to visual styles (`outline`, `transform`, `backgroundColor`) creates an invisible focus state for keyboard users, impairing navigation clarity.

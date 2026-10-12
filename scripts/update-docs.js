@@ -1,74 +1,134 @@
-const fs = require('fs');
-const path = require('path');
+const fs = require('fs')
+const path = require('path')
 
-console.log('📊 Analyzing repository...');
+console.log('📊 Analyzing repository...')
 
-const rootDir = process.cwd();
-const workflowDir = path.join(rootDir, '.github', 'workflows');
-const readFile = (filePath) => fs.readFileSync(path.join(rootDir, filePath), 'utf8');
-const writeFile = (filePath, content) => fs.writeFileSync(path.join(rootDir, filePath), content);
-const today = new Date().toISOString().split('T')[0];
-const now = new Date().toISOString();
+const rootDir = process.cwd()
+const workflowDir = path.join(rootDir, '.github', 'workflows')
+const readFile = (filePath) => fs.readFileSync(path.join(rootDir, filePath), 'utf8')
+const writeFile = (filePath, content) => fs.writeFileSync(path.join(rootDir, filePath), content)
+const today = new Date().toISOString().split('T')[0]
+const now = new Date().toISOString()
 
-const countLines = (content) => content.split('\n').length;
+const countLines = (content) => content.split('\n').length
 const extractWorkflowName = (content, fallback) => {
-    const nameMatch = content.match(/^name:\s*(.+)$/m);
-    return nameMatch ? nameMatch[1].trim().replace(/^['"]|['"]$/g, '') : fallback;
-};
-const hasScheduledTrigger = (content) => /(^|\n)\s*schedule:\s*$/m.test(content);
+  const nameMatch = content.match(/^name:\s*(.+)$/m)
+  return nameMatch ? nameMatch[1].trim().replace(/^['"]|['"]$/g, '') : fallback
+}
+const hasScheduledTrigger = (content) => /(^|\n)\s*schedule:\s*$/m.test(content)
 
 // ワークフローファイルを取得
 const workflowFiles = fs
-    .readdirSync(workflowDir)
-    .filter((f) => f.endsWith('.yml') || f.endsWith('.yaml'))
-    .map((f) => {
-        try {
-            const content = readFile(path.join('.github', 'workflows', f));
-            return {
-                file: f,
-                name: extractWorkflowName(content, f),
-                hasSchedule: hasScheduledTrigger(content),
-            };
-        } catch (e) {
-            return {
-                file: f,
-                name: f,
-                hasSchedule: false,
-            };
-        }
-    });
+  .readdirSync(workflowDir)
+  .filter((f) => f.endsWith('.yml') || f.endsWith('.yaml'))
+  .map((f) => {
+    try {
+      const content = readFile(path.join('.github', 'workflows', f))
+      return {
+        file: f,
+        name: extractWorkflowName(content, f),
+        hasSchedule: hasScheduledTrigger(content)
+      }
+    } catch (e) {
+      return {
+        file: f,
+        name: f,
+        hasSchedule: false
+      }
+    }
+  })
 
-console.log(`✅ Found ${workflowFiles.length} workflows`);
+console.log(`✅ Found ${workflowFiles.length} workflows`)
 
 // ロールファイルを取得
 const roleFiles = fs
-    .readdirSync(rootDir)
-    .filter((f) => f.startsWith('role.') && f.endsWith('.js'))
-    .map((f) => f.replace('role.', '').replace('.js', ''));
+  .readdirSync(rootDir)
+  .filter((f) => f.startsWith('role.') && f.endsWith('.js'))
+  .map((f) => f.replace('role.', '').replace('.js', ''))
 
-console.log(`✅ Found ${roleFiles.length} role files`);
+console.log(`✅ Found ${roleFiles.length} role files`)
 
 // JSファイルを取得（統計用）
 const jsFiles = fs
-    .readdirSync(rootDir)
-    .filter((f) => f.endsWith('.js') && !f.startsWith('node_modules'));
+  .readdirSync(rootDir)
+  .filter((f) => f.endsWith('.js') && !f.startsWith('node_modules'))
 
 const totalLines = jsFiles.reduce((sum, file) => {
-    const content = readFile(file);
-    return sum + countLines(content);
-}, 0);
+  const content = readFile(file)
+  return sum + countLines(content)
+}, 0)
 
-console.log(`✅ Total ${jsFiles.length} JS files with ${totalLines} lines`);
+console.log(`✅ Total ${jsFiles.length} JS files with ${totalLines} lines`)
+
+// --- バッヂ生成・検証仕様（ちゃんとしたバッヂのみ生成・更新） ---
+let existingReadme = '';
+try {
+    if (fs.existsSync('README.md')) {
+        existingReadme = fs.readFileSync('README.md', 'utf8');
+    }
+} catch (e) {
+    console.warn('⚠️ Could not read existing README.md for badge fallback:', e.message);
+}
+
+function extractExistingBadge(text, pattern) {
+    if (!text) return null;
+    const match = text.match(pattern);
+    return match ? match[0] : null;
+}
+
+function isValidMetric(val, min = 1) {
+    return typeof val === 'number' && Number.isFinite(val) && !Number.isNaN(val) && val >= min;
+}
+
+// 1. CI ステータスバッヂ（GitHub Actions 公式ワークフロー実ステータス）
+const ciBadge = '[![CI](https://github.com/tadanobutubutu/screeps/actions/workflows/ci.yml/badge.svg)](https://github.com/tadanobutubutu/screeps/actions/workflows/ci.yml)';
+
+// 2. ワークフロー数バッヂ（検証済みのみ生成・更新、異常値なら既存バッヂを維持）
+let workflowBadge = null;
+if (isValidMetric(workflowFiles.length, 1)) {
+    workflowBadge = `[![Workflows](https://img.shields.io/badge/Workflows-${workflowFiles.length}-green)](WORKFLOWS.md)`;
+} else {
+    workflowBadge = extractExistingBadge(existingReadme, /\[!\[Workflows\]\(https:\/\/img\.shields\.io\/badge\/Workflows-[^)]+\)\]\([^)]+\)/);
+    if (!workflowBadge) {
+        console.warn('⚠️ Workflow metric invalid and no fallback found. Omitting badge.');
+    }
+}
+
+// 3. ロール数バッヂ（検証済みのみ生成・更新、適切なアンカーリンク設定）
+let rolesBadge = null;
+if (isValidMetric(roleFiles.length, 1)) {
+    rolesBadge = `[![Roles](https://img.shields.io/badge/Roles-${roleFiles.length}-orange)](#-実装済みロール-${roleFiles.length}個)`;
+} else {
+    rolesBadge = extractExistingBadge(existingReadme, /\[!\[Roles\]\(https:\/\/img\.shields\.io\/badge\/Roles-[^)]+\)\]\([^)]+\)/);
+    if (!rolesBadge) {
+        console.warn('⚠️ Role metric invalid and no fallback found. Omitting badge.');
+    }
+}
+
+// 4. コード行数バッヂ（検証済みのみ生成・更新、統計情報へのアンカーリンク）
+let linesBadge = null;
+if (isValidMetric(totalLines, 100)) {
+    linesBadge = `[![Lines](https://img.shields.io/badge/Lines-${totalLines}-purple)](#-統計情報)`;
+} else {
+    linesBadge = extractExistingBadge(existingReadme, /\[!\[Lines\]\(https:\/\/img\.shields\.io\/badge\/Lines-[^)]+\)\]\([^)]+\)/);
+    if (!linesBadge) {
+        console.warn('⚠️ Total lines metric invalid and no fallback found. Omitting badge.');
+    }
+}
+
+// 5. ライセンスバッヂ（正規のMITライセンス）
+const licenseBadge = '[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)';
+
+// 有効なバッヂのみを結合（壊れた・不正なバッヂは一切出力されない）
+const validBadges = [ciBadge, workflowBadge, rolesBadge, linesBadge, licenseBadge].filter(Boolean);
+const badgeBlock = validBadges.join('\n');
 
 // README.md を更新
 const readme = `# 🎮 Screeps AI - 完全自動化リポジトリ
 
 > Screeps AI code repository with **full automation** - no API keys required!
 
-[![GitHub Actions](https://img.shields.io/badge/Automation-GitHub%20Actions-blue)](https://github.com/tadanobutubutu/screeps/actions)
-[![Workflows](https://img.shields.io/badge/Workflows-${workflowFiles.length}-green)](.github/workflows)
-[![Roles](https://img.shields.io/badge/Roles-${roleFiles.length}-orange)](./)
-[![Lines](https://img.shields.io/badge/Lines-${totalLines}-purple)](./)
+${badgeBlock}
 
 ## 🚀 特徴
 
@@ -91,7 +151,7 @@ const readme = `# 🎮 Screeps AI - 完全自動化リポジトリ
 
 ### 📋 稼働中のワークフロー (${workflowFiles.length}個)
 
-${workflowFiles.map((wf) => `- **${wf.name}** (\`${wf.file}\`)${wf.hasSchedule ? ` - 定期実行` : ` - イベント駆動`}`).join('\n')}
+${workflowFiles.map((wf) => `- **${wf.name}** (\`${wf.file}\`)${wf.hasSchedule ? ' - 定期実行' : ' - イベント駆動'}`).join('\n')}
 
 詳しくは [\`WORKFLOWS.md\`](./WORKFLOWS.md) を参照してください。
 
@@ -181,45 +241,45 @@ MIT License
 **Enjoy your fully automated Screeps experience!** 🎮🤖
 
 *このREADMEは自動更新されます - 最終更新: ${now}*
-`;
+`
 
-writeFile('README.md', readme);
-console.log('✅ README.md updated!');
+writeFile('README.md', readme)
+console.log('✅ README.md updated!')
 
 // WORKFLOWS.mdのヘッダーを更新
 if (fs.existsSync(path.join(rootDir, 'WORKFLOWS.md'))) {
-    let workflows = readFile('WORKFLOWS.md');
+  let workflows = readFile('WORKFLOWS.md')
 
-    // 統計情報を挿入
-    const statsSection = `\n> 📊 **統計**: ${workflowFiles.length}個 of workflows | 最終更新: ${today}\n\n`;
+  // 統計情報を挿入
+  const statsSection = `\n> 📊 **統計**: ${workflowFiles.length}個 of workflows | 最終更新: ${today}\n\n`
 
-    if (!workflows.includes('📊 **統計**')) {
-        workflows = workflows.replace('# 🤖', `# 🤖${statsSection}`);
-        writeFile('WORKFLOWS.md', workflows);
-        console.log('✅ WORKFLOWS.md updated!');
-    }
+  if (!workflows.includes('📊 **統計**')) {
+    workflows = workflows.replace('# 🤖', `# 🤖${statsSection}`)
+    writeFile('WORKFLOWS.md', workflows)
+    console.log('✅ WORKFLOWS.md updated!')
+  }
 }
 
 // 統計ファイル作成
 const stats = {
-    updated: new Date().toISOString(),
-    workflows: workflowFiles.length,
-    roles: roleFiles.length,
-    jsFiles: jsFiles.length,
-    totalLines: totalLines,
-    workflowList: workflowFiles.map((wf) => ({
-        name: wf.name,
-        file: wf.file,
-        scheduled: wf.hasSchedule,
-    })),
-    roleList: roleFiles,
-};
+  updated: new Date().toISOString(),
+  workflows: workflowFiles.length,
+  roles: roleFiles.length,
+  jsFiles: jsFiles.length,
+  totalLines,
+  workflowList: workflowFiles.map((wf) => ({
+    name: wf.name,
+    file: wf.file,
+    scheduled: wf.hasSchedule
+  })),
+  roleList: roleFiles
+}
 
-writeFile('repo-stats.json', JSON.stringify(stats, null, 2));
-console.log('✅ repo-stats.json created!');
+writeFile('repo-stats.json', JSON.stringify(stats, null, 2))
+console.log('✅ repo-stats.json created!')
 
-console.log('\n📈 Summary:');
-console.log(`  Workflows: ${workflowFiles.length}`);
-console.log(`  Roles: ${roleFiles.length}`);
-console.log(`  JS Files: ${jsFiles.length}`);
-console.log(`  Total Lines: ${totalLines}`);
+console.log('\n📈 Summary:')
+console.log(`  Workflows: ${workflowFiles.length}`)
+console.log(`  Roles: ${roleFiles.length}`)
+console.log(`  JS Files: ${jsFiles.length}`)
+console.log(`  Total Lines: ${totalLines}`)

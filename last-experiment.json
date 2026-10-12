@@ -1,6 +1,6 @@
 {
-  "experiment": "optimize-pathfinding-cache",
-  "description": "経路探索キャッシュを最適化",
-  "timestamp": "2026-09-19T21:19:09.331Z",
+  "experiment": "add-energy-efficiency",
+  "description": "エネルギー効率トラッキング",
+  "timestamp": "2026-10-10T22:14:48.685Z",
   "status": "applied"
 }

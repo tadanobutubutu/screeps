@@ -13,24 +13,27 @@ scripts/force_merge_pr.py
 - 競合は AI や theirs で解決せず、needs-human ラベルを付けて人に渡す
 - 自動化の設定（.github/workflows/** と本スクリプト）を変える PR は自動マージしない
 - 大量の行を消す変更や、main.js から exports.loop が消える変更は保留する
-- Draft の PR は ready にしない。フォーク PR は対象外
+- Draft の PR は、マージ条件を満たした時点で ready にしてからマージする
+- CI の結果は判定に使わない（全件成功は満たせないことが多いため）
+- フォーク PR は対象外
 
 マージ条件（すべて満たした PR だけをマージする）:
   1. 同じリポジトリのブランチ（フォーク PR は対象外）
-  2. Draft ではない
-  3. automerge:hold / needs-human ラベルがない
-  4. 保護対象（.github/workflows/**、本スクリプト）を変更していない
-  5. 行数 50 以上のファイルの 60% 以上を削除していない
-  6. main.js を変更する場合、変更前に exports.loop があれば変更後も残っており、
+  2. automerge:hold / needs-human ラベルがない
+  3. 保護対象（.github/workflows/**、本スクリプト）を変更していない
+  4. 行数 50 以上のファイルの 60% 以上を削除していない
+  5. main.js を変更する場合、変更前に exports.loop があれば変更後も残っており、
      コンフリクトマーカーがない
-  7. CI チェックが 1 件以上あり、すべて成功している（保留中・失敗は対象外）
-  8. mergeStateStatus が CLEAN
+  6. コンフリクトしていない（mergeable が CONFLICTING ではない）
+  7. mergeStateStatus が CLEAN / UNSTABLE / HAS_HOOKS
+     （UNSTABLE は必須でないチェックの失敗・保留を含む）
+     Draft は mergeable が MERGEABLE のときだけ対象とし、マージ前に ready にする
 
 判定:
-  merge  : 条件を満たしたのでマージする
+  merge  : 条件を満たしたのでマージする（Draft なら先に ready にする）
   hold   : 人の判断が必要。needs-human を付ける（人がラベルを外すまで対象外）
   update : BEHIND。update-branch で最新化し、次回の実行でマージする
-  skip   : 今回は対象外（draft、CI 待ち、CI 失敗、CI なしなど）
+  skip   : 今回は対象外（BLOCKED など、Draft で mergeable が未確定など）
 
 1 回の実行では、同じファイルを変更する PR を 1 件だけマージし、マージ数にも上限を設ける。
 
@@ -59,9 +62,10 @@ SHRINK_MIN_LINES = 50
 SHRINK_RATIO = 0.6
 MAX_MERGES_PER_RUN = 10
 DEFAULT_BATCH = 30
+MERGEABLE_STATES = ("CLEAN", "UNSTABLE", "HAS_HOOKS")
 PR_FIELDS = (
     "number,title,isDraft,isCrossRepository,baseRefName,headRefOid,"
-    "labels,mergeStateStatus,statusCheckRollup"
+    "labels,mergeable,mergeStateStatus"
 )
 
 _label_ready = False
@@ -99,40 +103,11 @@ def list_pr_files(repo, number):
         page += 1
 
 
-def check_state(rollup):
-    """CI の集計。戻り値は fail / pending / pass / none のいずれか。"""
-    if not rollup:
-        return "none"
-    failing = pending = passing = False
-    for check in rollup:
-        if "state" in check:  # StatusContext
-            if check["state"] in ("FAILURE", "ERROR"):
-                failing = True
-            elif check["state"] in ("PENDING", "EXPECTED"):
-                pending = True
-            elif check["state"] == "SUCCESS":
-                passing = True
-        else:  # CheckRun
-            if check.get("status") != "COMPLETED":
-                pending = True
-            elif check.get("conclusion") == "SUCCESS":
-                passing = True
-            elif check.get("conclusion") not in ("NEUTRAL", "SKIPPED"):
-                failing = True
-    if failing:
-        return "fail"
-    if pending:
-        return "pending"
-    return "pass" if passing else "none"
-
-
 def decide(pr, files, base_lines, main_js_problem, touched):
     """API を呼ばずに判定する。戻り値は (action, reason)。"""
     labels = {label["name"] for label in pr.get("labels") or []}
     paths = [f["filename"] for f in files]
 
-    if pr.get("isDraft"):
-        return "skip", "draft"
     if pr.get("isCrossRepository"):
         return "skip", "fork PR"
     if labels & HOLD_LABELS:
@@ -148,17 +123,17 @@ def decide(pr, files, base_lines, main_js_problem, touched):
     if main_js_problem:
         return "hold", main_js_problem
 
-    state = check_state(pr.get("statusCheckRollup"))
-    if state != "pass":
-        reasons = {"fail": "CI failing", "pending": "CI pending", "none": "no CI checks"}
-        return "skip", reasons[state]
-
     merge_state = pr.get("mergeStateStatus")
-    if merge_state == "DIRTY":
+    mergeable = pr.get("mergeable")
+    if merge_state == "DIRTY" or mergeable == "CONFLICTING":
         return "hold", "merge conflict"
     if merge_state == "BEHIND":
         return "update", "behind base branch"
-    if merge_state != "CLEAN":
+    if merge_state == "DRAFT":
+        # Draft は mergeStateStatus が DRAFT になるため、競合の有無は mergeable で見る
+        if mergeable != "MERGEABLE":
+            return "skip", f"draft, mergeable={mergeable}"
+    elif merge_state not in MERGEABLE_STATES:
         return "skip", f"merge state {merge_state}"
 
     overlap = sorted(set(paths) & touched)
@@ -220,6 +195,16 @@ def merge_pr(repo, pr):
     return None if res.returncode == 0 else res.stderr.strip()[:200]
 
 
+def land_pr(repo, pr):
+    """Draft なら ready にしてからマージする。戻り値は (成功したか, 結果の文字列)。"""
+    if pr.get("isDraft"):
+        res = gh(["pr", "ready", str(pr["number"]), "-R", repo])
+        if res.returncode != 0:
+            return False, f"ready failed: {res.stderr.strip()[:200]}"
+    error = merge_pr(repo, pr)
+    return error is None, "merged" if error is None else f"merge failed: {error}"
+
+
 def write_summary(lines):
     for line in lines:
         print(line)
@@ -277,14 +262,12 @@ def main(argv=None):
         elif action == "update" and not dry_run:
             update_pr(repo, pr)
         elif action == "merge":
-            error = None if dry_run else merge_pr(repo, pr)
             if dry_run:
-                status = "would merge"
-            elif error:
-                status = f"merge failed: {error}"
+                status = "would merge (Draft なら ready にしてから)" if pr.get("isDraft") else "would merge"
+                ok = True
             else:
-                status = "merged"
-            if dry_run or not error:
+                ok, status = land_pr(repo, pr)
+            if ok:
                 touched.update(f["filename"] for f in files)
                 merges += 1
         lines.append(f"#{number} {pr['title'][:60]!r}: {status}")

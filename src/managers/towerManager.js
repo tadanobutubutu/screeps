@@ -151,9 +151,9 @@ function _tryRepair (tower, room) {
 
 // ⚡ PERFORMANCE OPTIMIZATION: Cache selected attack target on a room-level per tick basis.
 // Multiple towers calling this on the same tick can reuse the target to avoid redundant search loops.
-let _attackTargetCache = null
-let _attackTargetTick = -1
-let _attackTargetRoom = null
+let _attackTargetCache = null;
+let _attackTargetTick = -1;
+let _attackTargetRoom = null;
 
 /**
  * 攻撃対象を選択する
@@ -171,11 +171,12 @@ function _selectAttackTarget (tower, enemies) {
     return _attackTargetCache
   }
 
-  const target =
-        _findCriticalTarget(tower, enemies, TOWER_ATTACK_PRIORITY_HP) ||
+  const target = (
+    _findCriticalTarget(tower, enemies, TOWER_ATTACK_PRIORITY_HP) ||
         _findClaimerTarget(tower, enemies) ||
         _findAttackerTarget(tower, enemies) ||
         _findWeakestTarget(tower, enemies)
+  )
 
   _attackTargetCache = target
   _attackTargetTick = Game.time
@@ -272,9 +273,9 @@ function _findWeakestTarget (tower, enemies) {
 
 // ⚡ PERFORMANCE OPTIMIZATION: Cache selected heal target on a room-level per tick basis.
 // Multiple towers calling this on the same tick can reuse the target to avoid redundant search loops.
-let _healTargetCache = null
-let _healTargetTick = -1
-let _healTargetRoom = null
+let _healTargetCache = null;
+let _healTargetTick = -1;
+let _healTargetRoom = null;
 
 /**
  * 回復対象を選択する

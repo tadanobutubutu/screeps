@@ -3,143 +3,168 @@
  */
 
 // グローバル設定
-global.Game = { time: 100 };
-global.FIND_SOURCES = 5;
-global.FIND_STRUCTURES = 10;
-global.FIND_MY_STRUCTURES = 11;
-global.FIND_CONSTRUCTION_SITES = 14;
-global.FIND_HOSTILE_CREEPS = 6;
-global.FIND_DROPPED_RESOURCES = 7;
-global.FIND_MY_SPAWNS = 8;
-global.FIND_MY_CREEPS = 102;
-global.STRUCTURE_SPAWN = 'spawn';
-global.STRUCTURE_EXTENSION = 'extension';
-global.STRUCTURE_TOWER = 'tower';
-global.STRUCTURE_CONTAINER = 'container';
-global.STRUCTURE_LINK = 'link';
-global.RESOURCE_ENERGY = 'energy';
+global.Game = { time: 100 }
+global.FIND_SOURCES = 5
+global.FIND_STRUCTURES = 10
+global.FIND_MY_STRUCTURES = 11
+global.FIND_CONSTRUCTION_SITES = 14
+global.FIND_HOSTILE_CREEPS = 6
+global.FIND_DROPPED_RESOURCES = 7
+global.FIND_MY_SPAWNS = 8
+global.FIND_MY_CREEPS = 102
+global.STRUCTURE_SPAWN = 'spawn'
+global.STRUCTURE_EXTENSION = 'extension'
+global.STRUCTURE_TOWER = 'tower'
+global.STRUCTURE_CONTAINER = 'container'
+global.STRUCTURE_LINK = 'link'
+global.RESOURCE_ENERGY = 'energy'
 
 // モック定数をロードする前にグローバル設定
 jest.mock(
-    '../src/constants',
-    () => ({
-        CACHE_TTL: {
-            SOURCES: 100,
-            STRUCTURES: 50,
-            ENEMIES: 5,
-            CONSTRUCTION_SITES: 20,
-            DROPPED_RESOURCES: 3,
-            ROOM_OBJECTS: 30,
-        },
-    }),
-    { virtual: true }
-);
+  '../src/constants',
+  () => ({
+    CACHE_TTL: {
+      SOURCES: 100,
+      STRUCTURES: 50,
+      ENEMIES: 5,
+      CONSTRUCTION_SITES: 20,
+      DROPPED_RESOURCES: 3,
+      ROOM_OBJECTS: 30
+    }
+  }),
+  { virtual: true }
+)
 
-const cache = require('../src/utils/cache');
+const cache = require('../src/utils/cache')
 
 describe('cache', () => {
-    beforeEach(() => {
-        // キャッシュをクリア
-        global.cache = {};
-        global.Game.time = 100;
-    });
+  beforeEach(() => {
+    // キャッシュをクリア
+    global.cache = {}
+    global.Game.time = 100
+  })
 
-    describe('get', () => {
-        test('初回呼び出しでfetcherが実行される', () => {
-            const fetcher = jest.fn().mockReturnValue('data');
-            const result = cache.get('test_key', fetcher, 10);
+  describe('get', () => {
+    test('初回呼び出しでfetcherが実行される', () => {
+      const fetcher = jest.fn().mockReturnValue('data')
+      const result = cache.get('test_key', fetcher, 10)
 
-            expect(fetcher).toHaveBeenCalled();
-            expect(result).toBe('data');
-        });
+      expect(fetcher).toHaveBeenCalled()
+      expect(result).toBe('data')
+    })
 
-        test('TTL内の再呼び出しではキャッシュが返される', () => {
-            const fetcher = jest.fn().mockReturnValue('data');
+    test('TTL内の再呼び出しではキャッシュが返される', () => {
+      const fetcher = jest.fn().mockReturnValue('data')
 
-            cache.get('test_key', fetcher, 10);
-            const result = cache.get('test_key', fetcher, 10);
+      cache.get('test_key', fetcher, 10)
+      const result = cache.get('test_key', fetcher, 10)
 
-            expect(fetcher).toHaveBeenCalledTimes(1);
-            expect(result).toBe('data');
-        });
+      expect(fetcher).toHaveBeenCalledTimes(1)
+      expect(result).toBe('data')
+    })
 
-        test('TTL経過後はfetcherが再実行される', () => {
-            const fetcher = jest.fn().mockReturnValue('data');
+    test('TTL経過後はfetcherが再実行される', () => {
+      const fetcher = jest.fn().mockReturnValue('data')
 
-            cache.get('test_key', fetcher, 10);
-            global.Game.time += 20;
-            cache.get('test_key', fetcher, 10);
+      cache.get('test_key', fetcher, 10)
+      global.Game.time += 20
+      cache.get('test_key', fetcher, 10)
 
-            expect(fetcher).toHaveBeenCalledTimes(2);
-        });
+      expect(fetcher).toHaveBeenCalledTimes(2)
+    })
 
-        test('有効期限ジャストの場合はfetcherが再実行される', () => {
-            const fetcher = jest.fn().mockReturnValue('data');
+    test('有効期限ジャストの場合はfetcherが再実行される', () => {
+      const fetcher = jest.fn().mockReturnValue('data')
 
-            cache.get('test_key', fetcher, 10);
-            global.Game.time += 10;
-            cache.get('test_key', fetcher, 10);
+      cache.get('test_key', fetcher, 10)
+      global.Game.time += 10
+      cache.get('test_key', fetcher, 10)
 
-            expect(fetcher).toHaveBeenCalledTimes(2);
-        });
+      expect(fetcher).toHaveBeenCalledTimes(2)
+    })
 
-        test('キャッシュがいっぱいの場合、期限切れをクリーンアップして新しいエントリを追加する', () => {
-            const MAX_CACHE_ENTRIES = 100;
-            // 期限切れのエントリでキャッシュを埋める
-            for (let i = 0; i < MAX_CACHE_ENTRIES; i++) {
-                cache.get(`key_${i}`, () => `data_${i}`, 10);
-            }
+    test('キャッシュがいっぱいの場合、期限切れをクリーンアップして新しいエントリを追加する', () => {
+      const MAX_CACHE_ENTRIES = 100
+      // 期限切れのエントリでキャッシュを埋める
+      for (let i = 0; i < MAX_CACHE_ENTRIES; i++) {
+        cache.get(`key_${i}`, () => `data_${i}`, 10)
+      }
 
-            global.Game.time += 20; // すべて期限切れにする
+      global.Game.time += 20 // すべて期限切れにする
 
-            const fetcher = jest.fn().mockReturnValue('new_data');
-            const result = cache.get('new_key', fetcher, 10);
+      const fetcher = jest.fn().mockReturnValue('new_data')
+      const result = cache.get('new_key', fetcher, 10)
 
-            expect(fetcher).toHaveBeenCalled();
-            expect(result).toBe('new_data');
-            expect(Object.keys(global.cache).length).toBe(1); // 以前のものはクリーンアップされ、新しい1つだけが残る
-        });
-    });
+      expect(fetcher).toHaveBeenCalled()
+      expect(result).toBe('new_data')
+      expect(Object.keys(global.cache).length).toBe(1) // 以前のものはクリーンアップされ、新しい1つだけが残る
+    })
+  })
 
-    describe('invalidate', () => {
-        test('指定したキーのキャッシュを無効化する', () => {
-            const fetcher = jest.fn().mockReturnValue('data');
+  describe('invalidate', () => {
+    test('指定したキーのキャッシュを無効化する', () => {
+      const fetcher = jest.fn().mockReturnValue('data')
 
-            cache.get('test_key', fetcher, 10);
-            cache.invalidate('test_key');
-            cache.get('test_key', fetcher, 10);
+      cache.get('test_key', fetcher, 10)
+      cache.invalidate('test_key')
+      cache.get('test_key', fetcher, 10)
 
-            expect(fetcher).toHaveBeenCalledTimes(2);
-        });
-    });
+      expect(fetcher).toHaveBeenCalledTimes(2)
+    })
+  })
 
-    describe('invalidatePattern', () => {
-        test('パターンに一致するキャッシュを無効化する', () => {
-            const fetcher1 = jest.fn().mockReturnValue('data1');
-            const fetcher2 = jest.fn().mockReturnValue('data2');
+  describe('invalidatePattern', () => {
+    test('パターンに一致するキャッシュを無効化する', () => {
+      const fetcher1 = jest.fn().mockReturnValue('data1')
+      const fetcher2 = jest.fn().mockReturnValue('data2')
 
-            cache.get('room_W1N1', fetcher1, 10);
-            cache.get('room_W1N2', fetcher2, 10);
-            cache.get('other_key', jest.fn().mockReturnValue('data3'), 10);
+      cache.get('room_W1N1', fetcher1, 10)
+      cache.get('room_W1N2', fetcher2, 10)
+      cache.get('other_key', jest.fn().mockReturnValue('data3'), 10)
 
-            cache.invalidatePattern(/^room_/);
+      cache.invalidatePattern(/^room_/)
 
-            cache.get('room_W1N1', fetcher1, 10);
-            cache.get('room_W1N2', fetcher2, 10);
+      cache.get('room_W1N1', fetcher1, 10)
+      cache.get('room_W1N2', fetcher2, 10)
 
-            expect(fetcher1).toHaveBeenCalledTimes(2);
-            expect(fetcher2).toHaveBeenCalledTimes(2);
-        });
+      expect(fetcher1).toHaveBeenCalledTimes(2)
+      expect(fetcher2).toHaveBeenCalledTimes(2)
+    })
 
-        test('不正な正規表現文字列でクラッシュしない', () => {
-            expect(() => {
-                cache.invalidatePattern('['); // 不正な正規表現
-            }).not.toThrow();
-        });
+    test('不正な正規表現文字列でクラッシュしない', () => {
+      expect(() => {
+        cache.invalidatePattern('[') // 不正な正規表現
+      }).not.toThrow()
+    })
+  })
 
+  describe('cleanup', () => {
+    test('期限切れキャッシュを削除する', () => {
+      cache.get('key1', () => 'data1', 5)
+      cache.get('key2', () => 'data2', 50)
 
-        test('エラー発生時にサイレントに失敗する', () => {
-            cache.get('valid_key', () => 'data', 10);
+      global.Game.time += 10
+      const removed = cache.cleanup()
+
+      expect(removed).toBeGreaterThan(0)
+    })
+
+    test('有効期限ジャストのキャッシュを削除する', () => {
+      cache.get('key1', () => 'data1', 10)
+      global.Game.time += 10
+      const removed = cache.cleanup()
+
+      expect(removed).toBe(1)
+    })
+
+    test('不正なexpiresプロパティを持つキャッシュは無視する', () => {
+      cache.get('key1', () => 'data1', 10)
+      global.cache.key1.expires = 'invalid'
+
+      const removed = cache.cleanup()
+      expect(removed).toBe(0)
+    })
+  })
 
             // testメソッドがエラーを投げるようなモックオブジェクトを渡す
             const mockPattern = {
@@ -515,6 +540,128 @@ describe('cache', () => {
             expect(mockCreep1.memory.sourceId).toBe('source1');
             expect(mockCreep2.memory.sourceId).toBe('source2');
             expect(mockCreep3.memory.sourceId).toBe('source1');
+        });
+    });
+
+
+    describe('reset', () => {
+        test('キャッシュが完全にリセットされる', () => {
+            const mockRoom = { find: jest.fn().mockReturnValue([]) };
+            cache.get('test_reset_key', () => 'data', 10);
+            cache.reset();
+            const stats = cache.getStats();
+            expect(stats.total).toBe(0);
+            expect(global.cache).toEqual({});
+        });
+    });
+
+    describe('isSafeKey', () => {
+        test('数値を許可する', () => {
+            expect(cache.isSafeKey(123)).toBe(true);
+        });
+
+        test('通常の文字列を許可する', () => {
+            expect(cache.isSafeKey('normal_key')).toBe(true);
+        });
+
+        test('危険なキーを拒否する', () => {
+            expect(cache.isSafeKey('__' + 'proto' + '__')).toBe(false);
+            expect(cache.isSafeKey('con' + 'structor')).toBe(false);
+        });
+
+        test('長すぎるキーを拒否する', () => {
+            const longKey = 'a'.repeat(257);
+            expect(cache.isSafeKey(longKey)).toBe(false);
+        });
+    });
+
+    describe('getDroppedResources', () => {
+        test('ドロップされたリソースを取得する', () => {
+            const mockRoom = {
+                name: 'W1N1',
+                find: jest.fn().mockReturnValue([{ resourceType: 'energy' }]),
+            };
+            const resources = cache.getDroppedResources(mockRoom);
+            expect(mockRoom.find).toHaveBeenCalledWith(global.FIND_DROPPED_RESOURCES);
+            expect(resources.length).toBe(1);
+        });
+    });
+
+    describe('getSpawns', () => {
+        test('スポーンを取得する', () => {
+            const mockRoom = {
+                name: 'W1N1',
+                find: jest.fn().mockReturnValue([{ structureType: 'spawn' }]),
+            };
+            const spawns = cache.getSpawns(mockRoom);
+            expect(mockRoom.find).toHaveBeenCalledWith(global.FIND_MY_SPAWNS);
+            expect(spawns.length).toBe(1);
+        });
+
+        test('キャッシュから取得される場合はフィルタリングが実行されない', () => {
+            const mockSpawns = [{ name: 'Spawn1' }];
+            const mockRoom = {
+                name: 'W1N1',
+                _spawns: mockSpawns,
+                _spawnsTick: global.Game.time,
+                find: jest.fn(),
+            };
+            const spawns = cache.getSpawns(mockRoom);
+            expect(spawns).toBe(mockSpawns);
+            expect(mockRoom.find).not.toHaveBeenCalled();
+        });
+    });
+
+    describe('getContainers', () => {
+        test('コンテナを取得する', () => {
+            const mockContainer = { structureType: global.STRUCTURE_CONTAINER };
+            const mockRoom = {
+                name: 'W1N1',
+                find: jest.fn((type, opts) => {
+                    if (type === global.FIND_STRUCTURES && opts && opts.filter) {
+                        return [mockContainer].filter(opts.filter);
+                    }
+                    return [];
+                }),
+            };
+            const containers = cache.getContainers(mockRoom);
+            expect(mockRoom.find).toHaveBeenCalledWith(global.FIND_STRUCTURES, expect.any(Object));
+            expect(containers).toContain(mockContainer);
+        });
+    });
+
+    describe('getLinks', () => {
+        test('リンクを取得する', () => {
+            const mockLink = { structureType: global.STRUCTURE_LINK };
+            const mockRoom = {
+                name: 'W1N1',
+                find: jest.fn((type, opts) => {
+                    if (type === global.FIND_MY_STRUCTURES && opts && opts.filter) {
+                        return [mockLink].filter(c => c.structureType === opts.filter.structureType);
+                    }
+                    return [];
+                }),
+            };
+            const links = cache.getLinks(mockRoom);
+            expect(mockRoom.find).toHaveBeenCalledWith(global.FIND_MY_STRUCTURES, { filter: { structureType: global.STRUCTURE_LINK } });
+            expect(links).toContain(mockLink);
+        });
+    });
+
+    describe('getStorage', () => {
+        test('ストレージを取得する', () => {
+            const mockRoom = {
+                name: 'W1N1',
+                storage: { store: { energy: 1000 } },
+            };
+            const storage = cache.getStorage(mockRoom);
+            expect(storage).toBe(mockRoom.storage);
+        });
+
+        test('ストレージが存在しない場合はnullを返す', () => {
+            const mockRoom = { name: 'W1N1' };
+            const storage = cache.getStorage(mockRoom);
+            expect(storage).toBeNull();
         });
     });
 

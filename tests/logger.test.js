@@ -30,7 +30,7 @@ describe('logger', () => {
     global.Game.time = 100
     console.log = jest.fn()
     logger.setLevel(0)
-    logger.resetStats()
+    logger.clear()
   })
 
   describe('debug', () => {
@@ -104,7 +104,7 @@ describe('logger', () => {
       expect(logger.getHistory().length).toBeGreaterThan(0)
 
       // Reset
-      logger.resetStats()
+      logger.clear()
 
       // Verify reset
       const statsAfter = logger.getStats()
@@ -146,6 +146,26 @@ describe('logger', () => {
       expect(logger.getSafeStack('')).toBe('')
       expect(logger.getSafeStack(null)).toBe('')
     })
+
+    test('returns stringified error if no stack is present', () => {
+      const err = 'Just a string error';
+      expect(logger.getSafeStack(err)).toBe('Just a string error');
+    });
+
+    test('truncates stack trace correctly to maxLines', () => {
+      const longStack = 'Error: something\n' + '  at someFunction:1:1\n'.repeat(10);
+      const result = logger.getSafeStack(longStack, 3);
+      const lines = result.split('\n');
+      expect(lines.length).toBe(3);
+    });
+
+    test('trims and prefixes lines starting with "at " with 4 spaces', () => {
+      const stack = 'Error: test\nat myFunction (/some/path:10:5)\n    at anotherFunction (/path:20:1)';
+      const result = logger.getSafeStack(stack);
+
+      expect(result).toContain('    at myFunction');
+      expect(result).toContain('    at anotherFunction');
+    });
   })
 
   describe('showDashboard', () => {

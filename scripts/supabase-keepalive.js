@@ -8,53 +8,53 @@
 //   source TEXT
 // );
 
-const { createClient } = require('@supabase/supabase-js');
+const { createClient } = require('@supabase/supabase-js')
 
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const supabaseUrl = process.env.SUPABASE_URL
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
 if (!supabaseUrl || !supabaseKey) {
-    console.error('ERROR: SUPABASE_URL または SUPABASE_SERVICE_ROLE_KEY が設定されていません');
-    process.exit(1);
+  console.error('ERROR: SUPABASE_URL または SUPABASE_SERVICE_ROLE_KEY が設定されていません')
+  process.exit(1)
 }
 
-const supabase = createClient(supabaseUrl, supabaseKey);
+const supabase = createClient(supabaseUrl, supabaseKey)
 
-async function keepAlive() {
-    console.log(`[${new Date().toISOString()}] Supabase KeepAlive ping 開始...`);
+async function keepAlive () {
+  console.log(`[${new Date().toISOString()}] Supabase KeepAlive ping 開始...`)
 
-    const { data, error } = await supabase.from('keepalive_log').upsert({
-        id: 1,
-        pinged_at: new Date().toISOString(),
-        source: 'github-actions',
-    });
+  const { data, error } = await supabase.from('keepalive_log').upsert({
+    id: 1,
+    pinged_at: new Date().toISOString(),
+    source: 'github-actions'
+  })
 
-    if (error) {
-        console.error('ERROR: Supabase への ping に失敗しました:', error.message);
-        process.exit(1);
-    }
+  if (error) {
+    console.error('ERROR: Supabase への ping に失敗しました:', error.message)
+    process.exit(1)
+  }
 
-    console.log('SUCCESS: Supabase への ping が成功しました');
+  console.log('SUCCESS: Supabase への ping が成功しました')
 
-    // 安全なフィールドのみを抽出してログに出力
-    const safeData = Array.isArray(data)
-        ? data.map((item) => ({
-              id: item.id,
-              pinged_at: item.pinged_at,
-              source: item.source,
-          }))
-        : data
-          ? {
-                id: data.id,
-                pinged_at: data.pinged_at,
-                source: data.source,
-            }
-          : null;
-    console.log('データ:', JSON.stringify(safeData));
+  // 安全なフィールドのみを抽出してログに出力
+  const safeData = Array.isArray(data)
+    ? data.map((item) => ({
+      id: item.id,
+      pinged_at: item.pinged_at,
+      source: item.source
+    }))
+    : data
+      ? {
+          id: data.id,
+          pinged_at: data.pinged_at,
+          source: data.source
+        }
+      : null
+  console.log('データ:', JSON.stringify(safeData))
 }
 
 if (require.main === module) {
-    keepAlive();
+  keepAlive()
 }
 
-module.exports = { keepAlive };
+module.exports = { keepAlive }

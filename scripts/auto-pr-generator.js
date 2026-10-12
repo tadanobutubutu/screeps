@@ -154,6 +154,10 @@ async function createFixBranch (issue, analysis) {
     .slice(0, 40)
   const fullBranchName = `${branchName}-${issueSlug}`
 
+  if (!/^[a-zA-Z0-9\/-]+$/.test(fullBranchName)) {
+    throw new Error(`Invalid branch name format: ${fullBranchName}`)
+  }
+
   console.log(`🌿 Creating branch: ${fullBranchName}`)
 
   try {

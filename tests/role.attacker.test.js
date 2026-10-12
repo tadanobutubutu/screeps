@@ -94,7 +94,7 @@ describe('role.attacker', () => {
     });
 
     test('Priority 2: Attack hostile structures in range', () => {
-        const hostileStructure = { structureType: global.STRUCTURE_TOWER };
+        const hostileStructure = { structureType: global.STRUCTURE_TOWER, pos: { x: 25, y: 25 } }; mockCreep.pos.x = 25; mockCreep.pos.y = 25; mockCreep.pos.getRangeTo = jest.fn().mockReturnValue(1);
         mockCreep.room.find.mockReturnValue([hostileStructure]);
 
         // mock cache.getStructures to return array and filter it
@@ -113,7 +113,7 @@ describe('role.attacker', () => {
     });
 
     test('Priority 2: Move to hostile structures out of range', () => {
-        const hostileStructure = { structureType: global.STRUCTURE_SPAWN };
+        const hostileStructure = { structureType: global.STRUCTURE_SPAWN, pos: { x: 25, y: 25 } }; mockCreep.pos.x = 25; mockCreep.pos.y = 25; mockCreep.pos.getRangeTo = jest.fn().mockReturnValue(1);
         mockCreep.room.find.mockReturnValue([hostileStructure]);
         mockCreep.attack.mockReturnValue(global.ERR_NOT_IN_RANGE);
 

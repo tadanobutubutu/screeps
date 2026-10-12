@@ -95,22 +95,6 @@ module.exports = {
     return Memory.rooms[roomName][key]
   },
 
-  setRoomMemory: function (roomName, key, value) {
-    // Security: Validate roomName and key to prevent prototype pollution
-    if (!isSafeKey(roomName) || !isSafeKey(key)) {
-      return
-    }
-
-    if (!Memory.rooms) {
-      Memory.rooms = {}
-    }
-
-    if (!Memory.rooms[roomName]) {
-      Memory.rooms[roomName] = {}
-    }
-    Memory.rooms[roomName][key] = value
-  },
-
   clearRoomMemory: function (roomName, key) {
     // Security: Validate roomName and key to prevent prototype pollution
     if (!isSafeKey(roomName) || !isSafeKey(key)) {
@@ -223,28 +207,6 @@ module.exports = {
         delete Memory.cache[key]
         _cacheOrder.delete(key)
         _cacheSize--
-      }
-    }
-  },
-
-  // Initialize creep memory with role defaults
-  initCreepMemory: function (creep, role, extraData = {}) {
-    if (!creep.memory.role) {
-      creep.memory.role = role
-    }
-
-    if (!creep.memory.working) {
-      creep.memory.working = false
-    }
-
-    for (const key in extraData) {
-      // Security: Use isSafeKey and hasOwnProperty when merging extraData
-      if (
-        isSafeKey(key) &&
-                Object.prototype.hasOwnProperty.call(extraData, key) &&
-                creep.memory[key] === undefined
-      ) {
-        creep.memory[key] = extraData[key]
       }
     }
   },

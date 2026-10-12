@@ -142,13 +142,12 @@ function _getTargetSite (creep) {
     const priority = BUILD_PRIORITY[site.structureType] || 10
     if (priority > minPriority) continue
 
-    const distance = hasGetRangeTo ? creep.pos.getRangeTo(site) : 0
-
     if (priority < minPriority) {
       minPriority = priority
-      minDistance = distance
+      minDistance = hasGetRangeTo ? creep.pos.getRangeTo(site) : 0
       bestSite = site
     } else if (priority === minPriority) {
+      const distance = hasGetRangeTo ? creep.pos.getRangeTo(site) : 0
       if (distance < minDistance) {
         minDistance = distance
         bestSite = site
@@ -179,9 +178,9 @@ function _repairAsBackup (creep) {
     if (s.hits >= s.hitsMax) continue
 
     if (
-      s.hits < s.hitsMax * 0.8 &&
-            s.structureType !== STRUCTURE_WALL &&
-            s.structureType !== STRUCTURE_RAMPART
+      s.structureType !== STRUCTURE_WALL &&
+            s.structureType !== STRUCTURE_RAMPART &&
+            s.hits < s.hitsMax * 0.8
     ) {
       const dist = hasGetRangeTo ? creep.pos.getRangeTo(s) : 0
       if (dist < minDistance) {

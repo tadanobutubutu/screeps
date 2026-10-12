@@ -2,8 +2,10 @@
 
 対象: open PR 36 件を古い順（PR 番号の昇順）に処理。
 
+結果: **open PR 0 件**（32 件マージ / 4 件クローズ）
+
 - マージ: 32 件
-- 保留: 4 件（#213021, #213072, #253724, #258195。各 PR にコメント済み）
+- クローズ: 4 件（#213021, #213072, #253724, #258195。理由をコメントして close 済み）
 
 ## 進め方
 
@@ -44,13 +46,13 @@
 - **#258212 / #258197 / #258205**: ダッシュボードの UI/アクセシビリティ改善。
   生成物 `dashboard/next-env.d.ts` は main 側（ダブルクォート）を維持。
 
-## 保留にした PR
+## クローズした PR（2026-10-12 追記：理由をコメントして close）
 
 | PR | 理由 |
 | --- | --- |
-| #213021, #213072 | Draft。`main.js` にプレースホルダ（`newAddedFeature()` と TODO コメント）を足すだけで、参照 issue も古い |
-| #253724 | `actions/setup-node` を `@v7` に上げるが、`.github/JULES_INSTRUCTIONS.md` は `@v4` から変えないよう明記。`validate-versions.yml` も v5 以上を無効として自動修正する |
-| #258195 | 自動マージゲート本体（`.github/workflows/**` + `scripts/force_merge_pr.py`）の書き換え。ゲート自身のポリシーで自動マージ対象外 |
+| #213021, #213072 | Draft。`main.js` にプレースホルダ（`newAddedFeature()` と TODO コメント）を足すだけで、参照 issue も古い。→ close 済み |
+| #253724 | `actions/setup-node` を `@v7` に上げるが、`.github/JULES_INSTRUCTIONS.md` は `@v4` から変えないよう明記。`validate-versions.yml` も v5 以上を無効として自動修正する。→ close 済み |
+| #258195 | 自動マージゲート本体（`.github/workflows/**` + `scripts/force_merge_pr.py`）の書き換え。ゲート自身のポリシーで自動マージ対象外。→ close 済み（ブランチ `claude/peaceful-hopper-gpdn3h` は残っているので reopen 可能） |
 
 ## 検証
 

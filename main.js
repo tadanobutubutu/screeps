@@ -8,7 +8,6 @@
     const { spawn } = require('child_process');
     const path = require('path');
     const fs = require('fs');
-    const fastMap = require('fast-map');
     const utils = require('./utils');
     const accessiblyHelper = require('./accessibly-helper');
     const existingNonConflictingModule = require('./existing_non_conflicting_module');
@@ -43,27 +42,6 @@
     };
 
     const pagesDir = path.join(__dirname, 'pages');
-    let dependencyGraphData = {};
-
-    async function getDependencyGraph() {
-        if (Object.keys(dependencyGraphData).length === 0) {
-            const filePaths = await fs.promises.readdir(pagesDir);
-
-            let dependencyGraph = {};
-            for (const filePath of filePaths) {
-                const fullPath = path.join(pagesDir, filePath);
-                const { violations } = await axe.analyze(fullPath);
-
-                if (violations.length > 0) {
-                    dependencyGraphData[filePath] = { violations, file: filePath };
-                }
-            }
-
-            dependencyGraphData = fastMap(dependencyGraphData).toObject();
-        }
-
-        return dependencyGraphData;
-    }
 
     function spawnProcess(command, args = [], options = {}) {
         return new Promise((resolve, reject) => {

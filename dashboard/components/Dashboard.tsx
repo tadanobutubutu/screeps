@@ -21,6 +21,8 @@ export default function Dashboard() {
     const [searchFocused, setSearchFocused] = useState(false);
     const [refreshHover, setRefreshHover] = useState(false);
     const [refreshFocused, setRefreshFocused] = useState(false);
+    const [helpHover, setHelpHover] = useState(false);
+    const [helpFocused, setHelpFocused] = useState(false);
     const [hoveredRoom, setHoveredRoom] = useState<string | null>(null);
     const [focusedRoom, setFocusedRoom] = useState<string | null>(null);
     const [jsonHover, setJsonHover] = useState(false);
@@ -40,22 +42,58 @@ export default function Dashboard() {
     const [summaryDetailsFocused, setSummaryDetailsFocused] = useState(false);
     const [noMatchClearHover, setNoMatchClearHover] = useState(false);
     const [noMatchClearFocused, setNoMatchClearFocused] = useState(false);
+    const [matchClearHover, setMatchClearHover] = useState(false);
+    const [matchClearFocused, setMatchClearFocused] = useState(false);
     const [searchClearHover, setSearchClearHover] = useState(false);
     const [searchClearFocused, setSearchClearFocused] = useState(false);
+    const [toastHovered, setToastHovered] = useState(false);
+    const [toastFocused, setToastFocused] = useState(false);
 
     const toastTimeoutRef = useRef<NodeJS.Timeout | null>(null);
     const searchInputRef = useRef<HTMLInputElement>(null);
+    const toastMsgRef = useRef<string | null>(null);
 
-    const showToast = (msg: string) => {
+    useEffect(() => {
+        toastMsgRef.current = toastMsg;
+    }, [toastMsg]);
+
+    const startToastTimer = useCallback(() => {
         if (toastTimeoutRef.current) {
             clearTimeout(toastTimeoutRef.current);
         }
-        setToastMsg(msg);
         toastTimeoutRef.current = setTimeout(() => {
             setToastMsg(null);
             toastTimeoutRef.current = null;
         }, 2500);
-    };
+    }, []);
+
+    const showToast = useCallback(
+        (msg: string) => {
+            setToastMsg(msg);
+            startToastTimer();
+        },
+        [startToastTimer]
+    );
+
+    const toggleAutoRefresh = useCallback(
+        (enabled?: boolean) => {
+            setAutoRefresh((prev) => {
+                const nextState = enabled !== undefined ? enabled : !prev;
+                showToast(nextState ? '自動更新を有効にしました' : '自動更新を無効にしました');
+                return nextState;
+            });
+        },
+        [showToast]
+    );
+
+    useEffect(() => {
+        if (toastMsg && !toastHovered && !toastFocused) {
+            startToastTimer();
+        } else if (toastTimeoutRef.current && (toastHovered || toastFocused)) {
+            clearTimeout(toastTimeoutRef.current);
+            toastTimeoutRef.current = null;
+        }
+    }, [toastMsg, toastHovered, toastFocused, startToastTimer]);
 
     // Clean up timeout on unmount
     useEffect(() => {
@@ -73,6 +111,14 @@ export default function Dashboard() {
         return num.toString();
     };
 
+    const formatBytes = (bytes: number) => {
+        if (bytes < 1024) return `${bytes} B`;
+        return `${(bytes / 1024).toFixed(1)} KB`;
+    };
+
+    const rawJsonStr = stats ? JSON.stringify(stats, null, 2) : '';
+    const jsonSizeFormatted = stats ? formatBytes(new Blob([rawJsonStr]).size) : '';
+
     const copySummary = useCallback(() => {
         if (!stats) return;
         const gclStr = stats.gcl
@@ -86,12 +132,17 @@ export default function Dashboard() {
                 : 'Rooms: none';
         const summaryText = `🐛 Screeps AI Status | ${gclStr} | ${gplStr} | ${cpuStr} | ${roomsStr}`;
 
-        navigator.clipboard.writeText(summaryText).then(() => {
-            setCopiedSummary(true);
-            setTimeout(() => setCopiedSummary(false), 2000);
-            showToast('ステータスのサマリーをクリップボードにコピーしました');
-        });
-    }, [stats]);
+        navigator.clipboard
+            .writeText(summaryText)
+            .then(() => {
+                setCopiedSummary(true);
+                setTimeout(() => setCopiedSummary(false), 2000);
+                showToast('ステータスのサマリーをクリップボードにコピーしました');
+            })
+            .catch(() => {
+                showToast('クリップボードへのコピーに失敗しました');
+            });
+    }, [stats, showToast]);
 
     const fetchStats = useCallback(async (isManual = false) => {
         if (isManual) setRefreshing(true);
@@ -131,17 +182,52 @@ export default function Dashboard() {
         return () => clearInterval(interval);
     }, [autoRefresh, fetchStats]);
 
+    const clearSearchQuery = useCallback(() => {
+        setRoomQuery((prev) => {
+            if (prev) {
+                showToast('検索フィルターをクリアしました');
+            }
+            return '';
+        });
+        searchInputRef.current?.focus();
+    }, [showToast]);
+
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') {
+                if (toastMsgRef.current) {
+                    e.preventDefault();
+                    setToastMsg(null);
+                    if (toastTimeoutRef.current) {
+                        clearTimeout(toastTimeoutRef.current);
+                        toastTimeoutRef.current = null;
+                    }
+                    return;
+                }
+                if (roomQuery) {
+                    e.preventDefault();
+                    clearSearchQuery();
+                    return;
+                }
+            }
+
+            const isEditing =
+                e.target instanceof HTMLInputElement ||
+                e.target instanceof HTMLTextAreaElement ||
+                (e.target as HTMLElement).isContentEditable;
+
+            if (isEditing) return;
+
+            if (e.key === '?' || (e.key === '/' && e.shiftKey)) {
+                e.preventDefault();
+                showToast(
+                    '⌨️ ショートカット: Alt+R (更新), Alt+S (検索), Alt+D (詳細), Alt+C (コピー), Alt+A (自動更新)'
+                );
+                return;
+            }
+
             // Using Alt key combinations to comply with WCAG 2.1.4 (avoiding single-key shortcuts)
-            if (
-                e.altKey &&
-                !(
-                    e.target instanceof HTMLInputElement ||
-                    e.target instanceof HTMLTextAreaElement ||
-                    (e.target as HTMLElement).isContentEditable
-                )
-            ) {
+            if (e.altKey) {
                 if (e.key.toLowerCase() === 'r' && !refreshing) {
                     e.preventDefault();
                     fetchStats(true);
@@ -156,44 +242,51 @@ export default function Dashboard() {
                     copySummary();
                 } else if (e.key.toLowerCase() === 'a') {
                     e.preventDefault();
-                    setAutoRefresh((prev) => {
-                        const nextState = !prev;
-                        showToast(
-                            nextState
-                                ? '自動更新を有効にしました'
-                                : '自動更新を無効にしました'
-                        );
-                        return nextState;
-                    });
+                    toggleAutoRefresh();
                 }
             }
         };
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [fetchStats, refreshing, copySummary, stats]);
+    }, [fetchStats, refreshing, copySummary, stats, roomQuery, clearSearchQuery]);
 
     const copyErr = () =>
         error &&
-        navigator.clipboard.writeText(error).then(() => {
-            setCopied(true);
-            setTimeout(() => setCopied(false), 2000);
-            showToast('エラーメッセージをクリップボードにコピーしました');
-        });
+        navigator.clipboard
+            .writeText(error)
+            .then(() => {
+                setCopied(true);
+                setTimeout(() => setCopied(false), 2000);
+                showToast('エラーメッセージをクリップボードにコピーしました');
+            })
+            .catch(() => {
+                showToast('クリップボードへのコピーに失敗しました');
+            });
 
     const copyRoom = (room: string) => {
-        navigator.clipboard.writeText(room).then(() => {
-            setCopiedRoom(room);
-            setTimeout(() => setCopiedRoom(null), 2000);
-            showToast(`部屋名 ${room} をクリップボードにコピーしました`);
-        });
+        navigator.clipboard
+            .writeText(room)
+            .then(() => {
+                setCopiedRoom(room);
+                setTimeout(() => setCopiedRoom(null), 2000);
+                showToast(`部屋名 ${room} をクリップボードにコピーしました`);
+            })
+            .catch(() => {
+                showToast('クリップボードへのコピーに失敗しました');
+            });
     };
 
     const copyRawData = () => {
-        navigator.clipboard.writeText(JSON.stringify(stats, null, 2)).then(() => {
-            setCopiedJson(true);
-            setTimeout(() => setCopiedJson(false), 2000);
-            showToast('生データをクリップボードにコピーしました');
-        });
+        navigator.clipboard
+            .writeText(JSON.stringify(stats, null, 2))
+            .then(() => {
+                setCopiedJson(true);
+                setTimeout(() => setCopiedJson(false), 2000);
+                showToast('生データをクリップボードにコピーしました');
+            })
+            .catch(() => {
+                showToast('クリップボードへのコピーに失敗しました');
+            });
     };
 
     const filteredRooms =
@@ -204,67 +297,86 @@ export default function Dashboard() {
     const copyAllRooms = () => {
         if (filteredRooms.length === 0) return;
         const roomsStr = filteredRooms.join(', ');
-        navigator.clipboard.writeText(roomsStr).then(() => {
-            setCopiedAllRooms(true);
-            setTimeout(() => setCopiedAllRooms(false), 2000);
-            showToast(
-                roomQuery
-                    ? 'フィルター結果の部屋名をコピーしました'
-                    : 'すべての部屋名をコピーしました'
-            );
-        });
+        navigator.clipboard
+            .writeText(roomsStr)
+            .then(() => {
+                setCopiedAllRooms(true);
+                setTimeout(() => setCopiedAllRooms(false), 2000);
+                showToast(
+                    roomQuery
+                        ? 'フィルター結果の部屋名をコピーしました'
+                        : 'すべての部屋名をコピーしました'
+                );
+            })
+            .catch(() => {
+                showToast('クリップボードへのコピーに失敗しました');
+            });
     };
 
     if (loading)
         return (
-            <div
-                aria-live="polite"
-                aria-busy="true"
+            <main
+                id="main-content"
+                tabIndex={-1}
                 style={{
                     display: 'flex',
                     alignItems: 'center',
                     gap: '0.75rem',
                     padding: '2rem',
                     fontFamily: 'monospace',
+                    outline: 'none',
                 }}
             >
-                <svg
-                    viewBox="0 0 24 24"
-                    style={{
-                        width: '1.5rem',
-                        height: '1.5rem',
-                        animation: 'spin 1s linear infinite',
-                        color: '#004b73',
-                    }}
-                    aria-hidden="true"
+                <div
+                    role="status"
+                    aria-live="polite"
+                    aria-busy="true"
+                    style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}
                 >
-                    <circle
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="3"
-                        fill="none"
-                        strokeDasharray="42"
-                        style={{ opacity: 0.2 }}
-                    />
-                    <path
-                        d="M12 2 C 6.48 2 2 6.48 2 12"
-                        stroke="currentColor"
-                        strokeWidth="3"
-                        strokeLinecap="round"
-                        fill="none"
-                    />
-                </svg>
-                <span style={{ animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite' }}>
-                    読み込み中...
-                </span>
-            </div>
+                    <svg
+                        viewBox="0 0 24 24"
+                        style={{
+                            width: '1.5rem',
+                            height: '1.5rem',
+                            animation: 'spin 1s linear infinite',
+                            color: '#004b73',
+                        }}
+                        aria-hidden="true"
+                    >
+                        <circle
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="currentColor"
+                            strokeWidth="3"
+                            fill="none"
+                            strokeDasharray="42"
+                            style={{ opacity: 0.2 }}
+                        />
+                        <path
+                            d="M12 2 C 6.48 2 2 6.48 2 12"
+                            stroke="currentColor"
+                            strokeWidth="3"
+                            strokeLinecap="round"
+                            fill="none"
+                        />
+                    </svg>
+                    <span style={{ animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite' }}>
+                        読み込み中...
+                    </span>
+                </div>
+            </main>
         );
     if (error)
         return (
-            <main role="alert" aria-live="assertive" style={{ padding: '2rem', fontFamily: 'monospace' }}>
-                <h1 style={{ color: '#b71c1c' }}>⚠️ エラー</h1>
+            <main
+                id="main-content"
+                tabIndex={-1}
+                style={{ padding: '2rem', fontFamily: 'monospace', outline: 'none' }}
+            >
+                <h1 role="alert" aria-live="assertive" style={{ color: '#b71c1c' }}>
+                    ⚠️ エラー
+                </h1>
                 <pre
                     tabIndex={0}
                     aria-label="エラーメッセージ詳細"
@@ -284,8 +396,9 @@ export default function Dashboard() {
                     onMouseLeave={() => setErrCopyHover(false)}
                     onFocus={() => setErrCopyFocused(true)}
                     onBlur={() => setErrCopyFocused(false)}
-                    aria-label={copied ? 'コピー済み' : 'エラーをコピー'}
-                    title={copied ? 'コピー済み' : 'エラーをコピー'}
+                    aria-live="polite"
+                    aria-label={copied ? 'エラーをコピーしました' : 'エラーをコピー'}
+                    title={copied ? 'エラーをコピーしました' : 'エラーをコピー'}
                     style={{
                         backgroundColor: copied ? '#155d27' : '#004b73',
                         color: 'white',
@@ -294,9 +407,12 @@ export default function Dashboard() {
                         borderRadius: '4px',
                         cursor: 'pointer',
                         transition: 'all 0.2s ease-in-out',
-                        transform: errCopyHover ? 'scale(1.05)' : 'scale(1)',
-                        boxShadow: errCopyHover ? '0 4px 10px rgba(0, 75, 115, 0.3)' : 'none',
-                        filter: errCopyHover ? 'brightness(1.1)' : 'none',
+                        transform: errCopyHover || errCopyFocused ? 'scale(1.05)' : 'scale(1)',
+                        boxShadow:
+                            errCopyHover || errCopyFocused
+                                ? '0 4px 10px rgba(0, 75, 115, 0.3)'
+                                : 'none',
+                        filter: errCopyHover || errCopyFocused ? 'brightness(1.1)' : 'none',
                         outline: errCopyFocused ? '2px solid #004b73' : 'none',
                         outlineOffset: '2px',
                     }}
@@ -321,10 +437,18 @@ export default function Dashboard() {
                         border: '1px solid #cbd5e0',
                         borderRadius: '4px',
                         transition: 'all 0.2s ease-in-out',
-                        transform: errRetryHover && !refreshing ? 'scale(1.05)' : 'scale(1)',
+                        transform:
+                            (errRetryHover || errRetryFocused) && !refreshing
+                                ? 'scale(1.05)'
+                                : 'scale(1)',
                         boxShadow:
-                            errRetryHover && !refreshing ? '0 4px 10px rgba(0,0,0,0.05)' : 'none',
-                        filter: errRetryHover && !refreshing ? 'brightness(0.95)' : 'none',
+                            (errRetryHover || errRetryFocused) && !refreshing
+                                ? '0 4px 10px rgba(0,0,0,0.05)'
+                                : 'none',
+                        filter:
+                            (errRetryHover || errRetryFocused) && !refreshing
+                                ? 'brightness(0.95)'
+                                : 'none',
                         outline: errRetryFocused ? '2px solid #004b73' : 'none',
                         outlineOffset: '2px',
                     }}
@@ -334,7 +458,11 @@ export default function Dashboard() {
             </main>
         );
     return (
-        <main id="main-content" tabIndex={-1} style={{ padding: '2rem', fontFamily: 'monospace', outline: 'none' }}>
+        <main
+            id="main-content"
+            tabIndex={-1}
+            style={{ padding: '2rem', fontFamily: 'monospace', outline: 'none' }}
+        >
             <div
                 style={{
                     display: 'flex',
@@ -346,7 +474,74 @@ export default function Dashboard() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                     <h1 style={{ color: '#004b73', margin: 0 }}>🐛 Screeps ダッシュボード</h1>
                     {stats && (
-                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
+                        <div
+                            style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
+                        >
+                            <kbd
+                                role="button"
+                                tabIndex={0}
+                                onClick={() =>
+                                    showToast(
+                                        '⌨️ ショートカット: Alt+R (更新), Alt+S (検索), Alt+D (詳細), Alt+C (コピー), Alt+A (自動更新)'
+                                    )
+                                }
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter' || e.key === ' ') {
+                                        e.preventDefault();
+                                        showToast(
+                                            '⌨️ ショートカット: Alt+R (更新), Alt+S (検索), Alt+D (詳細), Alt+C (コピー), Alt+A (自動更新)'
+                                        );
+                                    }
+                                }}
+                                aria-label="キーボードショートカット一覧を表示"
+                                title="クリックまたは ? キーでショートカット一覧を表示"
+                                style={{
+                                    backgroundColor: '#f7fafc',
+                                    border: '1px solid #cbd5e0',
+                                    borderRadius: '4px',
+                                    padding: '0.1rem 0.4rem',
+                                    fontSize: '0.7rem',
+                                    color: '#4a5568',
+                                    boxShadow: '0 1px 1px rgba(0,0,0,0.1)',
+                                    cursor: 'pointer',
+                                }}
+                            >
+                                ?
+                            </kbd>
+                            <button
+                                onClick={() =>
+                                    showToast(
+                                        '⌨️ ショートカット: Alt+R (更新), Alt+S (検索), Alt+D (詳細), Alt+C (コピー), Alt+A (自動更新)'
+                                    )
+                                }
+                                onMouseEnter={() => setHelpHover(true)}
+                                onMouseLeave={() => setHelpHover(false)}
+                                onFocus={() => setHelpFocused(true)}
+                                onBlur={() => setHelpFocused(false)}
+                                aria-keyshortcuts="?"
+                                aria-label="キーボードショートカット一覧を表示 (?)"
+                                title="キーボードショートカット一覧を表示 (?)"
+                                style={{
+                                    fontSize: '0.75rem',
+                                    padding: '0.2rem 0.5rem',
+                                    backgroundColor:
+                                        helpHover || helpFocused ? '#edf2f7' : 'transparent',
+                                    border: '1px solid #cbd5e0',
+                                    borderRadius: '4px',
+                                    color: '#4a5568',
+                                    cursor: 'pointer',
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: '0.25rem',
+                                    transition: 'all 0.2s ease-in-out',
+                                    transform:
+                                        helpHover || helpFocused ? 'scale(1.05)' : 'scale(1)',
+                                    outline: helpFocused ? '2px solid #004b73' : 'none',
+                                    outlineOffset: '2px',
+                                }}
+                            >
+                                ❓ ヘルプ
+                            </button>
                             <kbd
                                 aria-label="キーボードショートカット Alt + C キーでステータスのサマリーをコピーできます"
                                 title="Alt + C キーでサマリーをコピーできます"
@@ -395,7 +590,8 @@ export default function Dashboard() {
                                     alignItems: 'center',
                                     gap: '0.25rem',
                                     transition: 'all 0.2s ease-in-out',
-                                    transform: summaryHover ? 'scale(1.05)' : 'scale(1)',
+                                    transform:
+                                        summaryHover || summaryFocused ? 'scale(1.05)' : 'scale(1)',
                                     outline: summaryFocused ? '2px solid #004b73' : 'none',
                                     outlineOffset: '2px',
                                 }}
@@ -408,6 +604,9 @@ export default function Dashboard() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                     {refreshSuccess && (
                         <span
+                            role="status"
+                            aria-live="polite"
+                            aria-label="データの更新が完了しました"
                             style={{
                                 fontSize: '0.8rem',
                                 color: '#155d27',
@@ -420,7 +619,6 @@ export default function Dashboard() {
                                 gap: '0.2rem',
                                 animation: 'bounce 0.5s ease-in-out',
                             }}
-                            aria-live="polite"
                         >
                             ✅ 更新完了
                         </span>
@@ -429,7 +627,6 @@ export default function Dashboard() {
                         <span
                             className="interactive-hint"
                             tabIndex={0}
-                            role="status"
                             aria-live="polite"
                             title={`最後にデータが更新された時間: ${lastUpdated.toLocaleTimeString()}`}
                             aria-label={`最後にデータが更新された時間: ${lastUpdated.toLocaleTimeString()}`}
@@ -482,7 +679,7 @@ export default function Dashboard() {
                             <input
                                 type="checkbox"
                                 checked={autoRefresh}
-                                onChange={(e) => setAutoRefresh(e.target.checked)}
+                                onChange={(e) => toggleAutoRefresh(e.target.checked)}
                                 onFocus={() => setAutoRefreshFocused(true)}
                                 onBlur={() => setAutoRefreshFocused(false)}
                                 style={{
@@ -564,7 +761,7 @@ export default function Dashboard() {
                                 transition: 'all 0.2s ease-in-out',
                                 transform: refreshing
                                     ? 'none'
-                                    : refreshHover
+                                    : refreshHover || refreshFocused
                                       ? 'scale(1.15)'
                                       : 'scale(1)',
                                 boxShadow:
@@ -577,6 +774,7 @@ export default function Dashboard() {
                             }}
                         >
                             <span
+                                aria-hidden="true"
                                 style={{
                                     display: 'inline-block',
                                     animation: refreshing ? 'spin 1s linear infinite' : 'none',
@@ -610,7 +808,7 @@ export default function Dashboard() {
                             marginBottom: '0.25rem',
                         }}
                     >
-                        <span>🌐 GCL: {stats?.gcl?.level}</span>
+                        <span id="gcl-progress-label">🌐 GCL: {stats?.gcl?.level}</span>
                         <span style={{ fontSize: '0.85rem' }}>
                             {stats?.gcl?.progress !== undefined &&
                             stats?.gcl?.progressTotal !== undefined
@@ -628,11 +826,20 @@ export default function Dashboard() {
                     </div>
                     <div
                         role="progressbar"
+                        aria-labelledby="gcl-progress-label"
                         aria-label="GCLの進捗"
                         aria-valuenow={stats?.gcl?.progress || 0}
                         aria-valuemin={0}
                         aria-valuemax={stats?.gcl?.progressTotal || 100}
-                        aria-valuetext={`${stats?.gcl?.progress || 0} / ${stats?.gcl?.progressTotal || 0} (${
+                        aria-valuetext={`${
+                            stats?.gcl?.progress !== undefined
+                                ? formatNumber(stats.gcl.progress)
+                                : '0'
+                        } / ${
+                            stats?.gcl?.progressTotal !== undefined
+                                ? formatNumber(stats.gcl.progressTotal)
+                                : '0'
+                        } (${
                             stats?.gcl?.progressTotal
                                 ? ((stats.gcl.progress / stats.gcl.progressTotal) * 100).toFixed(2)
                                 : '0.00'
@@ -672,7 +879,23 @@ export default function Dashboard() {
                             marginBottom: '0.25rem',
                         }}
                     >
-                        <span>📊 CPU 使用率: {stats?.cpuUsed?.toFixed(2) || '0.00'}</span>
+                        <span id="cpu-progress-label">
+                            📊 CPU 使用率: {stats?.cpuUsed?.toFixed(2) || '0.00'}
+                            {(stats?.cpuUsed || 0) > 80 && (
+                                <span
+                                    style={{
+                                        marginLeft: '0.4rem',
+                                        fontSize: '0.75rem',
+                                        color: '#e53e3e',
+                                        fontWeight: 'bold',
+                                    }}
+                                    title="CPU使用率が80%を超えています"
+                                    aria-label="警告: CPU使用率が高負荷状態です"
+                                >
+                                    ⚠️ 高負荷
+                                </span>
+                            )}
+                        </span>
                         <span style={{ fontSize: '0.85rem' }}>
                             {stats?.cpuUsed !== undefined
                                 ? `${Math.min(100, stats.cpuUsed).toFixed(1)}%`
@@ -681,6 +904,7 @@ export default function Dashboard() {
                     </div>
                     <div
                         role="progressbar"
+                        aria-labelledby="cpu-progress-label"
                         aria-label="CPU使用率"
                         aria-valuenow={stats?.cpuUsed || 0}
                         aria-valuemin={0}
@@ -713,8 +937,8 @@ export default function Dashboard() {
                     {stats?.power !== undefined && (
                         <p
                             className="interactive-hint"
-                            title="グローバルパワーレベル (GPL) です"
-                            aria-label="グローバルパワーレベル (GPL) です"
+                            title={`グローバルパワーレベル (GPL): ${stats.power}`}
+                            aria-label={`グローバルパワーレベル (GPL): ${stats.power}`}
                             tabIndex={0}
                             style={{ margin: 0 }}
                         >
@@ -723,6 +947,7 @@ export default function Dashboard() {
                     )}
                 </div>
                 <div
+                    id="room-list"
                     style={{
                         display: 'flex',
                         alignItems: 'center',
@@ -733,17 +958,16 @@ export default function Dashboard() {
                     <span
                         className="interactive-hint"
                         tabIndex={0}
-                        role="status"
                         aria-live="polite"
                         title={
                             roomQuery
                                 ? `検索に一致した部屋数: ${filteredRooms.length} / 全部屋数: ${stats?.rooms?.length || 0}`
-                                : 'AI が現在活動している部屋のリストです'
+                                : `AI が現在活動している部屋のリストです (${stats?.rooms?.length || 0} 部屋)`
                         }
                         aria-label={
                             roomQuery
                                 ? `検索に一致した部屋数 ${filteredRooms.length}、全部屋数 ${stats?.rooms?.length || 0}`
-                                : 'AI が現在活動している部屋のリストです'
+                                : `AI が現在活動している部屋のリストです (${stats?.rooms?.length || 0} 部屋)`
                         }
                     >
                         🏘️ {stats?.rooms?.length === 1 ? '部屋' : '部屋数'} (
@@ -783,27 +1007,32 @@ export default function Dashboard() {
                             style={{
                                 fontSize: '0.75rem',
                                 padding: '0.1rem 0.4rem',
-                                backgroundColor: filteredRooms.length === 0
-                                    ? '#edf2f7'
-                                    : copiedAllRooms
-                                      ? '#c6f6d5'
-                                      : copyAllHover || copyAllFocused
-                                        ? '#e2e8f0'
-                                        : '#edf2f7',
+                                backgroundColor:
+                                    filteredRooms.length === 0
+                                        ? '#edf2f7'
+                                        : copiedAllRooms
+                                          ? '#c6f6d5'
+                                          : copyAllHover || copyAllFocused
+                                            ? '#e2e8f0'
+                                            : '#edf2f7',
                                 border: '1px solid #cbd5e0',
                                 borderRadius: '4px',
-                                color: filteredRooms.length === 0
-                                    ? '#a0aec0'
-                                    : copiedAllRooms
-                                      ? '#22543d'
-                                      : '#4a5568',
+                                color:
+                                    filteredRooms.length === 0
+                                        ? '#a0aec0'
+                                        : copiedAllRooms
+                                          ? '#22543d'
+                                          : '#4a5568',
                                 cursor: filteredRooms.length === 0 ? 'not-allowed' : 'pointer',
                                 opacity: filteredRooms.length === 0 ? 0.6 : 1,
                                 display: 'inline-flex',
                                 alignItems: 'center',
                                 gap: '0.2rem',
                                 transition: 'all 0.2s ease-in-out',
-                                transform: copyAllHover && filteredRooms.length > 0 ? 'scale(1.05)' : 'scale(1)',
+                                transform:
+                                    (copyAllHover || copyAllFocused) && filteredRooms.length > 0
+                                        ? 'scale(1.05)'
+                                        : 'scale(1)',
                                 outline: copyAllFocused ? '2px solid #004b73' : 'none',
                                 outlineOffset: '2px',
                             }}
@@ -841,13 +1070,13 @@ export default function Dashboard() {
                             </kbd>
                             <input
                                 ref={searchInputRef}
-                                type="text"
+                                type="search"
                                 value={roomQuery}
                                 onChange={(e) => setRoomQuery(e.target.value)}
                                 onKeyDown={(e) => {
                                     if (e.key === 'Escape') {
                                         if (roomQuery) {
-                                            setRoomQuery('');
+                                            clearSearchQuery();
                                         } else {
                                             searchInputRef.current?.blur();
                                         }
@@ -855,16 +1084,19 @@ export default function Dashboard() {
                                 }}
                                 placeholder="部屋を検索... (Escでクリア)"
                                 aria-label="部屋名で検索"
+                                aria-controls="room-list"
                                 aria-keyshortcuts="Alt+s Escape"
                                 style={{
                                     fontSize: '0.75rem',
                                     padding: roomQuery
-                                        ? '0.15rem 1.4rem 0.15rem 0.4rem'
+                                        ? '0.15rem 1.75rem 0.15rem 0.4rem'
                                         : '0.15rem 0.4rem',
                                     border: `1px solid ${searchFocused ? '#004b73' : '#cbd5e0'}`,
                                     borderRadius: '4px',
                                     outline: 'none',
-                                    boxShadow: searchFocused ? '0 0 0 2px rgba(0, 75, 115, 0.2)' : 'none',
+                                    boxShadow: searchFocused
+                                        ? '0 0 0 2px rgba(0, 75, 115, 0.2)'
+                                        : 'none',
                                     transition: 'all 0.2s ease-in-out',
                                     width: searchFocused || roomQuery ? '160px' : '100px',
                                 }}
@@ -873,10 +1105,7 @@ export default function Dashboard() {
                             />
                             {roomQuery && (
                                 <button
-                                    onClick={() => {
-                                        setRoomQuery('');
-                                        searchInputRef.current?.focus();
-                                    }}
+                                    onClick={clearSearchQuery}
                                     onMouseEnter={() => setSearchClearHover(true)}
                                     onMouseLeave={() => setSearchClearHover(false)}
                                     onFocus={() => setSearchClearFocused(true)}
@@ -886,7 +1115,9 @@ export default function Dashboard() {
                                     title="検索をクリア (Escape)"
                                     style={{
                                         position: 'absolute',
-                                        right: '4px',
+                                        right: '2px',
+                                        top: '50%',
+                                        transform: 'translateY(-50%)',
                                         background:
                                             searchClearHover || searchClearFocused
                                                 ? '#cbd5e0'
@@ -897,15 +1128,15 @@ export default function Dashboard() {
                                                 ? '#2d3748'
                                                 : '#718096',
                                         cursor: 'pointer',
-                                        padding: '0.1rem',
+                                        padding: 0,
                                         display: 'inline-flex',
                                         alignItems: 'center',
                                         justifyContent: 'center',
-                                        fontSize: '0.7rem',
+                                        fontSize: '0.75rem',
                                         lineHeight: 1,
                                         borderRadius: '50%',
-                                        width: '14px',
-                                        height: '14px',
+                                        width: '24px',
+                                        height: '24px',
                                         transition: 'background-color 0.1s, color 0.1s',
                                         outline: searchClearFocused ? '2px solid #004b73' : 'none',
                                         outlineOffset: '1px',
@@ -916,10 +1147,56 @@ export default function Dashboard() {
                             )}
                         </div>
                     )}
+                    {roomQuery && filteredRooms.length > 0 && (
+                        <span
+                            style={{
+                                fontSize: '0.75rem',
+                                color: '#004b73',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                            }}
+                        >
+                            <span role="status" aria-live="polite">
+                                「{roomQuery}」で {filteredRooms.length} 部屋が見つかりました
+                            </span>
+                            <button
+                                onClick={clearSearchQuery}
+                                onMouseEnter={() => setMatchClearHover(true)}
+                                onMouseLeave={() => setMatchClearHover(false)}
+                                onFocus={() => setMatchClearFocused(true)}
+                                onBlur={() => setMatchClearFocused(false)}
+                                aria-label="検索フィルターをクリア (Escape)"
+                                aria-keyshortcuts="Escape"
+                                title="検索をクリア (Escape)"
+                                style={{
+                                    marginLeft: '0.25rem',
+                                    fontSize: '0.75rem',
+                                    color: '#004b73',
+                                    backgroundColor:
+                                        matchClearHover || matchClearFocused
+                                            ? '#edf2f7'
+                                            : 'transparent',
+                                    border: 'none',
+                                    cursor: 'pointer',
+                                    textDecoration: 'underline',
+                                    padding: '0.1rem 0.25rem',
+                                    borderRadius: '2px',
+                                    outline: matchClearFocused ? '2px solid #004b73' : 'none',
+                                    outlineOffset: '1px',
+                                    transition: 'all 0.15s ease-in-out',
+                                    minWidth: '24px',
+                                    minHeight: '24px',
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                }}
+                            >
+                                クリア
+                            </button>
+                        </span>
+                    )}
                     {roomQuery && filteredRooms.length === 0 && (
                         <span
-                            role="status"
-                            aria-live="polite"
                             style={{
                                 fontSize: '0.75rem',
                                 color: '#e53e3e',
@@ -927,12 +1204,11 @@ export default function Dashboard() {
                                 alignItems: 'center',
                             }}
                         >
-                            一致なし
+                            <span role="status" aria-live="polite">
+                                「{roomQuery}」に一致なし
+                            </span>
                             <button
-                                onClick={() => {
-                                    setRoomQuery('');
-                                    searchInputRef.current?.focus();
-                                }}
+                                onClick={clearSearchQuery}
                                 onMouseEnter={() => setNoMatchClearHover(true)}
                                 onMouseLeave={() => setNoMatchClearHover(false)}
                                 onFocus={() => setNoMatchClearFocused(true)}
@@ -944,7 +1220,10 @@ export default function Dashboard() {
                                     marginLeft: '0.25rem',
                                     fontSize: '0.75rem',
                                     color: '#004b73',
-                                    backgroundColor: noMatchClearHover ? '#edf2f7' : 'transparent',
+                                    backgroundColor:
+                                        noMatchClearHover || noMatchClearFocused
+                                            ? '#edf2f7'
+                                            : 'transparent',
                                     border: 'none',
                                     cursor: 'pointer',
                                     textDecoration: 'underline',
@@ -953,6 +1232,11 @@ export default function Dashboard() {
                                     outline: noMatchClearFocused ? '2px solid #004b73' : 'none',
                                     outlineOffset: '1px',
                                     transition: 'all 0.15s ease-in-out',
+                                    minWidth: '24px',
+                                    minHeight: '24px',
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
                                 }}
                             >
                                 クリア
@@ -969,10 +1253,14 @@ export default function Dashboard() {
                                   onFocus={() => setFocusedRoom(room)}
                                   onBlur={() => setFocusedRoom(null)}
                                   aria-label={
-                                      copiedRoom === room ? 'コピー済み' : `部屋名 ${room} をコピー`
+                                      copiedRoom === room
+                                          ? `部屋名 ${room} をコピーしました`
+                                          : `部屋名 ${room} をコピー`
                                   }
                                   title={
-                                      copiedRoom === room ? 'コピー済み' : `部屋名 ${room} をコピー`
+                                      copiedRoom === room
+                                          ? `部屋名 ${room} をコピーしました`
+                                          : `部屋名 ${room} をコピー`
                                   }
                                   style={{
                                       fontSize: '0.75rem',
@@ -988,9 +1276,12 @@ export default function Dashboard() {
                                       color: copiedRoom === room ? '#22543d' : '#2d3748',
                                       cursor: 'pointer',
                                       transition: 'all 0.2s ease-in-out',
-                                      transform: hoveredRoom === room ? 'scale(1.06)' : 'scale(1)',
+                                      transform:
+                                          hoveredRoom === room || focusedRoom === room
+                                              ? 'scale(1.06)'
+                                              : 'scale(1)',
                                       boxShadow:
-                                          hoveredRoom === room
+                                          hoveredRoom === room || focusedRoom === room
                                               ? '0 2px 4px rgba(0,0,0,0.1)'
                                               : 'none',
                                       outline: focusedRoom === room ? '2px solid #004b73' : 'none',
@@ -1005,7 +1296,11 @@ export default function Dashboard() {
                                   role="status"
                                   aria-live="polite"
                                   aria-label="アクティブな部屋はありません"
-                                  style={{ color: '#a0aec0', fontStyle: 'italic', fontSize: '0.75rem' }}
+                                  style={{
+                                      color: '#a0aec0',
+                                      fontStyle: 'italic',
+                                      fontSize: '0.75rem',
+                                  }}
                               >
                                   なし
                               </span>
@@ -1050,16 +1345,19 @@ export default function Dashboard() {
                         onBlur={() => setSummaryDetailsFocused(false)}
                         title={
                             detailsOpen
-                                ? '生データを非表示にします (Alt + D)'
-                                : '生データを表示します (Alt + D)'
+                                ? `生データを確認 (${jsonSizeFormatted}) - 非表示にする (Alt + D)`
+                                : `生データを確認 (${jsonSizeFormatted}) - 表示する (Alt + D)`
                         }
                         aria-label={
                             detailsOpen
-                                ? '生データを非表示にします (Alt + D)'
-                                : '生データを表示します (Alt + D)'
+                                ? `生データを確認 (${jsonSizeFormatted}) - 非表示にする (Alt + D)`
+                                : `生データを確認 (${jsonSizeFormatted}) - 表示する (Alt + D)`
                         }
                         style={{
-                            color: summaryDetailsHover || summaryDetailsFocused ? '#004b73' : '#4a5568',
+                            color:
+                                summaryDetailsHover || summaryDetailsFocused
+                                    ? '#004b73'
+                                    : '#4a5568',
                             padding: '0.2rem 0.4rem',
                             borderRadius: '4px',
                             cursor: 'pointer',
@@ -1077,6 +1375,7 @@ export default function Dashboard() {
                         }}
                     >
                         <span
+                            aria-hidden="true"
                             style={{
                                 display: 'inline-block',
                                 transition: 'transform 0.2s ease-in-out',
@@ -1087,6 +1386,22 @@ export default function Dashboard() {
                             ▶
                         </span>
                         <span>生データを確認</span>
+                        {stats && (
+                            <span
+                                style={{
+                                    fontSize: '0.7rem',
+                                    color: '#718096',
+                                    backgroundColor: '#edf2f7',
+                                    padding: '0.1rem 0.35rem',
+                                    borderRadius: '4px',
+                                    border: '1px solid #cbd5e0',
+                                    fontWeight: 'normal',
+                                }}
+                                aria-label={`データサイズ ${jsonSizeFormatted}`}
+                            >
+                                {jsonSizeFormatted}
+                            </span>
+                        )}
                     </summary>
                     <div
                         style={{
@@ -1108,9 +1423,15 @@ export default function Dashboard() {
                                 onFocus={() => setJsonFocused(true)}
                                 onBlur={() => setJsonFocused(false)}
                                 aria-label={
-                                    copiedJson ? 'コピー済み' : '生データをJSONとしてコピー'
+                                    copiedJson
+                                        ? '生データをJSONとしてコピーしました'
+                                        : `生データをJSONとしてコピー (${jsonSizeFormatted})`
                                 }
-                                title={copiedJson ? 'コピー済み' : 'JSONをコピー'}
+                                title={
+                                    copiedJson
+                                        ? '生データをJSONとしてコピーしました'
+                                        : `生データをJSONとしてコピー (${jsonSizeFormatted})`
+                                }
                                 style={{
                                     fontSize: '0.75rem',
                                     padding: '0.3rem 0.6rem',
@@ -1124,13 +1445,19 @@ export default function Dashboard() {
                                     color: copiedJson ? 'white' : '#4a5568',
                                     cursor: 'pointer',
                                     transition: 'all 0.2s ease-in-out',
-                                    transform: jsonHover ? 'scale(1.05)' : 'scale(1)',
-                                    boxShadow: jsonHover ? '0 2px 4px rgba(0,0,0,0.1)' : 'none',
+                                    transform:
+                                        jsonHover || jsonFocused ? 'scale(1.05)' : 'scale(1)',
+                                    boxShadow:
+                                        jsonHover || jsonFocused
+                                            ? '0 2px 4px rgba(0,0,0,0.1)'
+                                            : 'none',
                                     outline: jsonFocused ? '2px solid #004b73' : 'none',
                                     outlineOffset: '2px',
                                 }}
                             >
-                                {copiedJson ? '✅ コピー済み' : '📋 JSONをコピー'}
+                                {copiedJson
+                                    ? '✅ コピー済み'
+                                    : `📋 JSONをコピー (${jsonSizeFormatted})`}
                             </button>
                         </div>
                         <pre
@@ -1152,15 +1479,22 @@ export default function Dashboard() {
             {toastMsg && (
                 <div
                     key={toastMsg}
-                    role="status"
-                    aria-live="polite"
+                    aria-keyshortcuts="Escape"
+                    onMouseEnter={() => setToastHovered(true)}
+                    onMouseLeave={() => setToastHovered(false)}
+                    onFocus={() => setToastFocused(true)}
+                    onBlur={(e) => {
+                        if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+                            setToastFocused(false);
+                        }
+                    }}
                     style={{
                         position: 'fixed',
                         bottom: '2rem',
                         right: '2rem',
                         backgroundColor: '#004b73',
                         color: 'white',
-                        padding: '0.75rem 1.5rem 1rem 1.5rem',
+                        padding: '0.75rem 1.25rem 1rem 1.25rem',
                         borderRadius: '8px',
                         boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
                         fontSize: '0.9rem',
@@ -1168,13 +1502,31 @@ export default function Dashboard() {
                         zIndex: 1000,
                         display: 'flex',
                         alignItems: 'center',
-                        gap: '0.75rem',
+                        gap: '0.6rem',
                         animation: 'bounce 0.5s ease-in-out',
                         overflow: 'hidden',
                     }}
                 >
-                    <span>✨</span>
-                    <span style={{ flex: 1 }}>{toastMsg}</span>
+                    <span aria-hidden="true">✨</span>
+                    <span role="status" aria-live="polite" style={{ flex: 1 }}>
+                        {toastMsg}
+                    </span>
+                    <kbd
+                        aria-label="Escキーで通知を閉じます"
+                        title="Esc キーで閉じる"
+                        style={{
+                            backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                            border: '1px solid rgba(255, 255, 255, 0.4)',
+                            borderRadius: '3px',
+                            padding: '0.1rem 0.35rem',
+                            fontSize: '0.65rem',
+                            color: 'white',
+                            lineHeight: 1,
+                            userSelect: 'none',
+                        }}
+                    >
+                        Esc
+                    </kbd>
                     <button
                         onClick={() => {
                             setToastMsg(null);
@@ -1187,8 +1539,9 @@ export default function Dashboard() {
                         onBlur={() => setToastCloseFocused(false)}
                         onMouseEnter={() => setToastCloseFocused(true)}
                         onMouseLeave={() => setToastCloseFocused(false)}
-                        aria-label="通知を閉じる"
-                        title="閉じる"
+                        aria-label="通知を閉じる (Escape)"
+                        aria-keyshortcuts="Escape"
+                        title="閉じる (Escape)"
                         style={{
                             background: 'transparent',
                             border: 'none',
@@ -1209,6 +1562,7 @@ export default function Dashboard() {
                         ✕
                     </button>
                     <div
+                        key={`${toastMsg}-${toastHovered || toastFocused}`}
                         style={{
                             position: 'absolute',
                             bottom: 0,
@@ -1216,6 +1570,7 @@ export default function Dashboard() {
                             height: '3px',
                             backgroundColor: '#319795',
                             animation: 'shrinkWidth 2.5s linear forwards',
+                            animationPlayState: toastHovered || toastFocused ? 'paused' : 'running',
                         }}
                     />
                 </div>

@@ -235,40 +235,7 @@ Memory.creeps['harvester_1'].diary.maxEntries = 50;
 
 ## 🗺️ Memory Map
 
-### 部屋記録
 
-```javascript
-// role.scout.jsで
-const memVis = require('memory.visualizer');
-memVis.recordRoom(creep.room.name);
-```
-
-### マップ表示
-
-```javascript
-memVis.showMap();
-```
-
-**出力例**:
-
-```
-🗺️ Memory Map:
-  Explored Rooms: 5
-  E1S1: Owner=PlayerName, Sources=2, Hostiles=0
-  E2S1: Owner=Unclaimed, Sources=2, Hostiles=0
-  E1S2: Owner=EnemyName, Sources=2, Hostiles=5
-  ...
-```
-
-### 記録される情報
-
-- 最終訪問時刻
-- 支配者 (Controller owner)
-- ソース数
-- ミネラル数
-- 敵Creep数
-
-## 🧹 Cleaner
 
 ### 自動クリーニング
 
@@ -370,18 +337,6 @@ const oldestCreep = Object.keys(Game.creeps).sort(
 memVis.readDiary(oldestCreep);
 ```
 
-### 4. 探索マップ
-
-```javascript
-// 全探索部屋の統計
-memVis.showMap();
-
-const explored = Memory.map.explored.length;
-const hostile = Object.values(Memory.map.rooms).filter((r) => r.hostiles > 0).length;
-
-console.log(`Total explored: ${explored}, Hostile rooms: ${hostile}`);
-```
-
 ### 5. メモリ最適化
 
 ```javascript
@@ -429,7 +384,6 @@ const m = require('memory.visualizer');
 m.showStats();
 m.showHistory();
 m.showLeaderboard('harvested');
-m.showMap();
 m.cleanup();
 m.backup();
 ```

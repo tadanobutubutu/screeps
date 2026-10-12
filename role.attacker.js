@@ -23,39 +23,57 @@ const roleAttacker = {
      * @param {Creep} creep
      */
   run (creep) {
-    // Heal self if damaged and healer not available
-    if (creep.hits < creep.hitsMax * 0.5) {
-      // ⚡ PERFORMANCE: Use pre-warmed cache to avoid expensive room.find inside findClosestByRange
-      const myCreeps = cache.getMyCreeps(creep.room)
-      let healTarget = null
-      let minRange = Infinity
-      for (let i = 0; i < myCreeps.length; i++) {
-        const c = myCreeps[i]
-        if (c.getActiveBodyparts(HEAL) > 0) {
-          let range
-          if (creep.pos && typeof creep.pos.getRangeTo === 'function') {
-            range = creep.pos.getRangeTo(c)
-          } else if (creep.pos && c.pos) {
-            range = Math.max(
-              Math.abs(creep.pos.x - c.pos.x),
-              Math.abs(creep.pos.y - c.pos.y)
-            )
-          } else {
-            range = Infinity
-          }
-          if (range < minRange) {
-            minRange = range
-            healTarget = c
-          }
+    if (this._handleHealing(creep)) return
+    if (this._handleHostileCreeps(creep)) return
+    if (this._handleHostileStructures(creep)) return
+    this._handlePatrol(creep)
+  },
+
+  /**
+   * Heal self if damaged and healer not available
+   * @param {Creep} creep
+   * @returns {boolean} True if creep is moving to heal
+   */
+  _handleHealing (creep) {
+    if (creep.hits >= creep.hitsMax * 0.5) return false
+
+    // ⚡ PERFORMANCE: Use pre-warmed cache to avoid expensive room.find inside findClosestByRange
+    const myCreeps = cache.getMyCreeps(creep.room)
+    let healTarget = null
+    let minRange = Infinity
+    for (let i = 0; i < myCreeps.length; i++) {
+      const c = myCreeps[i]
+      if (c.getActiveBodyparts(HEAL) > 0) {
+        let range
+        if (creep.pos && typeof creep.pos.getRangeTo === 'function') {
+          range = creep.pos.getRangeTo(c)
+        } else if (creep.pos && c.pos) {
+          range = Math.max(
+            Math.abs(creep.pos.x - c.pos.x),
+            Math.abs(creep.pos.y - c.pos.y)
+          )
+        } else {
+          range = Infinity
+        }
+        if (range < minRange) {
+          minRange = range
+          healTarget = c
         }
       }
-      if (healTarget) {
-        creep.moveTo(healTarget, PATH_STYLE_HEAL)
-        return
-      }
     }
+    if (healTarget) {
+      creep.moveTo(healTarget, PATH_STYLE_HEAL)
+      return true
+    }
+    return false
+  },
 
-    // Priority 1: Attack hostile creeps in range
+  /**
+   * Priority 1: Attack hostile creeps in range
+   * @param {Creep} creep
+   * @returns {boolean} True if handling hostile creep
+   */
+  _handleHostileCreeps (creep) {
     // ⚡ PERFORMANCE: Use pre-warmed room cache for hostile creeps.
     const hostiles = cache.getEnemies(creep.room)
     if (hostiles.length > 0) {
@@ -76,11 +94,18 @@ const roleAttacker = {
         if (creep.attack(hostileCreep) === ERR_NOT_IN_RANGE) {
           creep.moveTo(hostileCreep, PATH_STYLE_ATTACK)
         }
-        return
+        return true
       }
     }
+    return false
+  },
 
-    // Priority 2: Attack invader core or hostile structures
+  /**
+   * Priority 2: Attack invader core or hostile structures
+   * @param {Creep} creep
+   * @returns {boolean} True if handling hostile structure
+   */
+  _handleHostileStructures (creep) {
     // ⚡ PERFORMANCE: Implement target ID caching for structures
     let hostileStructure = Game.getObjectById(creep.memory.structureTargetId)
 
@@ -120,12 +145,18 @@ const roleAttacker = {
       if (creep.attack(hostileStructure) === ERR_NOT_IN_RANGE) {
         creep.moveTo(hostileStructure, PATH_STYLE_STRUCTURE)
       }
-      return
+      return true
     } else {
       delete creep.memory.structureTargetId
     }
+    return false
+  },
 
-    // Priority 3: Patrol flag or room center when idle
+  /**
+   * Priority 3: Patrol flag or room center when idle
+   * @param {Creep} creep
+   */
+  _handlePatrol (creep) {
     const flag = Game.flags.attack || Game.flags.Attack
     if (flag) {
       creep.moveTo(flag, PATH_STYLE_PATROL)

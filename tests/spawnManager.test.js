@@ -283,6 +283,13 @@ describe('spawnManager', () => {
             spawnManager.clearQueue();
             expect(global.cache.spawnQueue).toEqual([]);
         });
+
+        test('global.cache.spawnQueueが存在しても、別のプロパティに影響を与えない', () => {
+            global.cache = { spawnQueue: [1], otherProp: 'test' };
+            spawnManager.clearQueue();
+            expect(global.cache.spawnQueue).toEqual([]);
+            expect(global.cache.otherProp).toBe('test');
+        });
     });
 
     describe('内部ロジックの網羅', () => {

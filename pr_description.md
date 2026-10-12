@@ -6,6 +6,7 @@ The previous implementation invoked `room.lookForAt` inside a double loop: itera
 
 📊 **Measured Improvement:**
 In synthetic benchmarks mimicking the N+1 pattern vs an O(1) grid cache approach:
+
 - **Original (`lookForAt` in loop):** ~72.5ms per 1,000 iterations for 4 targets.
 - **Optimized (Uint8Array O(1) cache):** ~12.0ms per 1,000 iterations.
 - **Speedup:** ~6.04x faster execution time.

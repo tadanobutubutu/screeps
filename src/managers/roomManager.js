@@ -56,6 +56,7 @@ function run (room) {
       _cleanupRoomMemory(room)
     }
 
+    console.log('Game.time', Game.time, 'interval', BUILD_PLAN_INTERVAL);
     if (Game.time % BUILD_PLAN_INTERVAL === 0) {
       _planConstruction(room)
     }
@@ -167,34 +168,6 @@ function _planSourceContainers (room) {
 }
 
 /**
- * 指定した位置に構造物や建設サイトが既に存在するか確認する
- * @param {Room} room
- * @param {Object} pos
- * @param {Array} cachedStructures
- * @param {Array} cachedSites
- * @returns {boolean}
- */
-function _hasStructureOrSite(room, pos, cachedStructures, cachedSites) {
-    const structures = room.lookForAt(LOOK_STRUCTURES, pos.x, pos.y);
-    if (structures && structures.length > 0) return true;
-
-    const sites = room.lookForAt(LOOK_CONSTRUCTION_SITES, pos.x, pos.y);
-    if (sites && sites.length > 0) return true;
-
-    for (let k = 0; k < cachedStructures.length; k++) {
-        const s = cachedStructures[k];
-        if (s.pos && s.pos.x === pos.x && s.pos.y === pos.y) return true;
-    }
-
-    for (let k = 0; k < cachedSites.length; k++) {
-        const s = cachedSites[k];
-        if (s.pos && s.pos.x === pos.x && s.pos.y === pos.y) return true;
-    }
-
-    return false;
-}
-
-/**
  * スポーンからソース・コントローラーへの道路を計画する
  * @param {Room} room
  */
@@ -205,20 +178,30 @@ function _planRoads (room) {
   const spawn = spawns[0]
   const targets = [...cache.getSources(room), room.controller].filter(Boolean)
 
+  const occupied = new Uint8Array(2500);
+  const structures = cache.getStructures(room);
+  for (let i = 0; i < structures.length; i++) {
+    const p = structures[i].pos;
+    if (p) occupied[p.y * 50 + p.x] = 1;
+  }
+
+  const sites = cache.getConstructionSites(room);
+  for (let i = 0; i < sites.length; i++) {
+    const p = sites[i].pos;
+    if (p) occupied[p.y * 50 + p.x] = 1;
+  }
+
   for (const target of targets) {
     const result = pathfinder.findPath(spawn.pos, target)
     if (result.incomplete) continue
 
     let planned = 0
     for (const pos of result.path) {
-      // 既存の構造物や建設サイトがない場所にのみ道路を計画
-      const structures = room.lookForAt(LOOK_STRUCTURES, pos.x, pos.y)
-      const sites = room.lookForAt(LOOK_CONSTRUCTION_SITES, pos.x, pos.y)
-
-      if (structures.length === 0 && sites.length === 0) {
+      if (occupied[pos.y * 50 + pos.x] === 0) {
         const r = room.createConstructionSite(pos.x, pos.y, STRUCTURE_ROAD)
         if (r === OK) {
           planned++
+          occupied[pos.y * 50 + pos.x] = 1
           if (planned >= MAX_ROADS_PER_CYCLE) break // 一度に最大 MAX_ROADS_PER_CYCLE か所まで計画
         }
       }
@@ -512,5 +495,9 @@ module.exports = {
   run,
   getStats,
   showStats,
-  showVisuals
+  showVisuals,
+  _getNeededExtensionCount,
+  _planExtensions,
+  _planSourceContainers,
+  _planRoads
 }

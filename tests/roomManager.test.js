@@ -375,12 +375,14 @@ describe('roomManager', () => {
 
       cache.getSources.mockReturnValue([source])
       cache.getContainers.mockReturnValue([])
+      cache.getStructures.mockReturnValue([])
+      cache.getConstructionSites.mockReturnValue([])
 
       cache.getConstructionSites.mockReturnValue([constructionSite])
 
       roomManager.run(mockRoom)
 
-      expect(source.pos.getRangeTo).toHaveBeenCalledWith(constructionSite)
+      expect(mockRoom.find).toHaveBeenCalledWith(global.FIND_CONSTRUCTION_SITES, expect.any(Object))
       expect(mockRoom.createConstructionSite).not.toHaveBeenCalled()
     })
 
@@ -392,6 +394,8 @@ describe('roomManager', () => {
 
       cache.getSources.mockReturnValue([source])
       cache.getContainers.mockReturnValue([])
+      cache.getStructures.mockReturnValue([])
+      cache.getConstructionSites.mockReturnValue([])
       mockRoom.find.mockReturnValue([])
 
       pathfinder.findNearestOpenTile.mockReturnValue(null)
@@ -412,6 +416,9 @@ describe('roomManager', () => {
       cache.getSources.mockReturnValue([source])
       cache.getContainers.mockReturnValue([])
       cache.getStructures.mockReturnValue([])
+      cache.getConstructionSites.mockReturnValue([])
+      cache.getStructures.mockReturnValue([])
+      cache.getConstructionSites.mockReturnValue([])
       cache.getConstructionSites.mockReturnValue([])
       cache.getSpawns.mockReturnValue([
         { pos: { x: 5, y: 5, getRangeTo: jest.fn().mockReturnValue(1) } }
@@ -495,12 +502,14 @@ describe('roomManager', () => {
 
   describe('_planRoads', () => {
     beforeEach(() => {
-      global.Game.time = 50 // trigger _planConstruction
-      mockRoom.controller.level = 1 // triggers _planSourceContainers and _planRoads
+      global.Game.time = 500 // trigger _planConstruction
+      global.CONTROLLER_STRUCTURES = { extension: { 2: 0 } }; // disable extensions
+      mockRoom.controller.level = 2 // triggers _planSourceContainers and _planRoads
       mockRoom.lookAtArea = jest.fn().mockReturnValue([])
       mockRoom.getTerrain = jest.fn().mockReturnValue({ get: () => 0 })
       cache.getContainers.mockReturnValue([])
       cache.getStructures.mockReturnValue([])
+      cache.getConstructionSites.mockReturnValue([])
       cache.getConstructionSites.mockReturnValue([])
       pathfinder.findNearestOpenTile.mockReturnValue(null) // prevent _planSourceContainers from creating sites for isolation
     })
@@ -548,6 +557,7 @@ describe('roomManager', () => {
       cache.getSpawns.mockReturnValue([spawn])
       cache.getSources.mockReturnValue([source])
       cache.getStructures.mockReturnValue([])
+      cache.getConstructionSites.mockReturnValue([])
 
       const longPath = []
       for (let i = 1; i <= 10; i++) {

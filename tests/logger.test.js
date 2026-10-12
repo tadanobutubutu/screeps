@@ -148,24 +148,25 @@ describe('logger', () => {
     })
 
     test('returns stringified error if no stack is present', () => {
-      const err = 'Just a string error';
-      expect(logger.getSafeStack(err)).toBe('Just a string error');
-    });
+      const err = 'Just a string error'
+      expect(logger.getSafeStack(err)).toBe('Just a string error')
+    })
 
     test('truncates stack trace correctly to maxLines', () => {
-      const longStack = 'Error: something\n' + '  at someFunction:1:1\n'.repeat(10);
-      const result = logger.getSafeStack(longStack, 3);
-      const lines = result.split('\n');
-      expect(lines.length).toBe(3);
-    });
+      const longStack = 'Error: something\n' + '  at someFunction:1:1\n'.repeat(10)
+      const result = logger.getSafeStack(longStack, 3)
+      const lines = result.split('\n')
+      expect(lines.length).toBe(3)
+    })
 
     test('trims and prefixes lines starting with "at " with 4 spaces', () => {
-      const stack = 'Error: test\nat myFunction (/some/path:10:5)\n    at anotherFunction (/path:20:1)';
-      const result = logger.getSafeStack(stack);
+      const stack =
+                'Error: test\nat myFunction (/some/path:10:5)\n    at anotherFunction (/path:20:1)'
+      const result = logger.getSafeStack(stack)
 
-      expect(result).toContain('    at myFunction');
-      expect(result).toContain('    at anotherFunction');
-    });
+      expect(result).toContain('    at myFunction')
+      expect(result).toContain('    at anotherFunction')
+    })
   })
 
   describe('showDashboard', () => {
@@ -276,56 +277,56 @@ describe('logger', () => {
       expect(logger._redactPaths(mixedStr)).toBe(expectedStr)
     })
 
-  describe('init', () => {
-    test('ログが100件を超える場合、最新の100件に切り詰める', () => {
-      global.Memory.logs = Array(150).fill({ level: 'info', message: 'test' })
-      logger.init()
-      expect(global.Memory.logs.length).toBe(100)
+    describe('init', () => {
+      test('ログが100件を超える場合、最新の100件に切り詰める', () => {
+        global.Memory.logs = Array(150).fill({ level: 'info', message: 'test' })
+        logger.init()
+        expect(global.Memory.logs.length).toBe(100)
+      })
+
+      test('Memory.logs が未定義の場合、クラッシュしない', () => {
+        delete global.Memory.logs
+        expect(() => logger.init()).not.toThrow()
+      })
     })
 
-    test('Memory.logs が未定義の場合、クラッシュしない', () => {
-      delete global.Memory.logs
-      expect(() => logger.init()).not.toThrow()
-    })
-  })
+    describe('getRecentLogs', () => {
+      test('指定された件数の最新ログを返す', () => {
+        global.Memory.logs = [
+          { level: 'info', message: '1' },
+          { level: 'warn', message: '2' },
+          { level: 'error', message: '3' }
+        ]
+        const recent = logger.getRecentLogs(2)
+        expect(recent.length).toBe(2)
+        expect(recent[0].message).toBe('2')
+        expect(recent[1].message).toBe('3')
+      })
 
-  describe('getRecentLogs', () => {
-    test('指定された件数の最新ログを返す', () => {
-      global.Memory.logs = [
-        { level: 'info', message: '1' },
-        { level: 'warn', message: '2' },
-        { level: 'error', message: '3' },
-      ]
-      const recent = logger.getRecentLogs(2)
-      expect(recent.length).toBe(2)
-      expect(recent[0].message).toBe('2')
-      expect(recent[1].message).toBe('3')
-    })
-
-    test('Memory.logs が未定義の場合、空配列を返す', () => {
-      delete global.Memory.logs
-      expect(logger.getRecentLogs(5)).toEqual([])
-    })
-  })
-
-  describe('getErrors', () => {
-    test('エラーレベルのログのみを返す', () => {
-      global.Memory.logs = [
-        { level: 'info', message: '1' },
-        { level: 'error', message: '2' },
-        { level: 'warn', message: '3' },
-        { level: 'error', message: '4' },
-      ]
-      const errors = logger.getErrors()
-      expect(errors.length).toBe(2)
-      expect(errors[0].message).toBe('2')
-      expect(errors[1].message).toBe('4')
+      test('Memory.logs が未定義の場合、空配列を返す', () => {
+        delete global.Memory.logs
+        expect(logger.getRecentLogs(5)).toEqual([])
+      })
     })
 
-    test('Memory.logs が未定義の場合、空配列を返す', () => {
-      delete global.Memory.logs
-      expect(logger.getErrors()).toEqual([])
+    describe('getErrors', () => {
+      test('エラーレベルのログのみを返す', () => {
+        global.Memory.logs = [
+          { level: 'info', message: '1' },
+          { level: 'error', message: '2' },
+          { level: 'warn', message: '3' },
+          { level: 'error', message: '4' }
+        ]
+        const errors = logger.getErrors()
+        expect(errors.length).toBe(2)
+        expect(errors[0].message).toBe('2')
+        expect(errors[1].message).toBe('4')
+      })
+
+      test('Memory.logs が未定義の場合、空配列を返す', () => {
+        delete global.Memory.logs
+        expect(logger.getErrors()).toEqual([])
+      })
     })
-  })
   })
 })

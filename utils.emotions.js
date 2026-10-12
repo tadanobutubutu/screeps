@@ -20,8 +20,8 @@ function celebrate(creep, achievement) {
     const name = String(achievement || '').substring(0, MAX_NAME_LENGTH);
     const achievements = creep.memory.emotions.achievements;
     achievements.push({ name, tick: typeof Game !== 'undefined' ? Game.time : 0 });
-    while (achievements.length > MAX_ACHIEVEMENTS) {
-        achievements.shift();
+    if (achievements.length > MAX_ACHIEVEMENTS) {
+        achievements.splice(0, achievements.length - MAX_ACHIEVEMENTS);
     }
 }
 

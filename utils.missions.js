@@ -1,159 +1,159 @@
-const utilsMemory = require('./utils.memory');
+const utilsMemory = require('./utils.memory')
 
 /**
  * Security: Limits for memory-intensive structures to prevent Memory DoS.
  * Screeps memory is limited to 2MB; unbounded arrays can crash the AI.
  */
-const MAX_MISSIONS_COUNT = 20;
-const MAX_STRING_LENGTH = 100;
+const MAX_MISSIONS_COUNT = 20
+const MAX_STRING_LENGTH = 100
 
 /**
  * セキュアなIDを生成する (PRNGの脆弱性対策)
  */
-function generateMissionId() {
-    try {
-        const crypto = require('crypto');
-        if (crypto && crypto.randomUUID) {
-            return crypto.randomUUID();
-        }
-        if (crypto && crypto.randomBytes) {
-            return crypto.randomBytes(8).toString('hex');
-        }
-    } catch (e) {
-        // Fallback
+function generateMissionId () {
+  try {
+    const crypto = require('crypto')
+    if (crypto && crypto.randomUUID) {
+      return crypto.randomUUID()
     }
-    // Fallback if crypto is unavailable
-    const timePrefix =
-        typeof Game !== 'undefined' && Game.time ? Game.time.toString(36) : Date.now().toString(36);
-    // Fallback if crypto is unavailable but predictable PRNGs
-    if (typeof global._missionIdCounter === 'undefined') {
-        global._missionIdCounter = 0;
+    if (crypto && crypto.randomBytes) {
+      return crypto.randomBytes(8).toString('hex')
     }
-    global._missionIdCounter = (global._missionIdCounter + 1) % Number.MAX_SAFE_INTEGER;
-    return timePrefix + '-' + global._missionIdCounter.toString(36);
+  } catch (e) {
+    // Fallback
+  }
+  // Fallback if crypto is unavailable
+  const timePrefix =
+        typeof Game !== 'undefined' && Game.time ? Game.time.toString(36) : Date.now().toString(36)
+  // Fallback if crypto is unavailable but predictable PRNGs
+  if (typeof global._missionIdCounter === 'undefined') {
+    global._missionIdCounter = 0
+  }
+  global._missionIdCounter = (global._missionIdCounter + 1) % Number.MAX_SAFE_INTEGER
+  return timePrefix + '-' + global._missionIdCounter.toString(36)
 }
 
 /**
  * セキュアな乱数を生成する (PRNGの脆弱性対策)
  * @param {number} max - 0以上、max未満の整数を返す
  */
-function secureRandomInt(max) {
-    if (typeof max !== 'number' || max <= 0) return 0;
-    try {
-        const crypto = require('crypto');
-        if (crypto && crypto.randomBytes) {
-            const buf = crypto.randomBytes(4);
-            return buf.readUInt32LE(0) % max;
-        }
-    } catch (e) {
-        // Fallback
+function secureRandomInt (max) {
+  if (typeof max !== 'number' || max <= 0) return 0
+  try {
+    const crypto = require('crypto')
+    if (crypto && crypto.randomInt) {
+      return crypto.randomInt(max)
     }
-    // scanner-disable-next-line
-    // Fallback to Math.random() if crypto is unavailable (accepted for Sandbox)
-    return Math.floor(Math.random() * max);
+  } catch (e) {
+    // Fallback
+  }
+  // scanner-disable-next-line
+  // Fallback to Math.random() if crypto is unavailable (accepted for Sandbox)
+  return Math.floor(Math.random() * max)
 }
 
 const MissionSystem = {
-    _cacheActiveMissions() {
-        const activeMissions = Memory.missions.active;
-        const result = [];
-        const len = activeMissions.length;
-        for (let i = 0; i < len; i++) {
-            const m = activeMissions[i];
-            if (m.status === 'active') {
-                result.push(m);
-            }
-        }
-        this._activeMissionsCache = result;
-        this._lastActiveMissionsTick = Game.time;
-    },
-    initMemory() {
-        if (!Memory.missions) {
-            Memory.missions = {
-                active: [],
-                completed: 0,
-            };
-        }
-    },
+  _cacheActiveMissions () {
+    const activeMissions = Memory.missions.active
+    const result = []
+    const len = activeMissions.length
+    for (let i = 0; i < len; i++) {
+      const m = activeMissions[i]
+      if (m.status === 'active') {
+        result.push(m)
+      }
+    }
+    this._activeMissionsCache = result
+    this._lastActiveMissionsTick = Game.time
+  },
 
-    createMission(type, target, reward) {
-        this.initMemory();
+  initMemory () {
+    if (!Memory.missions) {
+      Memory.missions = {
+        active: [],
+        completed: 0
+      }
+    }
+  },
 
-        // Security: Sanitize and truncate type and target to prevent Memory DoS.
-        // If a key is unsafe, use a fallback to ensure we don't return null and crash callers.
-        const safeType = utilsMemory.isSafeKey(type) ? type : 'unknown';
-        const safeTarget = utilsMemory.isSafeKey(target) ? target : 'unknown';
+  createMission (type, target, reward) {
+    this.initMemory()
 
-        const sanitizedType = String(safeType).substring(0, MAX_STRING_LENGTH);
-        const sanitizedTarget = String(safeTarget).substring(0, MAX_STRING_LENGTH);
+    // Security: Sanitize and truncate type and target to prevent Memory DoS.
+    // If a key is unsafe, use a fallback to ensure we don't return null and crash callers.
+    const safeType = utilsMemory.isSafeKey(type) ? type : 'unknown'
+    const safeTarget = utilsMemory.isSafeKey(target) ? target : 'unknown'
 
-        // Security: Enforce mission count limit to prevent Memory DoS (2MB limit)
-        if (Memory.missions.active.length >= MAX_MISSIONS_COUNT) {
-            // Attempt to evict the oldest completed mission first
-            let evictIndex = Memory.missions.active.findIndex((m) => m.status === 'completed');
+    const sanitizedType = String(safeType).substring(0, MAX_STRING_LENGTH)
+    const sanitizedTarget = String(safeTarget).substring(0, MAX_STRING_LENGTH)
 
-            // If no completed missions, evict the oldest active mission (first in array)
-            if (evictIndex === -1) {
-                evictIndex = 0;
-            }
+    // Security: Enforce mission count limit to prevent Memory DoS (2MB limit)
+    if (Memory.missions.active.length >= MAX_MISSIONS_COUNT) {
+      // Attempt to evict the oldest completed mission first
+      let evictIndex = Memory.missions.active.findIndex((m) => m.status === 'completed')
 
-            Memory.missions.active.splice(evictIndex, 1);
-        }
+      // If no completed missions, evict the oldest active mission (first in array)
+      if (evictIndex === -1) {
+        evictIndex = 0
+      }
 
-        // Security: Harden reward parameter to prevent injection of negative numbers, NaN, Infinity, or non-number types.
-        let safeReward = 0;
-        if (typeof reward === 'number' && Number.isFinite(reward) && !isNaN(reward)) {
-            safeReward = Math.max(0, reward);
-        }
+      Memory.missions.active.splice(evictIndex, 1)
+    }
 
-        const mission = {
-            id: generateMissionId(),
-            type: sanitizedType,
-            target: sanitizedTarget,
-            reward: safeReward,
-            createdAt: Game.time,
-            status: 'active',
-        };
+    // Security: Harden reward parameter to prevent injection of negative numbers, NaN, Infinity, or non-number types.
+    let safeReward = 0
+    if (typeof reward === 'number' && Number.isFinite(reward) && !isNaN(reward)) {
+      safeReward = Math.max(0, reward)
+    }
 
-        Memory.missions.active.push(mission);
-        this._lastActiveMissionsTick = 0; // Force cache rebuild
-        return mission;
-    },
+    const mission = {
+      id: generateMissionId(),
+      type: sanitizedType,
+      target: sanitizedTarget,
+      reward: safeReward,
+      createdAt: Game.time,
+      status: 'active'
+    }
 
-    getMissionsForCreep(creep) {
-        if (Game.time !== this._lastActiveMissionsTick) {
-            this._cacheActiveMissions();
-        }
-        return this._activeMissionsCache;
-    },
+    Memory.missions.active.push(mission)
+    this._lastActiveMissionsTick = 0 // Force cache rebuild
+    return mission
+  },
 
-    completeMission(missionId) {
-        const mission = Memory.missions.active.find((m) => m.id === missionId);
-        if (mission) {
-            mission.status = 'completed';
-            Memory.missions.completed++;
-            // Force cache rebuild on next access since state changed
-            this._lastActiveMissionsTick = 0;
-        }
-    },
+  getMissionsForCreep (creep) {
+    if (Game.time !== this._lastActiveMissionsTick) {
+      this._cacheActiveMissions()
+    }
+    return this._activeMissionsCache
+  },
 
-    getActiveMissions() {
-        if (Game.time !== this._lastActiveMissionsTick) {
-            this._cacheActiveMissions();
-        }
-        return this._activeMissionsCache;
-    },
+  completeMission (missionId) {
+    const mission = Memory.missions.active.find((m) => m.id === missionId)
+    if (mission) {
+      mission.status = 'completed'
+      Memory.missions.completed++
+      // Force cache rebuild on next access since state changed
+      this._lastActiveMissionsTick = 0
+    }
+  },
 
-    createRandomMission() {
-        const types = ['scout', 'harvest_boost', 'defense_patrol', 'build_sprint'];
-        const type = types[secureRandomInt(types.length)];
+  getActiveMissions () {
+    if (Game.time !== this._lastActiveMissionsTick) {
+      this._cacheActiveMissions()
+    }
+    return this._activeMissionsCache
+  },
 
-        const targets = Object.values(Game.rooms)[0];
-        const rewards = [100, 250, 500];
-        const reward = rewards[secureRandomInt(rewards.length)];
+  createRandomMission () {
+    const types = ['scout', 'harvest_boost', 'defense_patrol', 'build_sprint']
+    const type = types[secureRandomInt(types.length)]
 
-        return this.createMission(type, targets ? targets.name : 'sim', reward);
-    },
-};
+    const targets = Object.values(Game.rooms)[0]
+    const rewards = [100, 250, 500]
+    const reward = rewards[secureRandomInt(rewards.length)]
 
-module.exports = MissionSystem;
+    return this.createMission(type, targets ? targets.name : 'sim', reward)
+  }
+}
+
+module.exports = MissionSystem

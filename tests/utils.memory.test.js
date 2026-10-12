@@ -83,13 +83,6 @@ describe('utils.memory', () => {
         const result = utilsMemory.getRoomMemory('room1', 'constructor', 'default');
         expect(result).toBe('default');
     });
-
-    test('setRoomMemory does not set for unsafe keys', () => {
-        utilsMemory.setRoomMemory('__proto__', 'key', 'value');
-        const result = utilsMemory.getRoomMemory('__proto__', 'key', 'default');
-        expect(result).toBe('default');
-    });
-
     test('clearRoomMemory handles unsafe keys', () => {
         expect(() => utilsMemory.clearRoomMemory('constructor', 'key')).not.toThrow();
         expect(() => utilsMemory.clearRoomMemory('__proto__', 'key')).not.toThrow();
@@ -180,19 +173,6 @@ describe('utils.memory', () => {
         const result = utilsMemory.getRoomMemory('room1', 'key', 'default');
         expect(result).toBe('stored');
     });
-
-    test('setRoomMemory sets value correctly', () => {
-        global.Memory.rooms = {};
-        utilsMemory.setRoomMemory('room1', 'key', 'value');
-        expect(Memory.rooms.room1.key).toBe('value');
-    });
-
-    test('setRoomMemory handles undefined room', () => {
-        global.Memory.rooms = {};
-        utilsMemory.setRoomMemory('room1', 'key', 'value');
-        expect(Memory.rooms.room1.key).toBe('value');
-    });
-
     test('clearRoomMemory removes key from room', () => {
         global.Memory.rooms = { room1: { key: 'value' } };
         utilsMemory.clearRoomMemory('room1', 'key');

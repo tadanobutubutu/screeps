@@ -95,22 +95,6 @@ module.exports = {
         return Memory.rooms[roomName][key];
     },
 
-    setRoomMemory: function (roomName, key, value) {
-        // Security: Validate roomName and key to prevent prototype pollution
-        if (!isSafeKey(roomName) || !isSafeKey(key)) {
-            return;
-        }
-
-        if (!Memory.rooms) {
-            Memory.rooms = {};
-        }
-
-        if (!Memory.rooms[roomName]) {
-            Memory.rooms[roomName] = {};
-        }
-        Memory.rooms[roomName][key] = value;
-    },
-
     clearRoomMemory: function (roomName, key) {
         // Security: Validate roomName and key to prevent prototype pollution
         if (!isSafeKey(roomName) || !isSafeKey(key)) {

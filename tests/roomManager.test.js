@@ -1,3 +1,4 @@
+const logger = require('../src/utils/logger')
 global.FIND_MY_CREEPS = 102
 /**
  * src/managers/roomManager.js のユニットテスト
@@ -169,6 +170,21 @@ describe('roomManager', () => {
       const room = { ...mockRoom, controller: { my: false } }
       expect(() => roomManager.run(room)).not.toThrow()
     })
+
+    test('内部エラーが発生した場合、例外をキャッチしてlogger.errorでログを出力する', () => {
+      const logger = require('../src/utils/logger')
+      const cache = require('../src/utils/cache')
+      global.Game.time = 50 // trigger cache.cleanup()
+
+      cache.cleanup.mockImplementationOnce(() => {
+        throw new Error('Test cache cleanup error')
+      })
+
+      expect(() => roomManager.run(mockRoom)).not.toThrow()
+      expect(logger.error).toHaveBeenCalled()
+      expect(logger.error.mock.calls[0][0]).toContain(`[RoomManager] ルーム ${mockRoom.name} でエラー`)
+      expect(logger.error.mock.calls[0][1].message).toBe('Test cache cleanup error')
+    })
   })
 
   describe('getStats', () => {
@@ -226,12 +242,39 @@ describe('roomManager', () => {
     test('統計をコンソールに表示する', () => {
       expect(() => roomManager.showStats(mockRoom)).not.toThrow()
     })
+
+    test('ストレージエネルギーとロールの内訳を表示する', () => {
+      cache.getStorage.mockReturnValue({ store: { [global.RESOURCE_ENERGY]: 50000 } })
+      const creeps = [
+        { room: mockRoom, memory: { role: 'harvester' } },
+        { room: mockRoom, memory: { role: 'upgrader' } },
+      ]
+      cache.getMyCreeps.mockReturnValue(creeps)
+
+      roomManager.showStats(mockRoom)
+
+      expect(logger.info).toHaveBeenCalledWith(expect.stringContaining('Storage: 50,000 energy'))
+      expect(logger.info).toHaveBeenCalledWith(expect.stringContaining('Roles: harvester:1 upgrader:1'))
+    })
   })
 
   describe('showVisuals', () => {
     test('ビジュアル表示が実行される', () => {
       expect(() => roomManager.showVisuals(mockRoom)).not.toThrow()
       expect(mockRoom.visual.text).toHaveBeenCalled()
+    })
+
+    test('敵がいる場合は警告を表示する', () => {
+      cache.getEnemies.mockReturnValue([{}])
+
+      roomManager.showVisuals(mockRoom)
+
+      expect(mockRoom.visual.text).toHaveBeenCalledWith(
+        expect.stringContaining('敵1体'),
+        expect.any(Number),
+        expect.any(Number),
+        expect.any(Object)
+      )
     })
   })
 

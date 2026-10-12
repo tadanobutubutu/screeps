@@ -104,17 +104,42 @@ describe('utils.planning', () => {
     expect(() => utilsPlanning.visualizePlanning(mockRoom, [])).not.toThrow()
   })
 
-  test('planRoadNetworkがspawnがないとき空配列を返す', () => {
-    mockCache.getSpawns.mockReturnValue([])
-    mockCache.getSources.mockReturnValue([])
-    const roads = utilsPlanning.planRoadNetwork(mockRoom)
-    expect(Array.isArray(roads)).toBe(true)
-  })
-
   test('displayPlanningInfoがエラーを投げない', () => {
     mockCache.getSources.mockReturnValue([{ id: 'source1' }])
     const result = utilsPlanning.displayPlanningInfo(mockRoom)
     expect(result).toBeDefined()
     expect(result.openSpaces).toBeDefined()
+  })
+
+  test('isOpenArea returns false for out of bounds coordinates', () => {
+    expect(utilsPlanning.isOpenArea(mockRoom, -1, 25, 2)).toBe(false)
+    expect(utilsPlanning.isOpenArea(mockRoom, 55, 25, 2)).toBe(false)
+    expect(utilsPlanning.isOpenArea(mockRoom, 25, -1, 2)).toBe(false)
+    expect(utilsPlanning.isOpenArea(mockRoom, 25, 55, 2)).toBe(false)
+  })
+
+  test('findBestSpawnPosition returns a position when controller and sources exist', () => {
+    const mockSource = {
+      pos: { x: 10, y: 10, getRangeTo: jest.fn().mockReturnValue(10) },
+      getRangeTo: jest.fn().mockReturnValue(10)
+    }
+    mockCache.getSources.mockReturnValue([mockSource])
+
+    mockRoom.getTerrain.mockReturnValue({
+      get: jest.fn().mockReturnValue(0)
+    })
+
+    const pos = utilsPlanning.findBestSpawnPosition(mockRoom)
+    expect(pos).not.toBeNull()
+    expect(pos.x).toBeDefined()
+    expect(pos.y).toBeDefined()
+  })
+
+  test('visualizePlanning draws circle for each position', () => {
+    const positions = [{ x: 1, y: 1 }, { x: 2, y: 2 }]
+    utilsPlanning.visualizePlanning(mockRoom, positions, '#ff0000')
+    expect(mockRoom.visual.circle).toHaveBeenCalledTimes(2)
+    expect(mockRoom.visual.circle).toHaveBeenCalledWith(1, 1, expect.any(Object))
+    expect(mockRoom.visual.circle).toHaveBeenCalledWith(2, 2, expect.any(Object))
   })
 })

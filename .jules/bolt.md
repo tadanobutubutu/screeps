@@ -1,3 +1,8 @@
+## 2026-10-06 - Direct Structure Type Filtering in Tower Manager Urgent Rampart Search
+
+**Learning:** Calling `cache.getMyStructures(room)` without a structure type parameter fetches all owned room structures (spawns, extensions, towers, links, storage, etc.), requiring manual structure type comparisons (`s.structureType === STRUCTURE_RAMPART`) on every candidate. Passing `STRUCTURE_RAMPART` directly to `cache.getMyStructures(room, STRUCTURE_RAMPART)` leverages pre-warmed structure type caches or filtered engine queries, reducing loop iterations from $O(N_{myStructures})$ to $O(N_{ramparts})$.
+**Action:** Pass specific structure type constants to `cache.getMyStructures(room, type)` when searching for specific structure categories.
+
 ## 2026-10-04 - Deferring Low Priority Target Scans and Early Exit on Adjacent Targets in Harvester Role
 
 **Learning:** In harvester delivery target selection (`_findPrimaryTarget`), calculating tower distance during spawn/extension iteration evaluates range math on lower-priority towers even when a spawn or extension target is selected. Separating priority passes defers tower evaluation until needed and adding an early exit (`if (dist <= 1) break`) skips distance math for remaining candidates when an adjacent target is found.

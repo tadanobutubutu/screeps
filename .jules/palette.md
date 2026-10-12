@@ -1,12 +1,17 @@
-## 2026-04-18 - Parity Across Metric Status Indicators and Progress Bars
+## 2026-04-09 - Async Clipboard Rejection Fallback Notification
 
-**Learning:** Rendering core dashboard metrics (such as GCL, CPU, and GPL) with inconsistent visual representations (e.g. progress bar cards vs plain text) creates visual imbalance and fragmented screen reader status announcements.
-**Action:** Always maintain consistent progress bar layout cards, ARIA `role="progressbar"` markup, and focusable tooltip containers across all related dashboard metric cards.
+**Learning:** When async clipboard write operations (`navigator.clipboard.writeText(...)`) encounter permission denials or system errors, missing `.catch()` rejection handlers cause silent failures or unhandled promise rejections without user feedback.
+**Action:** Always attach `.catch()` rejection handlers to `navigator.clipboard.writeText(...)` promises that invoke accessible toast notifications (`showToast(...)`) so users are informed when copy operations fail.
 
 ## 2026-04-08 - Visual Elevation Parity Across Keyboard Focus States
 
 **Learning:** When interactive controls support both mouse hover (`onMouseEnter`/`onMouseLeave`) and keyboard focus (`onFocus`/`onBlur`), applying elevation effects (such as `scale()`, `boxShadow`, and `brightness()`) only to mouse hover states results in an uneven user experience where keyboard users miss out on visual micro-interactions.
 **Action:** Always couple focus state flags (`*Focused`) with hover state flags (`*Hover`) when evaluating dynamic style transformations, elevation box-shadows, and filter effects on action buttons.
+
+## 2026-04-08 - Interactive Keyboard Shortcut Badges (<kbd>) in Toast Live Regions
+
+**Learning:** Visual keyboard shortcut badges (`<kbd>Esc</kbd>`) rendered within floating toast notifications are frequently clicked or tapped by users expecting direct dismissal; making `<kbd>` elements interactive via `role="button"`, `tabIndex={0}`, Enter/Space key listeners, and explicit pointer styles provides an intuitive dual-modal interaction pattern for both mouse/touch and keyboard navigation.
+**Action:** Always pair `role="button"`, `tabIndex={0}`, `onKeyDown` (for Enter/Space), and `cursor: 'pointer'` when rendering visual shortcut badges in notification banners.
 
 ## 2026-04-02 - Keyboard Focus Parity for Action Buttons
 
@@ -82,3 +87,11 @@
 
 **Learning:** Applying `role="alert"` directly to error container elements (`<main>` or `<div>`) that contain interactive controls like retry or copy `<button>` elements causes screen readers to read the container as static advisory text, suppressing button semantics and keyboard focus expectations.
 **Action:** Remove `role="alert"` from container elements enclosing buttons and rely on `aria-live="assertive"` on the container or localized error heading/text elements.
+## 2026-04-18 - Clipboard Rejection Error Feedback and Accessible Notifications
+
+**Learning:** When async clipboard actions (`navigator.clipboard.writeText(...)`) encounter permission denials or system errors, unhandled promise rejections leave users without feedback, creating confusion when expected copy operations silently fail.
+**Action:** Always attach explicit `.catch()` rejection handlers to clipboard API calls that notify users via accessible toast live regions (`showToast(...)`).
+## 2026-04-18 - Parity Across Metric Status Indicators and Progress Bars
+
+**Learning:** Rendering core dashboard metrics (such as GCL, CPU, and GPL) with inconsistent visual representations (e.g. progress bar cards vs plain text) creates visual imbalance and fragmented screen reader status announcements.
+**Action:** Always maintain consistent progress bar layout cards, ARIA `role="progressbar"` markup, and focusable tooltip containers across all related dashboard metric cards.

@@ -182,4 +182,12 @@ describe('src/utils/pathfinder', () => {
     expect(sorted).toEqual([{ x: 2, y: 2 }, { x: 5, y: 5 }, { x: 10, y: 10 }])
     expect(origin.getRangeTo).toHaveBeenCalledTimes(3)
   })
+
+  test('manhattan distance is calculated correctly', () => {
+    expect(pathfinder.manhattan({ x: 0, y: 0 }, { x: 5, y: 5 })).toBe(10)
+    expect(pathfinder.manhattan({ x: 10, y: 10 }, { x: 10, y: 10 })).toBe(0)
+    expect(pathfinder.manhattan({ x: -5, y: 5 }, { x: 5, y: -5 })).toBe(20)
+    expect(pathfinder.manhattan({ x: 0, y: 0 }, { x: 0, y: 10 })).toBe(10)
+    expect(pathfinder.manhattan({ x: 0, y: 0 }, { x: 10, y: 0 })).toBe(10)
+  })
 })

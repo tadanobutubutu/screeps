@@ -910,17 +910,48 @@ export default function Dashboard() {
                         />
                     </div>
                 </div>
-                <div style={{ display: 'flex', gap: '2rem', marginBottom: '1rem' }}>
+                <div style={{ marginBottom: '1rem' }}>
                     {stats?.power !== undefined && (
-                        <p
+                        <div
                             className="interactive-hint"
-                            title={`グローバルパワーレベル (GPL): ${stats.power}`}
-                            aria-label={`グローバルパワーレベル (GPL): ${stats.power}`}
                             tabIndex={0}
-                            style={{ margin: 0 }}
+                            title={`グローバルパワーレベル (GPL): レベル ${stats.power}`}
+                            aria-label={`グローバルパワーレベル (GPL): レベル ${stats.power}`}
                         >
-                            💪 GPL: {stats.power}
-                        </p>
+                            <div
+                                style={{
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    marginBottom: '0.25rem',
+                                }}
+                            >
+                                <span id="gpl-progress-label">💪 GPL: {stats.power}</span>
+                                <span style={{ fontSize: '0.85rem' }}>レベル {stats.power}</span>
+                            </div>
+                            <div
+                                role="progressbar"
+                                aria-labelledby="gpl-progress-label"
+                                aria-valuenow={stats.power}
+                                aria-valuemin={0}
+                                aria-valuemax={stats.power > 0 ? stats.power : 1}
+                                aria-valuetext={`GPL レベル ${stats.power}`}
+                                style={{
+                                    height: '0.5rem',
+                                    backgroundColor: '#edf2f7',
+                                    borderRadius: '4px',
+                                    overflow: 'hidden',
+                                }}
+                            >
+                                <div
+                                    style={{
+                                        height: '100%',
+                                        backgroundColor: '#805ad5',
+                                        width: '100%',
+                                        transition: 'width 0.3s ease-in-out',
+                                    }}
+                                />
+                            </div>
+                        </div>
                     )}
                 </div>
                 <div

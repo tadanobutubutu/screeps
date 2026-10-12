@@ -1,3 +1,8 @@
+## 2026-04-18 - Parity Across Metric Status Indicators and Progress Bars
+
+**Learning:** Rendering core dashboard metrics (such as GCL, CPU, and GPL) with inconsistent visual representations (e.g. progress bar cards vs plain text) creates visual imbalance and fragmented screen reader status announcements.
+**Action:** Always maintain consistent progress bar layout cards, ARIA `role="progressbar"` markup, and focusable tooltip containers across all related dashboard metric cards.
+
 ## 2026-04-08 - Visual Elevation Parity Across Keyboard Focus States
 
 **Learning:** When interactive controls support both mouse hover (`onMouseEnter`/`onMouseLeave`) and keyboard focus (`onFocus`/`onBlur`), applying elevation effects (such as `scale()`, `boxShadow`, and `brightness()`) only to mouse hover states results in an uneven user experience where keyboard users miss out on visual micro-interactions.

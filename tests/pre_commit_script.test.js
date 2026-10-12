@@ -2,6 +2,7 @@ describe('pre_commit_script.js', () => {
   let originalConsoleError
   let originalProcessExit
   let execFileSyncMock
+  let pathMock
 
   beforeEach(() => {
     jest.resetModules()
@@ -12,22 +13,37 @@ describe('pre_commit_script.js', () => {
     process.exit = jest.fn()
     execFileSyncMock = jest.fn()
 
+    pathMock = {
+      join: jest.fn((...args) => args.join('/'))
+    }
+
     jest.doMock('child_process', () => ({
       execFileSync: execFileSyncMock
     }))
+    jest.doMock('path', () => pathMock)
   })
 
   afterEach(() => {
     console.error = originalConsoleError
     process.exit = originalProcessExit
     jest.dontMock('child_process')
+    jest.dontMock('path')
   })
 
-  it('should successfully execute lint and test commands', () => {
+  it('should successfully execute lint and test commands securely via Node', () => {
     require('../pre_commit_script.js')
 
-    expect(execFileSyncMock).toHaveBeenCalledWith('npm', ['run', 'lint'], { stdio: 'inherit' })
-    expect(execFileSyncMock).toHaveBeenCalledWith('npm', ['test'], { stdio: 'inherit' })
+    // Using expect.stringContaining to be flexible with the __dirname path which is absolute
+    expect(execFileSyncMock).toHaveBeenCalledWith(
+      process.execPath,
+      expect.arrayContaining([expect.stringContaining('eslint.js')]),
+      { stdio: 'inherit' }
+    )
+    expect(execFileSyncMock).toHaveBeenCalledWith(
+      process.execPath,
+      expect.arrayContaining([expect.stringContaining('jest.js')]),
+      { stdio: 'inherit' }
+    )
     expect(console.error).not.toHaveBeenCalled()
     expect(process.exit).not.toHaveBeenCalled()
   })

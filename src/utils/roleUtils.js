@@ -24,6 +24,31 @@ function getEnergyFromStorage (creep, room, minEnergy = 500, targetKey = MEMORY_
   return false
 }
 
+
+
+/**
+ * Common source harvesting targeting logic
+ * Finds a valid active source and caches its ID in creep memory.
+ * @param {Creep} creep The creep trying to harvest.
+ * @param {Array<Source>} sources The array of active sources to pick from.
+ * @returns {Source|null} The chosen source, or null if none found.
+ */
+function getHarvestTarget (creep, sources) {
+  let source = Game.getObjectById(creep.memory.harvestTargetId)
+
+  if (!source || source.energy === 0) {
+    source = creep.pos.findClosestByRange(sources)
+    if (source) {
+      creep.memory.harvestTargetId = source.id
+    } else {
+      delete creep.memory.harvestTargetId
+    }
+  }
+
+  return source
+}
+
 module.exports = {
+  getHarvestTarget,
   getEnergyFromStorage
 }

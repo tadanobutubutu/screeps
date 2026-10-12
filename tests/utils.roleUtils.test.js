@@ -11,7 +11,7 @@ jest.mock('../src/utils/pathfinder', () => ({
     moveTo: jest.fn()
 }));
 
-describe('roleUtils.getEnergyFromStorage', () => {
+describe('roleUtils', () => {
     let creep, room;
 
     beforeEach(() => {
@@ -19,13 +19,17 @@ describe('roleUtils.getEnergyFromStorage', () => {
         global.RESOURCE_ENERGY = 'energy';
         global.STRUCTURE_STORAGE = 'storage';
         global.Game = {
-            getObjectById: jest.fn()
+            getObjectById: jest.fn(),
+            time: 1
         };
 
         creep = {
             memory: {},
             withdraw: jest.fn(),
-            moveTo: jest.fn()
+            moveTo: jest.fn(),
+            pos: {
+                findClosestByRange: jest.fn()
+            }
         };
         room = { name: 'W1N1' };
 
@@ -39,137 +43,97 @@ describe('roleUtils.getEnergyFromStorage', () => {
         delete global.Game;
     });
 
-    it('should return false if no cached target and no storage in room', () => {
-        cache.getStorage.mockReturnValue(null);
-        expect(roleUtils.getEnergyFromStorage(creep, room)).toBe(false);
-        expect(cache.getStorage).toHaveBeenCalledWith(room);
-    });
-
-    it('should return false if storage does not have minimum energy', () => {
-        cache.getStorage.mockReturnValue({
-            id: 'storage1',
-            store: { energy: 400 } // less than default 500
+    describe('getEnergyFromStorage', () => {
+        it('should return false if no cached target and no storage in room', () => {
+            cache.getStorage.mockReturnValue(null);
+            expect(roleUtils.getEnergyFromStorage(creep, room)).toBe(false);
+            expect(cache.getStorage).toHaveBeenCalledWith(room);
         });
-        expect(roleUtils.getEnergyFromStorage(creep, room)).toBe(false);
+
+        it('should return false if storage does not have minimum energy', () => {
+            cache.getStorage.mockReturnValue({
+                id: 'storage1',
+                store: { energy: 400 } // less than default 500
+            });
+            expect(roleUtils.getEnergyFromStorage(creep, room)).toBe(false);
+        });
+
+        it('should withdraw from valid storage and set memory', () => {
+            const storage = {
+                id: 'storage1',
+                store: { energy: 600 }
+            };
+            cache.getStorage.mockReturnValue(storage);
+            creep.withdraw.mockReturnValue(0); // OK
+
+            expect(roleUtils.getEnergyFromStorage(creep, room)).toBe(true);
+            expect(creep.memory[MEMORY_KEYS.TARGET_ID]).toBe('storage1');
+            expect(creep.withdraw).toHaveBeenCalledWith(storage, 'energy');
+            expect(pathfinder.moveTo).not.toHaveBeenCalled();
+        });
+
+        it('should move to valid storage if not in range', () => {
+            const storage = {
+                id: 'storage1',
+                store: { energy: 600 }
+            };
+            cache.getStorage.mockReturnValue(storage);
+            creep.withdraw.mockReturnValue(-9); // ERR_NOT_IN_RANGE
+
+            expect(roleUtils.getEnergyFromStorage(creep, room)).toBe(true);
+            expect(pathfinder.moveTo).toHaveBeenCalledWith(creep, storage, { range: 1 });
+        });
     });
 
-    it('should withdraw from valid storage and set memory', () => {
-        const storage = {
-            id: 'storage1',
-            store: { energy: 600 }
-        };
-        cache.getStorage.mockReturnValue(storage);
-        creep.withdraw.mockReturnValue(0); // OK
+    describe('getHarvestTarget', () => {
+        it('should return cached source if valid and has energy', () => {
+            const source = { id: 's1', energy: 100 };
+            creep.memory.harvestTargetId = 's1';
+            global.Game.getObjectById.mockReturnValue(source);
 
-        expect(roleUtils.getEnergyFromStorage(creep, room)).toBe(true);
-        expect(creep.memory[MEMORY_KEYS.TARGET_ID]).toBe('storage1');
-        expect(creep.withdraw).toHaveBeenCalledWith(storage, 'energy');
-        expect(pathfinder.moveTo).not.toHaveBeenCalled();
-    });
+            const result = roleUtils.getHarvestTarget(creep, [source]);
 
-    it('should move to valid storage if not in range', () => {
-        const storage = {
-            id: 'storage1',
-            store: { energy: 600 }
-        };
-        cache.getStorage.mockReturnValue(storage);
-        creep.withdraw.mockReturnValue(-9); // ERR_NOT_IN_RANGE
+            expect(result).toBe(source);
+            expect(creep.pos.findClosestByRange).not.toHaveBeenCalled();
+            expect(creep.memory.harvestTargetId).toBe('s1');
+        });
 
-        expect(roleUtils.getEnergyFromStorage(creep, room)).toBe(true);
-        expect(pathfinder.moveTo).toHaveBeenCalledWith(creep, storage, { range: 1 });
-    });
+        it('should find closest source if no cached source', () => {
+            const source = { id: 's2', energy: 100 };
+            creep.pos.findClosestByRange.mockReturnValue(source);
+            global.Game.getObjectById.mockReturnValue(null);
 
-    it('should use cached target if valid', () => {
-        creep.memory[MEMORY_KEYS.TARGET_ID] = 'cached_storage';
-        const cachedStorage = {
-            id: 'cached_storage',
-            structureType: 'storage',
-            store: { energy: 1000 }
-        };
-        global.Game.getObjectById.mockReturnValue(cachedStorage);
-        creep.withdraw.mockReturnValue(0);
+            const result = roleUtils.getHarvestTarget(creep, [source]);
 
-        expect(roleUtils.getEnergyFromStorage(creep, room)).toBe(true);
-        expect(global.Game.getObjectById).toHaveBeenCalledWith('cached_storage');
-        expect(creep.withdraw).toHaveBeenCalledWith(cachedStorage, 'energy');
-        expect(cache.getStorage).not.toHaveBeenCalled();
-    });
+            expect(result).toBe(source);
+            expect(creep.pos.findClosestByRange).toHaveBeenCalledWith([source]);
+            expect(creep.memory.harvestTargetId).toBe('s2');
+        });
 
-    it('should move to cached target if not in range', () => {
-        creep.memory[MEMORY_KEYS.TARGET_ID] = 'cached_storage';
-        const cachedStorage = {
-            id: 'cached_storage',
-            structureType: 'storage',
-            store: { energy: 1000 }
-        };
-        global.Game.getObjectById.mockReturnValue(cachedStorage);
-        creep.withdraw.mockReturnValue(-9); // ERR_NOT_IN_RANGE
+        it('should find closest source if cached source has no energy', () => {
+            const emptySource = { id: 's1', energy: 0 };
+            const fullSource = { id: 's2', energy: 100 };
+            creep.memory.harvestTargetId = 's1';
+            global.Game.getObjectById.mockReturnValue(emptySource);
+            creep.pos.findClosestByRange.mockReturnValue(fullSource);
 
-        expect(roleUtils.getEnergyFromStorage(creep, room)).toBe(true);
-        expect(pathfinder.moveTo).toHaveBeenCalledWith(creep, cachedStorage, { range: 1 });
-    });
+            const result = roleUtils.getHarvestTarget(creep, [emptySource, fullSource]);
 
-    it('should fallback to cache lookup if cached target is invalid structure type', () => {
-        creep.memory[MEMORY_KEYS.TARGET_ID] = 'invalid_storage';
-        const invalidStorage = {
-            id: 'invalid_storage',
-            structureType: 'container', // not storage
-            store: { energy: 1000 }
-        };
-        global.Game.getObjectById.mockReturnValue(invalidStorage);
-        cache.getStorage.mockReturnValue(null);
+            expect(result).toBe(fullSource);
+            expect(creep.pos.findClosestByRange).toHaveBeenCalledWith([emptySource, fullSource]);
+            expect(creep.memory.harvestTargetId).toBe('s2');
+        });
 
-        expect(roleUtils.getEnergyFromStorage(creep, room)).toBe(false);
-        expect(cache.getStorage).toHaveBeenCalledWith(room);
-    });
+        it('should clear memory and return null if no sources available', () => {
+            creep.memory.harvestTargetId = 's1';
+            global.Game.getObjectById.mockReturnValue(null);
+            creep.pos.findClosestByRange.mockReturnValue(null);
 
-    it('should fallback to cache lookup if cached target lacks minimum energy', () => {
-        creep.memory[MEMORY_KEYS.TARGET_ID] = 'empty_storage';
-        const emptyStorage = {
-            id: 'empty_storage',
-            structureType: 'storage',
-            store: { energy: 100 } // less than default 500
-        };
-        global.Game.getObjectById.mockReturnValue(emptyStorage);
-        cache.getStorage.mockReturnValue(null);
+            const result = roleUtils.getHarvestTarget(creep, []);
 
-        expect(roleUtils.getEnergyFromStorage(creep, room)).toBe(false);
-        expect(cache.getStorage).toHaveBeenCalledWith(room);
-    });
-
-    it('should fallback to cache lookup if cached target does not exist', () => {
-        creep.memory[MEMORY_KEYS.TARGET_ID] = 'missing_storage';
-        global.Game.getObjectById.mockReturnValue(null);
-        cache.getStorage.mockReturnValue(null);
-
-        expect(roleUtils.getEnergyFromStorage(creep, room)).toBe(false);
-        expect(cache.getStorage).toHaveBeenCalledWith(room);
-    });
-
-    it('should use custom minEnergy parameter', () => {
-        const storage = {
-            id: 'storage1',
-            store: { energy: 200 } // less than default 500 but >= custom minEnergy
-        };
-        cache.getStorage.mockReturnValue(storage);
-        creep.withdraw.mockReturnValue(0);
-
-        expect(roleUtils.getEnergyFromStorage(creep, room, 150)).toBe(true);
-        expect(creep.withdraw).toHaveBeenCalledWith(storage, 'energy');
-    });
-
-    it('should use custom targetKey parameter', () => {
-        const customKey = 'customTarget';
-        const storage = {
-            id: 'storage1',
-            store: { energy: 600 }
-        };
-        cache.getStorage.mockReturnValue(storage);
-        creep.withdraw.mockReturnValue(0);
-
-        expect(roleUtils.getEnergyFromStorage(creep, room, 500, customKey)).toBe(true);
-        expect(creep.memory[customKey]).toBe('storage1');
-        // Ensure default key was not set
-        expect(creep.memory[MEMORY_KEYS.TARGET_ID]).toBeUndefined();
+            expect(result).toBeNull();
+            expect(creep.pos.findClosestByRange).toHaveBeenCalledWith([]);
+            expect(creep.memory.harvestTargetId).toBeUndefined();
+        });
     });
 });

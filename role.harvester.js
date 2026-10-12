@@ -1,4 +1,5 @@
 const gamification = require('gamification')
+const roleUtils = require('./src/utils/roleUtils')
 const vfx = require('visual.effects')
 
 const STATE_HARVESTING = 'harvesting'
@@ -71,18 +72,7 @@ const roleHarvester = {
     const sources = creep.room._activeSources || []
 
     if (sources.length > 0) {
-      // ⚡ PERFORMANCE: Cache source ID to avoid re-searching every tick and use closest by range
-      let source = Game.getObjectById(creep.memory.harvestTargetId)
-
-      // ⚡ PERFORMANCE: O(1) check for source validity instead of O(N) .some()
-      if (!source || source.energy === 0) {
-        source = creep.pos.findClosestByRange(sources)
-        if (source) {
-          creep.memory.harvestTargetId = source.id
-        } else {
-          delete creep.memory.harvestTargetId
-        }
-      }
+      let source = roleUtils.getHarvestTarget(creep, sources)
 
       const result = creep.harvest(source)
 

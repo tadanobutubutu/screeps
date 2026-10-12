@@ -1,4 +1,5 @@
 // ⚡ PERFORMANCE: Hoisted constant path styles to reduce per-tick object allocation.
+const roleUtils = require('./src/utils/roleUtils')
 const PATH_STYLE_UPGRADE = { visualizePathStyle: { stroke: '#ffffff' } }
 const PATH_STYLE_HARVEST = { visualizePathStyle: { stroke: '#ffaa00' } }
 
@@ -22,18 +23,7 @@ const roleUpgrader = {
       const sources = creep.room._activeSources || []
 
       if (sources.length > 0) {
-        // ⚡ PERFORMANCE: Cache source ID to avoid re-searching every tick and use closest by range (O(N))
-        let source = Game.getObjectById(creep.memory.harvestTargetId)
-
-        // Check if cached source is still valid and has energy
-        if (!source || source.energy === 0) {
-          source = creep.pos.findClosestByRange(sources)
-          if (source) {
-            creep.memory.harvestTargetId = source.id
-          } else {
-            delete creep.memory.harvestTargetId
-          }
-        }
+        let source = roleUtils.getHarvestTarget(creep, sources)
 
         if (source) {
           if (creep.harvest(source) === ERR_NOT_IN_RANGE) {

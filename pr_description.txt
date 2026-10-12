@@ -1,4 +1,11 @@
-💡 **What:** Replaced the `while` loop and `shift()` array method in `utils.emotions.js` with `Array.prototype.splice()`.
-🎯 **Why:** The `shift()` method has O(N) complexity as it reindexes all array elements. When executed in a `while` loop, this degrades performance. `splice()` achieves the desired array length boundary in-place and is faster for trimming multiples or even just one item efficiently compared to loop conditions.
-📊 **Impact:** Reduced overhead in achievement truncation.
-🔬 **Measurement:** Micro-benchmarks validating Array prototype speeds in Node.js environment on typical sizes. 500,000 iterations capping array at size 10 reduced execution time from ~92.03ms (baseline with shift) to ~74.37ms (~19% improvement).
+🎯 **What:** Extracted the duplicate fallback targeting logic (finding closest active source and updating creep memory) from `role.harvester.js` and `role.upgrader.js` into a shared `getHarvestTarget` utility function in `src/utils/roleUtils.js`.
+
+💡 **Why:** The exact same 8-10 line targeting block was duplicated between the harvester and upgrader roles. Consolidating this into a shared utility function improves code maintainability by eliminating duplication and ensuring consistent behavior, making the roles cleaner and easier to read.
+
+✅ **Verification:**
+- Verified that the new `getHarvestTarget` function behaves identically to the old inline code.
+- Successfully ran `eslint` over all modified files with no warnings.
+- Added comprehensive unit tests in `tests/utils.roleUtils.test.js` to cover the new `getHarvestTarget` logic.
+- Executed unit tests for `role.harvester.test.js` and `role.upgrader.test.js`, confirming that existing logic works correctly with the new utility function.
+
+✨ **Result:** Clean, self-contained refactoring that reduces code duplication and centralizes source harvesting fallback logic, making future enhancements easier to implement and test.

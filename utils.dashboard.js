@@ -79,6 +79,7 @@ const DashboardRenderer = {
     return info
   },
 
+
   _renderBackground (room, x, y, width, height) {
     room.visual.rect(x - 0.5, y - 1, width, height, {
       fill: '#000000',
@@ -90,12 +91,7 @@ const DashboardRenderer = {
 
   _renderHeader (room, info, x, y) {
     const modeIcons = { EMERGENCY: '🚨', MINIMAL: '🔋', NORMAL: '⚖️', FULL: '🚀' }
-    const modeColors = {
-      EMERGENCY: '#ff0000',
-      MINIMAL: '#ffaa00',
-      NORMAL: '#ffff00',
-      FULL: '#00ff00'
-    }
+    const modeColors = { EMERGENCY: '#ff0000', MINIMAL: '#ffaa00', NORMAL: '#ffff00', FULL: '#00ff00' }
     const modeColor = modeColors[info.mode] || '#ffffff'
     const modeIcon = modeIcons[info.mode] || '⚙️'
 
@@ -122,15 +118,8 @@ const DashboardRenderer = {
     const gclBarWidth = 6
     const gclBarHeight = 0.2
     const gclProgress = info.gcl.progress / info.gcl.progressTotal
-    room.visual.rect(x, y - 0.1, gclBarWidth, gclBarHeight, {
-      fill: '#333333',
-      stroke: '#ffffff',
-      strokeWidth: 0.02
-    })
-    room.visual.rect(x, y - 0.1, gclBarWidth * gclProgress, gclBarHeight, {
-      fill: '#00aaff',
-      opacity: 0.8
-    })
+    room.visual.rect(x, y - 0.1, gclBarWidth, gclBarHeight, { fill: '#333333', stroke: '#ffffff', strokeWidth: 0.02 })
+    room.visual.rect(x, y - 0.1, gclBarWidth * gclProgress, gclBarHeight, { fill: '#00aaff', opacity: 0.8 })
     return y + 0.6
   },
 
@@ -161,15 +150,8 @@ const DashboardRenderer = {
       const barHeight = 0.2
       const progress = info.controller.progress / info.controller.progressTotal
 
-      room.visual.rect(x, y - 0.1, barWidth, barHeight, {
-        fill: '#333333',
-        stroke: '#ffffff',
-        strokeWidth: 0.02
-      })
-      room.visual.rect(x, y - 0.1, barWidth * progress, barHeight, {
-        fill: '#ffff00',
-        opacity: 0.8
-      })
+      room.visual.rect(x, y - 0.1, barWidth, barHeight, { fill: '#333333', stroke: '#ffffff', strokeWidth: 0.02 })
+      room.visual.rect(x, y - 0.1, barWidth * progress, barHeight, { fill: '#ffff00', opacity: 0.8 })
     }
     return y + 0.8
   },
@@ -196,15 +178,8 @@ const DashboardRenderer = {
     const energyBarWidth = 6
     const energyBarHeight = 0.2
     const energyProgress = Math.min(info.energyAvailable / info.energyCapacity, 1) || 0
-    room.visual.rect(x, y - 0.1, energyBarWidth, energyBarHeight, {
-      fill: '#333333',
-      stroke: '#ffffff',
-      strokeWidth: 0.02
-    })
-    room.visual.rect(x, y - 0.1, energyBarWidth * energyProgress, energyBarHeight, {
-      fill: energyColor,
-      opacity: 0.8
-    })
+    room.visual.rect(x, y - 0.1, energyBarWidth, energyBarHeight, { fill: '#333333', stroke: '#ffffff', strokeWidth: 0.02 })
+    room.visual.rect(x, y - 0.1, energyBarWidth * energyProgress, energyBarHeight, { fill: energyColor, opacity: 0.8 })
     return y + 0.6
   },
 
@@ -230,31 +205,22 @@ const DashboardRenderer = {
     const storageBarWidth = 6
     const storageBarHeight = 0.2
     const storageProgress = info.storagePercent / 100
-    room.visual.rect(x, y - 0.1, storageBarWidth, storageBarHeight, {
-      fill: '#333333',
-      stroke: '#ffffff',
-      strokeWidth: 0.02
-    })
-    room.visual.rect(x, y - 0.1, storageBarWidth * storageProgress, storageBarHeight, {
-      fill: storageColor,
-      opacity: 0.8
-    })
+    room.visual.rect(x, y - 0.1, storageBarWidth, storageBarHeight, { fill: '#333333', stroke: '#ffffff', strokeWidth: 0.02 })
+    room.visual.rect(x, y - 0.1, storageBarWidth * storageProgress, storageBarHeight, { fill: storageColor, opacity: 0.8 })
     return y + 0.8
   },
 
   _renderCreepsAndHostiles (room, info, x, y) {
     room.visual.text(
-            `👥 ⛏️:${info.creeps.harvester} ⬆️:${info.creeps.upgrader} 🛠️:${info.creeps.builder} 🔧:${info.creeps.repairer}`,
-            x,
-            y,
-            { font: 0.7, color: '#ffffff', align: 'left', stroke: '#000000', strokeWidth: 0.05 }
+      `👥 ⛏️:${info.creeps.harvester} ⬆️:${info.creeps.upgrader} 🛠️:${info.creeps.builder} 🔧:${info.creeps.repairer}`,
+      x, y,
+      { font: 0.7, color: '#ffffff', align: 'left', stroke: '#000000', strokeWidth: 0.05 }
     )
     y += 0.8
     room.visual.text(
-            `   🚚:${info.creeps.transporter} 📡:${info.creeps.scout} 💊:${info.creeps.medic} 🗺️:${info.creeps.explorer}`,
-            x,
-            y,
-            { font: 0.7, color: '#ffffff', align: 'left', stroke: '#000000', strokeWidth: 0.05 }
+      `   🚚:${info.creeps.transporter} 📡:${info.creeps.scout} 💊:${info.creeps.medic} 🗺️:${info.creeps.explorer}`,
+      x, y,
+      { font: 0.7, color: '#ffffff', align: 'left', stroke: '#000000', strokeWidth: 0.05 }
     )
 
     if (info.hostiles > 0) {
@@ -285,23 +251,12 @@ const DashboardRenderer = {
       bucketColor = '#ffff00'
     }
 
-    room.visual.rect(x, y, 6 * bucketProgress, 0.2, {
-      fill: bucketColor,
-      opacity: 0.7 * bucketPulse
-    })
+    room.visual.rect(x, y, 6 * bucketProgress, 0.2, { fill: bucketColor, opacity: 0.7 * bucketPulse })
     const bucketPercent = Math.floor(bucketProgress * 100)
     room.visual.text(
-            `📊 CPU: ${info.cpuUsed} | Bucket: ${info.bucket} (${bucketPercent}%) | Tick: ${info.tick}`,
-            x,
-            y + 0.6,
-            {
-              font: 0.4,
-              color: '#ffffff',
-              opacity: bucketPulse,
-              align: 'left',
-              stroke: '#000000',
-              strokeWidth: 0.05
-            }
+      `📊 CPU: ${info.cpuUsed} | Bucket: ${info.bucket} (${bucketPercent}%) | Tick: ${info.tick}`,
+      x, y + 0.6,
+      { font: 0.4, color: '#ffffff', opacity: bucketPulse, align: 'left', stroke: '#000000', strokeWidth: 0.05 }
     )
     return y + 1.0
   },
@@ -314,14 +269,14 @@ const DashboardRenderer = {
     const width = 8.5
     const height = 12.2
 
-    this._renderBackground(room, x, y, width, height)
-    y = this._renderHeader(room, info, x, y)
-    y = this._renderGCL(room, info, x, y)
-    y = this._renderController(room, info, x, y)
-    y = this._renderEnergy(room, info, x, y)
-    y = this._renderStorage(room, info, x, y)
-    y = this._renderCreepsAndHostiles(room, info, x, y)
-    y = this._renderCPU(room, info, x, y)
+    this._renderBackground (room, x, y, width, height)
+    y = this._renderHeader (room, info, x, y)
+    y = this._renderGCL (room, info, x, y)
+    y = this._renderController (room, info, x, y)
+    y = this._renderEnergy (room, info, x, y)
+    y = this._renderStorage (room, info, x, y)
+    y = this._renderCreepsAndHostiles (room, info, x, y)
+    y = this._renderCPU (room, info, x, y)
   }
 }
 

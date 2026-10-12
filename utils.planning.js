@@ -113,50 +113,6 @@ module.exports = {
         });
     },
 
-    // Find positions for road network between key structures
-    planRoadNetwork: function (room) {
-        // ⚡ PERFORMANCE OPTIMIZATION: Use getSpawns cache to avoid redundant room.find calls.
-        const spawns = cache.getSpawns(room);
-        if (spawns.length === 0) {
-            return [];
-        }
-        const spawn = spawns[0];
-        const controller = room.controller;
-
-        if (controller === undefined || controller === null) {
-            return [];
-        }
-
-        return cache.get(
-            `road_network_${room.name}`,
-            () => {
-                const sources = cache.getSources(room);
-                const roadPositions = [];
-
-                // Roads to sources
-                sources.forEach((source) => {
-                    if (spawn && spawn.pos) {
-                        const path = spawn.pos.findPathTo(source, { ignoreCreeps: true });
-                        path.forEach((step) => {
-                            roadPositions.push(new RoomPosition(step.x, step.y, room.name));
-                        });
-                    }
-                });
-
-                // Road to controller
-                if (controller && spawn && spawn.pos) {
-                    const path = spawn.pos.findPathTo(controller, { ignoreCreeps: true });
-                    path.forEach((step) => {
-                        roadPositions.push(new RoomPosition(step.x, step.y, room.name));
-                    });
-                }
-
-                return roadPositions;
-            },
-            1000
-        ); // Cache the road network for 1000 ticks
-    },
-
     // Display planning info
     displayPlanningInfo: function (room) {
         const openSpaces = this.findOpenSpaces(room, 3);

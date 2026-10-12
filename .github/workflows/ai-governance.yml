@@ -23,11 +23,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: '3.14'
       - name: Install dependencies
@@ -38,7 +38,8 @@ jobs:
           OPENROUTER_TOKEN: ${{ secrets.OPENROUTER_TOKEN }}
         run: |
           python3 scripts/ai_repo_intel.py
-          python3 scripts/ai_update_readme.py
+          # README.md は手動で管理する。ai_update_readme.py は README 全体を AI で再生成して
+          # 上書きし、誤ったバッジや実態と違う数値を書き戻すため、ここでは実行しない。
       - name: Commit and Push
         run: |
           git config user.name 'AI Documentation Bot'
@@ -55,7 +56,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - name: Run AI Branch Cleaner
@@ -70,7 +71,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Propose Role via Issue
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -220,9 +220,7 @@ describe('utils.tasks', () => {
     expect(() => TaskQueue.run()).not.toThrow()
     expect(action).not.toHaveBeenCalled()
     expect(logger.error).toHaveBeenCalledWith(
-      expect.stringContaining(
-        'Error running periodic task failingConditionTask: Condition Fault'
-      )
+      expect.stringContaining('Error running periodic task failingConditionTask: Condition Fault')
     )
   })
 })

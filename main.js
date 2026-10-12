@@ -123,34 +123,6 @@
         }
     }
 
-    function validateTableAccessibility(table) {
-        if (!table || !(table instanceof HTMLElement)) {
-            return false;
-        }
-        const hasCaption = table.querySelector('caption') !== null;
-        const hasHeaders = Array.from(table.querySelectorAll('th')).some(th => th.hasAttribute('scope'));
-        const hasStructure = validateTableStructure(table);
-        return hasCaption || hasHeaders || hasStructure;
-    }
-
-    function validateTableStructure(table) {
-        if (!table || !(table instanceof HTMLElement)) {
-            return false;
-        }
-        const rows = table.querySelectorAll('tr');
-        if (rows.length === 0) {
-            return false;
-        }
-        const firstRowCellCount = rows[0].querySelectorAll('td, th').length;
-        for (let i = 1; i < rows.length; i++) {
-            const rowCells = rows[i].querySelectorAll('td, th');
-            if (rowCells.length !== firstRowCellCount) {
-                return false;
-            }
-        }
-        return true;
-    }
-
     function fixTableStructure(table) {
         if (!table || !(table instanceof HTMLElement)) {
             return;

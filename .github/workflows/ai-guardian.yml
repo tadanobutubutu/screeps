@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0 # Full history for Gitleaks
 
@@ -62,7 +62,7 @@ jobs:
 
       # 3. OSV-Scanner: Dependency Vulnerabilities (Google)
       - name: OSV-Scanner
-        uses: google/osv-scanner-action@v2.5.1
+        uses: google/osv-scanner-action@v2.6.0
         id: osv
         continue-on-error: true
         with:
@@ -127,7 +127,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Setup Node
         uses: actions/setup-node@v4

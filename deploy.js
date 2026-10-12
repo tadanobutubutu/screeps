@@ -61,10 +61,9 @@ function injectEnvVars (content) {
   const envVarPattern = /\bprocess\.env\.([a-zA-Z0-9_]+)\b/g
 
   return content.replace(envVarPattern, (match, varName) => {
-    const value = process.env[varName]
-    if (value !== undefined) {
+    if (process.env[varName] !== undefined) {
       // JSON.stringify を使用して、クォートやバックスラッシュを安全にエスケープ
-      return JSON.stringify(value)
+      return JSON.stringify(process.env[varName])
     }
     // 環境変数が未定義の場合、Screeps環境での ReferenceError を防ぐために 'undefined' を返す
     return 'undefined'

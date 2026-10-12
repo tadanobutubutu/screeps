@@ -41,7 +41,9 @@ scripts/force_merge_pr.py
   python3 scripts/force_merge_pr.py               # open PR を古い順に判定する
   python3 scripts/force_merge_pr.py 123 456       # 指定した PR だけを判定する
   python3 scripts/force_merge_pr.py --dry-run     # 判定のみ（マージ・ラベル付けはしない）
-  --push-every / --runtime は旧ワークフローとの互換のため受け付けて無視する
+  --push-every / --runtime / --batch は旧ワークフローとの互換のため受け付けて無視する
+  sweep は open PR を全件（上限 1000）取得し、古い順に判定する。件数で切らない
+  （新しい順に切ると、古い PR が判定されないまま残るため）
 """
 
 import argparse
@@ -61,7 +63,7 @@ CONFLICT_RE = re.compile(r"^(<<<<<<< |=======$|>>>>>>> )", re.MULTILINE)
 SHRINK_MIN_LINES = 50
 SHRINK_RATIO = 0.6
 MAX_MERGES_PER_RUN = 10
-DEFAULT_BATCH = 30
+SWEEP_LIMIT = 1000
 MERGEABLE_STATES = ("CLEAN", "UNSTABLE", "HAS_HOOKS")
 PR_FIELDS = (
     "number,title,isDraft,isCrossRepository,baseRefName,headRefOid,"
@@ -218,7 +220,7 @@ def write_summary(lines):
 def main(argv=None):
     parser = argparse.ArgumentParser(description="自動マージゲート")
     parser.add_argument("numbers", nargs="*", type=int, help="判定する PR 番号（省略時は open PR 全体）")
-    parser.add_argument("--batch", type=int, default=DEFAULT_BATCH, help="sweep で判定する PR の上限")
+    parser.add_argument("--batch", type=int, help=argparse.SUPPRESS)
     parser.add_argument("--dry-run", action="store_true", help="判定のみ行う")
     parser.add_argument("--push-every", type=int, help=argparse.SUPPRESS)
     parser.add_argument("--runtime", type=int, help=argparse.SUPPRESS)
@@ -237,7 +239,7 @@ def main(argv=None):
         prs = [pr for pr in prs if pr]
     else:
         prs = gh_json(["pr", "list", "-R", repo, "--state", "open",
-                       "--limit", str(args.batch), "--json", PR_FIELDS])
+                       "--limit", str(SWEEP_LIMIT), "--json", PR_FIELDS])
         if prs is None:
             return 1
     prs.sort(key=lambda pr: pr["number"])

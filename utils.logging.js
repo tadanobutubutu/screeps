@@ -74,7 +74,7 @@ const _escapeHTML = (function () {
     if (typeof str !== 'string' || !escapeRegExp.test(str)) {
       return str
     }
-    return str.replace(/[&<>'\"`]/g, (tag) => chars[tag] || tag)
+    return str.replace(/[&<>'\"`]/g, (tag) => chars[tag])
   }
 })()
 

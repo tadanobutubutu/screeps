@@ -85,17 +85,31 @@ const roleAttacker = {
         let hostileStructure = Game.getObjectById(creep.memory.structureTargetId);
 
         if (hostileStructure === undefined || hostileStructure === null) {
-            let hostileStructures;
             const allStructures = cache.getStructures(creep.room);
             if (allStructures) {
-                hostileStructures = allStructures.filter(
-                    (s) => !s.my && s.structureType && STRUCTURE_FILTER(s)
-                );
-            } else {
-                hostileStructures = [];
-            }
+                let minRange = Infinity;
+                for (let i = 0; i < allStructures.length; i++) {
+                    const s = allStructures[i];
+                    if (!s.my && s.structureType && STRUCTURE_FILTER(s)) {
+                        let range;
+                        if (creep.pos && typeof creep.pos.getRangeTo === 'function') {
+                            range = creep.pos.getRangeTo(s);
+                        } else if (creep.pos && s.pos) {
+                            range = Math.max(
+                                Math.abs(creep.pos.x - s.pos.x),
+                                Math.abs(creep.pos.y - s.pos.y)
+                            );
+                        } else {
+                            range = Infinity;
+                        }
 
-            hostileStructure = creep.pos.findClosestByRange(hostileStructures);
+                        if (range < minRange) {
+                            minRange = range;
+                            hostileStructure = s;
+                        }
+                    }
+                }
+            }
 
             if (hostileStructure) {
                 creep.memory.structureTargetId = hostileStructure.id;

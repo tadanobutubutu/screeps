@@ -96,10 +96,15 @@ INVALID_RESPONSE_MARKERS = (
 )
 
 
+def sanitize_header(val):
+    """Strip carriage return and line feed characters to prevent HTTP Header Injection."""
+    return re.sub(r"[\r\n]", "", str(val)) if val is not None else ""
+
+
 def normalize_token(value):
     if not value:
         return None
-    token = value.strip().strip('"').strip("'")
+    token = sanitize_header(value).strip().strip('"').strip("'")
     return token or None
 
 
@@ -110,7 +115,8 @@ def _openai_chat(url, model, prompt, headers=None, timeout=90):
     }
     req_headers = {"Content-Type": "application/json"}
     if headers:
-        req_headers.update(headers)
+        for k, v in headers.items():
+            req_headers[sanitize_header(k)] = sanitize_header(v)
     req = urllib.request.Request(
         url,
         data=json.dumps(payload).encode("utf-8"),
@@ -240,13 +246,16 @@ def call_gemini(prompt, key):
         print("Trying Google Gemini API (gemini-1.5-flash-latest)...")
         url = (
             "https://generativelanguage.googleapis.com/v1beta/models/"
-            f"gemini-1.5-flash-latest:generateContent?key={key}"
+            "gemini-1.5-flash-latest:generateContent"
         )
         payload = {"contents": [{"parts": [{"text": prompt}]}]}
         req = urllib.request.Request(
             url,
             data=json.dumps(payload).encode("utf-8"),
-            headers={"Content-Type": "application/json"},
+            headers={
+                "Content-Type": "application/json",
+                "x-goog-api-key": key,
+            },
         )
         with urllib.request.urlopen(req, timeout=90) as response:
             data = json.loads(response.read().decode("utf-8"))
@@ -450,7 +459,9 @@ def call_cerebras(prompt):
     for model in CEREBRAS_MODELS:
         try:
             print(f"Trying Cerebras ({model})...")
-            result = _openai_chat(CEREBRAS_BASE, model, prompt, headers=headers, timeout=90)
+            result = _openai_chat(
+                CEREBRAS_BASE, model, prompt, headers=headers, timeout=90
+            )
             if result:
                 return result
         except Exception as exc:
@@ -467,7 +478,9 @@ def call_mistral(prompt):
     for model in MISTRAL_MODELS:
         try:
             print(f"Trying Mistral ({model})...")
-            result = _openai_chat(MISTRAL_BASE, model, prompt, headers=headers, timeout=90)
+            result = _openai_chat(
+                MISTRAL_BASE, model, prompt, headers=headers, timeout=90
+            )
             if result:
                 return result
         except Exception as exc:
@@ -516,7 +529,9 @@ def call_zhipu(prompt):
     for model in ZHIPU_MODELS:
         try:
             print(f"Trying Zhipu GLM ({model})...")
-            result = _openai_chat(ZHIPU_BASE, model, prompt, headers=headers, timeout=90)
+            result = _openai_chat(
+                ZHIPU_BASE, model, prompt, headers=headers, timeout=90
+            )
             if result:
                 return result
         except Exception as exc:
@@ -549,7 +564,9 @@ def call_cohere(prompt):
                 message = data.get("message", {})
                 content = message.get("content", [])
                 if content and isinstance(content, list):
-                    parts = [p.get("text", "") for p in content if p.get("type") == "text"]
+                    parts = [
+                        p.get("text", "") for p in content if p.get("type") == "text"
+                    ]
                     text = "".join(parts).strip()
                     if text:
                         return text

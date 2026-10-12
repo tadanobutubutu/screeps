@@ -28,7 +28,7 @@ const memoryVisualizer = {
             spawns: Object.keys(Memory.spawns || {}).length,
         };
 
-        .toFixed(2)} KB`);
+        console.log(`Total Size: ${(stats.totalSize / 1024).toFixed(2)} KB`);
         return stats;
     },
 
@@ -66,12 +66,13 @@ const memoryVisualizer = {
 
         sizes.sort((a, b) => b.size - a.size);
 
-        sizes.slice(0, limit).forEach((item, index) => {
-            .toFixed(2)} KB)`
-            );
+        const slicedSizes = sizes.slice(0, limit);
+        slicedSizes.forEach((item, index) => {
+            console.log(`- ${item.type} ${item.name}: ${(item.size / 1024).toFixed(2)} KB`);
+
         });
 
-        return sizes;
+        return slicedSizes;
     },
 
     /**
@@ -117,9 +118,9 @@ const memoryVisualizer = {
 
         const snapshots = Memory.timeMachine.snapshots.slice(-ticks);
 
-        :`);
+        console.log(`History (last ${snapshots.length} ticks):`);
         snapshots.forEach((snap) => {
-            }, Energy=${snap.energy}`);
+            console.log(`[${snap.time}] CPU=${snap.cpu.toFixed(2)}, Bucket=${snap.bucket}, Creeps=${snap.creeps}, Energy=${snap.energy}`);
         });
 
         return snapshots;
@@ -193,7 +194,8 @@ const memoryVisualizer = {
 
         sorted.forEach((entry, index) => {
             const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : '  ';
-            });
+            console.log(`${medal} ${entry[0]}: ${entry[1]}`);
+        });
 
         return sorted;
     },
@@ -251,7 +253,8 @@ const memoryVisualizer = {
 
         const diary = Memory.creeps[creepName].diary;
         diary.entries.forEach((entry) => {
-            });
+            console.log(`[${entry.time}] ${entry.message}`);
+        });
 
         return diary.entries;
     },
@@ -268,64 +271,7 @@ const memoryVisualizer = {
         }
     },
 
-    recordRoom: function (roomName) {
-        // Security: Validate roomName to prevent prototype pollution
-        if (!utilsMemory.isSafeKey(roomName)) {
-            return;
-        }
 
-        this.initMemoryMap();
-
-        const room = Game.rooms[roomName];
-        if (room === undefined || room === null) {
-            return;
-        }
-
-        // Security: Cap the number of rooms stored in Memory to prevent DoS
-        const roomKeys = Object.keys(Memory.map.rooms);
-        if (roomKeys.length >= MAX_ROOM_DATA && !Memory.map.rooms[roomName]) {
-            const oldestRoom = roomKeys.sort((a, b) => {
-                return Memory.map.rooms[a].lastVisit - Memory.map.rooms[b].lastVisit;
-            })[0];
-            delete Memory.map.rooms[oldestRoom];
-        }
-
-        Memory.map.rooms[roomName] = {
-            lastVisit: Game.time,
-            controller: room.controller
-                ? {
-                      owner: room.controller.owner?.username ?? null,
-                      level: room.controller.level,
-                  }
-                : null,
-            sources: cache.getSources(room).length,
-            minerals: room.find(FIND_MINERALS).length,
-            hostiles: cache.getEnemies(room).length,
-        };
-
-        if (!Memory.map.explored.includes(roomName)) {
-            Memory.map.explored.push(roomName);
-
-            // Security: Limit history of explored rooms
-            if (Memory.map.explored.length > MAX_EXPLORED_ROOMS) {
-                Memory.map.explored.shift();
-            }
-        }
-    },
-
-    showMap: function () {
-        this.initMemoryMap();
-
-        for (const roomName in Memory.map.rooms) {
-            if (
-                utilsMemory.isSafeKey(roomName) &&
-                Object.prototype.hasOwnProperty.call(Memory.map.rooms, roomName)
-            ) {
-                const info = Memory.map.rooms[roomName];
-                const owner = info.controller?.owner ?? 'Unclaimed';
-                }
-        }
-    },
 
     /**
      * メモリクリーナー
@@ -388,7 +334,8 @@ const memoryVisualizer = {
             Memory.backups.shift();
         }
 
-        },
+        // log backup saved
+    },
 
     restore: function (index = 0) {
         if (!Memory.backups || Memory.backups.length === 0) {

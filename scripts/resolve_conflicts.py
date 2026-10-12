@@ -94,7 +94,7 @@ def main():
     )
 
     # Fetch main/base branch
-    run_cmd(["git", "fetch", "origin", base_branch])
+    run_cmd(["git", "fetch", "origin", "--", base_branch])
 
     # Try to merge base branch into the head branch
     merge_res = subprocess.run(
@@ -102,7 +102,7 @@ def main():
     )
     if merge_res.returncode == 0:
         print("Merge completed cleanly without conflicts. Pushing updates...")
-        run_cmd(["git", "push", "origin", f"HEAD:{head_branch}"])
+        run_cmd(["git", "push", "origin", "--", f"HEAD:{head_branch}"])
         print("Push completed successfully.")
         return
 

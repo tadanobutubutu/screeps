@@ -62,3 +62,4 @@ docs/plato-report/
 scripts/__pycache__/
 issue_list.txt
 scratch/
+.issuework/

@@ -19,7 +19,7 @@ function formatNumber (num) {
 const DashboardRenderer = {
   formatNumber,
 
-  renderRoomDashboard (room) {
+  renderRoomDashboard(room) {
     // ⚡ PERFORMANCE OPTIMIZATION: Leverage pre-warmed room caches from main.js.
     // Redundant per-tick find() calls and role counting removed as they are handled globally.
     const structures = room._myStructures || []
@@ -50,7 +50,7 @@ const DashboardRenderer = {
             progressTotal: room.controller.progressTotal || 0,
             percent: room.controller.progressTotal
               ? Math.floor(
-                (room.controller.progress / room.controller.progressTotal) * 100
+               (room.controller.progress / room.controller.progressTotal) * 100
               )
               : 100,
             safeMode: room.controller.safeMode,
@@ -80,7 +80,7 @@ const DashboardRenderer = {
   },
 
 
-  _renderBackground (room, x, y, width, height) {
+  _renderBackground(room, x, y, width, height) {
     room.visual.rect(x - 0.5, y - 1, width, height, {
       fill: '#000000',
       opacity: 0.5,
@@ -89,7 +89,7 @@ const DashboardRenderer = {
     })
   },
 
-  _renderHeader (room, info, x, y) {
+  _renderHeader(room, info, x, y) {
     const modeIcons = { EMERGENCY: '🚨', MINIMAL: '🔋', NORMAL: '⚖️', FULL: '🚀' }
     const modeColors = { EMERGENCY: '#ff0000', MINIMAL: '#ffaa00', NORMAL: '#ffff00', FULL: '#00ff00' }
     const modeColor = modeColors[info.mode] || '#ffffff'
@@ -105,7 +105,7 @@ const DashboardRenderer = {
     return y + 1
   },
 
-  _renderGCL (room, info, x, y) {
+  _renderGCL(room, info, x, y) {
     room.visual.text(`🌐 GCL: ${info.gcl.level} (${info.gcl.percent.toFixed(2)}%)`, x, y, {
       font: 0.7,
       color: '#00aaff',
@@ -123,7 +123,7 @@ const DashboardRenderer = {
     return y + 0.6
   },
 
-  _renderController (room, info, x, y) {
+  _renderController(room, info, x, y) {
     let controllerText = info.controller
       ? `🎮 RCL: ${info.controller.level} (${info.controller.percent}%)`
       : '🎮 RCL: None'
@@ -156,7 +156,7 @@ const DashboardRenderer = {
     return y + 0.8
   },
 
-  _renderEnergy (room, info, x, y) {
+  _renderEnergy(room, info, x, y) {
     let energyColor = '#00ffff'
     if (info.energyAvailable >= info.energyCapacity && info.energyCapacity > 0) {
       energyColor = '#FFD700'
@@ -183,7 +183,7 @@ const DashboardRenderer = {
     return y + 0.6
   },
 
-  _renderStorage (room, info, x, y) {
+  _renderStorage(room, info, x, y) {
     let storageColor = '#00ffff'
     if (info.storagePercent >= 100) {
       storageColor = '#FFD700'
@@ -210,7 +210,7 @@ const DashboardRenderer = {
     return y + 0.8
   },
 
-  _renderCreepsAndHostiles (room, info, x, y) {
+  _renderCreepsAndHostiles(room, info, x, y) {
     room.visual.text(
       `👥 ⛏️:${info.creeps.harvester} ⬆️:${info.creeps.upgrader} 🛠️:${info.creeps.builder} 🔧:${info.creeps.repairer}`,
       x, y,
@@ -238,7 +238,7 @@ const DashboardRenderer = {
     return y + 0.8
   },
 
-  _renderCPU (room, info, x, y) {
+  _renderCPU(room, info, x, y) {
     const bucketProgress = Math.min(info.bucket / 10000, 1)
     const bucketPulse = info.bucket < 1000 ? 0.7 + 0.3 * Math.sin(Game.time / 2) : 1.0
 
@@ -261,7 +261,7 @@ const DashboardRenderer = {
     return y + 1.0
   },
 
-  displayVisuals (room) {
+  displayVisuals(room) {
     const info = this.renderRoomDashboard(room)
 
     let y = 2.0
@@ -269,14 +269,14 @@ const DashboardRenderer = {
     const width = 8.5
     const height = 12.2
 
-    this._renderBackground (room, x, y, width, height)
-    y = this._renderHeader (room, info, x, y)
-    y = this._renderGCL (room, info, x, y)
-    y = this._renderController (room, info, x, y)
-    y = this._renderEnergy (room, info, x, y)
-    y = this._renderStorage (room, info, x, y)
-    y = this._renderCreepsAndHostiles (room, info, x, y)
-    y = this._renderCPU (room, info, x, y)
+    this._renderBackground(room, x, y, width, height)
+    y = this._renderHeader(room, info, x, y)
+    y = this._renderGCL(room, info, x, y)
+    y = this._renderController(room, info, x, y)
+    y = this._renderEnergy(room, info, x, y)
+    y = this._renderStorage(room, info, x, y)
+    y = this._renderCreepsAndHostiles(room, info, x, y)
+    y = this._renderCPU(room, info, x, y)
   }
 }
 

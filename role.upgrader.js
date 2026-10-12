@@ -23,7 +23,7 @@ const roleUpgrader = {
       const sources = creep.room._activeSources || []
 
       if (sources.length > 0) {
-        let source = roleUtils.getHarvestTarget(creep, sources)
+        const source = roleUtils.getHarvestTarget(creep, sources)
 
         if (source) {
           if (creep.harvest(source) === ERR_NOT_IN_RANGE) {

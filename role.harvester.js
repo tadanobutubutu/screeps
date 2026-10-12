@@ -72,7 +72,7 @@ const roleHarvester = {
     const sources = creep.room._activeSources || []
 
     if (sources.length > 0) {
-      let source = roleUtils.getHarvestTarget(creep, sources)
+      const source = roleUtils.getHarvestTarget(creep, sources)
 
       const result = creep.harvest(source)
 

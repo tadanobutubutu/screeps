@@ -1,0 +1,1 @@
+Learned about effectively mocking crypto and global state in jest to test fallback scenarios.

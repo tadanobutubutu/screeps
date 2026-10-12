@@ -14,6 +14,14 @@ function getPkgManager () {
 }
 
 function runCommand (cmd, args = []) {
+  if (!['npm', 'pnpm', 'yarn', 'bun', 'npx'].includes(cmd)) {
+    return {
+      ok: false,
+      stdout: '',
+      stderr: '',
+      message: `Command execution denied: ${cmd} is not in the allowlist.`
+    }
+  }
   try {
     const stdout = execFileSync(cmd, args, { stdio: 'pipe', encoding: 'utf8' })
     return { ok: true, stdout }

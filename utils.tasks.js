@@ -19,14 +19,15 @@ const TaskQueue = {
      * @param {function} condition - An optional function that must return true for the task to run.
      */
     registerTask: function (name, interval, action, condition = () => true) {
-        // Security: Validate task name
+        // Security: Validate task name and interval
         if (!utilsMemory.isSafeKey(name)) return;
         const sanitizedName = String(name).substring(0, MAX_TASK_NAME_LENGTH);
+        const safeInterval = Math.max(1, Math.floor(Number(interval) || 1));
 
         // Check for duplicates to prevent queue bloating
         const existingTask = this.tasks.get(sanitizedName);
         if (existingTask) {
-            existingTask.interval = interval;
+            existingTask.interval = safeInterval;
             existingTask.action = action;
             existingTask.condition = condition;
             // Security: Reset failure count when task is updated
@@ -41,7 +42,7 @@ const TaskQueue = {
             return;
         }
 
-        this.tasks.set(sanitizedName, { name: sanitizedName, interval, action, condition, failures: 0 });
+        this.tasks.set(sanitizedName, { name: sanitizedName, interval: safeInterval, action, condition, failures: 0 });
     },
 
     /**
@@ -63,8 +64,8 @@ const TaskQueue = {
         for (const task of this.tasks.values()) {
             if (task.failures >= MAX_TASK_FAILURES) continue;
             if (currentTick % task.interval === 0) {
-                if (task.condition && !task.condition()) continue;
                 try {
+                    if (task.condition && !task.condition()) continue;
                     task.action();
                 } catch (e) {
                     task.failures++;

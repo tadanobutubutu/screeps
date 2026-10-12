@@ -197,4 +197,30 @@ describe('utils.tasks', () => {
     TaskQueue.removeTask(longName)
     expect(TaskQueue.tasks.size).toBe(0)
   })
+
+  test('registerTask sanitizes non-positive or invalid interval values', () => {
+    TaskQueue.registerTask('invalid1', 0, () => {})
+    expect(TaskQueue.tasks.get('invalid1').interval).toBe(1)
+
+    TaskQueue.registerTask('invalid2', -5, () => {})
+    expect(TaskQueue.tasks.get('invalid2').interval).toBe(1)
+
+    TaskQueue.registerTask('invalid3', 'invalid', () => {})
+    expect(TaskQueue.tasks.get('invalid3').interval).toBe(1)
+  })
+
+  test('run handles condition callback errors gracefully without crashing queue', () => {
+    const buggyCondition = () => {
+      throw new Error('Condition Fault')
+    }
+    const action = jest.fn()
+
+    TaskQueue.registerTask('failingConditionTask', 1, action, buggyCondition)
+
+    expect(() => TaskQueue.run()).not.toThrow()
+    expect(action).not.toHaveBeenCalled()
+    expect(logger.error).toHaveBeenCalledWith(
+      expect.stringContaining('Error running periodic task failingConditionTask: Condition Fault')
+    )
+  })
 })

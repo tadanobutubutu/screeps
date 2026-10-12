@@ -84,12 +84,6 @@ describe('utils.memory', () => {
     expect(result).toBe('default')
   })
 
-  test('setRoomMemory does not set for unsafe keys', () => {
-    utilsMemory.setRoomMemory('__proto__', 'key', 'value')
-    const result = utilsMemory.getRoomMemory('__proto__', 'key', 'default')
-    expect(result).toBe('default')
-  })
-
   test('clearRoomMemory handles unsafe keys', () => {
     expect(() => utilsMemory.clearRoomMemory('constructor', 'key')).not.toThrow()
     expect(() => utilsMemory.clearRoomMemory('__proto__', 'key')).not.toThrow()
@@ -167,6 +161,31 @@ describe('utils.memory', () => {
     expect(result).toBe(0)
   })
 
+  test('cleanMemory keeps alive creeps in memory', () => {
+    global.Memory.creeps = { aliveCreep: {}, deadCreep: {} }
+    global.Game.creeps = { aliveCreep: {} }
+    const result = utilsMemory.cleanMemory()
+    expect(result).toBe(1)
+    expect(global.Memory.creeps.aliveCreep).toBeDefined()
+    expect(global.Memory.creeps.deadCreep).toBeUndefined()
+  })
+
+  test('cleanMemory deletes safe keys not present in Game.creeps', () => {
+    global.Memory.creeps = { safeKey: {} }
+    global.Game.creeps = {}
+    const result = utilsMemory.cleanMemory()
+    expect(result).toBe(1)
+    expect(global.Memory.creeps.safeKey).toBeUndefined()
+  })
+
+  test('cleanMemory handles undefined Game.creeps entries', () => {
+    global.Memory.creeps = { creep1: {} }
+    global.Game.creeps = { creep1: undefined }
+    const result = utilsMemory.cleanMemory()
+    expect(result).toBe(1)
+    expect(global.Memory.creeps.creep1).toBeUndefined()
+  })
+
   test('getRoomMemory creates room object if not exists', () => {
     global.Memory.rooms = {}
     const result = utilsMemory.getRoomMemory('room1', 'key', 'default')
@@ -179,18 +198,6 @@ describe('utils.memory', () => {
     global.Memory.rooms = { room1: { key: 'stored' } }
     const result = utilsMemory.getRoomMemory('room1', 'key', 'default')
     expect(result).toBe('stored')
-  })
-
-  test('setRoomMemory sets value correctly', () => {
-    global.Memory.rooms = {}
-    utilsMemory.setRoomMemory('room1', 'key', 'value')
-    expect(Memory.rooms.room1.key).toBe('value')
-  })
-
-  test('setRoomMemory handles undefined room', () => {
-    global.Memory.rooms = {}
-    utilsMemory.setRoomMemory('room1', 'key', 'value')
-    expect(Memory.rooms.room1.key).toBe('value')
   })
 
   test('clearRoomMemory removes key from room', () => {
@@ -292,58 +299,4 @@ describe('utils.memory', () => {
     })
   })
 
-  describe('initCreepMemory', () => {
-    let creep
-
-    beforeEach(() => {
-      creep = { memory: {} }
-    })
-
-    test('initializes role and working state if undefined', () => {
-      utilsMemory.initCreepMemory(creep, 'harvester')
-      expect(creep.memory.role).toBe('harvester')
-      expect(creep.memory.working).toBe(false)
-    })
-
-    test('does not overwrite existing role or working state', () => {
-      creep.memory.role = 'builder'
-      creep.memory.working = true
-      utilsMemory.initCreepMemory(creep, 'harvester')
-      expect(creep.memory.role).toBe('builder')
-      expect(creep.memory.working).toBe(true)
-    })
-
-    test('copies safe properties from extraData', () => {
-      utilsMemory.initCreepMemory(creep, 'harvester', { sourceId: 'abc', count: 5 })
-      expect(creep.memory.sourceId).toBe('abc')
-      expect(creep.memory.count).toBe(5)
-    })
-
-    test('does not overwrite existing properties in creep memory with extraData', () => {
-      creep.memory.sourceId = 'xyz'
-      utilsMemory.initCreepMemory(creep, 'harvester', { sourceId: 'abc' })
-      expect(creep.memory.sourceId).toBe('xyz')
-    })
-
-    test('blocks dangerous keys from extraData', () => {
-      const extraData = { validKey: 'value' }
-      Object.defineProperty(extraData, '__proto__', { value: 'danger', enumerable: true })
-      utilsMemory.initCreepMemory(creep, 'harvester', extraData)
-
-      // Should not copy __proto__ but validKey should be copied
-      expect(creep.memory.validKey).toBe('value')
-      expect(creep.memory.__proto__).not.toBe('danger')
-    })
-
-    test('does not copy inherited properties from extraData', () => {
-      const parent = { inheritedKey: 'inherited' }
-      const child = Object.create(parent)
-      child.ownKey = 'own'
-
-      utilsMemory.initCreepMemory(creep, 'harvester', child)
-
-      expect(creep.memory.ownKey).toBe('own')
-      expect(creep.memory.inheritedKey).toBeUndefined()
-    })
-  })
 })

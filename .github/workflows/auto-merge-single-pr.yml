@@ -1,0 +1,47 @@
+name: Auto Merge PR on CI completion
+
+# CI が完了した時点で、その PR を判定する（同じゲートを使う）。
+# PR のコードは実行しない。判定は base ブランチ側のスクリプトだけで行う。
+on:
+  check_suite:
+    types: [completed]
+
+# auto-merge-pr.yml と同じグループにして、マージを 1 つずつ直列に実行する
+concurrency:
+  group: auto-merge-gate
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  gate:
+    if: >-
+      github.event.check_suite.conclusion == 'success' &&
+      toJSON(github.event.check_suite.pull_requests) != '[]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout (default branch)
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+
+      - name: Gated check for the PRs in this check suite
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          PR_NUMBERS: ${{ join(github.event.check_suite.pull_requests.*.number, ' ') }}
+        run: |
+          if [ -z "$PR_NUMBERS" ]; then
+            echo "No pull requests attached to this check suite."
+            exit 0
+          fi
+          python3 scripts/force_merge_pr.py $PR_NUMBERS

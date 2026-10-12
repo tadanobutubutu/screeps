@@ -1,26 +1,27 @@
 {
-  "name": "my-app",
+  "name": "ace-screeps-ai",
   "version": "1.0.0",
-  "description": "A sample application",
-  "main": "index.js",
+  "description": "Screeps AI bot and development tooling",
   "scripts": {
-    "start": "node src/index.js",
     "test": "jest"
   },
   "dependencies": {
-    "dotenv": "^17.4.2",
+    "dotenv": "^18.0.7",
     "express": "^5.0.0",
+    "globals": "^17.13.0",
     "lodash": "^4.17.21",
-    "react": "^19.3.0"
+    "react": "^19.0.0"
   },
   "devDependencies": {
-    "babel-jest": "^30.5.2",
-    "eslint": "^10.11.0",
-    "jest": "^30.5.2",
+    "@babel/core": "^8.0.7",
+    "@babel/preset-env": "^8.0.7",
+    "babel-jest": "^30.5.0",
+    "eslint": "^10.12.0",
+    "jest": "^30.5.0",
     "jest-junit": "^17.0.0",
-    "testdriverai": "^7.11.171",
-    "vitest": "^5.0.1"
+    "testdriverai": "^7.11.85-canary",
+    "vitest": "^5.0.3"
   },
-  "author": "Your Name",
-  "license": "MIT"
+  "license": "MIT",
+  "private": true
 }

@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { TestDriver } from "testdriverai/vitest/hooks";
 
+const DASHBOARD_URL = process.env.DASHBOARD_URL || "http://localhost:3000";
+
 // Accessibility-focused test for the Screeps dashboard (dashboard/).
 //
 // The dashboard fetches /api/screeps?endpoint=overview. Without valid Screeps
@@ -19,12 +21,7 @@ import { TestDriver } from "testdriverai/vitest/hooks";
 describe("Screeps Dashboard accessibility", () => {
   it("renders an accessible, labeled UI with operable controls", async (context) => {
     const testdriver = TestDriver(context);
-
-    // TODO: replace with the deployed dashboard URL, or the local tunnel URL
-    // produced by `run_local_app` when running the dashboard from source.
-    await testdriver.provision.chrome({
-      url: "https://vast-ideas-decide.loca.lt",
-    });
+    await testdriver.provision.chrome({ url: DASHBOARD_URL });
 
     // Wait for the client component to fetch and settle into a rendered state.
     await testdriver.wait(4000);

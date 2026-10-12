@@ -1,6 +1,8 @@
-def submit():
-    print("Submitted.")
+import sys
+sys.path.append('.')
 
+def main():
+    print('Ready to submit.')
 
 if __name__ == "__main__":
-    submit()
+    main()

@@ -1,3 +1,3 @@
-🎯 **What:** The vulnerability fixed is the arbitrary shell command execution in `pre_commit_script.js` caused by executing `npm run lint` and `npm test` via the shell, which could allow arbitrary command execution.
-⚠️ **Risk:** If left unfixed, an attacker could potentially execute arbitrary shell commands if they control the `npm` execution environment or if the project relies on the shell's behavior to execute scripts. This could lead to a compromise of the development environment.
-🛡️ **Solution:** The fix replaces the shell-based execution (`execFileSync('npm', ['run', 'lint'])`) with direct binary execution (`execFileSync('npx', ['eslint', '.'])` and `execFileSync('npx', ['jest', '--reporters=default'])`). This avoids invoking a shell, thereby eliminating the risk of arbitrary shell command execution.
+🎯 **What:** Added tests for the previously untested exported function `getEnergyFromStorage` in `src/utils/roleUtils.js` to ensure it operates correctly in different scenarios.
+📊 **Coverage:** Covered edge cases such as missing minimum energy, cache lookup fallback, cache invalidation, moving out of range, custom target key parameter and custom minimum energy parameter.
+✨ **Result:** Reached 100% statement and branch coverage in `src/utils/roleUtils.js`.

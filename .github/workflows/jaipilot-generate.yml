@@ -80,7 +80,7 @@ jobs:
           echo "jaipilot_token_expires_at=$expires_at" >> "$GITHUB_OUTPUT"
 
       - name: Run JAIPilot generate and push changes
-        uses: JAIPilot/jaipilot-cli@action-v1
+        uses: JAIPilot/jaipilot-cli@main
         env:
           JAIPILOT_BACKEND_URL: https://otxfylhjrlaesjagfhfi.supabase.co
         with:

@@ -27,7 +27,6 @@ jest.mock('daily-challenge', () => ({
 const gamification = require('../gamification')
 const vfx = require('visual.effects')
 const logger = require('utils.logging')
-const adaptiveSystem = require('system.adaptive')
 
 describe('Gamification System', () => {
   beforeEach(() => {

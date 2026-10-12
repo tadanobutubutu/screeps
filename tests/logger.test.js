@@ -279,5 +279,58 @@ describe('logger', () => {
                 'ユーザー設定を [REDACTED] に保存しました。password: [REDACTED] token=[REDACTED]';
             expect(logger._redactPaths(mixedStr)).toBe(expectedStr);
         });
+
+    describe('init', () => {
+        test('ログが100件を超える場合、最新の100件に切り詰める', () => {
+            global.Memory.logs = Array(150).fill({ level: 'info', message: 'test' });
+            logger.init();
+            expect(global.Memory.logs.length).toBe(100);
+        });
+
+        test('Memory.logs が未定義の場合、クラッシュしない', () => {
+            delete global.Memory.logs;
+            expect(() => logger.init()).not.toThrow();
+        });
+    });
+
+    describe('getRecentLogs', () => {
+        test('指定された件数の最新ログを返す', () => {
+            global.Memory.logs = [
+                { level: 'info', message: '1' },
+                { level: 'warn', message: '2' },
+                { level: 'error', message: '3' },
+            ];
+            const recent = logger.getRecentLogs(2);
+            expect(recent.length).toBe(2);
+            expect(recent[0].message).toBe('2');
+            expect(recent[1].message).toBe('3');
+        });
+
+        test('Memory.logs が未定義の場合、空配列を返す', () => {
+            delete global.Memory.logs;
+            expect(logger.getRecentLogs(5)).toEqual([]);
+        });
+    });
+
+    describe('getErrors', () => {
+        test('エラーレベルのログのみを返す', () => {
+            global.Memory.logs = [
+                { level: 'info', message: '1' },
+                { level: 'error', message: '2' },
+                { level: 'warn', message: '3' },
+                { level: 'error', message: '4' },
+            ];
+            const errors = logger.getErrors();
+            expect(errors.length).toBe(2);
+            expect(errors[0].message).toBe('2');
+            expect(errors[1].message).toBe('4');
+        });
+
+        test('Memory.logs が未定義の場合、空配列を返す', () => {
+            delete global.Memory.logs;
+            expect(logger.getErrors()).toEqual([]);
+        });
+    });
+
     });
 });

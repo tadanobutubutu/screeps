@@ -30,10 +30,10 @@ const roleAttacker = {
   },
 
   /**
-   * Heal self if damaged and healer not available
-   * @param {Creep} creep
-   * @returns {boolean} True if creep is moving to heal
-   */
+     * Heal self if damaged and healer not available
+     * @param {Creep} creep
+     * @returns {boolean} True if creep is moving to heal
+     */
   _handleHealing (creep) {
     if (creep.hits >= creep.hitsMax * 0.5) return false
 
@@ -69,10 +69,10 @@ const roleAttacker = {
   },
 
   /**
-   * Priority 1: Attack hostile creeps in range
-   * @param {Creep} creep
-   * @returns {boolean} True if handling hostile creep
-   */
+     * Priority 1: Attack hostile creeps in range
+     * @param {Creep} creep
+     * @returns {boolean} True if handling hostile creep
+     */
   _handleHostileCreeps (creep) {
     // ⚡ PERFORMANCE: Use pre-warmed room cache for hostile creeps.
     const hostiles = cache.getEnemies(creep.room)
@@ -101,10 +101,10 @@ const roleAttacker = {
   },
 
   /**
-   * Priority 2: Attack invader core or hostile structures
-   * @param {Creep} creep
-   * @returns {boolean} True if handling hostile structure
-   */
+     * Priority 2: Attack invader core or hostile structures
+     * @param {Creep} creep
+     * @returns {boolean} True if handling hostile structure
+     */
   _handleHostileStructures (creep) {
     // ⚡ PERFORMANCE: Implement target ID caching for structures
     let hostileStructure = Game.getObjectById(creep.memory.structureTargetId)
@@ -153,9 +153,9 @@ const roleAttacker = {
   },
 
   /**
-   * Priority 3: Patrol flag or room center when idle
-   * @param {Creep} creep
-   */
+     * Priority 3: Patrol flag or room center when idle
+     * @param {Creep} creep
+     */
   _handlePatrol (creep) {
     const flag = Game.flags.attack || Game.flags.Attack
     if (flag) {

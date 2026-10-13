@@ -835,7 +835,6 @@ export default function Dashboard() {
                     <div
                         role="progressbar"
                         aria-labelledby="gcl-progress-label"
-                        aria-label="GCLの進捗"
                         aria-valuenow={stats?.gcl?.progress || 0}
                         aria-valuemin={0}
                         aria-valuemax={stats?.gcl?.progressTotal || 100}
@@ -913,7 +912,6 @@ export default function Dashboard() {
                     <div
                         role="progressbar"
                         aria-labelledby="cpu-progress-label"
-                        aria-label="CPU使用率"
                         aria-valuenow={stats?.cpuUsed || 0}
                         aria-valuemin={0}
                         aria-valuemax={100}

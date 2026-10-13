@@ -5,12 +5,17 @@ if (!fs.existsSync('last-role-creation.json')) {
   process.exit(0)
 }
 
-let report = {}
+let report = null
 try {
   report = JSON.parse(fs.readFileSync('last-role-creation.json', 'utf8'))
 } catch (e) {
   console.error('Invalid JSON in last-role-creation.json:', e.message)
   process.exit(1)
+}
+
+if (!report || typeof report !== 'object') {
+  console.log('No valid role creation object found in last-role-creation.json')
+  process.exit(0)
 }
 
 const roleName = report.role

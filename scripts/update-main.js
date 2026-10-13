@@ -5,11 +5,29 @@ if (!fs.existsSync('last-role-creation.json')) {
   process.exit(0)
 }
 
-const report = JSON.parse(fs.readFileSync('last-role-creation.json', 'utf8'))
+let report = {}
+try {
+  report = JSON.parse(fs.readFileSync('last-role-creation.json', 'utf8'))
+} catch (e) {
+  console.error('Invalid JSON in last-role-creation.json:', e.message)
+  process.exit(1)
+}
+
 const roleName = report.role
 if (!roleName) {
   console.log('No new role generated')
   process.exit(0)
+}
+
+// Security: Validate roleName to allow alphanumeric characters only (prevent code injection)
+if (typeof roleName !== 'string' || !/^[a-zA-Z0-9]+$/.test(roleName)) {
+  console.error('Invalid role name format in report:', roleName)
+  process.exit(1)
+}
+
+if (!fs.existsSync('main.js')) {
+  console.error('main.js not found')
+  process.exit(1)
 }
 
 const main = fs.readFileSync('main.js', 'utf8')

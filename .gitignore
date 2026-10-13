@@ -62,3 +62,6 @@ docs/plato-report/
 scripts/__pycache__/
 issue_list.txt
 scratch/
+
+# 一時作業ディレクトリ (issue 一括クローズ用)
+.issue-work/

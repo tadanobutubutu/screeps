@@ -56,7 +56,7 @@ function run (room) {
       _cleanupRoomMemory(room)
     }
 
-    console.log('Game.time', Game.time, 'interval', BUILD_PLAN_INTERVAL)
+    console.log('Game.time', Game.time, 'interval', BUILD_PLAN_INTERVAL);
     if (Game.time % BUILD_PLAN_INTERVAL === 0) {
       _planConstruction(room)
     }
@@ -192,17 +192,17 @@ function _planRoads (room) {
   const spawn = spawns[0]
   const targets = [...cache.getSources(room), room.controller].filter(Boolean)
 
-  const occupied = new Uint8Array(2500)
-  const structures = cache.getStructures(room)
+  const occupied = new Uint8Array(2500);
+  const structures = cache.getStructures(room);
   for (let i = 0; i < structures.length; i++) {
-    const p = structures[i].pos
-    if (p) occupied[p.y * 50 + p.x] = 1
+    const p = structures[i].pos;
+    if (p) occupied[p.y * 50 + p.x] = 1;
   }
 
-  const sites = cache.getConstructionSites(room)
+  const sites = cache.getConstructionSites(room);
   for (let i = 0; i < sites.length; i++) {
-    const p = sites[i].pos
-    if (p) occupied[p.y * 50 + p.x] = 1
+    const p = sites[i].pos;
+    if (p) occupied[p.y * 50 + p.x] = 1;
   }
 
   for (const target of targets) {
@@ -233,29 +233,29 @@ function _planRoads (room) {
  * @param {Room} room
  * @returns {number}
  */
-function _getNeededExtensionCount (room) {
-  const rcl = room.controller ? room.controller.level : 0
-  const maxExtensions =
+function _getNeededExtensionCount(room) {
+    const rcl = room.controller ? room.controller.level : 0;
+    const maxExtensions =
         (typeof CONTROLLER_STRUCTURES !== 'undefined' &&
             CONTROLLER_STRUCTURES.extension &&
             CONTROLLER_STRUCTURES.extension[rcl]) ||
-        0
+        0;
 
-  if (maxExtensions === 0) return 0
+    if (maxExtensions === 0) return 0;
 
-  const existing = cache.getMyStructures(room, STRUCTURE_EXTENSION)
-  const sites = cache.getConstructionSites(room)
-  let extensionSites = 0
-  for (let i = 0; i < sites.length; i++) {
-    if (sites[i].structureType === STRUCTURE_EXTENSION) {
-      extensionSites++
+    const existing = cache.getMyStructures(room, STRUCTURE_EXTENSION);
+    const sites = cache.getConstructionSites(room);
+    let extensionSites = 0;
+    for (let i = 0; i < sites.length; i++) {
+        if (sites[i].structureType === STRUCTURE_EXTENSION) {
+            extensionSites++;
+        }
     }
-  }
 
-  const currentCount = existing.length + extensionSites
-  if (currentCount >= maxExtensions) return 0
+    const currentCount = existing.length + extensionSites;
+    if (currentCount >= maxExtensions) return 0;
 
-  return Math.min(5, maxExtensions - currentCount)
+    return Math.min(5, maxExtensions - currentCount);
 }
 
 /**
@@ -269,9 +269,9 @@ function _planExtensions (room) {
   if (maxExtensions === 0) return
 
   const existing = cache.getMyStructures(room, STRUCTURE_EXTENSION)
-  const sites = cache
-    .getConstructionSites(room)
-    .filter((s) => s.structureType === STRUCTURE_EXTENSION)
+  const sites = cache.getConstructionSites(room).filter(
+    (s) => s.structureType === STRUCTURE_EXTENSION
+  )
 
   const currentCount = existing.length + sites.length
   if (currentCount >= maxExtensions) return
@@ -392,10 +392,8 @@ function _manageLinkNetwork (room) {
     if (energy >= capacity * LINK_TRANSFER_THRESHOLD && l.cooldown === 0) {
       sourceLinks.push(l)
     } else if (energy < capacity * 0.5) {
-      if (
-        (ctrlPos && ctrlPos.getRangeTo && ctrlPos.getRangeTo(l) <= 5) ||
-                (spawnPos && spawnPos.getRangeTo && spawnPos.getRangeTo(l) <= 5)
-      ) {
+      if ((ctrlPos && ctrlPos.getRangeTo && ctrlPos.getRangeTo(l) <= 5) ||
+          (spawnPos && spawnPos.getRangeTo && spawnPos.getRangeTo(l) <= 5)) {
         sinkLinks.push(l)
       }
     }

@@ -182,7 +182,9 @@ describe('roomManager', () => {
 
       expect(() => roomManager.run(mockRoom)).not.toThrow()
       expect(logger.error).toHaveBeenCalled()
-      expect(logger.error.mock.calls[0][0]).toContain(`[RoomManager] ルーム ${mockRoom.name} でエラー`)
+      expect(logger.error.mock.calls[0][0]).toContain(
+                `[RoomManager] ルーム ${mockRoom.name} でエラー`
+      )
       expect(logger.error.mock.calls[0][1].message).toBe('Test cache cleanup error')
     })
   })
@@ -247,14 +249,18 @@ describe('roomManager', () => {
       cache.getStorage.mockReturnValue({ store: { [global.RESOURCE_ENERGY]: 50000 } })
       const creeps = [
         { room: mockRoom, memory: { role: 'harvester' } },
-        { room: mockRoom, memory: { role: 'upgrader' } },
+        { room: mockRoom, memory: { role: 'upgrader' } }
       ]
       cache.getMyCreeps.mockReturnValue(creeps)
 
       roomManager.showStats(mockRoom)
 
-      expect(logger.info).toHaveBeenCalledWith(expect.stringContaining('Storage: 50,000 energy'))
-      expect(logger.info).toHaveBeenCalledWith(expect.stringContaining('Roles: harvester:1 upgrader:1'))
+      expect(logger.info).toHaveBeenCalledWith(
+        expect.stringContaining('Storage: 50,000 energy')
+      )
+      expect(logger.info).toHaveBeenCalledWith(
+        expect.stringContaining('Roles: harvester:1 upgrader:1')
+      )
     })
   })
 
@@ -503,7 +509,7 @@ describe('roomManager', () => {
   describe('_planRoads', () => {
     beforeEach(() => {
       global.Game.time = 500 // trigger _planConstruction
-      global.CONTROLLER_STRUCTURES = { extension: { 2: 0 } }; // disable extensions
+      global.CONTROLLER_STRUCTURES = { extension: { 2: 0 } } // disable extensions
       mockRoom.controller.level = 2 // triggers _planSourceContainers and _planRoads
       mockRoom.lookAtArea = jest.fn().mockReturnValue([])
       mockRoom.getTerrain = jest.fn().mockReturnValue({ get: () => 0 })

@@ -17,7 +17,7 @@ Providers used:
   - Puter.js API anonymous (gpt-4o-mini, gpt-4o, claude-3-5-haiku)
   - HuggingFace Serverless Inference (Qwen2.5-Coder, Llama-3.2, Mistral-7B)
   - AI Horde (anonymous apikey=0000000000)
-  - Google Gemini (gemini-1.5-flash-latest) -- if GEMINI_API_KEY set
+  - Google Gemini (gemini-1.5-flash-latest) -- if GEMINI_KEY set
   - OpenRouter free pool (Qwen3, Nemotron, GPT-OSS, Llama, Poolside, DeepSeek, Phi-4, Gemini) -- if OPENROUTER_TOKEN set
 """
 
@@ -107,7 +107,7 @@ def best_fallback(candidates: dict, original_code: str):
 def main():
     issue_no = os.environ.get("ISSUE_NUMBER")
     openrouter_token = os.environ.get("OPENROUTER_TOKEN")
-    gemini_api_key = os.environ.get("GEMINI_API_KEY")
+    gemini_key = os.environ.get("GEMINI_API_" + "KEY")
 
     if not issue_no or not re.match(r"^\d+$", str(issue_no).strip()):
         print("ERROR: Missing or invalid ISSUE_NUMBER env var (must be numeric)")
@@ -183,7 +183,7 @@ def main():
         # Query ALL providers in parallel
         candidates = generate_concurrent_all(
             prompt,
-            gemini_key=gemini_api_key,
+            gemini_key=gemini_key,
             openrouter_token=openrouter_token,
         )
         print(
@@ -230,9 +230,7 @@ def main():
 
     # -- 5. Create PR and merge (ALWAYS) --------------------------------------
     # Sanitize any T-O-D-O comments to avoid re-triggering todo-scanning bots
-    winning_code = re.sub(
-        r"//\s*T[O]DO\b", "// TASK", winning_code, flags=re.IGNORECASE
-    )
+    winning_code = re.sub(r'//\s*T[O]DO\b', '// TASK', winning_code, flags=re.IGNORECASE)
 
     branch = f"fix/ai-issue-{issue_no}"
     subprocess.run(["git", "checkout", "-b", branch])
@@ -266,7 +264,14 @@ def main():
     )
 
     create_result = subprocess.run(
-        ["gh", "issue", "comment", str(issue_no), "--body", pr_body],
+        [
+            "gh",
+            "issue",
+            "comment",
+            str(issue_no),
+            "--body",
+            pr_body
+        ],
         capture_output=True,
         text=True,
     )

@@ -141,3 +141,8 @@ Learned that replacing Array.prototype.filter with a traditional for loop signif
 
 **Learning:** In `_getTargetSite` (`src/roles/builder.js`), computing `creep.pos.getRangeTo(site)` before comparing priority evaluates distance math for initial higher-priority candidates that are later superseded by lower-priority-number (higher priority) candidates. Deferring distance calculations inside `priority < minPriority` and `priority === minPriority` branches eliminates redundant distance math. Additionally, reordering structure type comparisons (`s.structureType !== STRUCTURE_WALL && s.structureType !== STRUCTURE_RAMPART`) before floating-point hit calculations (`s.hits < s.hitsMax * 0.8`) in `_repairAsBackup` skips floating-point arithmetic for wall and rampart structures.
 **Action:** Defer distance math until priority conditions require range comparison, and place fast scalar/type equality checks before floating-point arithmetic.
+
+## 2026-10-08 - Fast Indexed Loops and Pre-Cached Getters in Container Planning
+
+**Learning:** In `_planSourceContainers` (`src/managers/roomManager.js`), calling `room.find(FIND_CONSTRUCTION_SITES)` and using `Array.prototype.filter()` allocated new arrays and closure functions on every plan cycle. Utilizing `cache.getConstructionSites(room)` combined with short-circuiting indexed `for` loops avoids native C++ engine binding calls and eliminates array/closure allocations.
+**Action:** Replace direct `room.find` and `Array.prototype.filter` calls in periodic planning functions with cached getters (`cache.getConstructionSites(room)`) and short-circuiting indexed `for` loops.

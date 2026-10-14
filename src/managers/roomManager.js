@@ -143,17 +143,31 @@ function _planConstruction (room) {
 function _planSourceContainers (room) {
   const sources = cache.getSources(room)
   const existingContainers = cache.getContainers(room)
+  const constructionSites = cache.getConstructionSites(room)
 
-  for (const source of sources) {
-    // すでに近くにコンテナがあれば skip
-    const nearby = existingContainers.filter((c) => source.pos.getRangeTo(c) <= 2)
-    if (nearby.length > 0) continue
+  for (let i = 0; i < sources.length; i++) {
+    const source = sources[i]
 
-    // コンテナの建設サイトがすでにあれば skip
-    const existingSites = room.find(FIND_CONSTRUCTION_SITES, {
-      filter: (s) => s.structureType === STRUCTURE_CONTAINER && source.pos.getRangeTo(s) <= 2
-    })
-    if (existingSites.length > 0) continue
+    // ⚡ PERFORMANCE OPTIMIZATION: Use indexed for loops instead of .filter() and room.find()
+    // to avoid intermediate array allocations and closure executions every cycle.
+    let hasNearbyContainer = false
+    for (let j = 0; j < existingContainers.length; j++) {
+      if (source.pos.getRangeTo(existingContainers[j]) <= 2) {
+        hasNearbyContainer = true
+        break
+      }
+    }
+    if (hasNearbyContainer) continue
+
+    let hasNearbySite = false
+    for (let j = 0; j < constructionSites.length; j++) {
+      const site = constructionSites[j]
+      if (site.structureType === STRUCTURE_CONTAINER && source.pos.getRangeTo(site) <= 2) {
+        hasNearbySite = true
+        break
+      }
+    }
+    if (hasNearbySite) continue
 
     // ソースの隣の空きタイルにコンテナを配置
     const pos = pathfinder.findNearestOpenTile(source.pos, 2)

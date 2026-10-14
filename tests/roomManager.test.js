@@ -382,7 +382,7 @@ describe('roomManager', () => {
 
       roomManager.run(mockRoom)
 
-      expect(mockRoom.find).toHaveBeenCalledWith(global.FIND_CONSTRUCTION_SITES, expect.any(Object))
+      expect(cache.getConstructionSites).toHaveBeenCalledWith(mockRoom)
       expect(mockRoom.createConstructionSite).not.toHaveBeenCalled()
     })
 

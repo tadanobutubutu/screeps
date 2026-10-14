@@ -125,3 +125,9 @@ Use of deprecated and predictable Math.random() for security-sensitive logic in 
 **Vulnerability:** In `utils.tasks.js`, `task.condition()` was evaluated outside the `try...catch` block in `run()`, causing unhandled condition exceptions to crash the entire task queue loop and halt all subsequent scheduled tasks. Additionally, unvalidated `interval` parameters could lead to invalid modulo/division operations.
 **Learning:** Task queue schedulers processing user or dynamic condition callbacks must wrap condition evaluations in `try...catch` blocks to prevent single callback faults from causing queue denial of service, and sanitize interval parameters to integers `>= 1`.
 **Prevention:** Always evaluate task condition callbacks inside the execution `try...catch` block and sanitize interval inputs with `Math.max(1, Math.floor(Number(interval) || 1))`.
+
+## 2026-10-14 - [Validate ISSUE_NUMBER in ai_issue_solver.py Against Command Injection]
+
+**Vulnerability:** `scripts/ai_issue_solver.py` accepted unvalidated `ISSUE_NUMBER` environment variables and passed them directly into `gh issue view` and `gh issue comment` subprocess commands, risking CLI option injection and parameter manipulation.
+**Learning:** Environment variables supplying issue identifiers to CLI processes or API wrapper scripts must be validated against a strict numeric regex before execution.
+**Prevention:** Always validate numeric issue parameters against `/^\d+$/` (or `re.match(r"^\d+$", str(issue_no))`) before invoking CLI commands or constructing REST API endpoint paths.

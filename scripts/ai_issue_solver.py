@@ -109,9 +109,11 @@ def main():
     openrouter_token = os.environ.get("OPENROUTER_TOKEN")
     gemini_api_key = os.environ.get("GEMINI_API_KEY")
 
-    if not issue_no:
-        print("ERROR: Missing ISSUE_NUMBER env var")
+    if not issue_no or not re.match(r"^\d+$", str(issue_no).strip()):
+        print("ERROR: Missing or invalid ISSUE_NUMBER env var (must be numeric)")
         sys.exit(1)
+
+    issue_no = str(issue_no).strip()
 
     # -- 1. Fetch issue details ------------------------------------------------
     try:

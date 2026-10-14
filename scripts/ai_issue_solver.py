@@ -230,7 +230,9 @@ def main():
 
     # -- 5. Create PR and merge (ALWAYS) --------------------------------------
     # Sanitize any T-O-D-O comments to avoid re-triggering todo-scanning bots
-    winning_code = re.sub(r'//\s*T[O]DO\b', '// TASK', winning_code, flags=re.IGNORECASE)
+    winning_code = re.sub(
+        r"//\s*T[O]DO\b", "// TASK", winning_code, flags=re.IGNORECASE
+    )
 
     branch = f"fix/ai-issue-{issue_no}"
     subprocess.run(["git", "checkout", "-b", branch])
@@ -264,14 +266,7 @@ def main():
     )
 
     create_result = subprocess.run(
-        [
-            "gh",
-            "issue",
-            "comment",
-            str(issue_no),
-            "--body",
-            pr_body
-        ],
+        ["gh", "issue", "comment", str(issue_no), "--body", pr_body],
         capture_output=True,
         text=True,
     )

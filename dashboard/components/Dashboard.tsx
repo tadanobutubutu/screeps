@@ -48,6 +48,10 @@ export default function Dashboard() {
     const [searchClearFocused, setSearchClearFocused] = useState(false);
     const [toastHovered, setToastHovered] = useState(false);
     const [toastFocused, setToastFocused] = useState(false);
+    const [kbdHelpHover, setKbdHelpHover] = useState(false);
+    const [kbdHelpFocused, setKbdHelpFocused] = useState(false);
+    const [kbdEscHover, setKbdEscHover] = useState(false);
+    const [kbdEscFocused, setKbdEscFocused] = useState(false);
 
     const toastTimeoutRef = useRef<NodeJS.Timeout | null>(null);
     const searchInputRef = useRef<HTMLInputElement>(null);
@@ -501,10 +505,15 @@ export default function Dashboard() {
                                         );
                                     }
                                 }}
+                                onMouseEnter={() => setKbdHelpHover(true)}
+                                onMouseLeave={() => setKbdHelpHover(false)}
+                                onFocus={() => setKbdHelpFocused(true)}
+                                onBlur={() => setKbdHelpFocused(false)}
                                 aria-label="キーボードショートカット一覧を表示"
                                 title="クリックまたは ? キーでショートカット一覧を表示"
                                 style={{
-                                    backgroundColor: '#f7fafc',
+                                    backgroundColor:
+                                        kbdHelpHover || kbdHelpFocused ? '#e2e8f0' : '#f7fafc',
                                     border: '1px solid #cbd5e0',
                                     borderRadius: '4px',
                                     padding: '0.1rem 0.4rem',
@@ -512,6 +521,11 @@ export default function Dashboard() {
                                     color: '#4a5568',
                                     boxShadow: '0 1px 1px rgba(0,0,0,0.1)',
                                     cursor: 'pointer',
+                                    transition: 'all 0.2s ease-in-out',
+                                    transform:
+                                        kbdHelpHover || kbdHelpFocused ? 'scale(1.08)' : 'scale(1)',
+                                    outline: kbdHelpFocused ? '2px solid #004b73' : 'none',
+                                    outlineOffset: '2px',
                                 }}
                             >
                                 ?
@@ -1558,10 +1572,17 @@ export default function Dashboard() {
                                 dismissToast();
                             }
                         }}
+                        onMouseEnter={() => setKbdEscHover(true)}
+                        onMouseLeave={() => setKbdEscHover(false)}
+                        onFocus={() => setKbdEscFocused(true)}
+                        onBlur={() => setKbdEscFocused(false)}
                         aria-label="Escキーまたはクリックで通知を閉じます"
                         title="クリックまたは Esc キーで閉じる"
                         style={{
-                            backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                            backgroundColor:
+                                kbdEscHover || kbdEscFocused
+                                    ? 'rgba(255, 255, 255, 0.35)'
+                                    : 'rgba(255, 255, 255, 0.2)',
                             border: '1px solid rgba(255, 255, 255, 0.4)',
                             borderRadius: '3px',
                             padding: '0.1rem 0.35rem',
@@ -1570,6 +1591,10 @@ export default function Dashboard() {
                             lineHeight: 1,
                             userSelect: 'none',
                             cursor: 'pointer',
+                            transition: 'all 0.2s ease-in-out',
+                            transform: kbdEscHover || kbdEscFocused ? 'scale(1.08)' : 'scale(1)',
+                            outline: kbdEscFocused ? '2px solid white' : 'none',
+                            outlineOffset: '2px',
                         }}
                     >
                         Esc

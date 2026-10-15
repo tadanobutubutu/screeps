@@ -565,8 +565,18 @@ export default function Dashboard() {
                                 ❓ ヘルプ
                             </button>
                             <kbd
-                                aria-label="キーボードショートカット Alt + C キーでステータスのサマリーをコピーできます"
-                                title="Alt + C キーでサマリーをコピーできます"
+                                className="kbd-action"
+                                role="button"
+                                tabIndex={0}
+                                onClick={copySummary}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter' || e.key === ' ') {
+                                        e.preventDefault();
+                                        copySummary();
+                                    }
+                                }}
+                                aria-label="Alt + C キーまたはクリックでサマリーをコピー"
+                                title="クリックまたは Alt + C キーでサマリーをコピー"
                                 style={{
                                     backgroundColor: '#f7fafc',
                                     border: '1px solid #cbd5e0',
@@ -575,6 +585,8 @@ export default function Dashboard() {
                                     fontSize: '0.7rem',
                                     color: '#4a5568',
                                     boxShadow: '0 1px 1px rgba(0,0,0,0.1)',
+                                    cursor: 'pointer',
+                                    userSelect: 'none',
                                 }}
                             >
                                 Alt + C
@@ -659,8 +671,18 @@ export default function Dashboard() {
                     )}
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                         <kbd
-                            aria-label="キーボードショートカット Alt + A キーで自動更新の有効/無効を切り替えられます"
-                            title="Alt + A キーで自動更新を切り替えられます"
+                            className="kbd-action"
+                            role="button"
+                            tabIndex={0}
+                            onClick={() => toggleAutoRefresh()}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter' || e.key === ' ') {
+                                    e.preventDefault();
+                                    toggleAutoRefresh();
+                                }
+                            }}
+                            aria-label="Alt + A キーまたはクリックで自動更新を切り替え"
+                            title="クリックまたは Alt + A キーで自動更新を切り替え"
                             style={{
                                 backgroundColor: '#f7fafc',
                                 border: '1px solid #cbd5e0',
@@ -669,6 +691,8 @@ export default function Dashboard() {
                                 fontSize: '0.7rem',
                                 color: '#4a5568',
                                 boxShadow: '0 1px 1px rgba(0,0,0,0.1)',
+                                cursor: 'pointer',
+                                userSelect: 'none',
                             }}
                         >
                             Alt + A
@@ -738,8 +762,18 @@ export default function Dashboard() {
                             </span>
                         </label>
                         <kbd
-                            aria-label="キーボードショートカット Alt + R キーでダッシュボードの更新ができます"
-                            title="Alt + R キーで更新できます"
+                            className="kbd-action"
+                            role="button"
+                            tabIndex={0}
+                            onClick={() => fetchStats(true)}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter' || e.key === ' ') {
+                                    e.preventDefault();
+                                    fetchStats(true);
+                                }
+                            }}
+                            aria-label="Alt + R キーまたはクリックで最新データを更新"
+                            title="クリックまたは Alt + R キーで最新データを更新"
                             style={{
                                 backgroundColor: '#f7fafc',
                                 border: '1px solid #cbd5e0',
@@ -748,6 +782,8 @@ export default function Dashboard() {
                                 fontSize: '0.7rem',
                                 color: '#4a5568',
                                 boxShadow: '0 1px 1px rgba(0,0,0,0.1)',
+                                cursor: 'pointer',
+                                userSelect: 'none',
                             }}
                         >
                             Alt + R
@@ -1105,8 +1141,18 @@ export default function Dashboard() {
                             }}
                         >
                             <kbd
-                                aria-label="キーボードショートカット Alt + S キーで部屋の検索入力にフォーカスできます"
-                                title="Alt + S キーで検索入力にフォーカスできます"
+                                className="kbd-action"
+                                role="button"
+                                tabIndex={0}
+                                onClick={() => searchInputRef.current?.focus()}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter' || e.key === ' ') {
+                                        e.preventDefault();
+                                        searchInputRef.current?.focus();
+                                    }
+                                }}
+                                aria-label="Alt + S キーまたはクリックで部屋検索入力にフォーカス"
+                                title="クリックまたは Alt + S キーで検索入力にフォーカス"
                                 style={{
                                     backgroundColor: '#f7fafc',
                                     border: '1px solid #cbd5e0',
@@ -1115,6 +1161,8 @@ export default function Dashboard() {
                                     fontSize: '0.7rem',
                                     color: '#4a5568',
                                     boxShadow: '0 1px 1px rgba(0,0,0,0.1)',
+                                    cursor: 'pointer',
+                                    userSelect: 'none',
                                 }}
                             >
                                 Alt + S
@@ -1366,8 +1414,18 @@ export default function Dashboard() {
                 }}
             >
                 <kbd
-                    aria-label="キーボードショートカット Alt + D キーで生データの表示・非表示を切り替えられます"
-                    title="Alt + D キーで表示・非表示を切り替えられます"
+                    className="kbd-action"
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => setDetailsOpen((prev) => !prev)}
+                    onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            setDetailsOpen((prev) => !prev);
+                        }
+                    }}
+                    aria-label="Alt + D キーまたはクリックで生データの表示切り替え"
+                    title="クリックまたは Alt + D キーで生データの表示切り替え"
                     style={{
                         backgroundColor: '#f7fafc',
                         border: '1px solid #cbd5e0',
@@ -1377,6 +1435,8 @@ export default function Dashboard() {
                         color: '#4a5568',
                         boxShadow: '0 1px 1px rgba(0,0,0,0.1)',
                         marginTop: '0.15rem',
+                        cursor: 'pointer',
+                        userSelect: 'none',
                     }}
                 >
                     Alt + D

@@ -10,7 +10,7 @@
     "express": "^5.3.0",
     "globals": "^17.13.0",
     "lodash": "^4.17.21",
-    "react": "^19.0.0"
+    "react": "^19.3.1"
   },
   "devDependencies": {
     "@babel/core": "^8.0.7",

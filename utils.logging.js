@@ -140,7 +140,8 @@ function log (arg1, arg2) {
     }
   }
   const truncated = message.substring(0, MAX_LOG_MESSAGE_LENGTH)
-  const redacted = _redactPaths(truncated)
+  const sanitizedNewlines = truncated.replace(/\r/g, '\\r').replace(/\n/g, '\\n')
+  const redacted = _redactPaths(sanitizedNewlines)
 
   if (typeof Memory !== 'undefined') {
     if (!Memory.logs || !Array.isArray(Memory.logs)) {

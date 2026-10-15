@@ -37,6 +37,13 @@ describe('Sentinel: Logging Security Hardening', () => {
     )
   })
 
+  test('log should sanitize newlines and carriage returns to prevent log injection', () => {
+    logger.info('line1\r\nline2\nline3')
+    expect(console.log).toHaveBeenCalledWith(
+      expect.stringContaining('line1\\r\\nline2\\nline3')
+    )
+  })
+
   test('log should work correctly with standard levels', () => {
     logger.error('error message')
     expect(console.log).toHaveBeenCalledWith(

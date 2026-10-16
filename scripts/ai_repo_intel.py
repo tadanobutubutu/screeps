@@ -1,5 +1,6 @@
 import json
 import os
+import re
 import subprocess
 import sys
 import time
@@ -49,9 +50,10 @@ def get_repo_stats():
 
 def ask_ai(prompt):
     key = os.environ.get("GEMINI_API_KEY")
-    if key:
+    clean_key = re.sub(r"[\r\n]", "", key.strip()) if key else None
+    if clean_key:
         url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent"
-        headers = {"Content-Type": "application/json", "x-goog-api-key": key.strip()}
+        headers = {"Content-Type": "application/json", "x-goog-api-key": clean_key}
         try:
             r = requests.post(
                 url,

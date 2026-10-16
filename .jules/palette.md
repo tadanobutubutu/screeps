@@ -91,6 +91,11 @@
 
 **Learning:** When async clipboard actions (`navigator.clipboard.writeText(...)`) encounter permission denials or system errors, unhandled promise rejections leave users without feedback, creating confusion when expected copy operations silently fail.
 **Action:** Always attach explicit `.catch()` rejection handlers to clipboard API calls that notify users via accessible toast live regions (`showToast(...)`).
+## 2026-04-18 - Visual Elevation and Focus Parity for Interactive Kbd Badges
+
+**Learning:** Visual keyboard shortcut badges (`<kbd className="kbd-action">`) that are interactive (`role="button"`, `tabIndex={0}`) present an uneven experience for keyboard users if hover effects (elevation, scale, brightness) are only defined for mouse interaction or rely on inline hover states.
+**Action:** Define `:hover` and `:focus-visible` styles in CSS for `.kbd-action` badges to ensure scale, brightness, elevation box-shadow, and focus outlines are applied uniformly across pointer and keyboard navigation.
+
 ## 2026-04-18 - Parity Across Metric Status Indicators and Progress Bars
 
 **Learning:** Rendering core dashboard metrics (such as GCL, CPU, and GPL) with inconsistent visual representations (e.g. progress bar cards vs plain text) creates visual imbalance and fragmented screen reader status announcements.

@@ -490,7 +490,6 @@ export default function Dashboard() {
                             style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
                         >
                             <kbd
-                                className="kbd-action"
                                 role="button"
                                 tabIndex={0}
                                 onClick={() =>
@@ -523,6 +522,10 @@ export default function Dashboard() {
                                     boxShadow: '0 1px 1px rgba(0,0,0,0.1)',
                                     cursor: 'pointer',
                                     transition: 'all 0.2s ease-in-out',
+                                    transform:
+                                        kbdHelpHover || kbdHelpFocused ? 'scale(1.08)' : 'scale(1)',
+                                    outline: kbdHelpFocused ? '2px solid #004b73' : 'none',
+                                    outlineOffset: '2px',
                                 }}
                             >
                                 ?

@@ -56,7 +56,6 @@ function run (room) {
       _cleanupRoomMemory(room)
     }
 
-    console.log('Game.time', Game.time, 'interval', BUILD_PLAN_INTERVAL);
     if (Game.time % BUILD_PLAN_INTERVAL === 0) {
       _planConstruction(room)
     }
@@ -269,11 +268,16 @@ function _planExtensions (room) {
   if (maxExtensions === 0) return
 
   const existing = cache.getMyStructures(room, STRUCTURE_EXTENSION)
-  const sites = cache.getConstructionSites(room).filter(
-    (s) => s.structureType === STRUCTURE_EXTENSION
-  )
+  // ⚡ PERFORMANCE OPTIMIZATION: Use single-pass indexed for loop instead of .filter() to count extension construction sites without array/closure allocation.
+  const sites = cache.getConstructionSites(room)
+  let extensionSitesCount = 0
+  for (let i = 0; i < sites.length; i++) {
+    if (sites[i].structureType === STRUCTURE_EXTENSION) {
+      extensionSitesCount++
+    }
+  }
 
-  const currentCount = existing.length + sites.length
+  const currentCount = existing.length + extensionSitesCount
   if (currentCount >= maxExtensions) return
 
   const spawns = cache.getSpawns(room)
@@ -329,14 +333,20 @@ function _checkSafeMode (room) {
   if (!controller || controller.safeMode || controller.safeModeAvailable === 0) return
 
   const enemies = cache.getEnemies(room)
-  const dangerousEnemies = enemies.filter(
-    (e) =>
+  // ⚡ PERFORMANCE OPTIMIZATION: Count dangerous enemies in a single pass indexed loop to avoid array filter allocation.
+  let dangerousEnemyCount = 0
+  for (let i = 0; i < enemies.length; i++) {
+    const e = enemies[i]
+    if (
       e.getActiveBodyparts(ATTACK) > 0 ||
-            e.getActiveBodyparts(RANGED_ATTACK) > 0 ||
-            e.getActiveBodyparts(WORK) > 0 // WORKでウォール破壊
-  )
+      e.getActiveBodyparts(RANGED_ATTACK) > 0 ||
+      e.getActiveBodyparts(WORK) > 0
+    ) {
+      dangerousEnemyCount++
+    }
+  }
 
-  if (dangerousEnemies.length >= SAFE_MODE_TRIGGER_HOSTILES) {
+  if (dangerousEnemyCount >= SAFE_MODE_TRIGGER_HOSTILES) {
     // 自室のディフェンダー数
     // ⚡ PERFORMANCE OPTIMIZATION: Use cache.getMyCreeps(room) and standard for loop to avoid global Game.creeps iteration.
     let defenderCount = 0
@@ -348,11 +358,11 @@ function _checkSafeMode (room) {
       }
     }
 
-    if (defenderCount < dangerousEnemies.length) {
+    if (defenderCount < dangerousEnemyCount) {
       const result = controller.activateSafeMode()
       if (result === OK) {
         logger.warn(
-                    `[RoomManager] セーフモード発動: ${room.name} 敵 ${dangerousEnemies.length} 体`
+          `[RoomManager] セーフモード発動: ${room.name} 敵 ${dangerousEnemyCount} 体`
         )
       }
     }

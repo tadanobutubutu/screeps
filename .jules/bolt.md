@@ -1,3 +1,8 @@
+## 2026-10-09 - Single-Pass Loop Counting in Extension Planning and Safe Mode Checks
+
+**Learning:** In `src/managers/roomManager.js`, calling `Array.prototype.filter()` on `cache.getConstructionSites(room)` or `cache.getEnemies(room)` allocated intermediate arrays and created callback closures on every evaluation tick when the resulting array was only inspected for `.length`. Replacing `.filter()` with a single-pass indexed `for` loop that increments a scalar counter eliminates array allocations and closure executions.
+**Action:** Replace `.filter()` calls with scalar counter `for` loops when only counting matching items in high-frequency functions.
+
 ## 2026-10-06 - Direct Structure Type Filtering in Tower Manager Urgent Rampart Search
 
 **Learning:** Calling `cache.getMyStructures(room)` without a structure type parameter fetches all owned room structures (spawns, extensions, towers, links, storage, etc.), requiring manual structure type comparisons (`s.structureType === STRUCTURE_RAMPART`) on every candidate. Passing `STRUCTURE_RAMPART` directly to `cache.getMyStructures(room, STRUCTURE_RAMPART)` leverages pre-warmed structure type caches or filtered engine queries, reducing loop iterations from $O(N_{myStructures})$ to $O(N_{ramparts})$.

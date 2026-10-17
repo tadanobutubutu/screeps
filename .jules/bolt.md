@@ -1,3 +1,8 @@
+## 2026-10-17 - Direct Target Collection and Indexed Loop in Road Planning
+
+**Learning:** In `_planRoads` (`src/managers/roomManager.js`), constructing targets with `[...cache.getSources(room), room.controller].filter(Boolean)` allocated two temporary arrays (`[...sources, controller]` and the `.filter` result array), created closure functions for `Boolean`, and used `for...of` iterator dispatch on every road planning cycle. Replacing array spread and `.filter()` with direct loop pushing and indexed `for` loops eliminates intermediate array allocations, callback overhead, and iterator dispatches.
+**Action:** Avoid array spread combined with `.filter(Boolean)` and `for...of` loops in periodic manager operations; iterate cached arrays directly with indexed `for` loops.
+
 ## 2026-10-09 - Single-Pass Loop Counting in Extension Planning and Safe Mode Checks
 
 **Learning:** In `src/managers/roomManager.js`, calling `Array.prototype.filter()` on `cache.getConstructionSites(room)` or `cache.getEnemies(room)` allocated intermediate arrays and created callback closures on every evaluation tick when the resulting array was only inspected for `.length`. Replacing `.filter()` with a single-pass indexed `for` loop that increments a scalar counter eliminates array allocations and closure executions.

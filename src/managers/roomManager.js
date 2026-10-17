@@ -189,7 +189,14 @@ function _planRoads (room) {
   if (spawns.length === 0) return
 
   const spawn = spawns[0]
-  const targets = [...cache.getSources(room), room.controller].filter(Boolean)
+  // ⚡ PERFORMANCE OPTIMIZATION: Collect sources and controller directly in an array without spread or filter,
+  // avoiding intermediate array allocations, closure executions, and iterator dispatches.
+  const sources = cache.getSources(room)
+  const targets = []
+  for (let i = 0; i < sources.length; i++) {
+    if (sources[i]) targets.push(sources[i])
+  }
+  if (room.controller) targets.push(room.controller)
 
   const occupied = new Uint8Array(2500);
   const structures = cache.getStructures(room);
@@ -204,7 +211,8 @@ function _planRoads (room) {
     if (p) occupied[p.y * 50 + p.x] = 1;
   }
 
-  for (const target of targets) {
+  for (let i = 0; i < targets.length; i++) {
+    const target = targets[i]
     const result = pathfinder.findPath(spawn.pos, target)
     if (result.incomplete) continue
 

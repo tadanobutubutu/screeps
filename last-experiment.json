@@ -1,6 +1,6 @@
 {
-  "experiment": "add-energy-efficiency",
-  "description": "エネルギー効率トラッキング",
-  "timestamp": "2026-10-10T22:14:48.685Z",
+  "experiment": "add-performance-monitor",
+  "description": "パフォーマンスモニタリングを追加",
+  "timestamp": "2026-10-17T21:16:09.060Z",
   "status": "applied"
 }

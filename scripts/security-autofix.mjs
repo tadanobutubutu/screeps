@@ -22,13 +22,13 @@ function safeRun (cmd, args = []) {
   }
 }
 
-function parseAudit () {
-  const res = safeRun('npm', ['audit', '--json'])
+export function parseAudit (runner = safeRun) {
+  const res = runner('npm', ['audit', '--json'])
   if (res.out) {
     try {
       return JSON.parse(res.out)
     } catch {
-      // Fall through to error response if JSON parsing fails
+      // Fall through if JSON parsing fails
     }
   }
   return { error: res.err || 'invalid audit json', vulnerabilities: {} }
@@ -58,41 +58,47 @@ function listActionable (audit) {
     .slice(0, 50)
 }
 
-const before = parseAudit()
-const beforeCounts = countSeverities(before)
+export function runAutoFix () {
+  const before = parseAudit()
+  const beforeCounts = countSeverities(before)
 
-const fix = safeRun('npm', ['audit', 'fix'])
-const fixForce = safeRun('npm', ['audit', 'fix', '--force'])
+  const fix = safeRun('npm', ['audit', 'fix'])
+  const fixForce = safeRun('npm', ['audit', 'fix', '--force'])
 
-const after = parseAudit()
-const afterCounts = countSeverities(after)
+  const after = parseAudit()
+  const afterCounts = countSeverities(after)
 
-const lockRegen = safeRun('npm', ['install', '--package-lock-only'])
+  const lockRegen = safeRun('npm', ['install', '--package-lock-only'])
 
-const report = {
-  generatedAt: new Date().toISOString(),
-  before: beforeCounts,
-  after: afterCounts,
-  fixed: {
-    critical: Math.max(0, beforeCounts.critical - afterCounts.critical),
-    high: Math.max(0, beforeCounts.high - afterCounts.high),
-    moderate: Math.max(0, beforeCounts.moderate - afterCounts.moderate),
-    low: Math.max(0, beforeCounts.low - afterCounts.low)
-  },
-  actionable: listActionable(after),
-  steps: {
-    auditFix: fix.ok,
-    auditFixForce: fixForce.ok,
-    lockfileRegenerated: lockRegen.ok
-  },
-  needsIssue: afterCounts.critical > 0 || afterCounts.high > 0 || afterCounts.moderate > 0
+  const report = {
+    generatedAt: new Date().toISOString(),
+    before: beforeCounts,
+    after: afterCounts,
+    fixed: {
+      critical: Math.max(0, beforeCounts.critical - afterCounts.critical),
+      high: Math.max(0, beforeCounts.high - afterCounts.high),
+      moderate: Math.max(0, beforeCounts.moderate - afterCounts.moderate),
+      low: Math.max(0, beforeCounts.low - afterCounts.low)
+    },
+    actionable: listActionable(after),
+    steps: {
+      auditFix: fix.ok,
+      auditFixForce: fixForce.ok,
+      lockfileRegenerated: lockRegen.ok
+    },
+    needsIssue: afterCounts.critical > 0 || afterCounts.high > 0 || afterCounts.moderate > 0
+  }
+
+  writeFileSync('security-autofix-report.json', JSON.stringify(report, null, 2))
+
+  console.log('=== Security Autofix Report ===')
+  console.log(JSON.stringify(report, null, 2))
+
+  if (report.needsIssue) {
+    process.exitCode = 2
+  }
 }
 
-writeFileSync('security-autofix-report.json', JSON.stringify(report, null, 2))
-
-console.log('=== Security Autofix Report ===')
-console.log(JSON.stringify(report, null, 2))
-
-if (report.needsIssue) {
-  process.exitCode = 2
+if (process.argv[1] && process.argv[1].endsWith('security-autofix.mjs')) {
+  runAutoFix()
 }

@@ -1,41 +1,30 @@
-const { execFileSync } = require('child_process')
-const fs = require('fs')
-const path = require('path')
+import { parseAudit } from '../scripts/security-autofix.mjs'
 
-describe('security-autofix.mjs script', () => {
-  const reportPath = path.join(process.cwd(), 'security-autofix-report.json')
+describe('security-autofix.mjs parseAudit', () => {
+  test('parses json stdout on non-zero exit code when res.ok is false', () => {
+    const mockRunner = () => ({
+      ok: false,
+      out: JSON.stringify({
+        vulnerabilities: {
+          lodash: { severity: 'high', fixAvailable: true }
+        }
+      }),
+      err: 'Error: Command failed: npm audit --json'
+    })
 
-  afterEach(() => {
-    if (fs.existsSync(reportPath)) {
-      try {
-        fs.unlinkSync(reportPath)
-      } catch (e) {
-        // ignore
-      }
-    }
+    const audit = parseAudit(mockRunner)
+    expect(audit).toHaveProperty('vulnerabilities')
+    expect(audit.vulnerabilities.lodash.severity).toBe('high')
   })
 
-  test('parses npm audit json even on non-zero exit codes when vulnerabilities exist', () => {
-    let exitCode = 0
-    try {
-      execFileSync('node', ['scripts/security-autofix.mjs'], {
-        encoding: 'utf8',
-        stdio: ['pipe', 'pipe', 'pipe']
-      })
-    } catch (err) {
-      exitCode = err.status
-    }
+  test('returns default error object when res.out is missing or empty', () => {
+    const mockRunner = () => ({
+      ok: false,
+      out: '',
+      err: 'npm audit failed'
+    })
 
-    expect(fs.existsSync(reportPath)).toBe(true)
-    const report = JSON.parse(fs.readFileSync(reportPath, 'utf8'))
-
-    expect(report).toHaveProperty('before')
-    expect(report).toHaveProperty('after')
-    expect(report).toHaveProperty('steps')
-    expect(typeof report.needsIssue).toBe('boolean')
-
-    // Verify that before and after contain numeric vulnerability fields
-    expect(typeof report.before.total).toBe('number')
-    expect(typeof report.after.total).toBe('number')
+    const audit = parseAudit(mockRunner)
+    expect(audit).toEqual({ error: 'npm audit failed', vulnerabilities: {} })
   })
 })

@@ -131,3 +131,9 @@ Use of deprecated and predictable Math.random() for security-sensitive logic in 
 **Vulnerability:** `scripts/ai_issue_solver.py` accepted unvalidated `ISSUE_NUMBER` environment variables and passed them directly into `gh issue view` and `gh issue comment` subprocess commands, risking CLI option injection and parameter manipulation.
 **Learning:** Environment variables supplying issue identifiers to CLI processes or API wrapper scripts must be validated against a strict numeric regex before execution.
 **Prevention:** Always validate numeric issue parameters against `/^\d+$/` (or `re.match(r"^\d+$", str(issue_no))`) before invoking CLI commands or constructing REST API endpoint paths.
+
+## 2026-10-17 - [Handle non-zero exit code outputs in npm audit JSON parsing]
+
+**Vulnerability:** `parseAudit()` in `scripts/security-autofix.mjs` checked `if (!res.ok) return { error: res.err, vulnerabilities: {} }`. Because `npm audit --json` exits with a non-zero exit code when security vulnerabilities exist, `res.ok` was `false`, causing `parseAudit()` to discard stdout and report 0 vulnerabilities even when critical vulnerabilities were detected.
+**Learning:** Security tools (such as `npm audit`) often exit with non-zero exit codes to indicate found vulnerabilities while still outputting valid JSON payload to stdout.
+**Prevention:** When wrapping security auditing utilities, always attempt to parse stdout for structured results regardless of process exit status codes.

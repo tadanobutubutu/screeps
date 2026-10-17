@@ -24,14 +24,14 @@ function safeRun (cmd, args = []) {
 
 function parseAudit () {
   const res = safeRun('npm', ['audit', '--json'])
-  if (!res.ok) {
-    return { error: res.err, vulnerabilities: {} }
+  if (res.out) {
+    try {
+      return JSON.parse(res.out)
+    } catch {
+      // Fall through to error response if JSON parsing fails
+    }
   }
-  try {
-    return JSON.parse(res.out)
-  } catch {
-    return { error: 'invalid audit json', vulnerabilities: {} }
-  }
+  return { error: res.err || 'invalid audit json', vulnerabilities: {} }
 }
 
 function countSeverities (audit) {

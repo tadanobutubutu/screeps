@@ -100,3 +100,8 @@
 
 **Learning:** Rendering core dashboard metrics (such as GCL, CPU, and GPL) with inconsistent visual representations (e.g. progress bar cards vs plain text) creates visual imbalance and fragmented screen reader status announcements.
 **Action:** Always maintain consistent progress bar layout cards, ARIA `role="progressbar"` markup, and focusable tooltip containers across all related dashboard metric cards.
+
+## 2026-04-20 - `aria-disabled="true"` with Feedback Toasts for Filter-Dependent Actions
+
+**Learning:** Native `disabled` attributes prevent keyboard navigation from focusing action buttons when search/filter results are empty, leaving screen reader and keyboard users unable to discover why an action cannot be performed; using `aria-disabled="true"` keeps the control in tab order while providing an explicit feedback toast when activated.
+**Action:** Use `aria-disabled="true"` instead of native `disabled` on filter-dependent buttons and trigger descriptive feedback toasts on activation when prerequisites are not met.

@@ -307,7 +307,10 @@ export default function Dashboard() {
         ) || [];
 
     const copyAllRooms = () => {
-        if (filteredRooms.length === 0) return;
+        if (filteredRooms.length === 0) {
+            showToast('コピー対象の部屋がありません');
+            return;
+        }
         const roomsStr = filteredRooms.join(', ');
         navigator.clipboard
             .writeText(roomsStr)
@@ -1061,7 +1064,7 @@ export default function Dashboard() {
                     {stats?.rooms?.length > 1 && (
                         <button
                             onClick={copyAllRooms}
-                            disabled={filteredRooms.length === 0}
+                            aria-disabled={filteredRooms.length === 0}
                             onMouseEnter={() => setCopyAllHover(true)}
                             onMouseLeave={() => setCopyAllHover(false)}
                             onFocus={() => setCopyAllFocused(true)}

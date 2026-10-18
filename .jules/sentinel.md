@@ -137,3 +137,9 @@ Use of deprecated and predictable Math.random() for security-sensitive logic in 
 **Vulnerability:** `parseAudit()` in `scripts/security-autofix.mjs` checked `if (!res.ok) return { error: res.err, vulnerabilities: {} }`. Because `npm audit --json` exits with a non-zero exit code when security vulnerabilities exist, `res.ok` was `false`, causing `parseAudit()` to discard stdout and report 0 vulnerabilities even when critical vulnerabilities were detected.
 **Learning:** Security tools (such as `npm audit`) often exit with non-zero exit codes to indicate found vulnerabilities while still outputting valid JSON payload to stdout.
 **Prevention:** When wrapping security auditing utilities, always attempt to parse stdout for structured results regardless of process exit status codes.
+
+## 2026-10-18 - [Validate Git Branch Names Against Flag Injection in resolve_conflicts.py]
+
+**Vulnerability:** In `scripts/resolve_conflicts.py`, `head_branch` and `base_branch` retrieved from GitHub API (`pr_info`) were not validated before being passed to `git fetch`, `git push`, and `git merge` commands, allowing potential flag injection if branch names started with hyphens or contained option flags.
+**Learning:** Git CLI commands accepting dynamic ref or branch names from remote sources or PR metadata must validate branch strings against safe naming regexes and include positional argument separators (`--`) to prevent option flag interpretation.
+**Prevention:** Always validate branch names against `/^[a-zA-Z0-9_./-]+$/` (disallowing leading hyphens) and pass the `--` positional argument separator prior to ref arguments in `git` subprocess calls.

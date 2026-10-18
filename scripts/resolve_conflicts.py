@@ -1,9 +1,16 @@
 import json
 import os
+import re
 import subprocess
 import sys
 
 from ai_providers import clean_plain_response, generate_with_fallback, normalize_token
+
+
+def is_safe_branch_name(name):
+    if not name or not isinstance(name, str):
+        return False
+    return bool(re.match(r"^[a-zA-Z0-9_./-]+$", name)) and not name.startswith("-")
 
 
 def run_cmd(args, check=True):
@@ -93,12 +100,20 @@ def main():
         f"Head branch: {head_branch}, Base branch: {base_branch}, Head owner: {head_owner}"
     )
 
+    if not is_safe_branch_name(head_branch):
+        print(f"Error: Invalid head_branch name: {head_branch}")
+        sys.exit(1)
+
+    if not is_safe_branch_name(base_branch):
+        print(f"Error: Invalid base_branch name: {base_branch}")
+        sys.exit(1)
+
     # Fetch main/base branch
     run_cmd(["git", "fetch", "origin", "--", base_branch])
 
     # Try to merge base branch into the head branch
     merge_res = subprocess.run(
-        ["git", "merge", f"origin/{base_branch}"], capture_output=True, text=True
+        ["git", "merge", "--", f"origin/{base_branch}"], capture_output=True, text=True
     )
     if merge_res.returncode == 0:
         print("Merge completed cleanly without conflicts. Pushing updates...")

@@ -1184,6 +1184,7 @@ export default function Dashboard() {
                                 placeholder="部屋を検索... (Escでクリア)"
                                 aria-label="部屋名で検索"
                                 aria-controls="room-list"
+                                aria-describedby={roomQuery ? 'room-search-status' : undefined}
                                 aria-keyshortcuts="Alt+s Escape"
                                 style={{
                                     fontSize: '0.75rem',
@@ -1248,6 +1249,7 @@ export default function Dashboard() {
                     )}
                     {roomQuery && filteredRooms.length > 0 && (
                         <span
+                            id="room-search-status"
                             style={{
                                 fontSize: '0.75rem',
                                 color: '#004b73',
@@ -1296,6 +1298,7 @@ export default function Dashboard() {
                     )}
                     {roomQuery && filteredRooms.length === 0 && (
                         <span
+                            id="room-search-status"
                             style={{
                                 fontSize: '0.75rem',
                                 color: '#e53e3e',

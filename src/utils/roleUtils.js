@@ -37,7 +37,25 @@ function getHarvestTarget (creep, sources) {
   let source = Game.getObjectById(creep.memory.harvestTargetId)
 
   if (!source || source.energy === 0) {
-    source = creep.pos.findClosestByRange(sources)
+    // ⚡ PERFORMANCE OPTIMIZATION: Use single-pass for loop with early exit on adjacent sources
+    // to avoid native C++ engine binding marshalling via findClosestByRange.
+    let bestSource = null
+    let minDistance = Infinity
+    const hasGetRangeTo = creep.pos && typeof creep.pos.getRangeTo === 'function'
+
+    if (sources) {
+      for (let i = 0; i < sources.length; i++) {
+        const s = sources[i]
+        const dist = hasGetRangeTo ? creep.pos.getRangeTo(s) : 0
+        if (dist < minDistance) {
+          minDistance = dist
+          bestSource = s
+          if (dist <= 1) break
+        }
+      }
+    }
+
+    source = bestSource
     if (source) {
       creep.memory.harvestTargetId = source.id
     } else {

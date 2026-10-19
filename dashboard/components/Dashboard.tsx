@@ -328,6 +328,126 @@ export default function Dashboard() {
             });
     };
 
+    const renderToast = () => {
+        if (!toastMsg) return null;
+        return (
+            <div
+                key={toastMsg}
+                aria-keyshortcuts="Escape"
+                onMouseEnter={() => setToastHovered(true)}
+                onMouseLeave={() => setToastHovered(false)}
+                onFocus={() => setToastFocused(true)}
+                onBlur={(e) => {
+                    if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+                        setToastFocused(false);
+                    }
+                }}
+                style={{
+                    position: 'fixed',
+                    bottom: '2rem',
+                    right: '2rem',
+                    backgroundColor: '#004b73',
+                    color: 'white',
+                    padding: '0.75rem 1.25rem 1rem 1.25rem',
+                    borderRadius: '8px',
+                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+                    fontSize: '0.9rem',
+                    fontWeight: 'bold',
+                    zIndex: 1000,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.6rem',
+                    animation: 'bounce 0.5s ease-in-out',
+                    overflow: 'hidden',
+                }}
+            >
+                <span aria-hidden="true">✨</span>
+                <span role="status" aria-live="polite" style={{ flex: 1 }}>
+                    {toastMsg}
+                </span>
+                <kbd
+                    role="button"
+                    tabIndex={0}
+                    onClick={dismissToast}
+                    onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            dismissToast();
+                        }
+                    }}
+                    onMouseEnter={() => setKbdEscHover(true)}
+                    onMouseLeave={() => setKbdEscHover(false)}
+                    onFocus={() => setKbdEscFocused(true)}
+                    onBlur={() => setKbdEscFocused(false)}
+                    aria-label="Escキーまたはクリックで通知を閉じます"
+                    title="クリックまたは Esc キーで閉じる"
+                    style={{
+                        backgroundColor:
+                            kbdEscHover || kbdEscFocused
+                                ? 'rgba(255, 255, 255, 0.35)'
+                                : 'rgba(255, 255, 255, 0.2)',
+                        border: '1px solid rgba(255, 255, 255, 0.4)',
+                        borderRadius: '3px',
+                        padding: '0.1rem 0.35rem',
+                        fontSize: '0.65rem',
+                        color: 'white',
+                        lineHeight: 1,
+                        userSelect: 'none',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease-in-out',
+                        transform: kbdEscHover || kbdEscFocused ? 'scale(1.08)' : 'scale(1)',
+                        outline: kbdEscFocused ? '2px solid white' : 'none',
+                        outlineOffset: '2px',
+                    }}
+                >
+                    Esc
+                </kbd>
+                <button
+                    onClick={dismissToast}
+                    onFocus={() => setToastCloseFocused(true)}
+                    onBlur={() => setToastCloseFocused(false)}
+                    onMouseEnter={() => setToastCloseFocused(true)}
+                    onMouseLeave={() => setToastCloseFocused(false)}
+                    aria-label="通知を閉じる (Escape)"
+                    aria-keyshortcuts="Escape"
+                    title="閉じる (Escape)"
+                    style={{
+                        background: 'transparent',
+                        border: 'none',
+                        color: 'white',
+                        cursor: 'pointer',
+                        padding: '0.2rem',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: '0.8rem',
+                        opacity: toastCloseFocused ? 1 : 0.7,
+                        transition: 'all 0.1s ease-in-out',
+                        outline: 'none',
+                        boxShadow: toastCloseFocused ? '0 0 0 2px white' : 'none',
+                        borderRadius: '4px',
+                        minWidth: '24px',
+                        minHeight: '24px',
+                    }}
+                >
+                    ✕
+                </button>
+                <div
+                    key={`${toastMsg}-${toastHovered || toastFocused}`}
+                    style={{
+                        position: 'absolute',
+                        bottom: 0,
+                        left: 0,
+                        height: '3px',
+                        backgroundColor: '#319795',
+                        animation: 'shrinkWidth 2.5s linear forwards',
+                        animationPlayState: toastHovered || toastFocused ? 'paused' : 'running',
+                    }}
+                />
+            </div>
+        );
+    };
+
     if (loading)
         return (
             <main
@@ -441,8 +561,9 @@ export default function Dashboard() {
                     onMouseLeave={() => setErrRetryHover(false)}
                     onFocus={() => setErrRetryFocused(true)}
                     onBlur={() => setErrRetryFocused(false)}
-                    aria-label={refreshing ? '読み込み中...' : 'データを再読み込み'}
-                    title={refreshing ? '読み込み中...' : 'データを再読み込み'}
+                    aria-keyshortcuts="Alt+r"
+                    aria-label={refreshing ? '読み込み中...' : 'データを再読み込み (Alt + R)'}
+                    title={refreshing ? '読み込み中...' : 'データを再読み込み (Alt + R)'}
                     style={{
                         marginLeft: '1rem',
                         padding: '0.5rem 1rem',
@@ -470,6 +591,7 @@ export default function Dashboard() {
                 >
                     {refreshing ? '読み込み中...' : '🔄 再試行'}
                 </button>
+                {renderToast()}
             </main>
         );
     return (
@@ -1590,122 +1712,7 @@ export default function Dashboard() {
                     </div>
                 </details>
             </div>
-            {toastMsg && (
-                <div
-                    key={toastMsg}
-                    aria-keyshortcuts="Escape"
-                    onMouseEnter={() => setToastHovered(true)}
-                    onMouseLeave={() => setToastHovered(false)}
-                    onFocus={() => setToastFocused(true)}
-                    onBlur={(e) => {
-                        if (!e.currentTarget.contains(e.relatedTarget as Node)) {
-                            setToastFocused(false);
-                        }
-                    }}
-                    style={{
-                        position: 'fixed',
-                        bottom: '2rem',
-                        right: '2rem',
-                        backgroundColor: '#004b73',
-                        color: 'white',
-                        padding: '0.75rem 1.25rem 1rem 1.25rem',
-                        borderRadius: '8px',
-                        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-                        fontSize: '0.9rem',
-                        fontWeight: 'bold',
-                        zIndex: 1000,
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '0.6rem',
-                        animation: 'bounce 0.5s ease-in-out',
-                        overflow: 'hidden',
-                    }}
-                >
-                    <span aria-hidden="true">✨</span>
-                    <span role="status" aria-live="polite" style={{ flex: 1 }}>
-                        {toastMsg}
-                    </span>
-                    <kbd
-                        role="button"
-                        tabIndex={0}
-                        onClick={dismissToast}
-                        onKeyDown={(e) => {
-                            if (e.key === 'Enter' || e.key === ' ') {
-                                e.preventDefault();
-                                dismissToast();
-                            }
-                        }}
-                        onMouseEnter={() => setKbdEscHover(true)}
-                        onMouseLeave={() => setKbdEscHover(false)}
-                        onFocus={() => setKbdEscFocused(true)}
-                        onBlur={() => setKbdEscFocused(false)}
-                        aria-label="Escキーまたはクリックで通知を閉じます"
-                        title="クリックまたは Esc キーで閉じる"
-                        style={{
-                            backgroundColor:
-                                kbdEscHover || kbdEscFocused
-                                    ? 'rgba(255, 255, 255, 0.35)'
-                                    : 'rgba(255, 255, 255, 0.2)',
-                            border: '1px solid rgba(255, 255, 255, 0.4)',
-                            borderRadius: '3px',
-                            padding: '0.1rem 0.35rem',
-                            fontSize: '0.65rem',
-                            color: 'white',
-                            lineHeight: 1,
-                            userSelect: 'none',
-                            cursor: 'pointer',
-                            transition: 'all 0.2s ease-in-out',
-                            transform: kbdEscHover || kbdEscFocused ? 'scale(1.08)' : 'scale(1)',
-                            outline: kbdEscFocused ? '2px solid white' : 'none',
-                            outlineOffset: '2px',
-                        }}
-                    >
-                        Esc
-                    </kbd>
-                    <button
-                        onClick={dismissToast}
-                        onFocus={() => setToastCloseFocused(true)}
-                        onBlur={() => setToastCloseFocused(false)}
-                        onMouseEnter={() => setToastCloseFocused(true)}
-                        onMouseLeave={() => setToastCloseFocused(false)}
-                        aria-label="通知を閉じる (Escape)"
-                        aria-keyshortcuts="Escape"
-                        title="閉じる (Escape)"
-                        style={{
-                            background: 'transparent',
-                            border: 'none',
-                            color: 'white',
-                            cursor: 'pointer',
-                            padding: '0.2rem',
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            fontSize: '0.8rem',
-                            opacity: toastCloseFocused ? 1 : 0.7,
-                            transition: 'all 0.1s ease-in-out',
-                            outline: 'none',
-                            boxShadow: toastCloseFocused ? '0 0 0 2px white' : 'none',
-                            borderRadius: '4px',
-                            minWidth: '24px',
-                            minHeight: '24px',
-                        }}
-                    >
-                        ✕
-                    </button>
-                    <div
-                        key={`${toastMsg}-${toastHovered || toastFocused}`}
-                        style={{
-                            position: 'absolute',
-                            bottom: 0,
-                            left: 0,
-                            height: '3px',
-                            backgroundColor: '#319795',
-                            animation: 'shrinkWidth 2.5s linear forwards',
-                            animationPlayState: toastHovered || toastFocused ? 'paused' : 'running',
-                        }}
-                    />
-                </div>
-            )}
+            {renderToast()}
         </main>
     );
 }

@@ -24,6 +24,8 @@ function getEnergyFromStorage (creep, room, minEnergy = 500, targetKey = MEMORY_
   return false
 }
 
+
+
 /**
  * Common source harvesting targeting logic
  * Finds a valid active source and caches its ID in creep memory.
@@ -41,10 +43,10 @@ function getHarvestTarget (creep, sources) {
     let minDistance = Infinity
     const hasGetRangeTo = creep.pos && typeof creep.pos.getRangeTo === 'function'
 
-    if (sources) {
+    if (sources && hasGetRangeTo) {
       for (let i = 0; i < sources.length; i++) {
         const s = sources[i]
-        const dist = hasGetRangeTo ? creep.pos.getRangeTo(s) : 0
+        const dist = creep.pos.getRangeTo(s)
         if (dist < minDistance) {
           minDistance = dist
           bestSource = s

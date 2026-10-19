@@ -1,70 +1,70 @@
 #!/usr/bin/env node
 
 // GitHub API
-const GITHUB_API = 'https://api.github.com'
-const ISSUE_NUMBER = process.env.ISSUE_NUMBER
+const GITHUB_API = 'https://api.github.com';
+const ISSUE_NUMBER = process.env.ISSUE_NUMBER;
 
-function getSanitizedRepo () {
-  const rawRepo = process.env.GITHUB_REPOSITORY || 'tadanobutubutu/screeps'
-  if (typeof rawRepo !== 'string' || !/^[a-zA-Z0-9_.-]+\/[a-zA-Z0-9_.-]+$/.test(rawRepo)) {
-    throw new Error(`Invalid GITHUB_REPOSITORY format: ${rawRepo}`)
-  }
-  return rawRepo
+function getSanitizedRepo() {
+    const rawRepo = process.env.GITHUB_REPOSITORY || 'tadanobutubutu/screeps';
+    if (typeof rawRepo !== 'string' || !/^[a-zA-Z0-9_.-]+\/[a-zA-Z0-9_.-]+$/.test(rawRepo)) {
+        throw new Error(`Invalid GITHUB_REPOSITORY format: ${rawRepo}`);
+    }
+    return rawRepo;
 }
-const GITHUB_TOKEN = process.env.GITHUB_TOKEN
-const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY
+const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
+const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 
 /**
  * Security: Strip CRLF characters from HTTP header values to prevent header injection.
  */
-function sanitizeHeader (value) {
-  if (value === undefined || value === null) return ''
-  return String(value).replace(/[\r\n]/g, '')
+function sanitizeHeader(value) {
+    if (value === undefined || value === null) return '';
+    return String(value).replace(/[\r\n]/g, '');
 }
 
 /**
  * GitHub API リクエスト実行
  */
-async function githubRequest (endpoint, options = {}) {
-  if (typeof endpoint !== 'string' || !endpoint.startsWith('/')) {
-    throw new Error(`Invalid GitHub API endpoint path: ${endpoint}`)
-  }
-  const url = `${GITHUB_API}${endpoint}`
-  const rawHeaders = {
-    Authorization: `token ${GITHUB_TOKEN}`,
-    Accept: 'application/vnd.github+json',
-    ...options.headers
-  }
-  const headers = {}
-  for (const [k, v] of Object.entries(rawHeaders)) {
-    headers[sanitizeHeader(k)] = sanitizeHeader(v)
-  }
+async function githubRequest(endpoint, options = {}) {
+    if (typeof endpoint !== 'string' || !endpoint.startsWith('/')) {
+        throw new Error(`Invalid GitHub API endpoint path: ${endpoint}`);
+    }
+    const url = `${GITHUB_API}${endpoint}`;
+    const rawHeaders = {
+        Authorization: `token ${GITHUB_TOKEN}`,
+        Accept: 'application/vnd.github+json',
+        ...options.headers,
+    };
+    const headers = {};
+    for (const [k, v] of Object.entries(rawHeaders)) {
+        headers[sanitizeHeader(k)] = sanitizeHeader(v);
+    }
 
-  const response = await fetch(url, {
-    method: options.method || 'GET',
-    headers,
-    body: options.body ? JSON.stringify(options.body) : undefined
-  })
+    const response = await fetch(url, {
+        method: options.method || 'GET',
+        headers,
+        body: options.body ? JSON.stringify(options.body) : undefined,
+    });
 
-  if (!response.ok) {
-    throw new Error(`GitHub API error: ${response.status} ${response.statusText}`)
-  }
+    if (!response.ok) {
+        throw new Error(`GitHub API error: ${response.status} ${response.statusText}`);
+    }
 
-  return response.json()
+    return response.json();
 }
 
 /**
  * Issue の詳細情報を取得
  */
-async function getIssueDetails (issueNumber) {
-  const strNum = String(issueNumber || '').trim()
-  if (!/^\d+$/.test(strNum)) {
-    throw new Error(`Invalid issue number format: ${issueNumber}`)
-  }
-  console.log(`📋 Fetching issue #${strNum}...`)
-  const repo = getSanitizedRepo()
-  const issue = await githubRequest(`/repos/${repo}/issues/${strNum}`)
-  return issue
+async function getIssueDetails(issueNumber) {
+    const strNum = String(issueNumber || '').trim();
+    if (!/^\d+$/.test(strNum)) {
+        throw new Error(`Invalid issue number format: ${issueNumber}`);
+    }
+    console.log(`📋 Fetching issue #${strNum}...`);
+    const repo = getSanitizedRepo();
+    const issue = await githubRequest(`/repos/${repo}/issues/${strNum}`);
+    return issue;
 }
 
 /**
@@ -73,8 +73,8 @@ async function getIssueDetails (issueNumber) {
 /**
  * Claudeに送るプロンプトを構築する
  */
-function _buildClaudePrompt (issue) {
-  return `You are an expert software engineer. Analyze the following GitHub issue and provide:
+function _buildClaudePrompt(issue) {
+    return `You are an expert software engineer. Analyze the following GitHub issue and provide:
 1. Root cause analysis
 2. Specific code changes needed (with file paths)
 3. A concise implementation plan
@@ -99,177 +99,177 @@ Please respond in JSON format:
     ]
   },
   "testSuggestion": "what to test after the fix"
-}`
+}`;
 }
 
 /**
  * Claude APIを呼び出して分析を取得する
  */
-async function _fetchClaudeAnalysis (prompt) {
-  const response = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'x-api-key': sanitizeHeader(ANTHROPIC_API_KEY),
-      'anthropic-version': '2023-06-01',
-      'content-type': 'application/json'
-    },
-    body: JSON.stringify({
-      model: 'claude-opus-4-1',
-      max_tokens: 2000,
-      messages: [
-        {
-          role: 'user',
-          content: prompt
-        }
-      ]
-    })
-  })
+async function _fetchClaudeAnalysis(prompt) {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+            'x-api-key': sanitizeHeader(ANTHROPIC_API_KEY),
+            'anthropic-version': '2023-06-01',
+            'content-type': 'application/json',
+        },
+        body: JSON.stringify({
+            model: 'claude-opus-4-1',
+            max_tokens: 2000,
+            messages: [
+                {
+                    role: 'user',
+                    content: prompt,
+                },
+            ],
+        }),
+    });
 
-  if (!response.ok) {
-    throw new Error(`Claude API error: ${response.status}`)
-  }
+    if (!response.ok) {
+        throw new Error(`Claude API error: ${response.status}`);
+    }
 
-  return response.json()
+    return response.json();
 }
 
 /**
  * ClaudeのレスポンスからJSONを抽出する
  */
-function _parseClaudeResponse (data) {
-  const content = data.content[0].text
-  const jsonMatch = content.match(/\{[\s\S]*\}/)
-  if (!jsonMatch) {
-    throw new Error('Failed to extract JSON from Claude response')
-  }
-  return JSON.parse(jsonMatch[0])
+function _parseClaudeResponse(data) {
+    const content = data.content[0].text;
+    const jsonMatch = content.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) {
+        throw new Error('Failed to extract JSON from Claude response');
+    }
+    return JSON.parse(jsonMatch[0]);
 }
 
-async function analyzeIssueWithClaude (issue) {
-  console.log('🔍 Analyzing issue with Claude...')
-  const prompt = _buildClaudePrompt(issue)
-  const data = await _fetchClaudeAnalysis(prompt)
-  return _parseClaudeResponse(data)
+async function analyzeIssueWithClaude(issue) {
+    console.log('🔍 Analyzing issue with Claude...');
+    const prompt = _buildClaudePrompt(issue);
+    const data = await _fetchClaudeAnalysis(prompt);
+    return _parseClaudeResponse(data);
 }
 
 /**
  * Issue に基づいて修正ブランチを作成し、コミットを作成
  */
-async function createFixBranch (issue, analysis) {
-  const { execFileSync } = require('child' + '_' + 'process')
-  const fs = require('f' + 's')
-  const path = require('path')
-  const branchName = `fix/issue-${issue.number}`
-  const issueSlug = issue.title
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .slice(0, 40)
-  const fullBranchName = `${branchName}-${issueSlug}`
+async function createFixBranch(issue, analysis) {
+    const { execFileSync } = require('child' + '_' + 'process');
+    const fs = require('f' + 's');
+    const path = require('path');
+    const branchName = `fix/issue-${issue.number}`;
+    const issueSlug = issue.title
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .slice(0, 40);
+    const fullBranchName = `${branchName}-${issueSlug}`;
 
-  if (!/^[a-zA-Z0-9\/-]+$/.test(fullBranchName)) {
-    throw new Error(`Invalid branch name format: ${fullBranchName}`)
-  }
+    if (!/^[a-zA-Z0-9\/-]+$/.test(fullBranchName)) {
+        throw new Error(`Invalid branch name format: ${fullBranchName}`);
+    }
 
-  console.log(`🌿 Creating branch: ${fullBranchName}`)
+    console.log(`🌿 Creating branch: ${fullBranchName}`);
 
-  try {
-    execFileSync('git', ['fetch', 'origin'], { stdio: 'inherit' })
-    execFileSync('git', ['checkout', '-b', fullBranchName, 'origin/main'], {
-      stdio: 'inherit'
-    })
-  } catch (error) {
-    console.error('Failed to create branch:', error.message)
-    throw error
-  }
+    try {
+        execFileSync('git', ['fetch', 'origin'], { stdio: 'inherit' });
+        execFileSync('git', ['checkout', '-b', fullBranchName, 'origin/main'], {
+            stdio: 'inherit',
+        });
+    } catch (error) {
+        console.error('Failed to create branch:', error.message);
+        throw error;
+    }
 
-  // ファイルを修正
-  for (const change of analysis.suggestedFix.changes) {
-    const safePath = path.resolve(process.cwd(), change.file)
-    const relativePath = path.relative(process.cwd(), safePath)
+    // ファイルを修正
+    for (const change of analysis.suggestedFix.changes) {
+        const safePath = path.resolve(process.cwd(), change.file);
+        const relativePath = path.relative(process.cwd(), safePath);
 
-    // Security: Prevent Path Traversal attacks / arbitrary file write
-    if (relativePath.startsWith('..') || path.isAbsolute(change.file) || relativePath === '') {
-      console.warn(
+        // Security: Prevent Path Traversal attacks / arbitrary file write
+        if (relativePath.startsWith('..') || path.isAbsolute(change.file) || relativePath === '') {
+            console.warn(
                 `⚠️ Security Warning: Ignored path traversal attempt in file: ${change.file}`
-      )
-      continue
-    }
+            );
+            continue;
+        }
 
-    // Additional Security: Block hidden files/directories and critical configuration files
-    const normalizedPath = relativePath.replace(/\\/g, '/')
-    const pathParts = normalizedPath.split('/')
+        // Additional Security: Block hidden files/directories and critical configuration files
+        const normalizedPath = relativePath.replace(/\\/g, '/');
+        const pathParts = normalizedPath.split('/');
 
-    if (pathParts.some((part) => part.startsWith('.'))) {
-      console.warn(
+        if (pathParts.some((part) => part.startsWith('.'))) {
+            console.warn(
                 `⚠️ Security Warning: Attempt to modify hidden file/directory: ${change.file}`
-      )
-      continue
-    }
+            );
+            continue;
+        }
 
-    const BLOCKED_FILES = [
-      'package.json',
-      'package-lock.json',
-      'pnpm-lock.yaml',
-      'yarn.lock',
-      'screeps.yml',
-      'pnpm-workspace.yaml'
-    ]
+        const BLOCKED_FILES = [
+            'package.json',
+            'package-lock.json',
+            'pnpm-lock.yaml',
+            'yarn.lock',
+            'screeps.yml',
+            'pnpm-workspace.yaml',
+        ];
 
-    if (BLOCKED_FILES.includes(pathParts[pathParts.length - 1])) {
-      console.warn(
+        if (BLOCKED_FILES.includes(pathParts[pathParts.length - 1])) {
+            console.warn(
                 `⚠️ Security Warning: Attempt to modify critical config file: ${change.file}`
-      )
-      continue
-    }
+            );
+            continue;
+        }
 
-    if (normalizedPath === 'scripts/auto-pr-generator.js') {
-      console.warn(
+        if (normalizedPath === 'scripts/auto-pr-generator.js') {
+            console.warn(
                 `⚠️ Security Warning: Attempt to modify the generator script itself: ${change.file}`
-      )
-      continue
+            );
+            continue;
+        }
+
+        const fileDir = path.dirname(safePath);
+
+        // ディレクトリが存在しない場合は作成
+        if (!fs.existsSync(fileDir)) {
+            fs.mkdirSync(fileDir, { recursive: true });
+        }
+
+        // ファイルが存在する場合は読み込み、存在しない場合は新規作成
+        let fileContent = '';
+        if (fs.existsSync(safePath)) {
+            fileContent = fs.readFileSync(safePath, 'utf-8');
+        }
+
+        // 変更を適用（簡易版：実際の実装ではより高度なマージが必要）
+        const updatedContent = fileContent + '\n\n' + change.code;
+        fs.writeFileSync(safePath, updatedContent);
+
+        console.log(`✏️  Modified: ${change.file}`);
     }
 
-    const fileDir = path.dirname(safePath)
-
-    // ディレクトリが存在しない場合は作成
-    if (!fs.existsSync(fileDir)) {
-      fs.mkdirSync(fileDir, { recursive: true })
-    }
-
-    // ファイルが存在する場合は読み込み、存在しない場合は新規作成
-    let fileContent = ''
-    if (fs.existsSync(safePath)) {
-      fileContent = fs.readFileSync(safePath, 'utf-8')
-    }
-
-    // 変更を適用（簡易版：実際の実装ではより高度なマージが必要）
-    const updatedContent = fileContent + '\n\n' + change.code
-    fs.writeFileSync(safePath, updatedContent)
-
-    console.log(`✏️  Modified: ${change.file}`)
-  }
-
-  // コミット
-  const commitMessage = `fix(#${issue.number}): ${issue.title}
+    // コミット
+    const commitMessage = `fix(#${issue.number}): ${issue.title}
 
 Fixes #${issue.number}
 
-${analysis.rootCause}`
+${analysis.rootCause}`;
 
-  execFileSync('git', ['add', '-A'], { stdio: 'inherit' })
-  execFileSync('git', ['commit', '-m', commitMessage], { stdio: 'inherit' })
-  execFileSync('git', ['push', 'origin', fullBranchName], { stdio: 'inherit' })
+    execFileSync('git', ['add', '-A'], { stdio: 'inherit' });
+    execFileSync('git', ['commit', '-m', commitMessage], { stdio: 'inherit' });
+    execFileSync('git', ['push', 'origin', fullBranchName], { stdio: 'inherit' });
 
-  return { branchName: fullBranchName, commitMessage }
+    return { branchName: fullBranchName, commitMessage };
 }
 
 /**
  * PR を作成
  */
-async function createPullRequest (issue, analysis, branch) {
-  console.log('🔄 Creating pull request...')
+async function createPullRequest(issue, analysis, branch) {
+    console.log('🔄 Creating pull request...');
 
-  const prTitle = `fix: ${issue.title}`
-  const prBody = `## 🔧 Fix for Issue #${issue.number}
+    const prTitle = `fix: ${issue.title}`;
+    const prBody = `## 🔧 Fix for Issue #${issue.number}
 
 ### 分析結果
 **重要度**: ${analysis.severity}
@@ -288,75 +288,75 @@ ${analysis.testSuggestion}
 - [ ] ドキュメントを更新した
 - [ ] 変更が Issue #${issue.number} を解決している
 
-Closes #${issue.number}`
+Closes #${issue.number}`;
 
-  const repo = getSanitizedRepo()
-  const pr = await githubRequest(`/repos/${repo}/pulls`, {
-    method: 'POST',
-    body: {
-      title: prTitle,
-      head: branch.branchName,
-      base: 'main',
-      body: prBody,
-      draft: false
-    }
-  })
+    const repo = getSanitizedRepo();
+    const pr = await githubRequest(`/repos/${repo}/pulls`, {
+        method: 'POST',
+        body: {
+            title: prTitle,
+            head: branch.branchName,
+            base: 'main',
+            body: prBody,
+            draft: false,
+        },
+    });
 
-  console.log(`✅ PR created: ${pr.html_url}`)
-  return pr
+    console.log(`✅ PR created: ${pr.html_url}`);
+    return pr;
 }
 
 /**
  * メイン処理
  */
-async function main () {
-  if (!ISSUE_NUMBER) {
-    console.error('❌ ISSUE_NUMBER environment variable is not set')
-    process.exit(1)
-  }
+async function main() {
+    if (!ISSUE_NUMBER) {
+        console.error('❌ ISSUE_NUMBER environment variable is not set');
+        process.exit(1);
+    }
 
-  if (!GITHUB_TOKEN || !ANTHROPIC_API_KEY) {
-    console.error('❌ Missing required environment variables')
-    process.exit(1)
-  }
+    if (!GITHUB_TOKEN || !ANTHROPIC_API_KEY) {
+        console.error('❌ Missing required environment variables');
+        process.exit(1);
+    }
 
-  try {
-    // Issue を取得
-    const issue = await getIssueDetails(ISSUE_NUMBER)
-    console.log(`📝 Processing: ${issue.title}`)
+    try {
+        // Issue を取得
+        const issue = await getIssueDetails(ISSUE_NUMBER);
+        console.log(`📝 Processing: ${issue.title}`);
 
-    // Claude で分析
-    const analysis = await analyzeIssueWithClaude(issue)
-    console.log(`✅ Analysis complete: ${analysis.severity} severity`)
+        // Claude で分析
+        const analysis = await analyzeIssueWithClaude(issue);
+        console.log(`✅ Analysis complete: ${analysis.severity} severity`);
 
-    // 修正ブランチを作成してコミット
-    const branch = await createFixBranch(issue, analysis)
-    console.log(`✅ Branch and commit created: ${branch.branchName}`)
+        // 修正ブランチを作成してコミット
+        const branch = await createFixBranch(issue, analysis);
+        console.log(`✅ Branch and commit created: ${branch.branchName}`);
 
-    // PR を作成
-    const pr = await createPullRequest(issue, analysis, branch)
-    console.log(`✅ PR #${pr.number} created successfully!`)
+        // PR を作成
+        const pr = await createPullRequest(issue, analysis, branch);
+        console.log(`✅ PR #${pr.number} created successfully!`);
 
-    // 成功を記録
-    process.exit(0)
-  } catch (error) {
-    console.error('❌ Error:', error.message)
-    process.exit(1)
-  }
+        // 成功を記録
+        process.exit(0);
+    } catch (error) {
+        console.error('❌ Error:', error.message);
+        process.exit(1);
+    }
 }
 
 if (require.main === module) {
-  main()
+    main();
 }
 
 module.exports = {
-  githubRequest,
-  getSanitizedRepo,
-  getIssueDetails,
-  analyzeIssueWithClaude,
-  createFixBranch,
-  createPullRequest,
-  main,
-  sanitizeHeader,
-  _fetchClaudeAnalysis
-}
+    githubRequest,
+    getSanitizedRepo,
+    getIssueDetails,
+    analyzeIssueWithClaude,
+    createFixBranch,
+    createPullRequest,
+    main,
+    sanitizeHeader,
+    _fetchClaudeAnalysis,
+};

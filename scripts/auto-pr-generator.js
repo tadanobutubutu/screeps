@@ -15,6 +15,14 @@ const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 
 /**
+ * Security: Strip CRLF characters from HTTP header values to prevent header injection.
+ */
+function sanitizeHeader(value) {
+    if (value === undefined || value === null) return '';
+    return String(value).replace(/[\r\n]/g, '');
+}
+
+/**
  * GitHub API リクエスト実行
  */
 async function githubRequest(endpoint, options = {}) {
@@ -22,11 +30,15 @@ async function githubRequest(endpoint, options = {}) {
         throw new Error(`Invalid GitHub API endpoint path: ${endpoint}`);
     }
     const url = `${GITHUB_API}${endpoint}`;
-    const headers = {
+    const rawHeaders = {
         Authorization: `token ${GITHUB_TOKEN}`,
         Accept: 'application/vnd.github+json',
         ...options.headers,
     };
+    const headers = {};
+    for (const [k, v] of Object.entries(rawHeaders)) {
+        headers[sanitizeHeader(k)] = sanitizeHeader(v);
+    }
 
     const response = await fetch(url, {
         method: options.method || 'GET',
@@ -97,7 +109,7 @@ async function _fetchClaudeAnalysis(prompt) {
     const response = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
         headers: {
-            'x-api-key': ANTHROPIC_API_KEY,
+            'x-api-key': sanitizeHeader(ANTHROPIC_API_KEY),
             'anthropic-version': '2023-06-01',
             'content-type': 'application/json',
         },
@@ -345,4 +357,6 @@ module.exports = {
     createFixBranch,
     createPullRequest,
     main,
+    sanitizeHeader,
+    _fetchClaudeAnalysis,
 };

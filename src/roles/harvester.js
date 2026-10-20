@@ -119,7 +119,8 @@ function _harvest (creep) {
  */
 function _findDroppedEnergy (creep) {
   const dropped = cache.getDroppedResources(creep.room)
-  // ⚡ PERFORMANCE OPTIMIZATION: Use single-pass for loop to avoid filter array allocation and find closest directly.
+  // ⚡ PERFORMANCE OPTIMIZATION: Use single-pass for loop with early exit on exact tile matches (dist === 0)
+  // to avoid filter array allocations and skip remaining distance calculations when on top of resource tile.
   let bestDrop = null
   let minDistance = Infinity
   const hasGetRangeTo = creep.pos && typeof creep.pos.getRangeTo === 'function'
@@ -130,6 +131,7 @@ function _findDroppedEnergy (creep) {
       if (dist < minDistance) {
         minDistance = dist
         bestDrop = r
+        if (dist === 0) break
       }
     }
   }
@@ -143,7 +145,8 @@ function _findDroppedEnergy (creep) {
  */
 function _findAvailableContainer (creep) {
   const containers = cache.getContainers(creep.room)
-  // ⚡ PERFORMANCE OPTIMIZATION: Use single-pass for loop to avoid filter array allocation and find closest directly.
+  // ⚡ PERFORMANCE OPTIMIZATION: Use single-pass for loop with early exit on exact tile matches (dist === 0)
+  // to avoid filter array allocations and skip remaining distance calculations when on top of container tile.
   let bestContainer = null
   let minDistance = Infinity
   const hasGetRangeTo = creep.pos && typeof creep.pos.getRangeTo === 'function'
@@ -154,6 +157,7 @@ function _findAvailableContainer (creep) {
       if (dist < minDistance) {
         minDistance = dist
         bestContainer = c
+        if (dist === 0) break
       }
     }
   }
@@ -270,6 +274,7 @@ function _findPrimaryTarget (creep) {
  */
 function _findContainerTarget (creep) {
   const containers = cache.getContainers(creep.room)
+  // ⚡ PERFORMANCE OPTIMIZATION: Early exit on exact tile match (dist === 0) to skip distance calculations for remaining containers.
   let closestContainer = null
   let minContainerDist = Infinity
   const hasGetRangeTo = creep.pos && typeof creep.pos.getRangeTo === 'function'
@@ -281,6 +286,7 @@ function _findContainerTarget (creep) {
       if (dist < minContainerDist) {
         minContainerDist = dist
         closestContainer = c
+        if (dist === 0) break
       }
     }
   }

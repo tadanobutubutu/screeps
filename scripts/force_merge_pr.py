@@ -140,9 +140,7 @@ def list_pr_files(repo, number):
     num_str = validate_number(number)
     files, page = [], 1
     while True:
-        res = gh(
-            ["api", f"repos/{repo}/pulls/{num_str}/files?per_page=100&page={page}"]
-        )
+        res = gh(["api", f"repos/{repo}/pulls/{num_str}/files?per_page=100&page={page}"])
         if res.returncode != 0:
             raise RuntimeError(f"files of #{number}: {res.stderr.strip()[:200]}")
         batch = json.loads(res.stdout)
@@ -224,20 +222,8 @@ def ensure_label(repo):
     global _label_ready
     repo = validate_repo(repo)
     if not _label_ready:
-        gh(
-            [
-                "label",
-                "create",
-                "needs-human",
-                "-R",
-                repo,
-                "--color",
-                "FBCA04",
-                "--description",
-                "自動マージを保留。人の判断が必要",
-                "--force",
-            ]
-        )
+        gh(["label", "create", "needs-human", "-R", repo, "--color", "FBCA04",
+            "--description", "自動マージを保留。人の判断が必要", "--force"])
         _label_ready = True
 
 
@@ -252,16 +238,8 @@ def update_pr(repo, pr):
     repo = validate_repo(repo)
     num_str = validate_number(pr["number"])
     head_sha = validate_ref(pr["headRefOid"])
-    gh(
-        [
-            "api",
-            "-X",
-            "PUT",
-            f"repos/{repo}/pulls/{num_str}/update-branch",
-            "-f",
-            f"expected_head_sha={head_sha}",
-        ]
-    )
+    gh(["api", "-X", "PUT", f"repos/{repo}/pulls/{num_str}/update-branch",
+        "-f", f"expected_head_sha={head_sha}"])
 
 
 def merge_pr(repo, pr):
@@ -269,20 +247,10 @@ def merge_pr(repo, pr):
     repo = validate_repo(repo)
     num_str = validate_number(pr["number"])
     head_sha = validate_ref(pr["headRefOid"])
-    res = gh(
-        [
-            "api",
-            "-X",
-            "PUT",
-            f"repos/{repo}/pulls/{num_str}/merge",
-            "-f",
-            "merge_method=squash",
-            "-f",
-            f"sha={head_sha}",
-            "-f",
-            f"commit_title={pr['title']} (#{num_str})",
-        ]
-    )
+    res = gh(["api", "-X", "PUT", f"repos/{repo}/pulls/{num_str}/merge",
+              "-f", "merge_method=squash",
+              "-f", f"sha={head_sha}",
+              "-f", f"commit_title={pr['title']} (#{num_str})"])
     return None if res.returncode == 0 else res.stderr.strip()[:200]
 
 
@@ -310,9 +278,7 @@ def write_summary(lines):
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description="自動マージゲート")
-    parser.add_argument(
-        "numbers", nargs="*", type=int, help="判定する PR 番号（省略時は open PR 全体）"
-    )
+    parser.add_argument("numbers", nargs="*", type=int, help="判定する PR 番号（省略時は open PR 全体）")
     parser.add_argument("--batch", type=int, help=argparse.SUPPRESS)
     parser.add_argument("--dry-run", action="store_true", help="判定のみ行う")
     parser.add_argument("--push-every", type=int, help=argparse.SUPPRESS)
@@ -328,26 +294,11 @@ def main(argv=None):
         repo = info["nameWithOwner"]
 
     if args.numbers:
-        prs = [
-            gh_json(["pr", "view", str(n), "-R", repo, "--json", PR_FIELDS])
-            for n in args.numbers
-        ]
+        prs = [gh_json(["pr", "view", str(n), "-R", repo, "--json", PR_FIELDS]) for n in args.numbers]
         prs = [pr for pr in prs if pr]
     else:
-        prs = gh_json(
-            [
-                "pr",
-                "list",
-                "-R",
-                repo,
-                "--state",
-                "open",
-                "--limit",
-                str(SWEEP_LIMIT),
-                "--json",
-                PR_FIELDS,
-            ]
-        )
+        prs = gh_json(["pr", "list", "-R", repo, "--state", "open",
+                       "--limit", str(SWEEP_LIMIT), "--json", PR_FIELDS])
         if prs is None:
             return 1
     prs.sort(key=lambda pr: pr["number"])
@@ -373,11 +324,7 @@ def main(argv=None):
             update_pr(repo, pr)
         elif action == "merge":
             if dry_run:
-                status = (
-                    "would merge (Draft なら ready にしてから)"
-                    if pr.get("isDraft")
-                    else "would merge"
-                )
+                status = "would merge (Draft なら ready にしてから)" if pr.get("isDraft") else "would merge"
                 ok = True
             else:
                 ok, status = land_pr(repo, pr)

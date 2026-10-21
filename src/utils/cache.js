@@ -246,7 +246,16 @@ function getMyStructures (room, structureType) {
   if (room._myStructures && room._myStructuresTick === Game.time) {
     if (!structureType) return room._myStructures
     if (room._myStructuresByType) return room._myStructuresByType[structureType] || []
-    return room._myStructures.filter((s) => s.structureType === structureType)
+    // ⚡ PERFORMANCE OPTIMIZATION: Replace Array.prototype.filter with indexed for loop
+    // to eliminate closure function allocations when filtering cached room structures by type.
+    const result = []
+    const structs = room._myStructures
+    for (let i = 0; i < structs.length; i++) {
+      if (structs[i].structureType === structureType) {
+        result.push(structs[i])
+      }
+    }
+    return result
   }
   const key = structureType
     ? `my_structures_${room.name}_${structureType}`

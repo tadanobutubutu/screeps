@@ -1,12 +1,12 @@
-const { execFileSync } = require('child_process');
+const { execFileSync } = require('child_process')
 
 describe('scripts/force_merge_pr.py argument validation hardening', () => {
   const runPythonScript = (code) => {
     return execFileSync('python3', ['-c', code], {
       encoding: 'utf-8',
-      stdio: ['pipe', 'pipe', 'pipe'],
-    });
-  };
+      stdio: ['pipe', 'pipe', 'pipe']
+    })
+  }
 
   test('rejects invalid repo names starting with hyphen or invalid characters', () => {
     const code = `
@@ -22,10 +22,10 @@ for repo in invalid_repos:
     except ValueError:
         pass
 print("OK")
-`;
-    const output = runPythonScript(code);
-    expect(output.trim()).toBe('OK');
-  });
+`
+    const output = runPythonScript(code)
+    expect(output.trim()).toBe('OK')
+  })
 
   test('accepts valid repo names', () => {
     const code = `
@@ -36,10 +36,10 @@ for repo in valid_repos:
     res = validate_repo(repo)
     assert res == repo, f"Expected {repo}, got {res}"
 print("OK")
-`;
-    const output = runPythonScript(code);
-    expect(output.trim()).toBe('OK');
-  });
+`
+    const output = runPythonScript(code)
+    expect(output.trim()).toBe('OK')
+  })
 
   test('rejects invalid refs starting with hyphen or containing forbidden characters', () => {
     const code = `
@@ -55,10 +55,10 @@ for ref in invalid_refs:
     except ValueError:
         pass
 print("OK")
-`;
-    const output = runPythonScript(code);
-    expect(output.trim()).toBe('OK');
-  });
+`
+    const output = runPythonScript(code)
+    expect(output.trim()).toBe('OK')
+  })
 
   test('accepts valid refs and commit SHAs', () => {
     const code = `
@@ -69,10 +69,10 @@ for ref in valid_refs:
     res = validate_ref(ref)
     assert res == ref, f"Expected {ref}, got {res}"
 print("OK")
-`;
-    const output = runPythonScript(code);
-    expect(output.trim()).toBe('OK');
-  });
+`
+    const output = runPythonScript(code)
+    expect(output.trim()).toBe('OK')
+  })
 
   test('rejects non-numeric PR issue numbers', () => {
     const code = `
@@ -88,10 +88,10 @@ for num in invalid_numbers:
     except ValueError:
         pass
 print("OK")
-`;
-    const output = runPythonScript(code);
-    expect(output.trim()).toBe('OK');
-  });
+`
+    const output = runPythonScript(code)
+    expect(output.trim()).toBe('OK')
+  })
 
   test('accepts valid numeric PR issue numbers', () => {
     const code = `
@@ -103,8 +103,8 @@ for num, exp in zip(valid_numbers, expected):
     res = validate_number(num)
     assert res == exp, f"Expected {exp}, got {res}"
 print("OK")
-`;
-    const output = runPythonScript(code);
-    expect(output.trim()).toBe('OK');
-  });
-});
+`
+    const output = runPythonScript(code)
+    expect(output.trim()).toBe('OK')
+  })
+})

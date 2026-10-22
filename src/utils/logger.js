@@ -240,7 +240,15 @@ function getRecentLogs (count) {
 
 function getErrors () {
   if (!Memory.logs) return []
-  return Memory.logs.filter((log) => log.level === 'error')
+  // ⚡ PERFORMANCE OPTIMIZATION: Use single-pass indexed for loop to avoid filter closure allocations.
+  const result = []
+  const logs = Memory.logs
+  for (let i = 0; i < logs.length; i++) {
+    if (logs[i] && logs[i].level === 'error') {
+      result.push(logs[i])
+    }
+  }
+  return result
 }
 
 function clear () {

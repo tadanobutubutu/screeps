@@ -161,3 +161,8 @@ Learned that replacing Array.prototype.filter with a traditional for loop signif
 
 **Learning:** In `_planSourceContainers` (`src/managers/roomManager.js`), calling `room.find(FIND_CONSTRUCTION_SITES)` and using `Array.prototype.filter()` allocated new arrays and closure functions on every plan cycle. Utilizing `cache.getConstructionSites(room)` combined with short-circuiting indexed `for` loops avoids native C++ engine binding calls and eliminates array/closure allocations.
 **Action:** Replace direct `room.find` and `Array.prototype.filter` calls in periodic planning functions with cached getters (`cache.getConstructionSites(room)`) and short-circuiting indexed `for` loops.
+
+## 2026-10-22 - Single-Pass Indexed Loop in Logger Error Retrieval
+
+**Learning:** In `getErrors` (`src/utils/logger.js`), invoking `Array.prototype.filter()` on `Memory.logs` creates closure function allocations and temporary array allocations. Replacing `.filter()` with a single-pass indexed `for` loop eliminates closure overhead when retrieving error logs.
+**Action:** Replace `Array.prototype.filter()` with indexed `for` loops in utility helper routines that inspect arrays.

@@ -1549,8 +1549,9 @@ export default function Dashboard() {
                             setDetailsOpen((prev) => !prev);
                         }
                     }}
-                    aria-label="Alt + D キーまたはクリックで生データの表示切り替え"
-                    title="クリックまたは Alt + D キーで生データの表示切り替え"
+                    aria-keyshortcuts="Alt+d"
+                    aria-label="Alt + D キーまたはクリックで生データの表示切り替え (Alt + D)"
+                    title="クリックまたは Alt + D キーで生データの表示切り替え (Alt + D)"
                     style={{
                         backgroundColor: '#f7fafc',
                         border: '1px solid #cbd5e0',

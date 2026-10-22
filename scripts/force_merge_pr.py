@@ -84,6 +84,20 @@ BOT_AUTHORS = {
 _label_ready = False
 
 
+def is_safe_repo_name(name):
+    """Validate repository name to prevent CLI option injection."""
+    if not isinstance(name, str) or not name or name.startswith("-"):
+        return False
+    return bool(re.match(r"^[a-zA-Z0-9_.-]+/[a-zA-Z0-9_.-]+$", name))
+
+
+def is_safe_ref(ref):
+    """Validate ref/branch name to prevent CLI option injection."""
+    if not isinstance(ref, str) or not ref or ref.startswith("-"):
+        return False
+    return bool(re.match(r"^[a-zA-Z0-9_./-]+$", ref))
+
+
 def gh(args):
     return subprocess.run(["gh", *args], capture_output=True, text=True)
 
@@ -98,6 +112,8 @@ def gh_json(args):
 
 def gh_raw(repo, path, ref):
     """ref 時点のファイル本文を返す。存在しなければ None。"""
+    if not is_safe_repo_name(repo) or not is_safe_ref(ref):
+        return None
     url = f"repos/{repo}/contents/{quote(path)}?ref={quote(ref)}"
     res = gh(["api", "-H", "Accept: application/vnd.github.raw", url])
     return res.stdout if res.returncode == 0 else None

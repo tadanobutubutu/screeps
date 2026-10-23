@@ -1,7 +1,7 @@
+const { execFileSync } = require('child_process')
+
 describe('scripts/ai_update_readme.py header injection and auth hardening', () => {
   it('should sanitize CRLF characters in GEMINI_API_KEY and set x-goog-api-key header', () => {
-    const cpModule = 'child_' + 'process'
-    const { execFileSync } = require(cpModule)
     const pythonCode = `
 import os
 import sys
@@ -21,7 +21,7 @@ mock_resp.status_code = 200
 mock_resp.json.return_value = {"candidates": [{"content": {"parts": [{"text": "response_text"}]}}]}
 mock_requests.post.return_value = mock_resp
 
-with patch('scripts.ai_update_readme.get_repo_context', return_value={"workflows": 1, "roles": 1, "total_lines": 10, "recent_commits": "", "agents_desc": {"AI Guardian": "", "AI Auto-Coder": "", "AI Repo Governance": ""}}), patch('builtins.open', MagicMock()):
+with patch('ai_update_readme.get_repo_context', return_value={"workflows": 1, "roles": 1, "total_lines": 10, "recent_commits": "", "agents_desc": {"AI Guardian": "", "AI Auto-Coder": "", "AI Repo Governance": ""}}), patch('builtins.open', MagicMock()):
     ai_update_readme.main()
 
 assert mock_requests.post.called

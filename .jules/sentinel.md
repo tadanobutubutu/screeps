@@ -143,3 +143,9 @@ Use of deprecated and predictable Math.random() for security-sensitive logic in 
 **Vulnerability:** In `scripts/resolve_conflicts.py`, `head_branch` and `base_branch` retrieved from GitHub API (`pr_info`) were not validated before being passed to `git fetch`, `git push`, and `git merge` commands, allowing potential flag injection if branch names started with hyphens or contained option flags.
 **Learning:** Git CLI commands accepting dynamic ref or branch names from remote sources or PR metadata must validate branch strings against safe naming regexes and include positional argument separators (`--`) to prevent option flag interpretation.
 **Prevention:** Always validate branch names against `/^[a-zA-Z0-9_./-]+$/` (disallowing leading hyphens) and pass the `--` positional argument separator prior to ref arguments in `git` subprocess calls.
+
+## 2026-10-21 - [Validate Repo, Ref, and PR Arguments Against Flag Injection in force_merge_pr.py]
+
+**Vulnerability:** In `scripts/force_merge_pr.py`, `repo`, `ref`, and PR numbers received from environment variables or command-line arguments were passed directly to `gh` CLI subprocess calls (`subprocess.run(["gh", ...])`), allowing option flag injection or malformed API calls if parameters started with hyphens or contained shell metacharacters.
+**Learning:** Passing untrusted environment or CLI inputs as arguments to CLI binaries without validating leading characters or enforcing strict character set regexes allows option flag injection.
+**Prevention:** Always validate `repo` strings against `^[a-zA-Z0-9_.-]+/[a-zA-Z0-9_.-]+$`, `ref` strings against `^[a-zA-Z0-9_./-]+$`, and ensure arguments do not start with a hyphen (`-`) before passing them to CLI subprocesses.

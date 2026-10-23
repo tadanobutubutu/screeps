@@ -24,8 +24,6 @@ function getEnergyFromStorage (creep, room, minEnergy = 500, targetKey = MEMORY_
   return false
 }
 
-
-
 /**
  * Common source harvesting targeting logic
  * Finds a valid active source and caches its ID in creep memory.

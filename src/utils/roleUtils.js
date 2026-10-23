@@ -37,21 +37,37 @@ function getHarvestTarget (creep, sources) {
   let source = Game.getObjectById(creep.memory.harvestTargetId)
 
   if (!source || source.energy === 0) {
-    // ⚡ PERFORMANCE OPTIMIZATION: Use single-pass for loop with early exit on adjacent sources
-    // to avoid native C++ engine binding marshalling via findClosestByRange.
+    // ⚡ PERFORMANCE OPTIMIZATION: Single-pass indexed loop short-circuiting depleted sources
+    // and using early exit on adjacent targets (dist <= 1) to avoid native engine binding marshalling.
     let bestSource = null
     let minDistance = Infinity
     const hasGetRangeTo = creep.pos && typeof creep.pos.getRangeTo === 'function'
+    const hasFindClosest = creep.pos && typeof creep.pos.findClosestByRange === 'function'
 
-    if (sources) {
-      for (let i = 0; i < sources.length; i++) {
-        const s = sources[i]
-        const dist = hasGetRangeTo ? creep.pos.getRangeTo(s) : 0
-        if (dist < minDistance) {
-          minDistance = dist
-          bestSource = s
-          if (dist <= 1) break
+    if (sources && sources.length > 0) {
+      if (hasGetRangeTo) {
+        for (let i = 0; i < sources.length; i++) {
+          const s = sources[i]
+          // ⚡ PERFORMANCE OPTIMIZATION: Skip depleted sources before distance calculation
+          if (s.energy !== undefined && s.energy === 0) continue
+
+          const dist = creep.pos.getRangeTo(s)
+          if (dist < minDistance) {
+            minDistance = dist
+            bestSource = s
+            if (dist <= 1) break
+          }
         }
+      } else if (hasFindClosest) {
+        // Fallback for mock environment testing
+        const activeSources = []
+        for (let i = 0; i < sources.length; i++) {
+          if (sources[i].energy === undefined || sources[i].energy > 0) {
+            activeSources.push(sources[i])
+          }
+        }
+        const candidates = activeSources.length > 0 ? activeSources : sources
+        bestSource = creep.pos.findClosestByRange(candidates)
       }
     }
 

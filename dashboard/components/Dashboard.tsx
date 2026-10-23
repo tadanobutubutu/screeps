@@ -572,6 +572,9 @@ export default function Dashboard() {
                         color: refreshing ? '#a0aec0' : 'inherit',
                         border: '1px solid #cbd5e0',
                         borderRadius: '4px',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '0.4rem',
                         transition: 'all 0.2s ease-in-out',
                         transform:
                             (errRetryHover || errRetryFocused) && !refreshing
@@ -589,7 +592,22 @@ export default function Dashboard() {
                         outlineOffset: '2px',
                     }}
                 >
-                    {refreshing ? '読み込み中...' : '🔄 再試行'}
+                    <kbd
+                        style={{
+                            backgroundColor: 'rgba(0, 0, 0, 0.05)',
+                            border: '1px solid #cbd5e0',
+                            borderRadius: '3px',
+                            padding: '0.1rem 0.3rem',
+                            fontSize: '0.65rem',
+                            color: '#4a5568',
+                            lineHeight: 1,
+                            userSelect: 'none',
+                        }}
+                        aria-hidden="true"
+                    >
+                        Alt + R
+                    </kbd>
+                    <span>{refreshing ? '読み込み中...' : '🔄 再試行'}</span>
                 </button>
                 {renderToast()}
             </main>

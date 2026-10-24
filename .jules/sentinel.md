@@ -143,3 +143,9 @@ Use of deprecated and predictable Math.random() for security-sensitive logic in 
 **Vulnerability:** In `scripts/resolve_conflicts.py`, `head_branch` and `base_branch` retrieved from GitHub API (`pr_info`) were not validated before being passed to `git fetch`, `git push`, and `git merge` commands, allowing potential flag injection if branch names started with hyphens or contained option flags.
 **Learning:** Git CLI commands accepting dynamic ref or branch names from remote sources or PR metadata must validate branch strings against safe naming regexes and include positional argument separators (`--`) to prevent option flag interpretation.
 **Prevention:** Always validate branch names against `/^[a-zA-Z0-9_./-]+$/` (disallowing leading hyphens) and pass the `--` positional argument separator prior to ref arguments in `git` subprocess calls.
+
+## 2026-10-24 - [Validate Role Names in generate-role.js Against Path Traversal]
+
+**Vulnerability:** `scripts/generate-role.js` used `selected.name` directly in `fs.writeFileSync(\`role.${selected.name}.js\`, ...)` without input validation, risking path traversal or unsafe file creation if template names contained relative directory segments.
+**Learning:** Dynamically selected template identifiers or file names must be validated against strict alphanumeric regexes before being used to construct target file system paths.
+**Prevention:** Always enforce strict alphanumeric regex validation (`/^[a-zA-Z0-9]+$/`) on template identifiers prior to constructing output file paths.

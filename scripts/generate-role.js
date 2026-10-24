@@ -318,25 +318,47 @@ if (availableTemplates.length === 0) {
   process.exit(0)
 }
 
-// ランダムに1つ選択
-const selected = availableTemplates[crypto.randomInt(availableTemplates.length)]
-
-console.log(`🆕 Creating new role: ${selected.name}`)
-console.log(`📝 Description: ${selected.description}`)
-
-// ファイル作成
-const filename = `role.${selected.name}.js`
-fs.writeFileSync(filename, selected.body)
-
-// レポート作成
-const report = {
-  role: selected.name,
-  description: selected.description,
-  filename,
-  timestamp: new Date().toISOString(),
-  remaining: availableTemplates.length - 1
+// Helper validation to prevent Path Traversal / Command Injection
+function isValidRoleName(name) {
+  return typeof name === 'string' && /^[a-zA-Z0-9]+$/.test(name)
 }
-fs.writeFileSync('last-role-creation.json', JSON.stringify(report, null, 2))
 
-console.log(`✅ Created: ${filename}`)
-console.log(`📊 Remaining templates: ${report.remaining}`)
+function runGenerateRole() {
+  // ランダムに1つ選択
+  const selected = availableTemplates[crypto.randomInt(availableTemplates.length)]
+
+  if (!selected || !isValidRoleName(selected.name)) {
+    console.error('Invalid role name format in template:', selected?.name)
+    process.exit(1)
+  }
+
+  console.log(`🆕 Creating new role: ${selected.name}`)
+  console.log(`📝 Description: ${selected.description}`)
+
+  // ファイル作成
+  const filename = `role.${selected.name}.js`
+  fs.writeFileSync(filename, selected.body)
+
+  // レポート作成
+  const report = {
+    role: selected.name,
+    description: selected.description,
+    filename,
+    timestamp: new Date().toISOString(),
+    remaining: availableTemplates.length - 1
+  }
+  fs.writeFileSync('last-role-creation.json', JSON.stringify(report, null, 2))
+
+  console.log(`✅ Created: ${filename}`)
+  console.log(`📊 Remaining templates: ${report.remaining}`)
+}
+
+if (require.main === module) {
+  runGenerateRole()
+}
+
+module.exports = {
+  roleTemplates,
+  isValidRoleName,
+  runGenerateRole
+}

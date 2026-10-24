@@ -319,11 +319,11 @@ if (availableTemplates.length === 0) {
 }
 
 // Helper validation to prevent Path Traversal / Command Injection
-function isValidRoleName(name) {
+function isValidRoleName (name) {
   return typeof name === 'string' && /^[a-zA-Z0-9]+$/.test(name)
 }
 
-function runGenerateRole() {
+function runGenerateRole () {
   // ランダムに1つ選択
   const selected = availableTemplates[crypto.randomInt(availableTemplates.length)]
 

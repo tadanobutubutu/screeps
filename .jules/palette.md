@@ -105,3 +105,8 @@
 
 **Learning:** Native `disabled` attributes prevent keyboard navigation from focusing action buttons when search/filter results are empty, leaving screen reader and keyboard users unable to discover why an action cannot be performed; using `aria-disabled="true"` keeps the control in tab order while providing an explicit feedback toast when activated.
 **Action:** Use `aria-disabled="true"` instead of native `disabled` on filter-dependent buttons and trigger descriptive feedback toasts on activation when prerequisites are not met.
+
+## 2026-04-20 - Interactive Timestamp Refresh Trigger and WebKit Search Control Resets
+
+**Learning:** Static timestamp displays with hover hint styles (`interactive-hint`) can frustrate users expecting clickability; transforming them into accessible interactive triggers (`role="button"`, `onClick`, `onKeyDown`) allows intuitive manual refresh, while CSS resets for `::-webkit-search-cancel-button` prevent duplicate, glitchy browser clear controls on React search inputs.
+**Action:** Always pair `role="button"`, keyboard listeners, and explicit accessible titles on interactive timestamp elements, and apply WebKit search cancel resets in global CSS when implementing custom input clear buttons.

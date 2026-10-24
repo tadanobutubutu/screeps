@@ -800,11 +800,19 @@ export default function Dashboard() {
                     {lastUpdated && (
                         <span
                             className="interactive-hint"
+                            role="button"
                             tabIndex={0}
+                            onClick={() => fetchStats(true)}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter' || e.key === ' ') {
+                                    e.preventDefault();
+                                    fetchStats(true);
+                                }
+                            }}
                             aria-live="polite"
-                            title={`最後にデータが更新された時間: ${lastUpdated.toLocaleTimeString()}`}
-                            aria-label={`最後にデータが更新された時間: ${lastUpdated.toLocaleTimeString()}`}
-                            style={{ fontSize: '0.8rem', color: '#718096' }}
+                            title={`最後にデータが更新された時間: ${lastUpdated.toLocaleTimeString()} (クリックまたは Enter キーで手動更新)`}
+                            aria-label={`最後にデータが更新された時間: ${lastUpdated.toLocaleTimeString()}。クリックまたは Enter キーで更新`}
+                            style={{ fontSize: '0.8rem', color: '#718096', userSelect: 'none' }}
                         >
                             🕒 {lastUpdated.toLocaleTimeString()}
                         </span>

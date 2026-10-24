@@ -241,15 +241,17 @@ function sortByDistance (origin, objects) {
 }
 
 function closest (origin, objects) {
-  if (!objects || objects.length === 0) return null
+  if (!objects || objects.length === 0 || !origin) return null
   let best = null
   let bestDist = Infinity
+  // ⚡ PERFORMANCE OPTIMIZATION: Short-circuit on exact tile match (d === 0) to avoid remaining distance evaluations
   for (let i = 0; i < objects.length; i++) {
     const obj = objects[i]
     const d = origin.getRangeTo(obj)
     if (d < bestDist) {
       bestDist = d
       best = obj
+      if (d === 0) break
     }
   }
   return best

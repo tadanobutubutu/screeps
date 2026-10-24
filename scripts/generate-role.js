@@ -297,33 +297,33 @@ const existingRoles = fs
 
 console.log('📋 Existing roles:', existingRoles.join(', '))
 
-// まだ作成されていないロールを探す
-const availableTemplates = roleTemplates.filter((t) => !existingRoles.includes(t.name))
-
-if (availableTemplates.length === 0) {
-  console.log('✅ All role templates already exist!')
-  fs.writeFileSync(
-    'last-role-creation.json',
-    JSON.stringify(
-      {
-        role: null,
-        description: 'All templates exist',
-        timestamp: new Date().toISOString(),
-        remaining: 0
-      },
-      null,
-      2
-    )
-  )
-  process.exit(0)
-}
-
 // Helper validation to prevent Path Traversal / Command Injection
-function isValidRoleName (name) {
+function isValidRoleName(name) {
   return typeof name === 'string' && /^[a-zA-Z0-9]+$/.test(name)
 }
 
-function runGenerateRole () {
+function runGenerateRole() {
+  // まだ作成されていないロールを探す
+  const availableTemplates = roleTemplates.filter((t) => !existingRoles.includes(t.name))
+
+  if (availableTemplates.length === 0) {
+    console.log('✅ All role templates already exist!')
+    fs.writeFileSync(
+      'last-role-creation.json',
+      JSON.stringify(
+        {
+          role: null,
+          description: 'All templates exist',
+          timestamp: new Date().toISOString(),
+          remaining: 0
+        },
+        null,
+        2
+      )
+    )
+    process.exit(0)
+  }
+
   // ランダムに1つ選択
   const selected = availableTemplates[crypto.randomInt(availableTemplates.length)]
 

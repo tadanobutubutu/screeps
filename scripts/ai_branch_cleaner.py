@@ -8,12 +8,12 @@ import urllib.request
 
 
 def get_issue_status(issue_id):
-    if not issue_id:
+    if not issue_id or not re.match(r"^\d+$", str(issue_id).strip()):
         return None
     try:
         # Use gh api for issue check to be fast
         res = subprocess.run(
-            ["gh", "issue", "view", issue_id, "--json", "state"],
+            ["gh", "issue", "view", str(issue_id).strip(), "--json", "state"],
             capture_output=True,
             text=True,
         )

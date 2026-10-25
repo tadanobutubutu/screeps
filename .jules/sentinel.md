@@ -149,3 +149,9 @@ Use of deprecated and predictable Math.random() for security-sensitive logic in 
 **Vulnerability:** `scripts/generate-role.js` used `selected.name` directly in `fs.writeFileSync(\`role.${selected.name}.js\`, ...)` without input validation, risking path traversal or unsafe file creation if template names contained relative directory segments.
 **Learning:** Dynamically selected template identifiers or file names must be validated against strict alphanumeric regexes before being used to construct target file system paths.
 **Prevention:** Always enforce strict alphanumeric regex validation (`/^[a-zA-Z0-9]+$/`) on template identifiers prior to constructing output file paths.
+
+## 2026-10-25 - [Validate issue_id in ai_branch_cleaner.py against CLI option injection]
+
+**Vulnerability:** `scripts/ai_branch_cleaner.py` extracted issue IDs from git branch names (e.g. `issue-123`) and passed `issue_id` directly to `gh issue view <issue_id>` without strict numeric validation, risking option/argument injection if branch names contained leading hyphens or CLI flags.
+**Learning:** Dynamic string parameters extracted from branch names or PR metadata passed to CLI tools can contain option flags (e.g. `--help` or `--repo=...`) that manipulate `gh` CLI subprocess execution.
+**Prevention:** Always validate `issue_id` parameters against a strict numeric regex (`re.match(r"^\d+$", str(issue_id).strip())`) before passing them to CLI subprocesses.

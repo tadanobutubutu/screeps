@@ -13,7 +13,8 @@ def get_issue_status(issue_id):
     try:
         # Use gh api for issue check to be fast
         res = subprocess.run(
-            ["gh", "issue", "view", str(issue_id).strip(), "--json", "state"],
+            ["gh", "issue", "view",
+             str(issue_id).strip(), "--json", "state"],
             capture_output=True,
             text=True,
         )
@@ -131,40 +132,51 @@ def main():
             capture_output=True,
             text=True,
         )
-        files_changed = (
-            diff_res.stdout.strip().split("\n") if diff_res.returncode == 0 else []
-        )
+        files_changed = (diff_res.stdout.strip().split("\n")
+                         if diff_res.returncode == 0 else [])
         files_sample = [f for f in files_changed if f][:5]
 
         # 関連するIssueの状態 (名前に数字が含まれる場合)
         issue_match = re.search(r"(\d+)", name)
-        issue_status = get_issue_status(issue_match.group(1)) if issue_match else None
+        issue_status = get_issue_status(
+            issue_match.group(1)) if issue_match else None
 
         # 最近のワークフロー実行
         runs = get_recent_runs(name)
 
         # ボットかどうか
-        is_bot = "github.com" in author_email.lower() or author_name.lower() in [
+        is_bot = "github.com" in author_email.lower() or author_name.lower(
+        ) in [
             "github actions",
             "github-actions",
         ]
 
-        branch_data.append(
-            {
-                "name": name,
-                "author": author_name,
-                "is_bot": is_bot,
-                "subject": subject,
-                "age_days": age_days,
-                "ahead": ahead,
-                "behind": behind,
-                "files_changed_count": len(files_changed),
-                "files_sample": files_sample,
-                "issue_status": issue_status,
-                "recent_runs": runs,
-                "is_merged": "gone" in track or (ahead == 0 and behind > 0),
-            }
-        )
+        branch_data.append({
+            "name":
+            name,
+            "author":
+            author_name,
+            "is_bot":
+            is_bot,
+            "subject":
+            subject,
+            "age_days":
+            age_days,
+            "ahead":
+            ahead,
+            "behind":
+            behind,
+            "files_changed_count":
+            len(files_changed),
+            "files_sample":
+            files_sample,
+            "issue_status":
+            issue_status,
+            "recent_runs":
+            runs,
+            "is_merged":
+            "gone" in track or (ahead == 0 and behind > 0),
+        })
 
     if not branch_data:
         print("✅ No stale branches found for analysis.")
@@ -194,19 +206,25 @@ def main():
         url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent"
         try:
             payload = {
-                "contents": [{"parts": [{"text": prompt}]}],
-                "generationConfig": {"response_mime_type": "application/json"},
+                "contents": [{
+                    "parts": [{
+                        "text": prompt
+                    }]
+                }],
+                "generationConfig": {
+                    "response_mime_type": "application/json"
+                },
             }
             headers = {
                 "Content-Type": "application/json",
                 "x-goog-api-key": clean_key,
             }
             req = urllib.request.Request(
-                url, data=json.dumps(payload).encode("utf-8"), headers=headers
-            )
+                url, data=json.dumps(payload).encode("utf-8"), headers=headers)
             with urllib.request.urlopen(req, timeout=60) as f:
                 res_json = json.loads(f.read().decode("utf-8"))
-                result = res_json["candidates"][0]["content"]["parts"][0]["text"]
+                result = res_json["candidates"][0]["content"]["parts"][0][
+                    "text"]
         except Exception as e:
             print(f"Warning: API call failed: {type(e).__name__}")
             pass

@@ -1004,8 +1004,24 @@ export default function Dashboard() {
                     style={{ marginBottom: '1rem' }}
                     className="interactive-hint"
                     tabIndex={0}
-                    title={`GCL ${stats?.gcl?.level || 0} 進捗: ${stats?.gcl?.progress || 0} / ${stats?.gcl?.progressTotal || 0}`}
-                    aria-label={`GCL ${stats?.gcl?.level || 0} 進捗: ${stats?.gcl?.progress || 0} / ${stats?.gcl?.progressTotal || 0}`}
+                    title={`GCL ${stats?.gcl?.level || 0} 進捗: ${
+                        stats?.gcl?.progress !== undefined ? formatNumber(stats.gcl.progress) : '0'
+                    } / ${
+                        stats?.gcl?.progressTotal !== undefined ? formatNumber(stats.gcl.progressTotal) : '0'
+                    } (${
+                        stats?.gcl?.progressTotal
+                            ? ((stats.gcl.progress / stats.gcl.progressTotal) * 100).toFixed(2)
+                            : '0.00'
+                    }%)`}
+                    aria-label={`GCL ${stats?.gcl?.level || 0} 進捗: ${
+                        stats?.gcl?.progress !== undefined ? formatNumber(stats.gcl.progress) : '0'
+                    } / ${
+                        stats?.gcl?.progressTotal !== undefined ? formatNumber(stats.gcl.progressTotal) : '0'
+                    } (${
+                        stats?.gcl?.progressTotal
+                            ? ((stats.gcl.progress / stats.gcl.progressTotal) * 100).toFixed(2)
+                            : '0.00'
+                    }%)`}
                 >
                     <div
                         style={{
@@ -1074,8 +1090,8 @@ export default function Dashboard() {
                     style={{ marginBottom: '1rem' }}
                     className="interactive-hint"
                     tabIndex={0}
-                    title={`CPU 使用率: ${stats?.cpuUsed?.toFixed(2) || '0.00'} / 100 (Screeps の基本制限: 100)`}
-                    aria-label={`CPU 使用率: ${stats?.cpuUsed?.toFixed(2) || '0.00'} / 100 (Screeps の基本制限: 100)`}
+                    title={`CPU 使用率: ${stats?.cpuUsed?.toFixed(2) || '0.00'} / 100 (Screeps の基本制限: 100)${(stats?.cpuUsed || 0) > 80 ? ' ⚠️ 高負荷' : ''}`}
+                    aria-label={`CPU 使用率: ${stats?.cpuUsed?.toFixed(2) || '0.00'} / 100 (Screeps の基本制限: 100)${(stats?.cpuUsed || 0) > 80 ? ' ⚠️ 高負荷' : ''}`}
                 >
                     <div
                         style={{

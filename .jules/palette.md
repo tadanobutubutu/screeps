@@ -110,3 +110,8 @@
 
 **Learning:** Static timestamp displays with hover hint styles (`interactive-hint`) can frustrate users expecting clickability; transforming them into accessible interactive triggers (`role="button"`, `onClick`, `onKeyDown`) allows intuitive manual refresh, while CSS resets for `::-webkit-search-cancel-button` prevent duplicate, glitchy browser clear controls on React search inputs.
 **Action:** Always pair `role="button"`, keyboard listeners, and explicit accessible titles on interactive timestamp elements, and apply WebKit search cancel resets in global CSS when implementing custom input clear buttons.
+
+## 2026-04-25 - Synchronized Accessible Labels on Metric Progress Container Cards
+
+**Learning:** When container cards wrap progress metrics or threshold status badges (such as GCL and CPU metric cards), setting `title` and `aria-label` with raw unformatted numbers or omitting visual warning badges causes accessible name computation to desynchronize from visual representation.
+**Action:** Always format metric card container `title` and `aria-label` attributes with human-readable numbers, percentages, and threshold warning badges (e.g. `⚠️ 高負荷`) to maintain complete parity across visual rendering and screen reader announcements.

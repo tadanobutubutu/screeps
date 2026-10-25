@@ -151,6 +151,7 @@ function _getEnergyFromLink (creep, room) {
       if (dist < minDistance) {
         minDistance = dist
         bestLink = link
+        if (dist === 0) break
       }
     }
   }
@@ -187,6 +188,7 @@ function _getEnergyFromContainer (creep, room) {
         if (dist < minDistance) {
           minDistance = dist
           bestContainer = container
+          if (dist === 0) break
         }
       }
     }
@@ -221,6 +223,7 @@ function _getEnergyFromDropped (creep, room) {
       if (dist < minDistance) {
         minDistance = dist
         bestDrop = res
+        if (dist === 0) break
       }
     }
   }

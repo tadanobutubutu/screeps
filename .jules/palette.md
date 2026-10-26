@@ -115,3 +115,8 @@
 
 **Learning:** When container cards wrap progress metrics or threshold status badges (such as GCL and CPU metric cards), setting `title` and `aria-label` with raw unformatted numbers or omitting visual warning badges causes accessible name computation to desynchronize from visual representation.
 **Action:** Always format metric card container `title` and `aria-label` attributes with human-readable numbers, percentages, and threshold warning badges (e.g. `⚠️ 高負荷`) to maintain complete parity across visual rendering and screen reader announcements.
+
+## 2026-10-26 - Progressive Escape Key Collapse & Unrendered Shortcut Target Feedback
+
+**Learning:** When conditional UI elements (such as search inputs) are unrendered from the DOM, triggering keyboard shortcuts (e.g. `Alt+S`) silently fails without feedback; pairing conditional refs with explanatory toast notifications informs users why the input is unavailable, while progressive `Escape` key stack handling (toast -> active query -> open panel) creates intuitive keyboard dismissal flows.
+**Action:** Always check `ref.current` before focusing shortcut target elements and trigger explanatory toasts when unrendered, and organize `Escape` key handlers in a progressive priority stack.

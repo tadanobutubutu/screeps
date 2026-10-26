@@ -365,6 +365,8 @@ function _getEnergyFromDropped (creep, room) {
       if (dist < minDropDist) {
         minDropDist = dist
         bestDrop = r
+        // ⚡ PERFORMANCE OPTIMIZATION: Short-circuit search loop when target is on the exact same tile (dist === 0)
+        if (dist === 0) break
       }
     }
   }
@@ -399,6 +401,8 @@ function _getEnergyFromContainer (creep, room) {
       if (dist < minContainerDist) {
         minContainerDist = dist
         bestContainer = c
+        // ⚡ PERFORMANCE OPTIMIZATION: Short-circuit search loop when target is on the exact same tile (dist === 0)
+        if (dist === 0) break
       }
     }
   }

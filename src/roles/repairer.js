@@ -215,11 +215,7 @@ function _findBestRepairTarget (creep, room, wallTarget) {
 function _needsRepair (structure, room, wallTarget) {
   const type = structure.structureType
   // ⚡ PERFORMANCE OPTIMIZATION: Short-circuit full-health non-wall/rampart structures early
-  if (
-    structure.hits >= structure.hitsMax &&
-        type !== STRUCTURE_WALL &&
-        type !== STRUCTURE_RAMPART
-  ) {
+  if (structure.hits >= structure.hitsMax && type !== STRUCTURE_WALL && type !== STRUCTURE_RAMPART) {
     return false
   }
 

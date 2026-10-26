@@ -13,7 +13,9 @@ describe('force_merge_pr.py repository name validation', () => {
     })
 
     expect(res.status).toBe(1)
-    expect(res.stdout).toContain('Error: Invalid or unsafe repository name: --repo=malicious/repo')
+    expect(res.stdout).toContain(
+      'Error: Invalid or unsafe repository name: --repo=malicious/repo'
+    )
   })
 
   test('rejects repository names with invalid characters or shell metacharacters', () => {
@@ -28,7 +30,9 @@ describe('force_merge_pr.py repository name validation', () => {
     })
 
     expect(res.status).toBe(1)
-    expect(res.stdout).toContain('Error: Invalid or unsafe repository name: owner/repo; rm -rf /')
+    expect(res.stdout).toContain(
+      'Error: Invalid or unsafe repository name: owner/repo; rm -rf /'
+    )
   })
 
   test('rejects empty repository name string', () => {

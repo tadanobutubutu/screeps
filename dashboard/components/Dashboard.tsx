@@ -221,6 +221,12 @@ export default function Dashboard() {
                     clearSearchQuery();
                     return;
                 }
+                if (detailsOpen) {
+                    e.preventDefault();
+                    setDetailsOpen(false);
+                    showToast('生データ詳細を閉じました');
+                    return;
+                }
             }
 
             const isEditing =
@@ -245,7 +251,11 @@ export default function Dashboard() {
                     fetchStats(true);
                 } else if (e.key.toLowerCase() === 's') {
                     e.preventDefault();
-                    searchInputRef.current?.focus();
+                    if (searchInputRef.current) {
+                        searchInputRef.current.focus();
+                    } else {
+                        showToast('部屋数が3部屋以下のため検索入力は表示されていません');
+                    }
                 } else if (e.key.toLowerCase() === 'd') {
                     e.preventDefault();
                     setDetailsOpen((prev) => !prev);
@@ -260,7 +270,7 @@ export default function Dashboard() {
         };
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [fetchStats, refreshing, copySummary, stats, roomQuery, clearSearchQuery]);
+    }, [fetchStats, refreshing, copySummary, stats, roomQuery, detailsOpen, clearSearchQuery, showToast]);
 
     const copyErr = () =>
         error &&
@@ -1615,7 +1625,6 @@ export default function Dashboard() {
                     style={{ border: 'none' }}
                 >
                     <summary
-                        className="interactive-hint"
                         aria-expanded={detailsOpen}
                         aria-keyshortcuts="Alt+d"
                         onMouseEnter={() => setSummaryDetailsHover(true)}

@@ -176,3 +176,8 @@ Learned that replacing Array.prototype.filter with a traditional for loop signif
 
 **Learning:** In `src/roles/upgrader.js` (`_getEnergyFromLink`, `_getEnergyFromContainer`, `_getEnergyFromDropped`), distance calculation `creep.pos.getRangeTo(...)` was evaluated for all remaining candidates in the room even after finding a target at distance 0 (standing on the target tile). Adding `if (dist === 0) break;` short-circuits remaining loop iterations on exact tile matches without misidentifying range 1 candidates when range 0 candidates exist later in the loop.
 **Action:** Always short-circuit closest target selection loops with `if (dist === 0) break;` on exact tile matches.
+
+## 2026-10-27 - Indexed Loops and Scalar Range Accumulation in Room Planning Spawn Positioning
+
+**Learning:** In `findBestSpawnPosition` (`utils.planning.js`), calculating `Math.min(...sources.map((s) => pos.getRangeTo(s)))` inside `openSpaces.forEach(...)` allocated a new array and closure callback function for every open space candidate, and spread the array into `Math.min()`. Replacing `.forEach()`, `.map()`, and array spread with nested indexed `for` loops and scalar range accumulation eliminates intermediate array allocations, closure overhead, and spread dispatch per space candidate.
+**Action:** Replace `sources.map()` and `Math.min(...map)` inside position evaluation loops with nested indexed `for` loops tracking minimum distance.

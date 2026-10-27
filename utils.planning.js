@@ -55,19 +55,29 @@ module.exports = {
     let bestPos = null
     let bestScore = Infinity
 
-    openSpaces.forEach((space) => {
+    // ⚡ PERFORMANCE OPTIMIZATION: Use indexed for loops and scalar minimum tracking to eliminate
+    // intermediate array allocations from .map(), array spread Math.min(...), and callback closure executions.
+    for (let i = 0; i < openSpaces.length; i++) {
+      const space = openSpaces[i]
       const pos = new RoomPosition(space.x, space.y, room.name)
 
       // Calculate distance score (lower is better)
       const controllerDist = pos.getRangeTo(controller)
-      const sourceDist = Math.min(...sources.map((s) => pos.getRangeTo(s)))
-      const score = controllerDist * 2 + sourceDist
+      let minSourceDist = Infinity
+      for (let j = 0; j < sources.length; j++) {
+        const dist = pos.getRangeTo(sources[j])
+        if (dist < minSourceDist) {
+          minSourceDist = dist
+          if (dist === 0) break
+        }
+      }
+      const score = controllerDist * 2 + minSourceDist
 
       if (score < bestScore) {
         bestScore = score
         bestPos = pos
       }
-    })
+    }
 
     return bestPos
   },
@@ -104,13 +114,15 @@ module.exports = {
       return
     }
 
-    positions.forEach((pos) => {
+    // ⚡ PERFORMANCE OPTIMIZATION: Use indexed for loop to avoid closure function allocation per position.
+    for (let i = 0; i < positions.length; i++) {
+      const pos = positions[i]
       room.visual.circle(pos.x, pos.y, {
         radius: 0.4,
         fill: color,
         opacity: 0.5
       })
-    })
+    }
   },
 
   // Display planning info

@@ -981,10 +981,10 @@ export default function Dashboard() {
                                       ? 'scale(1.15)'
                                       : 'scale(1)',
                                 boxShadow:
-                                    refreshHover && !refreshing
+                                    (refreshHover || refreshFocused) && !refreshing
                                         ? '0 4px 10px rgba(0, 75, 115, 0.4)'
                                         : 'none',
-                                filter: refreshHover && !refreshing ? 'brightness(1.1)' : 'none',
+                                filter: (refreshHover || refreshFocused) && !refreshing ? 'brightness(1.1)' : 'none',
                                 outline: refreshFocused ? '2px solid #004b73' : 'none',
                                 outlineOffset: '2px',
                             }}

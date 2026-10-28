@@ -127,24 +127,37 @@
 
 **Learning:** In `role.transporter.js`, invoking native `creep.pos.findClosestByRange(targets)` invokes C++ engine wrapper allocations and callback overhead per search call. Implementing a manual single-pass indexed `for` loop with early-exit on adjacent targets (`dist <= 1`) bypasses engine marshalling overhead and cuts CPU processing time during target search.
 **Action:** Replace native `findClosestByRange` calls in high-frequency role modules with single-pass indexed `for` loops and `dist <= 1` short-circuits.
+
 ## $(date +%Y-%m-%d) - Replace redundant room source find with cache.getSources in auto.evolution.js
+
 - Implemented a performance optimization by using a centralized cache (`cache.getSources(room)`) for counting sources in rooms, replacing a redundant inline caching loop over `FIND_SOURCES`.
-## 2024-05-23 - Use cached structures and sites in _planExtensions
+
+## 2024-05-23 - Use cached structures and sites in \_planExtensions
+
 Replaced direct `room.find` calls for `STRUCTURE_EXTENSION` in `_planExtensions` with `cache.getMyStructures` and `cache.getConstructionSites`. Direct `room.find` queries bypass the cache and run every time `_planExtensions` is evaluated, consuming CPU. This optimization leverages the existing cache module.
+
 ## 2026-09-24 - Pre-warmed Caches and Indexed Loops for Role Discovery
+
 **Learning:** In creep behavior scripts (e.g., `role.healer`), identifying nearby companion creeps often involves calling `room.find(FIND_MY_CREEPS, { filter: ... })`. This operation is computationally expensive because it evaluates all creeps in the room and incurs the closure allocation overhead of the filter callback function every tick. Utilizing a pre-warmed room cache system (`cache.getMyCreeps(room)`) combined with a traditional indexed `for` loop eliminates both the expensive `room.find()` native call and the closure allocation overhead.
 **Action:** Replace `room.find()` and `.filter()` operations used for intra-role companion discovery with indexed traversals over cached creep arrays from `src/utils/cache.js`.
 Learned that replacing Array.prototype.filter with a traditional for loop significantly reduces CPU time in high-frequency functions, but we must also avoid allocating new arrays entirely by caching results or maintaining clean data structures.
+
 ## 2026-08-07 - Loop Iteration over `forEach`
+
 **Learning:** In high-frequency array iteration (such as source or path loops in Screeps, or visualizer routines), replacing `Array.prototype.forEach()` with traditional indexed `for` loops eliminates the overhead of closure function allocations. This is particularly useful where performance and GC pressure are important considerations.
 **Action:** Replace `Array.prototype.forEach()` with traditional indexed `for` loops in high-frequency arrays.
+
 ## Performance Optimization: Healer creep injured array
+
 - Replaced `room.find` with `cache.getMyCreeps()` when checking for injured creeps to utilize existing array caches.
 - Replaced `.filter()` method with standard indexed `for` loops to reduce closure allocations during high frequency checks.
 - Baseline `~92ms`, Improved to `~15.5ms` (~83% performance gain in a benchmark of 10,000 iterations).
+
 ## 2026-09-24 - Single-Pass Hostile Structure Selection in Attacker Role
+
 **Learning:** Building a filtered array with `Array.prototype.filter` and then calling `findClosestByRange` allocates a new array every tick for each attacker creep, adding GC pressure. A single indexed `for` loop that filters and tracks the minimum range in one pass removes the intermediate allocation.
 **Action:** Replace `filter()` + `findClosestByRange()` pairs in hot role loops with a single-pass indexed `for` loop that tracks the closest candidate.
+
 - In high-frequency Screeps distance calculation routines (such as selecting targets for medics), replacing `Array.prototype.findClosestByRange()` with traditional indexed `for` loops and inlined `Math.abs` distance calculations dramatically reduces per-tick overhead. In benchmarks, the manual loop runs 5x faster (23ms vs 110ms for 10000 iterations finding the closest among 1000 items).
 
 ## 2026-10-07 - Direct Rampart Structure Type Querying in Tower Urgent Rampart Scan

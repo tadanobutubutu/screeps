@@ -812,19 +812,36 @@ export default function Dashboard() {
                             className="interactive-hint"
                             role="button"
                             tabIndex={0}
-                            onClick={() => fetchStats(true)}
+                            aria-disabled={refreshing ? 'true' : undefined}
+                            onClick={() => !refreshing && fetchStats(true)}
                             onKeyDown={(e) => {
-                                if (e.key === 'Enter' || e.key === ' ') {
+                                if ((e.key === 'Enter' || e.key === ' ') && !refreshing) {
                                     e.preventDefault();
                                     fetchStats(true);
                                 }
                             }}
                             aria-live="polite"
-                            title={`最後にデータが更新された時間: ${lastUpdated.toLocaleTimeString()} (クリックまたは Enter キーで手動更新)`}
-                            aria-label={`最後にデータが更新された時間: ${lastUpdated.toLocaleTimeString()}。クリックまたは Enter キーで更新`}
-                            style={{ fontSize: '0.8rem', color: '#718096', userSelect: 'none' }}
+                            title={
+                                refreshing
+                                    ? 'データを最新の状態に更新中...'
+                                    : `最後にデータが更新された時間: ${lastUpdated.toLocaleTimeString()} (クリックまたは Enter キーで手動更新)`
+                            }
+                            aria-label={
+                                refreshing
+                                    ? 'データを最新の状態に更新中'
+                                    : `最後にデータが更新された時間: ${lastUpdated.toLocaleTimeString()}。クリックまたは Enter キーで更新`
+                            }
+                            style={{
+                                fontSize: '0.8rem',
+                                color: '#718096',
+                                userSelect: 'none',
+                                cursor: refreshing ? 'not-allowed' : 'pointer',
+                                opacity: refreshing ? 0.6 : 1,
+                            }}
                         >
-                            🕒 {lastUpdated.toLocaleTimeString()}
+                            {refreshing
+                                ? '🕒 更新中...'
+                                : `🕒 ${lastUpdated.toLocaleTimeString()}`}
                         </span>
                     )}
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>

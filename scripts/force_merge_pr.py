@@ -61,6 +61,12 @@ PROTECTED_FILES = {"scripts/force_merge_pr.py"}
 LOOP_FILE = "main.js"
 LOOP_PATTERN = "exports.loop"
 CONFLICT_RE = re.compile(r"^(<<<<<<< |=======$|>>>>>>> )", re.MULTILINE)
+RE_REPO = re.compile(r"^[a-zA-Z0-9_.-]+/[a-zA-Z0-9_.-]+$")
+
+
+def is_safe_repo_name(repo):
+    """Validate repository format owner/repo to prevent flag injection."""
+    return bool(repo and isinstance(repo, str) and not repo.startswith("-") and RE_REPO.match(repo))
 SHRINK_MIN_LINES = 50
 SHRINK_RATIO = 0.6
 MAX_MERGES_PER_RUN = 10
@@ -244,9 +250,12 @@ def main(argv=None):
     repo = os.environ.get("GITHUB_REPOSITORY")
     if not repo:
         info = gh_json(["repo", "view", "--json", "nameWithOwner"])
-        if not info:
-            return 1
-        repo = info["nameWithOwner"]
+        if isinstance(info, dict):
+            repo = info.get("nameWithOwner")
+
+    if not is_safe_repo_name(repo):
+        print(f"Invalid or unsafe repository name: {repo}")
+        return 1
 
     if args.numbers:
         prs = [gh_json(["pr", "view", str(n), "-R", repo, "--json", PR_FIELDS]) for n in args.numbers]

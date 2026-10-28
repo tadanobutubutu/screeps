@@ -268,12 +268,14 @@ function findNearestOpenTile (pos, range) {
   const right = Math.min(48, pos.x + r)
 
   const lookData = room.lookAtArea(top, left, bottom, right, true)
-  const blockedTiles = new Set()
+  // ⚡ PERFORMANCE OPTIMIZATION: Use Uint8Array grid lookup (y * 50 + x)
+  // instead of string key Set to eliminate template string allocations and hash map overhead.
+  const blockedTiles = new Uint8Array(2500)
 
   for (let i = 0; i < lookData.length; i++) {
     const item = lookData[i]
     if (item.type === 'structure' || item.type === 'creep') {
-      blockedTiles.add(`${item.x},${item.y}`)
+      blockedTiles[item.y * 50 + item.x] = 1
     }
   }
 
@@ -285,7 +287,7 @@ function findNearestOpenTile (pos, range) {
       const y = pos.y + dy
       if (x < 1 || x > 48 || y < 1 || y > 48) continue
       if (terrain.get(x, y) === TERRAIN_MASK_WALL) continue
-      if (blockedTiles.has(`${x},${y}`)) continue
+      if (blockedTiles[y * 50 + x] === 1) continue
       return new RoomPosition(x, y, pos.roomName)
     }
   }

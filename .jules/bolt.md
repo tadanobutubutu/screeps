@@ -181,3 +181,8 @@ Learned that replacing Array.prototype.filter with a traditional for loop signif
 
 **Learning:** In `findBestSpawnPosition` (`utils.planning.js`), calculating `Math.min(...sources.map((s) => pos.getRangeTo(s)))` inside `openSpaces.forEach(...)` allocated a new array and closure callback function for every open space candidate, and spread the array into `Math.min()`. Replacing `.forEach()`, `.map()`, and array spread with nested indexed `for` loops and scalar range accumulation eliminates intermediate array allocations, closure overhead, and spread dispatch per space candidate.
 **Action:** Replace `sources.map()` and `Math.min(...map)` inside position evaluation loops with nested indexed `for` loops tracking minimum distance.
+
+## 2026-10-28 - Uint8Array Coordinate Grid Lookup in Open Tile Search
+
+**Learning:** In `findNearestOpenTile` (`src/utils/pathfinder.js`), tracking blocked tiles with a `Set` populated by template strings (`${item.x},${item.y}`) allocated strings for every structure/creep returned by `room.lookAtArea` and every tile evaluated during bounding box search. Replacing `Set` string lookups with a 2500-element `Uint8Array` indexed by `y * 50 + x` eliminates string creation and Set hash overhead during tile search loops.
+**Action:** Use a flat `Uint8Array(2500)` with `y * 50 + x` grid indexing instead of string-key `Set` objects when scanning 50x50 Screeps room tile positions.

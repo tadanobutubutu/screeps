@@ -2,7 +2,53 @@ const cache = require('./src/utils/cache')
 // ⚡ PERFORMANCE: Hoisted constant path styles to reduce per-tick object allocation.
 const PATH_STYLE_HEAL = { visualizePathStyle: { stroke: '#00ff00' } }
 
+/**
+ * ⚡ PERFORMANCE OPTIMIZATION: Module-scoped closest target finder using inlined Chebyshev
+ * distance on scalar coordinates (Math.abs(dx), Math.abs(dy)) to eliminate prototype method lookup
+ * and native engine marshalling overhead per iteration, with early exit on exact tile match (range === 0).
+ * @param {Creep} creep
+ * @param {Array} targets
+ * @returns {Object|null}
+ */
+function _findClosestTarget (creep, targets) {
+  if (!targets || targets.length === 0) return null
+
+  if (creep.pos) {
+    const originPos = creep.pos
+    if (typeof originPos.x === 'number' && typeof originPos.y === 'number') {
+      let closest = null
+      let minDist = Infinity
+      for (let i = 0; i < targets.length; i++) {
+        const t = targets[i]
+        if (!t) continue
+        const targetPos = t.pos || t
+        if (typeof targetPos.x === 'number' && typeof targetPos.y === 'number') {
+          if (originPos.roomName && targetPos.roomName && originPos.roomName !== targetPos.roomName) {
+            continue
+          }
+          const dx = Math.abs(originPos.x - targetPos.x)
+          const dy = Math.abs(originPos.y - targetPos.y)
+          const range = dx > dy ? dx : dy
+          if (range < minDist) {
+            minDist = range
+            closest = t
+            if (range === 0) break
+          }
+        }
+      }
+      if (closest) return closest
+    }
+  }
+
+  if (creep.pos && typeof creep.pos.findClosestByRange === 'function') {
+    return creep.pos.findClosestByRange(targets)
+  }
+  return targets[0] || null
+}
+
 const roleHealer = {
+  _findClosestTarget,
+
   run: function (creep) {
     let damagedCreep = null
 
@@ -30,7 +76,7 @@ const roleHealer = {
         if (creep.room) creep.room._injuredCreeps = injured
       }
       if (injured.length > 0) {
-        damagedCreep = creep.pos.findClosestByRange(injured)
+        damagedCreep = _findClosestTarget(creep, injured)
       }
 
       // Gracefully handle target ID caching if id property exists
@@ -71,7 +117,7 @@ const roleHealer = {
           }
         }
         if (defenders.length > 0) {
-          defender = creep.pos.findClosestByRange(defenders)
+          defender = _findClosestTarget(creep, defenders)
         }
         if (defender) {
           creep.moveTo(defender)

@@ -84,6 +84,12 @@ BOT_AUTHORS = {
 _label_ready = False
 
 
+def is_safe_repo_name(repo):
+    if not repo or not isinstance(repo, str):
+        return False
+    return bool(re.match(r"^[a-zA-Z0-9_.-]+/[a-zA-Z0-9_.-]+$", repo)) and not repo.startswith("-")
+
+
 def gh(args):
     return subprocess.run(["gh", *args], capture_output=True, text=True)
 
@@ -98,6 +104,8 @@ def gh_json(args):
 
 def gh_raw(repo, path, ref):
     """ref 時点のファイル本文を返す。存在しなければ None。"""
+    if not is_safe_repo_name(repo):
+        return None
     url = f"repos/{repo}/contents/{quote(path)}?ref={quote(ref)}"
     res = gh(["api", "-H", "Accept: application/vnd.github.raw", url])
     return res.stdout if res.returncode == 0 else None
@@ -247,6 +255,10 @@ def main(argv=None):
         if not info:
             return 1
         repo = info["nameWithOwner"]
+
+    if not is_safe_repo_name(repo):
+        print(f"Error: Invalid repository format: {repo}")
+        return 1
 
     if args.numbers:
         prs = [gh_json(["pr", "view", str(n), "-R", repo, "--json", PR_FIELDS]) for n in args.numbers]

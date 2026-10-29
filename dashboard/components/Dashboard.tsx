@@ -1255,7 +1255,7 @@ export default function Dashboard() {
                     {stats?.rooms?.length > 1 && (
                         <button
                             onClick={copyAllRooms}
-                            aria-disabled={filteredRooms.length === 0}
+                            aria-disabled={filteredRooms.length === 0 ? 'true' : undefined}
                             onMouseEnter={() => setCopyAllHover(true)}
                             onMouseLeave={() => setCopyAllHover(false)}
                             onFocus={() => setCopyAllFocused(true)}

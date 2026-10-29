@@ -186,3 +186,8 @@ Learned that replacing Array.prototype.filter with a traditional for loop signif
 
 **Learning:** In `findNearestOpenTile` (`src/utils/pathfinder.js`), tracking blocked tiles with a `Set` populated by template strings (`${item.x},${item.y}`) allocated strings for every structure/creep returned by `room.lookAtArea` and every tile evaluated during bounding box search. Replacing `Set` string lookups with a 2500-element `Uint8Array` indexed by `y * 50 + x` eliminates string creation and Set hash overhead during tile search loops.
 **Action:** Use a flat `Uint8Array(2500)` with `y * 50 + x` grid indexing instead of string-key `Set` objects when scanning 50x50 Screeps room tile positions.
+
+## 2026-10-29 - Scalar Chebyshev Range Math and Room Validation in Healer Target Search
+
+**Learning:** In `role.healer.js`, invoking native `creep.pos.findClosestByRange(targets)` marshals JavaScript arrays into C++ engine objects on every search call. Implementing a manual single-pass indexed `for` loop with scalar Chebyshev distance (`Math.max(Math.abs(dx), Math.abs(dy))`), roomName equality checks (`originPos.roomName === targetPos.roomName`), and `range === 0` short-circuiting bypasses prototype method and C++ marshalling overhead.
+**Action:** Use scalar Chebyshev distance math and `roomName` validation in single-pass indexed loops when searching for closest targets across creep arrays.

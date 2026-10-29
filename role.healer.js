@@ -23,11 +23,7 @@ function _findClosestTarget (creep, targets) {
         if (!t) continue
         const targetPos = t.pos || t
         if (typeof targetPos.x === 'number' && typeof targetPos.y === 'number') {
-          if (
-            originPos.roomName &&
-                        targetPos.roomName &&
-                        originPos.roomName !== targetPos.roomName
-          ) {
+          if (originPos.roomName && targetPos.roomName && originPos.roomName !== targetPos.roomName) {
             continue
           }
           const dx = Math.abs(originPos.x - targetPos.x)

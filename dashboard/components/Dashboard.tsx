@@ -48,8 +48,6 @@ export default function Dashboard() {
     const [searchClearFocused, setSearchClearFocused] = useState(false);
     const [toastHovered, setToastHovered] = useState(false);
     const [toastFocused, setToastFocused] = useState(false);
-    const [kbdHelpHover, setKbdHelpHover] = useState(false);
-    const [kbdHelpFocused, setKbdHelpFocused] = useState(false);
     const [kbdEscHover, setKbdEscHover] = useState(false);
     const [kbdEscFocused, setKbdEscFocused] = useState(false);
 
@@ -642,44 +640,6 @@ export default function Dashboard() {
                         <div
                             style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
                         >
-                            <kbd
-                                className="kbd-action"
-                                role="button"
-                                tabIndex={0}
-                                onClick={() =>
-                                    showToast(
-                                        '⌨️ ショートカット: Alt+R (更新), Alt+S (検索), Alt+D (詳細), Alt+C (コピー), Alt+A (自動更新)'
-                                    )
-                                }
-                                onKeyDown={(e) => {
-                                    if (e.key === 'Enter' || e.key === ' ') {
-                                        e.preventDefault();
-                                        showToast(
-                                            '⌨️ ショートカット: Alt+R (更新), Alt+S (検索), Alt+D (詳細), Alt+C (コピー), Alt+A (自動更新)'
-                                        );
-                                    }
-                                }}
-                                onMouseEnter={() => setKbdHelpHover(true)}
-                                onMouseLeave={() => setKbdHelpHover(false)}
-                                onFocus={() => setKbdHelpFocused(true)}
-                                onBlur={() => setKbdHelpFocused(false)}
-                                aria-label="キーボードショートカット一覧を表示"
-                                title="クリックまたは ? キーでショートカット一覧を表示"
-                                style={{
-                                    backgroundColor:
-                                        kbdHelpHover || kbdHelpFocused ? '#e2e8f0' : '#f7fafc',
-                                    border: '1px solid #cbd5e0',
-                                    borderRadius: '4px',
-                                    padding: '0.1rem 0.4rem',
-                                    fontSize: '0.7rem',
-                                    color: '#4a5568',
-                                    boxShadow: '0 1px 1px rgba(0,0,0,0.1)',
-                                    cursor: 'pointer',
-                                    transition: 'all 0.2s ease-in-out',
-                                }}
-                            >
-                                ?
-                            </kbd>
                             <button
                                 onClick={() =>
                                     showToast(
@@ -704,7 +664,7 @@ export default function Dashboard() {
                                     cursor: 'pointer',
                                     display: 'inline-flex',
                                     alignItems: 'center',
-                                    gap: '0.25rem',
+                                    gap: '0.3rem',
                                     transition: 'all 0.2s ease-in-out',
                                     transform:
                                         helpHover || helpFocused ? 'scale(1.05)' : 'scale(1)',
@@ -712,35 +672,23 @@ export default function Dashboard() {
                                     outlineOffset: '2px',
                                 }}
                             >
-                                ❓ ヘルプ
+                                <kbd
+                                    style={{
+                                        backgroundColor: 'rgba(0, 0, 0, 0.05)',
+                                        border: '1px solid #cbd5e0',
+                                        borderRadius: '3px',
+                                        padding: '0.1rem 0.3rem',
+                                        fontSize: '0.65rem',
+                                        color: '#4a5568',
+                                        lineHeight: 1,
+                                        userSelect: 'none',
+                                    }}
+                                    aria-hidden="true"
+                                >
+                                    ?
+                                </kbd>
+                                <span>❓ ヘルプ</span>
                             </button>
-                            <kbd
-                                className="kbd-action"
-                                role="button"
-                                tabIndex={0}
-                                onClick={copySummary}
-                                onKeyDown={(e) => {
-                                    if (e.key === 'Enter' || e.key === ' ') {
-                                        e.preventDefault();
-                                        copySummary();
-                                    }
-                                }}
-                                aria-label="Alt + C キーまたはクリックでサマリーをコピー"
-                                title="クリックまたは Alt + C キーでサマリーをコピー"
-                                style={{
-                                    backgroundColor: '#f7fafc',
-                                    border: '1px solid #cbd5e0',
-                                    borderRadius: '4px',
-                                    padding: '0.1rem 0.4rem',
-                                    fontSize: '0.7rem',
-                                    color: '#4a5568',
-                                    boxShadow: '0 1px 1px rgba(0,0,0,0.1)',
-                                    cursor: 'pointer',
-                                    userSelect: 'none',
-                                }}
-                            >
-                                Alt + C
-                            </kbd>
                             <button
                                 onClick={copySummary}
                                 onMouseEnter={() => setSummaryHover(true)}
@@ -772,7 +720,7 @@ export default function Dashboard() {
                                     cursor: 'pointer',
                                     display: 'inline-flex',
                                     alignItems: 'center',
-                                    gap: '0.25rem',
+                                    gap: '0.3rem',
                                     transition: 'all 0.2s ease-in-out',
                                     transform:
                                         summaryHover || summaryFocused ? 'scale(1.05)' : 'scale(1)',
@@ -780,7 +728,22 @@ export default function Dashboard() {
                                     outlineOffset: '2px',
                                 }}
                             >
-                                {copiedSummary ? '✅ コピー完了' : '📋 サマリーをコピー'}
+                                <kbd
+                                    style={{
+                                        backgroundColor: 'rgba(0, 0, 0, 0.05)',
+                                        border: '1px solid #cbd5e0',
+                                        borderRadius: '3px',
+                                        padding: '0.1rem 0.3rem',
+                                        fontSize: '0.65rem',
+                                        color: '#4a5568',
+                                        lineHeight: 1,
+                                        userSelect: 'none',
+                                    }}
+                                    aria-hidden="true"
+                                >
+                                    Alt + C
+                                </kbd>
+                                <span>{copiedSummary ? '✅ コピー完了' : '📋 サマリーをコピー'}</span>
                             </button>
                         </div>
                     )}
@@ -845,33 +808,6 @@ export default function Dashboard() {
                         </span>
                     )}
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        <kbd
-                            className="kbd-action"
-                            role="button"
-                            tabIndex={0}
-                            onClick={() => toggleAutoRefresh()}
-                            onKeyDown={(e) => {
-                                if (e.key === 'Enter' || e.key === ' ') {
-                                    e.preventDefault();
-                                    toggleAutoRefresh();
-                                }
-                            }}
-                            aria-label="Alt + A キーまたはクリックで自動更新を切り替え"
-                            title="クリックまたは Alt + A キーで自動更新を切り替え"
-                            style={{
-                                backgroundColor: '#f7fafc',
-                                border: '1px solid #cbd5e0',
-                                borderRadius: '4px',
-                                padding: '0.1rem 0.4rem',
-                                fontSize: '0.7rem',
-                                color: '#4a5568',
-                                boxShadow: '0 1px 1px rgba(0,0,0,0.1)',
-                                cursor: 'pointer',
-                                userSelect: 'none',
-                            }}
-                        >
-                            Alt + A
-                        </kbd>
                         <label
                             className="auto-refresh-label"
                             onMouseEnter={() => setAutoRefreshHover(true)}
@@ -897,6 +833,21 @@ export default function Dashboard() {
                             }}
                             title="60秒ごとに自動でデータを更新します (Alt + A)"
                         >
+                            <kbd
+                                style={{
+                                    backgroundColor: 'rgba(0, 0, 0, 0.05)',
+                                    border: '1px solid #cbd5e0',
+                                    borderRadius: '3px',
+                                    padding: '0.1rem 0.3rem',
+                                    fontSize: '0.65rem',
+                                    color: '#4a5568',
+                                    lineHeight: 1,
+                                    userSelect: 'none',
+                                }}
+                                aria-hidden="true"
+                            >
+                                Alt + A
+                            </kbd>
                             <input
                                 type="checkbox"
                                 checked={autoRefresh}
@@ -936,33 +887,6 @@ export default function Dashboard() {
                                 自動更新
                             </span>
                         </label>
-                        <kbd
-                            className="kbd-action"
-                            role="button"
-                            tabIndex={0}
-                            onClick={() => fetchStats(true)}
-                            onKeyDown={(e) => {
-                                if (e.key === 'Enter' || e.key === ' ') {
-                                    e.preventDefault();
-                                    fetchStats(true);
-                                }
-                            }}
-                            aria-label="Alt + R キーまたはクリックで最新データを更新"
-                            title="クリックまたは Alt + R キーで最新データを更新"
-                            style={{
-                                backgroundColor: '#f7fafc',
-                                border: '1px solid #cbd5e0',
-                                borderRadius: '4px',
-                                padding: '0.1rem 0.4rem',
-                                fontSize: '0.7rem',
-                                color: '#4a5568',
-                                boxShadow: '0 1px 1px rgba(0,0,0,0.1)',
-                                cursor: 'pointer',
-                                userSelect: 'none',
-                            }}
-                        >
-                            Alt + R
-                        </kbd>
                         <button
                             onClick={() => fetchStats(true)}
                             disabled={refreshing}
@@ -982,20 +906,20 @@ export default function Dashboard() {
                                     : 'クリックまたは Alt + R キーで最新データを手動取得'
                             }
                             style={{
-                                padding: '0.5rem',
-                                borderRadius: '50%',
+                                padding: '0.3rem 0.5rem',
+                                borderRadius: '4px',
                                 border: 'none',
                                 backgroundColor: refreshing ? '#edf2f7' : '#004b73',
                                 color: refreshing ? '#a0aec0' : 'white',
                                 cursor: refreshing ? 'not-allowed' : 'pointer',
-                                display: 'flex',
+                                display: 'inline-flex',
                                 alignItems: 'center',
-                                justifyContent: 'center',
+                                gap: '0.35rem',
                                 transition: 'all 0.2s ease-in-out',
                                 transform: refreshing
                                     ? 'none'
                                     : refreshHover || refreshFocused
-                                      ? 'scale(1.15)'
+                                      ? 'scale(1.05)'
                                       : 'scale(1)',
                                 boxShadow:
                                     (refreshHover || refreshFocused) && !refreshing
@@ -1006,6 +930,21 @@ export default function Dashboard() {
                                 outlineOffset: '2px',
                             }}
                         >
+                            <kbd
+                                style={{
+                                    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                                    border: '1px solid rgba(255, 255, 255, 0.4)',
+                                    borderRadius: '3px',
+                                    padding: '0.1rem 0.3rem',
+                                    fontSize: '0.65rem',
+                                    color: 'white',
+                                    lineHeight: 1,
+                                    userSelect: 'none',
+                                }}
+                                aria-hidden="true"
+                            >
+                                Alt + R
+                            </kbd>
                             <span
                                 aria-hidden="true"
                                 style={{
@@ -1332,29 +1271,17 @@ export default function Dashboard() {
                             }}
                         >
                             <kbd
-                                className="kbd-action"
-                                role="button"
-                                tabIndex={0}
-                                onClick={() => searchInputRef.current?.focus()}
-                                onKeyDown={(e) => {
-                                    if (e.key === 'Enter' || e.key === ' ') {
-                                        e.preventDefault();
-                                        searchInputRef.current?.focus();
-                                    }
-                                }}
-                                aria-label="Alt + S キーまたはクリックで部屋検索入力にフォーカス"
-                                title="クリックまたは Alt + S キーで検索入力にフォーカス"
                                 style={{
                                     backgroundColor: '#f7fafc',
                                     border: '1px solid #cbd5e0',
-                                    borderRadius: '4px',
-                                    padding: '0.1rem 0.4rem',
-                                    fontSize: '0.7rem',
+                                    borderRadius: '3px',
+                                    padding: '0.1rem 0.3rem',
+                                    fontSize: '0.65rem',
                                     color: '#4a5568',
-                                    boxShadow: '0 1px 1px rgba(0,0,0,0.1)',
-                                    cursor: 'pointer',
+                                    lineHeight: 1,
                                     userSelect: 'none',
                                 }}
+                                aria-hidden="true"
                             >
                                 Alt + S
                             </kbd>
@@ -1607,35 +1534,6 @@ export default function Dashboard() {
                     gap: '0.5rem',
                 }}
             >
-                <kbd
-                    className="kbd-action"
-                    role="button"
-                    tabIndex={0}
-                    onClick={() => setDetailsOpen((prev) => !prev)}
-                    onKeyDown={(e) => {
-                        if (e.key === 'Enter' || e.key === ' ') {
-                            e.preventDefault();
-                            setDetailsOpen((prev) => !prev);
-                        }
-                    }}
-                    aria-keyshortcuts="Alt+d"
-                    aria-label="Alt + D キーまたはクリックで生データの表示切り替え (Alt + D)"
-                    title="クリックまたは Alt + D キーで生データの表示切り替え (Alt + D)"
-                    style={{
-                        backgroundColor: '#f7fafc',
-                        border: '1px solid #cbd5e0',
-                        borderRadius: '4px',
-                        padding: '0.1rem 0.4rem',
-                        fontSize: '0.7rem',
-                        color: '#4a5568',
-                        boxShadow: '0 1px 1px rgba(0,0,0,0.1)',
-                        marginTop: '0.15rem',
-                        cursor: 'pointer',
-                        userSelect: 'none',
-                    }}
-                >
-                    Alt + D
-                </kbd>
                 <details
                     open={detailsOpen}
                     onToggle={(e) => setDetailsOpen((e.target as HTMLDetailsElement).open)}
@@ -1679,6 +1577,21 @@ export default function Dashboard() {
                             outlineOffset: '1px',
                         }}
                     >
+                        <kbd
+                            style={{
+                                backgroundColor: 'rgba(0, 0, 0, 0.05)',
+                                border: '1px solid #cbd5e0',
+                                borderRadius: '3px',
+                                padding: '0.1rem 0.3rem',
+                                fontSize: '0.65rem',
+                                color: '#4a5568',
+                                lineHeight: 1,
+                                userSelect: 'none',
+                            }}
+                            aria-hidden="true"
+                        >
+                            Alt + D
+                        </kbd>
                         <span
                             aria-hidden="true"
                             style={{

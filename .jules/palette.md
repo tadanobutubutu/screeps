@@ -87,10 +87,12 @@
 
 **Learning:** Applying `role="alert"` directly to error container elements (`<main>` or `<div>`) that contain interactive controls like retry or copy `<button>` elements causes screen readers to read the container as static advisory text, suppressing button semantics and keyboard focus expectations.
 **Action:** Remove `role="alert"` from container elements enclosing buttons and rely on `aria-live="assertive"` on the container or localized error heading/text elements.
+
 ## 2026-04-18 - Clipboard Rejection Error Feedback and Accessible Notifications
 
 **Learning:** When async clipboard actions (`navigator.clipboard.writeText(...)`) encounter permission denials or system errors, unhandled promise rejections leave users without feedback, creating confusion when expected copy operations silently fail.
 **Action:** Always attach explicit `.catch()` rejection handlers to clipboard API calls that notify users via accessible toast live regions (`showToast(...)`).
+
 ## 2026-04-18 - Visual Elevation and Focus Parity for Interactive Kbd Badges
 
 **Learning:** Visual keyboard shortcut badges (`<kbd className="kbd-action">`) that are interactive (`role="button"`, `tabIndex={0}`) present an uneven experience for keyboard users if hover effects (elevation, scale, brightness) are only defined for mouse interaction or rely on inline hover states.
@@ -114,4 +116,9 @@
 ## 2026-04-25 - Synchronized Accessible Labels on Metric Progress Container Cards
 
 **Learning:** When container cards wrap progress metrics or threshold status badges (such as GCL and CPU metric cards), setting `title` and `aria-label` with raw unformatted numbers or omitting visual warning badges causes accessible name computation to desynchronize from visual representation.
-**Action:** Always format metric card container `title` and `aria-label` attributes with human-readable numbers, percentages, and threshold warning badges (e.g. `⚠️ 高負荷`) to maintain complete parity across visual rendering and screen reader announcements.
+**Action:** Always format metric card container `title` and `aria-label` attributes with human-readable numbers, percentages, and threshold warning badges (e.g. ⚠️ 高負荷) to maintain complete parity across visual rendering and screen reader announcements.
+
+## 2026-04-26 - Consolidating Keyboard Shortcut Badges into Parent Interactive Controls
+
+**Learning:** Rendering standalone visual keyboard shortcut badges (`<kbd>`) as separate interactive elements (`role="button"`, `tabIndex={0}`) alongside parent action controls (`<button>`, `<label>`, `<summary>`) creates redundant duplicate tab stops during keyboard navigation and confuses screen readers with duplicate controls performing identical actions.
+**Action:** Place visual keyboard shortcut badges (`<kbd aria-hidden="true">`) directly inside or inline with their parent action controls so that keyboard navigation encounters a single focus stop per action while preserving visual shortcut hints and screen reader clarity.

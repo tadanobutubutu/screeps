@@ -84,6 +84,20 @@ BOT_AUTHORS = {
 _label_ready = False
 
 
+def is_safe_repo(name):
+    """Validate repository name to prevent CLI option injection and invalid path formatting."""
+    if not name or not isinstance(name, str):
+        return False
+    return bool(re.match(r"^[a-zA-Z0-9_.-]+/[a-zA-Z0-9_.-]+$", name)) and not name.startswith("-")
+
+
+def is_safe_ref(name):
+    """Validate ref/branch name to prevent CLI option injection."""
+    if not name or not isinstance(name, str):
+        return False
+    return bool(re.match(r"^[a-zA-Z0-9_./-]+$", name)) and not name.startswith("-")
+
+
 def gh(args):
     return subprocess.run(["gh", *args], capture_output=True, text=True)
 
@@ -98,12 +112,16 @@ def gh_json(args):
 
 def gh_raw(repo, path, ref):
     """ref 時点のファイル本文を返す。存在しなければ None。"""
+    if not is_safe_repo(repo) or not is_safe_ref(ref):
+        return None
     url = f"repos/{repo}/contents/{quote(path)}?ref={quote(ref)}"
     res = gh(["api", "-H", "Accept: application/vnd.github.raw", url])
     return res.stdout if res.returncode == 0 else None
 
 
 def list_pr_files(repo, number):
+    if not is_safe_repo(repo):
+        raise ValueError(f"Invalid repository name: {repo}")
     files, page = [], 1
     while True:
         res = gh(["api", f"repos/{repo}/pulls/{number}/files?per_page=100&page={page}"])
@@ -186,6 +204,8 @@ def evaluate(repo, pr, touched):
 
 def ensure_label(repo):
     global _label_ready
+    if not is_safe_repo(repo):
+        return
     if not _label_ready:
         gh(["label", "create", "needs-human", "-R", repo, "--color", "FBCA04",
             "--description", "自動マージを保留。人の判断が必要", "--force"])
@@ -193,17 +213,23 @@ def ensure_label(repo):
 
 
 def hold_pr(repo, number):
+    if not is_safe_repo(repo):
+        return
     ensure_label(repo)
     gh(["pr", "edit", str(number), "-R", repo, "--add-label", "needs-human"])
 
 
 def update_pr(repo, pr):
+    if not is_safe_repo(repo):
+        return
     gh(["api", "-X", "PUT", f"repos/{repo}/pulls/{pr['number']}/update-branch",
         "-f", f"expected_head_sha={pr['headRefOid']}"])
 
 
 def merge_pr(repo, pr):
     """検証時の head SHA を指定してマージする。失敗時はエラー文字列を返す。"""
+    if not is_safe_repo(repo):
+        return "invalid repo"
     res = gh(["api", "-X", "PUT", f"repos/{repo}/pulls/{pr['number']}/merge",
               "-f", "merge_method=squash",
               "-f", f"sha={pr['headRefOid']}",
@@ -213,6 +239,8 @@ def merge_pr(repo, pr):
 
 def land_pr(repo, pr):
     """Draft なら ready にしてからマージする。戻り値は (成功したか, 結果の文字列)。"""
+    if not is_safe_repo(repo):
+        return False, "invalid repo"
     if pr.get("isDraft"):
         res = gh(["pr", "ready", str(pr["number"]), "-R", repo])
         if res.returncode != 0:
@@ -247,6 +275,10 @@ def main(argv=None):
         if not info:
             return 1
         repo = info["nameWithOwner"]
+
+    if not is_safe_repo(repo):
+        print(f"Error: Invalid or unsafe repository name: {repo}")
+        return 1
 
     if args.numbers:
         prs = [gh_json(["pr", "view", str(n), "-R", repo, "--json", PR_FIELDS]) for n in args.numbers]

@@ -268,7 +268,16 @@ export default function Dashboard() {
         };
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [fetchStats, refreshing, copySummary, stats, roomQuery, detailsOpen, clearSearchQuery, showToast]);
+    }, [
+        fetchStats,
+        refreshing,
+        copySummary,
+        stats,
+        roomQuery,
+        detailsOpen,
+        clearSearchQuery,
+        showToast,
+    ]);
 
     const copyErr = () =>
         error &&
@@ -743,7 +752,9 @@ export default function Dashboard() {
                                 >
                                     Alt + C
                                 </kbd>
-                                <span>{copiedSummary ? '✅ コピー完了' : '📋 サマリーをコピー'}</span>
+                                <span>
+                                    {copiedSummary ? '✅ コピー完了' : '📋 サマリーをコピー'}
+                                </span>
                             </button>
                         </div>
                     )}
@@ -802,9 +813,7 @@ export default function Dashboard() {
                                 opacity: refreshing ? 0.6 : 1,
                             }}
                         >
-                            {refreshing
-                                ? '🕒 更新中...'
-                                : `🕒 ${lastUpdated.toLocaleTimeString()}`}
+                            {refreshing ? '🕒 更新中...' : `🕒 ${lastUpdated.toLocaleTimeString()}`}
                         </span>
                     )}
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
@@ -925,7 +934,10 @@ export default function Dashboard() {
                                     (refreshHover || refreshFocused) && !refreshing
                                         ? '0 4px 10px rgba(0, 75, 115, 0.4)'
                                         : 'none',
-                                filter: (refreshHover || refreshFocused) && !refreshing ? 'brightness(1.1)' : 'none',
+                                filter:
+                                    (refreshHover || refreshFocused) && !refreshing
+                                        ? 'brightness(1.1)'
+                                        : 'none',
                                 outline: refreshFocused ? '2px solid #004b73' : 'none',
                                 outlineOffset: '2px',
                             }}
@@ -973,7 +985,9 @@ export default function Dashboard() {
                     title={`GCL ${stats?.gcl?.level || 0} 進捗: ${
                         stats?.gcl?.progress !== undefined ? formatNumber(stats.gcl.progress) : '0'
                     } / ${
-                        stats?.gcl?.progressTotal !== undefined ? formatNumber(stats.gcl.progressTotal) : '0'
+                        stats?.gcl?.progressTotal !== undefined
+                            ? formatNumber(stats.gcl.progressTotal)
+                            : '0'
                     } (${
                         stats?.gcl?.progressTotal
                             ? ((stats.gcl.progress / stats.gcl.progressTotal) * 100).toFixed(2)
@@ -982,7 +996,9 @@ export default function Dashboard() {
                     aria-label={`GCL ${stats?.gcl?.level || 0} 進捗: ${
                         stats?.gcl?.progress !== undefined ? formatNumber(stats.gcl.progress) : '0'
                     } / ${
-                        stats?.gcl?.progressTotal !== undefined ? formatNumber(stats.gcl.progressTotal) : '0'
+                        stats?.gcl?.progressTotal !== undefined
+                            ? formatNumber(stats.gcl.progressTotal)
+                            : '0'
                     } (${
                         stats?.gcl?.progressTotal
                             ? ((stats.gcl.progress / stats.gcl.progressTotal) * 100).toFixed(2)

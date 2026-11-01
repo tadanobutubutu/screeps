@@ -20,7 +20,7 @@ jobs:
     steps:
       - name: Auto Assign Issues
         if: github.event_name == 'issues'
-        uses: pozil/auto-assign-issue@v4.0.1
+        uses: pozil/auto-assign-issue@v4.1.0
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           assignees: tadanobutubutu

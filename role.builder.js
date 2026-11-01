@@ -1,3 +1,5 @@
+const roleUtils = require('./src/utils/roleUtils')
+
 // ⚡ PERFORMANCE: Hoisted constant path styles to reduce per-tick object allocation.
 const PATH_STYLE_UPGRADE = { visualizePathStyle: { stroke: '#ffffff' } }
 const PATH_STYLE_BUILD = { visualizePathStyle: { stroke: '#0000ff' } }
@@ -68,17 +70,9 @@ const roleBuilder = {
     const sources = creep.room._activeSources || []
 
     if (sources.length > 0) {
-      // ⚡ PERFORMANCE: Cache harvest target ID and use closest by range
-      let target = Game.getObjectById(creep.memory.harvestTargetId)
-
-      if (!target || target.energy === 0) {
-        target = creep.pos.findClosestByRange(sources)
-        if (target) {
-          creep.memory.harvestTargetId = target.id
-        } else {
-          delete creep.memory.harvestTargetId
-        }
-      }
+      // ⚡ PERFORMANCE OPTIMIZATION: Use roleUtils.getHarvestTarget to leverage single-pass indexed
+      // distance calculation and short-circuit depleted sources before distance evaluation.
+      const target = roleUtils.getHarvestTarget(creep, sources)
 
       if (target) {
         if (creep.harvest(target) === ERR_NOT_IN_RANGE) {

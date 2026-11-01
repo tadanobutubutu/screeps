@@ -1,6 +1,6 @@
 {
     "name": "Screeps + Aider",
-    "image": "mcr.microsoft.com/devcontainers/python:3.14",
+    "image": "mcr.microsoft.com/devcontainers/python:3.15",
     "features": {
         "ghcr.io/devcontainers/features/node:2": {
             "version": "24"

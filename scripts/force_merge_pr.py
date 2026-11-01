@@ -56,20 +56,27 @@ import sys
 from urllib.parse import quote
 
 HOLD_LABELS = {"automerge:hold", "needs-human"}
-PROTECTED_PREFIXES = (".github/workflows/",)
+PROTECTED_PREFIXES = (".github/workflows/", )
 PROTECTED_FILES = {"scripts/force_merge_pr.py"}
 LOOP_FILE = "main.js"
 LOOP_PATTERN = "exports.loop"
 CONFLICT_RE = re.compile(r"^(<<<<<<< |=======$|>>>>>>> )", re.MULTILINE)
+RE_REPO = re.compile(r"^[a-zA-Z0-9_.-]+/[a-zA-Z0-9_.-]+$")
+
+
+def is_safe_repo_name(repo):
+    """Validate repository format owner/repo to prevent flag injection."""
+    return bool(repo and isinstance(repo, str) and not repo.startswith("-")
+                and RE_REPO.match(repo))
+
+
 SHRINK_MIN_LINES = 50
 SHRINK_RATIO = 0.6
 MAX_MERGES_PER_RUN = 10
 SWEEP_LIMIT = 1000
 MERGEABLE_STATES = ("CLEAN", "UNSTABLE", "HAS_HOOKS")
-PR_FIELDS = (
-    "number,title,isDraft,isCrossRepository,baseRefName,headRefOid,"
-    "labels,mergeable,mergeStateStatus,author"
-)
+PR_FIELDS = ("number,title,isDraft,isCrossRepository,baseRefName,headRefOid,"
+             "labels,mergeable,mergeStateStatus,author")
 
 BOT_AUTHORS = {
     "dependabot[bot]",
@@ -106,9 +113,13 @@ def gh_raw(repo, path, ref):
 def list_pr_files(repo, number):
     files, page = [], 1
     while True:
-        res = gh(["api", f"repos/{repo}/pulls/{number}/files?per_page=100&page={page}"])
+        res = gh([
+            "api",
+            f"repos/{repo}/pulls/{number}/files?per_page=100&page={page}"
+        ])
         if res.returncode != 0:
-            raise RuntimeError(f"files of #{number}: {res.stderr.strip()[:200]}")
+            raise RuntimeError(
+                f"files of #{number}: {res.stderr.strip()[:200]}")
         batch = json.loads(res.stdout)
         files.extend(batch)
         if len(batch) < 100:
@@ -134,7 +145,8 @@ def decide(pr, files, base_lines, main_js_problem, touched):
             return "hold", f"protected file changed: {path}"
     for f in files:
         base = base_lines.get(f["filename"], 0)
-        if base >= SHRINK_MIN_LINES and f.get("deletions", 0) >= SHRINK_RATIO * base:
+        if base >= SHRINK_MIN_LINES and f.get("deletions",
+                                              0) >= SHRINK_RATIO * base:
             return "hold", f"{f['filename']}: {f['deletions']} of {base} lines deleted"
     if main_js_problem:
         return "hold", main_js_problem
@@ -187,8 +199,18 @@ def evaluate(repo, pr, touched):
 def ensure_label(repo):
     global _label_ready
     if not _label_ready:
-        gh(["label", "create", "needs-human", "-R", repo, "--color", "FBCA04",
-            "--description", "自動マージを保留。人の判断が必要", "--force"])
+        gh([
+            "label",
+            "create",
+            "needs-human",
+            "-R",
+            repo,
+            "--color",
+            "FBCA04",
+            "--description",
+            "自動マージを保留。人の判断が必要",
+            "--force",
+        ])
         _label_ready = True
 
 
@@ -198,16 +220,30 @@ def hold_pr(repo, number):
 
 
 def update_pr(repo, pr):
-    gh(["api", "-X", "PUT", f"repos/{repo}/pulls/{pr['number']}/update-branch",
-        "-f", f"expected_head_sha={pr['headRefOid']}"])
+    gh([
+        "api",
+        "-X",
+        "PUT",
+        f"repos/{repo}/pulls/{pr['number']}/update-branch",
+        "-f",
+        f"expected_head_sha={pr['headRefOid']}",
+    ])
 
 
 def merge_pr(repo, pr):
     """検証時の head SHA を指定してマージする。失敗時はエラー文字列を返す。"""
-    res = gh(["api", "-X", "PUT", f"repos/{repo}/pulls/{pr['number']}/merge",
-              "-f", "merge_method=squash",
-              "-f", f"sha={pr['headRefOid']}",
-              "-f", f"commit_title={pr['title']} (#{pr['number']})"])
+    res = gh([
+        "api",
+        "-X",
+        "PUT",
+        f"repos/{repo}/pulls/{pr['number']}/merge",
+        "-f",
+        "merge_method=squash",
+        "-f",
+        f"sha={pr['headRefOid']}",
+        "-f",
+        f"commit_title={pr['title']} (#{pr['number']})",
+    ])
     return None if res.returncode == 0 else res.stderr.strip()[:200]
 
 
@@ -233,34 +269,57 @@ def write_summary(lines):
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description="自動マージゲート")
-    parser.add_argument("numbers", nargs="*", type=int, help="判定する PR 番号（省略時は open PR 全体）")
+    parser.add_argument("numbers",
+                        nargs="*",
+                        type=int,
+                        help="判定する PR 番号（省略時は open PR 全体）")
     parser.add_argument("--batch", type=int, help=argparse.SUPPRESS)
     parser.add_argument("--dry-run", action="store_true", help="判定のみ行う")
     parser.add_argument("--push-every", type=int, help=argparse.SUPPRESS)
     parser.add_argument("--runtime", type=int, help=argparse.SUPPRESS)
     args = parser.parse_args(argv)
-    dry_run = args.dry_run or os.environ.get("DRY_RUN", "").lower() in ("1", "true")
+    dry_run = args.dry_run or os.environ.get("DRY_RUN",
+                                             "").lower() in ("1", "true")
 
     repo = os.environ.get("GITHUB_REPOSITORY")
     if not repo:
         info = gh_json(["repo", "view", "--json", "nameWithOwner"])
-        if not info:
-            return 1
-        repo = info["nameWithOwner"]
+        if isinstance(info, dict):
+            repo = info.get("nameWithOwner")
+
+    if not is_safe_repo_name(repo):
+        print(f"Invalid or unsafe repository name: {repo}")
+        return 1
 
     if args.numbers:
-        prs = [gh_json(["pr", "view", str(n), "-R", repo, "--json", PR_FIELDS]) for n in args.numbers]
+        prs = [
+            gh_json(["pr", "view",
+                     str(n), "-R", repo, "--json", PR_FIELDS])
+            for n in args.numbers
+        ]
         prs = [pr for pr in prs if pr]
     else:
-        prs = gh_json(["pr", "list", "-R", repo, "--state", "open",
-                       "--limit", str(SWEEP_LIMIT), "--json", PR_FIELDS])
+        prs = gh_json([
+            "pr",
+            "list",
+            "-R",
+            repo,
+            "--state",
+            "open",
+            "--limit",
+            str(SWEEP_LIMIT),
+            "--json",
+            PR_FIELDS,
+        ])
         if prs is None:
             return 1
     prs.sort(key=lambda pr: pr["number"])
 
     touched = set()
     merges = 0
-    lines = [f"mode: {'dry-run' if dry_run else 'live'}, candidates: {len(prs)}"]
+    lines = [
+        f"mode: {'dry-run' if dry_run else 'live'}, candidates: {len(prs)}"
+    ]
     for pr in prs:
         number = pr["number"]
         try:
@@ -279,7 +338,8 @@ def main(argv=None):
             update_pr(repo, pr)
         elif action == "merge":
             if dry_run:
-                status = "would merge (Draft なら ready にしてから)" if pr.get("isDraft") else "would merge"
+                status = ("would merge (Draft なら ready にしてから)"
+                          if pr.get("isDraft") else "would merge")
                 ok = True
             else:
                 ok, status = land_pr(repo, pr)

@@ -1,4 +1,4 @@
-image: node:24
+image: node:26
 
 cache:
     paths:

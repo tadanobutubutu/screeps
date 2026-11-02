@@ -122,3 +122,8 @@
 
 **Learning:** Rendering standalone visual keyboard shortcut badges (`<kbd>`) as separate interactive elements (`role="button"`, `tabIndex={0}`) alongside parent action controls (`<button>`, `<label>`, `<summary>`) creates redundant duplicate tab stops during keyboard navigation and confuses screen readers with duplicate controls performing identical actions.
 **Action:** Place visual keyboard shortcut badges (`<kbd aria-hidden="true">`) directly inside or inline with their parent action controls so that keyboard navigation encounters a single focus stop per action while preserving visual shortcut hints and screen reader clarity.
+
+## 2026-04-27 - Unified Toast Dismissal Action Control with Visual Keyboard Badges
+
+**Learning:** Rendering adjacent sibling dismiss controls inside a toast notification (e.g. an interactive `<kbd role="button">` alongside a separate close `<button>✕</button>`) forces keyboard and screen reader users through consecutive duplicate controls that execute the identical dismiss operation.
+**Action:** Embed the shortcut hint (`<kbd aria-hidden="true">Esc</kbd>`) directly inside a single unified dismiss `<button>`, pairing accessible labels (`aria-label="通知を閉じる (Escape)"`) and keyboard shortcuts (`aria-keyshortcuts="Escape"`) to deliver clear AT announcements and a single keyboard tab stop.

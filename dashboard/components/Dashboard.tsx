@@ -48,8 +48,7 @@ export default function Dashboard() {
     const [searchClearFocused, setSearchClearFocused] = useState(false);
     const [toastHovered, setToastHovered] = useState(false);
     const [toastFocused, setToastFocused] = useState(false);
-    const [kbdEscHover, setKbdEscHover] = useState(false);
-    const [kbdEscFocused, setKbdEscFocused] = useState(false);
+    const [toastCloseHover, setToastCloseHover] = useState(false);
 
     const toastTimeoutRef = useRef<NodeJS.Timeout | null>(null);
     const searchInputRef = useRef<HTMLInputElement>(null);
@@ -373,72 +372,55 @@ export default function Dashboard() {
                 <span role="status" aria-live="polite" style={{ flex: 1 }}>
                     {toastMsg}
                 </span>
-                <kbd
-                    role="button"
-                    tabIndex={0}
-                    onClick={dismissToast}
-                    onKeyDown={(e) => {
-                        if (e.key === 'Enter' || e.key === ' ') {
-                            e.preventDefault();
-                            dismissToast();
-                        }
-                    }}
-                    onMouseEnter={() => setKbdEscHover(true)}
-                    onMouseLeave={() => setKbdEscHover(false)}
-                    onFocus={() => setKbdEscFocused(true)}
-                    onBlur={() => setKbdEscFocused(false)}
-                    aria-label="Escキーまたはクリックで通知を閉じます"
-                    title="クリックまたは Esc キーで閉じる"
-                    style={{
-                        backgroundColor:
-                            kbdEscHover || kbdEscFocused
-                                ? 'rgba(255, 255, 255, 0.35)'
-                                : 'rgba(255, 255, 255, 0.2)',
-                        border: '1px solid rgba(255, 255, 255, 0.4)',
-                        borderRadius: '3px',
-                        padding: '0.1rem 0.35rem',
-                        fontSize: '0.65rem',
-                        color: 'white',
-                        lineHeight: 1,
-                        userSelect: 'none',
-                        cursor: 'pointer',
-                        transition: 'all 0.2s ease-in-out',
-                        transform: kbdEscHover || kbdEscFocused ? 'scale(1.08)' : 'scale(1)',
-                        outline: kbdEscFocused ? '2px solid white' : 'none',
-                        outlineOffset: '2px',
-                    }}
-                >
-                    Esc
-                </kbd>
                 <button
                     onClick={dismissToast}
                     onFocus={() => setToastCloseFocused(true)}
                     onBlur={() => setToastCloseFocused(false)}
-                    onMouseEnter={() => setToastCloseFocused(true)}
-                    onMouseLeave={() => setToastCloseFocused(false)}
+                    onMouseEnter={() => setToastCloseHover(true)}
+                    onMouseLeave={() => setToastCloseHover(false)}
                     aria-label="通知を閉じる (Escape)"
                     aria-keyshortcuts="Escape"
                     title="閉じる (Escape)"
                     style={{
-                        background: 'transparent',
+                        backgroundColor:
+                            toastCloseHover || toastCloseFocused
+                                ? 'rgba(255, 255, 255, 0.2)'
+                                : 'transparent',
                         border: 'none',
                         color: 'white',
                         cursor: 'pointer',
-                        padding: '0.2rem',
+                        padding: '0.2rem 0.4rem',
                         display: 'inline-flex',
                         alignItems: 'center',
-                        justifyContent: 'center',
+                        gap: '0.35rem',
                         fontSize: '0.8rem',
-                        opacity: toastCloseFocused ? 1 : 0.7,
-                        transition: 'all 0.1s ease-in-out',
+                        opacity: toastCloseHover || toastCloseFocused ? 1 : 0.85,
+                        transition: 'all 0.15s ease-in-out',
                         outline: 'none',
                         boxShadow: toastCloseFocused ? '0 0 0 2px white' : 'none',
                         borderRadius: '4px',
                         minWidth: '24px',
                         minHeight: '24px',
+                        transform:
+                            toastCloseHover || toastCloseFocused ? 'scale(1.05)' : 'scale(1)',
                     }}
                 >
-                    ✕
+                    <kbd
+                        style={{
+                            backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                            border: '1px solid rgba(255, 255, 255, 0.4)',
+                            borderRadius: '3px',
+                            padding: '0.1rem 0.3rem',
+                            fontSize: '0.65rem',
+                            color: 'white',
+                            lineHeight: 1,
+                            userSelect: 'none',
+                        }}
+                        aria-hidden="true"
+                    >
+                        Esc
+                    </kbd>
+                    <span>✕</span>
                 </button>
                 <div
                     key={`${toastMsg}-${toastHovered || toastFocused}`}

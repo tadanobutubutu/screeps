@@ -127,3 +127,8 @@
 
 **Learning:** Rendering adjacent sibling dismiss controls inside a toast notification (e.g. an interactive `<kbd role="button">` alongside a separate close `<button>✕</button>`) forces keyboard and screen reader users through consecutive duplicate controls that execute the identical dismiss operation.
 **Action:** Embed the shortcut hint (`<kbd aria-hidden="true">Esc</kbd>`) directly inside a single unified dismiss `<button>`, pairing accessible labels (`aria-label="通知を閉じる (Escape)"`) and keyboard shortcuts (`aria-keyshortcuts="Escape"`) to deliver clear AT announcements and a single keyboard tab stop.
+
+## 2026-04-28 - Keyboard Shortcut and Visual Hint Parity Across Component Error States
+
+**Learning:** When primary dashboard views establish intuitive keyboard shortcuts and visual `<kbd>` key badges (such as `Alt + R` for reload, `Alt + C` for copy summary, and `Alt + R` on error retry buttons), omitting keyboard shortcut listeners and visual key badges on adjacent error screen actions (like error copying) creates fragmented keyboard discoverability and forces keyboard-only users back to mouse navigation.
+**Action:** Maintain keyboard shortcut listener parity (e.g. mapping `Alt + C` to error copy when stats are unavailable), embed visual `<kbd aria-hidden="true">Alt + C</kbd>` key badges inside the action button, and pair `aria-keyshortcuts` with synchronized accessible names across both normal and error states.

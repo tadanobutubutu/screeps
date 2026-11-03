@@ -191,6 +191,20 @@ export default function Dashboard() {
         return () => clearInterval(interval);
     }, [autoRefresh, fetchStats]);
 
+    const copyErr = useCallback(() => {
+        if (!error) return;
+        navigator.clipboard
+            .writeText(error)
+            .then(() => {
+                setCopied(true);
+                setTimeout(() => setCopied(false), 2000);
+                showToast('エラーメッセージをクリップボードにコピーしました');
+            })
+            .catch(() => {
+                showToast('エラーメッセージのコピーに失敗しました');
+            });
+    }, [error, showToast]);
+
     const clearSearchQuery = useCallback(() => {
         setRoomQuery((prev) => {
             if (prev) {
@@ -256,9 +270,14 @@ export default function Dashboard() {
                 } else if (e.key.toLowerCase() === 'd') {
                     e.preventDefault();
                     setDetailsOpen((prev) => !prev);
-                } else if (e.key.toLowerCase() === 'c' && stats) {
-                    e.preventDefault();
-                    copySummary();
+                } else if (e.key.toLowerCase() === 'c') {
+                    if (stats) {
+                        e.preventDefault();
+                        copySummary();
+                    } else if (error) {
+                        e.preventDefault();
+                        copyErr();
+                    }
                 } else if (e.key.toLowerCase() === 'a') {
                     e.preventDefault();
                     toggleAutoRefresh();
@@ -267,20 +286,7 @@ export default function Dashboard() {
         };
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [fetchStats, refreshing, copySummary, stats, roomQuery, detailsOpen, clearSearchQuery, showToast]);
-
-    const copyErr = () =>
-        error &&
-        navigator.clipboard
-            .writeText(error)
-            .then(() => {
-                setCopied(true);
-                setTimeout(() => setCopied(false), 2000);
-                showToast('エラーメッセージをクリップボードにコピーしました');
-            })
-            .catch(() => {
-                showToast('エラーメッセージのコピーに失敗しました');
-            });
+    }, [fetchStats, refreshing, copySummary, copyErr, stats, error, roomQuery, detailsOpen, clearSearchQuery, showToast]);
 
     const copyRoom = (room: string) => {
         navigator.clipboard
@@ -521,9 +527,18 @@ export default function Dashboard() {
                     onMouseLeave={() => setErrCopyHover(false)}
                     onFocus={() => setErrCopyFocused(true)}
                     onBlur={() => setErrCopyFocused(false)}
+                    aria-keyshortcuts="Alt+c"
                     aria-live="polite"
-                    aria-label={copied ? 'エラーをコピーしました' : 'エラーをコピー'}
-                    title={copied ? 'エラーをコピーしました' : 'エラーをコピー'}
+                    aria-label={
+                        copied
+                            ? 'エラーをコピーしました'
+                            : 'エラーメッセージをコピー (Alt + C)'
+                    }
+                    title={
+                        copied
+                            ? 'エラーをコピーしました'
+                            : 'エラーメッセージをコピー (Alt + C)'
+                    }
                     style={{
                         backgroundColor: copied ? '#155d27' : '#004b73',
                         color: 'white',
@@ -531,6 +546,9 @@ export default function Dashboard() {
                         border: 'none',
                         borderRadius: '4px',
                         cursor: 'pointer',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '0.4rem',
                         transition: 'all 0.2s ease-in-out',
                         transform: errCopyHover || errCopyFocused ? 'scale(1.05)' : 'scale(1)',
                         boxShadow:
@@ -542,7 +560,22 @@ export default function Dashboard() {
                         outlineOffset: '2px',
                     }}
                 >
-                    {copied ? '✅ コピー済み' : '📋 エラーをコピー'}
+                    <kbd
+                        style={{
+                            backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                            border: '1px solid rgba(255, 255, 255, 0.4)',
+                            borderRadius: '3px',
+                            padding: '0.1rem 0.3rem',
+                            fontSize: '0.65rem',
+                            color: 'white',
+                            lineHeight: 1,
+                            userSelect: 'none',
+                        }}
+                        aria-hidden="true"
+                    >
+                        Alt + C
+                    </kbd>
+                    <span>{copied ? '✅ コピー済み' : '📋 エラーをコピー'}</span>
                 </button>
                 <button
                     onClick={() => fetchStats(true)}

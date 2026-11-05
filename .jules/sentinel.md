@@ -155,3 +155,9 @@ Use of deprecated and predictable Math.random() for security-sensitive logic in 
 **Vulnerability:** `scripts/ai_branch_cleaner.py` extracted issue IDs from git branch names (e.g. `issue-123`) and passed `issue_id` directly to `gh issue view <issue_id>` without strict numeric validation, risking option/argument injection if branch names contained leading hyphens or CLI flags.
 **Learning:** Dynamic string parameters extracted from branch names or PR metadata passed to CLI tools can contain option flags (e.g. `--help` or `--repo=...`) that manipulate `gh` CLI subprocess execution.
 **Prevention:** Always validate `issue_id` parameters against a strict numeric regex (`re.match(r"^\d+$", str(issue_id).strip())`) before passing them to CLI subprocesses.
+
+## 2026-11-05 - [Validate branch in ai_branch_cleaner.py against CLI option injection]
+
+**Vulnerability:** In `scripts/ai_branch_cleaner.py`, `get_recent_runs(branch)` accepted unvalidated `branch` arguments and passed them to `gh run list --branch <branch>`, risking CLI option flag injection if branch names contained option flags or leading hyphens.
+**Learning:** When invoking CLI tools like `gh` with parameters specifying Git branches, unvalidated branch strings starting with hyphens can be parsed as option flags.
+**Prevention:** Validate branch parameters against `/^[a-zA-Z0-9_./-]+$/` and disallow leading hyphens before invoking CLI subprocesses.

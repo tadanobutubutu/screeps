@@ -25,6 +25,13 @@ def get_issue_status(issue_id):
 
 
 def get_recent_runs(branch):
+    if (
+        not branch
+        or not isinstance(branch, str)
+        or not re.match(r"^[a-zA-Z0-9_./-]+$", branch)
+        or branch.startswith("-")
+    ):
+        return []
     try:
         res = subprocess.run(
             [

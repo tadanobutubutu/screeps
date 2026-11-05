@@ -132,3 +132,8 @@
 
 **Learning:** When primary dashboard views establish intuitive keyboard shortcuts and visual `<kbd>` key badges (such as `Alt + R` for reload, `Alt + C` for copy summary, and `Alt + R` on error retry buttons), omitting keyboard shortcut listeners and visual key badges on adjacent error screen actions (like error copying) creates fragmented keyboard discoverability and forces keyboard-only users back to mouse navigation.
 **Action:** Maintain keyboard shortcut listener parity (e.g. mapping `Alt + C` to error copy when stats are unavailable), embed visual `<kbd aria-hidden="true">Alt + C</kbd>` key badges inside the action button, and pair `aria-keyshortcuts` with synchronized accessible names across both normal and error states.
+
+## 2026-04-29 - Semantic Input Labels on Shortcut Badges and State-Bound Focus Rings
+
+**Learning:** Placing visual shortcut badges (`<kbd>`) directly as bare siblings to input elements leaves inputs without accessible `<label>` semantics (WCAG 1.3.1/4.1.2) and fails to focus inputs on badge click. Additionally, when managing dual conditional branch variants of an action button (e.g. active-match vs zero-match clear buttons), copy-paste errors can bind focus rings to the wrong state flag, violating WCAG 2.4.7 (Focus Visible).
+**Action:** Always wrap visual shortcut badges in a semantic `<label htmlFor="...">` with screen-reader text so clicking focuses the input, and ensure conditional button variants bind outline styles strictly to their own focus state variable.

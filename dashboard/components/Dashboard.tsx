@@ -250,7 +250,7 @@ export default function Dashboard() {
             if (e.key === '?' || (e.key === '/' && e.shiftKey)) {
                 e.preventDefault();
                 showToast(
-                    '⌨️ ショートカット: Alt+R (更新), Alt+S (検索), Alt+D (詳細), Alt+C (コピー), Alt+A (自動更新)'
+                    '⌨️ ショートカット: Alt+R (更新), Alt+S (検索), Alt+D (詳細), Alt+C (コピー), Alt+A (自動更新), Esc (クリア/閉じる)'
                 );
                 return;
             }
@@ -658,7 +658,7 @@ export default function Dashboard() {
                             <button
                                 onClick={() =>
                                     showToast(
-                                        '⌨️ ショートカット: Alt+R (更新), Alt+S (検索), Alt+D (詳細), Alt+C (コピー), Alt+A (自動更新)'
+                                        '⌨️ ショートカット: Alt+R (更新), Alt+S (検索), Alt+D (詳細), Alt+C (コピー), Alt+A (自動更新), Esc (クリア/閉じる)'
                                     )
                                 }
                                 onMouseEnter={() => setHelpHover(true)}
@@ -1285,22 +1285,49 @@ export default function Dashboard() {
                                 gap: '0.35rem',
                             }}
                         >
-                            <kbd
+                            <label
+                                htmlFor="room-search-input"
+                                title="部屋名で検索 (Alt + S)"
                                 style={{
-                                    backgroundColor: '#f7fafc',
-                                    border: '1px solid #cbd5e0',
-                                    borderRadius: '3px',
-                                    padding: '0.1rem 0.3rem',
-                                    fontSize: '0.65rem',
-                                    color: '#4a5568',
-                                    lineHeight: 1,
-                                    userSelect: 'none',
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    cursor: 'pointer',
                                 }}
-                                aria-hidden="true"
                             >
-                                Alt + S
-                            </kbd>
+                                <kbd
+                                    style={{
+                                        backgroundColor: '#f7fafc',
+                                        border: '1px solid #cbd5e0',
+                                        borderRadius: '3px',
+                                        padding: '0.1rem 0.3rem',
+                                        fontSize: '0.65rem',
+                                        color: '#4a5568',
+                                        lineHeight: 1,
+                                        userSelect: 'none',
+                                        cursor: 'pointer',
+                                    }}
+                                    aria-hidden="true"
+                                >
+                                    Alt + S
+                                </kbd>
+                                <span
+                                    style={{
+                                        position: 'absolute',
+                                        width: '1px',
+                                        height: '1px',
+                                        padding: 0,
+                                        margin: '-1px',
+                                        overflow: 'hidden',
+                                        clip: 'rect(0, 0, 0, 0)',
+                                        whiteSpace: 'nowrap',
+                                        border: 0,
+                                    }}
+                                >
+                                    部屋名で検索
+                                </span>
+                            </label>
                             <input
+                                id="room-search-input"
                                 ref={searchInputRef}
                                 type="search"
                                 value={roomQuery}
@@ -1415,7 +1442,7 @@ export default function Dashboard() {
                                     textDecoration: 'underline',
                                     padding: '0.1rem 0.25rem',
                                     borderRadius: '2px',
-                                    outline: matchClearFocused ? '2px solid #004b73' : 'none',
+                                    outline: noMatchClearFocused ? '2px solid #004b73' : 'none',
                                     outlineOffset: '1px',
                                     transition: 'all 0.15s ease-in-out',
                                     minWidth: '24px',

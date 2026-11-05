@@ -44,13 +44,13 @@ const roleBuilder = {
   },
 
   /**
-   * ⚡ PERFORMANCE OPTIMIZATION: Finds closest target using single-pass indexed for loop
-   * with early exit on adjacent targets (dist <= 1), bypassing engine marshalling overhead.
-   * Checks `dist >= 0` to filter Screeps API error codes.
-   * @param {Creep} creep
-   * @param {Array} targets
-   * @returns {Object|null}
-   */
+     * ⚡ PERFORMANCE OPTIMIZATION: Finds closest target using single-pass indexed for loop
+     * with early exit on adjacent targets (dist <= 1), bypassing engine marshalling overhead.
+     * Checks `dist >= 0` to filter Screeps API error codes.
+     * @param {Creep} creep
+     * @param {Array} targets
+     * @returns {Object|null}
+     */
   _findClosestTarget: function (creep, targets) {
     if (!targets || targets.length === 0) return null
 

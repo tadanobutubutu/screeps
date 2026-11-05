@@ -1,12 +1,14 @@
-describe('scripts/ai_branch_cleaner.py get_recent_runs validation', () => {
+const { execFileSync } = require('child_process')
+const path = require('path')
+
+describe('Sentinel Security: ai_branch_cleaner.py get_recent_runs validation', () => {
   it('should return [] for invalid or flag-like branch names and avoid calling gh subprocess', () => {
-    const cpModule = 'child_' + 'process'
-    const { execFileSync } = require(cpModule)
-    const pythonCode = `
-import sys
+    const scriptsDir = path.join(__dirname, '..', 'scripts')
+    const pythonScript = `import sys
+import os
 from unittest.mock import patch, MagicMock
 
-sys.path.insert(0, 'scripts')
+sys.path.insert(0, r"${scriptsDir}")
 import ai_branch_cleaner
 
 with patch('subprocess.run') as mock_run:
@@ -27,9 +29,9 @@ with patch('subprocess.run') as mock_run:
     assert mock_run.called
     assert res == [{"status": "completed", "conclusion": "success"}]
 
-print('BRANCH_VALIDATION_PASSED')
+print("OK")
 `
-    const result = execFileSync('python3', ['-c', pythonCode], { encoding: 'utf8' })
-    expect(result.trim()).toContain('BRANCH_VALIDATION_PASSED')
+    const output = execFileSync('python3', ['-c', pythonScript], { encoding: 'utf8' })
+    expect(output.trim()).toBe('OK')
   })
 })

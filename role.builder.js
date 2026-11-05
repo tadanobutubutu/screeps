@@ -43,6 +43,40 @@ const roleBuilder = {
     }
   },
 
+  /**
+   * ⚡ PERFORMANCE OPTIMIZATION: Finds closest target using single-pass indexed for loop
+   * with early exit on adjacent targets (dist <= 1), bypassing engine marshalling overhead.
+   * Checks `dist >= 0` to filter Screeps API error codes.
+   * @param {Creep} creep
+   * @param {Array} targets
+   * @returns {Object|null}
+   */
+  _findClosestTarget: function (creep, targets) {
+    if (!targets || targets.length === 0) return null
+
+    const hasGetRangeTo = creep.pos && typeof creep.pos.getRangeTo === 'function'
+    if (hasGetRangeTo) {
+      let closest = null
+      let minDist = Infinity
+      for (let i = 0; i < targets.length; i++) {
+        const t = targets[i]
+        if (!t) continue
+        const dist = creep.pos.getRangeTo(t)
+        if (typeof dist === 'number' && dist >= 0 && dist < minDist) {
+          minDist = dist
+          closest = t
+          if (dist <= 1) break
+        }
+      }
+      if (closest) return closest
+    }
+
+    if (creep.pos && typeof creep.pos.findClosestByRange === 'function') {
+      return creep.pos.findClosestByRange(targets)
+    }
+    return targets[0] || null
+  },
+
   _buildTarget: function (creep, targets) {
     // ⚡ PERFORMANCE: Cache target ID to avoid re-searching every tick
     let target = Game.getObjectById(creep.memory.buildTargetId)
@@ -50,8 +84,8 @@ const roleBuilder = {
     // If target is invalid or no longer exists in construction sites, find a new one
     // ⚡ PERFORMANCE: O(1) check for construction site validity instead of O(N) .some()
     if (target === undefined || target === null) {
-      // ⚡ PERFORMANCE: Use findClosestByRange (O(N)) instead of findClosestByPath (O(N*Pathfinding))
-      target = creep.pos.findClosestByRange(targets)
+      // ⚡ PERFORMANCE: Use single-pass indexed search with early exit on dist <= 1
+      target = this._findClosestTarget(creep, targets)
       if (target) {
         creep.memory.buildTargetId = target.id
       } else {

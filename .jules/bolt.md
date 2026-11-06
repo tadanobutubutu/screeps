@@ -1,3 +1,8 @@
+## 2026-11-06 - Single-Pass Target Range Evaluation with Early Exit in Harvester Role
+
+**Learning:** In `role.harvester.js`, calling `creep.pos.findClosestByRange(targets)` for delivery structures and containers marshals JavaScript arrays into native Screeps engine bindings on every target acquisition tick. Implementing a single-pass indexed `for` loop with `creep.pos.getRangeTo(t)` and early exit on adjacent targets (`dist <= 1`) bypasses engine wrapper marshalling and skips distance evaluations for remaining candidates when adjacent to a spawn, extension, or container.
+**Action:** Replace native `findClosestByRange` calls in role modules with single-pass indexed `for` loops and `dist <= 1` short-circuits.
+
 ## 2026-11-05 - Single-Pass Target Range Evaluation in Builder Role
 
 **Learning:** In `role.builder.js`, calling `creep.pos.findClosestByRange(targets)` marshals arrays into native C++ game engine wrappers on every search call when looking for a construction site. Implementing a manual single-pass indexed `for` loop with early-exit on adjacent targets (`dist <= 1`) bypasses engine marshalling overhead and cuts CPU processing time during target search (~84% faster in local micro-benchmarks).

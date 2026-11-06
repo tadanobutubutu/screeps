@@ -196,4 +196,35 @@ describe('role.harvester', () => {
     roleHarvester.run(creep)
     expect(creep.transfer).toHaveBeenCalled()
   })
+
+  test('_findClosestTarget selects closest target and short-circuits on dist <= 1', () => {
+    const target1 = { id: 'target1', pos: { x: 10, y: 11 } }
+    const target2 = { id: 'target2', pos: { x: 20, y: 20 } }
+    const getRangeTo = jest.fn().mockImplementation((t) => (t.id === 'target1' ? 1 : 10))
+
+    const creep = {
+      pos: {
+        getRangeTo
+      }
+    }
+
+    const result = roleHarvester._findClosestTarget(creep, [target1, target2])
+    expect(result).toBe(target1)
+    expect(getRangeTo).toHaveBeenCalledTimes(1) // short-circuit after dist <= 1
+  })
+
+  test('_findClosestTarget falls back to findClosestByRange when getRangeTo is unavailable', () => {
+    const target1 = { id: 'target1' }
+    const findClosestByRange = jest.fn().mockReturnValue(target1)
+
+    const creep = {
+      pos: {
+        findClosestByRange
+      }
+    }
+
+    const result = roleHarvester._findClosestTarget(creep, [target1])
+    expect(result).toBe(target1)
+    expect(findClosestByRange).toHaveBeenCalledWith([target1])
+  })
 })

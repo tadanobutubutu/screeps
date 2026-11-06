@@ -90,6 +90,40 @@ const roleHarvester = {
     }
   },
 
+  /**
+   * ⚡ PERFORMANCE OPTIMIZATION: Finds closest target using single-pass indexed for loop
+   * with early exit on adjacent targets (dist <= 1), bypassing engine marshalling overhead.
+   * Checks `dist >= 0` to filter Screeps API error codes.
+   * @param {Creep} creep
+   * @param {Array} targets
+   * @returns {Object|null}
+   */
+  _findClosestTarget: function (creep, targets) {
+    if (!targets || targets.length === 0) return null
+
+    const hasGetRangeTo = creep.pos && typeof creep.pos.getRangeTo === 'function'
+    if (hasGetRangeTo) {
+      let closest = null
+      let minDist = Infinity
+      for (let i = 0; i < targets.length; i++) {
+        const t = targets[i]
+        if (!t) continue
+        const dist = creep.pos.getRangeTo(t)
+        if (typeof dist === 'number' && dist >= 0 && dist < minDist) {
+          minDist = dist
+          closest = t
+          if (dist <= 1) break
+        }
+      }
+      if (closest) return closest
+    }
+
+    if (creep.pos && typeof creep.pos.findClosestByRange === 'function') {
+      return creep.pos.findClosestByRange(targets)
+    }
+    return targets[0] || null
+  },
+
   handleDelivering: function (creep) {
     const targets = creep.room._harvesterDeliveryTargets || []
     // ⚡ PERFORMANCE: Cache delivery target ID to avoid re-searching every tick and use closest by range
@@ -97,7 +131,8 @@ const roleHarvester = {
 
     // ⚡ PERFORMANCE: O(1) check for target validity instead of O(N) .some()
     if (!target || target.store.getFreeCapacity(RESOURCE_ENERGY) === 0) {
-      target = creep.pos.findClosestByRange(targets)
+      // ⚡ PERFORMANCE: Use single-pass indexed search with early exit on dist <= 1
+      target = this._findClosestTarget(creep, targets)
       if (target) {
         creep.memory.deliverTargetId = target.id
       } else {
@@ -128,7 +163,8 @@ const roleHarvester = {
 
     // ⚡ PERFORMANCE: O(1) check for container validity instead of O(N) .some()
     if (!target || target.store.getFreeCapacity(RESOURCE_ENERGY) === 0) {
-      target = creep.pos.findClosestByRange(containers)
+      // ⚡ PERFORMANCE: Use single-pass indexed search with early exit on dist <= 1
+      target = this._findClosestTarget(creep, containers)
       if (target) {
         creep.memory.containerTargetId = target.id
       } else {

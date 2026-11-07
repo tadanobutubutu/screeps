@@ -175,11 +175,7 @@ describe('role.attacker', () => {
       // target1 is at distance 1 (adjacent), so loop should early-exit before evaluating target2 or target3
       getRangeToMock.mockReturnValueOnce(1)
 
-      const result = roleAttacker._findClosestTarget(creepWithRange, [
-        target1,
-        target2,
-        target3
-      ])
+      const result = roleAttacker._findClosestTarget(creepWithRange, [target1, target2, target3])
       expect(result).toBe(target1)
       expect(getRangeToMock).toHaveBeenCalledTimes(1)
       expect(getRangeToMock).toHaveBeenCalledWith(target1)

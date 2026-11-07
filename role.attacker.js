@@ -69,6 +69,40 @@ const roleAttacker = {
   },
 
   /**
+   * ⚡ PERFORMANCE OPTIMIZATION: Finds closest target using single-pass indexed for loop
+   * with early exit on adjacent targets (dist <= 1), bypassing engine marshalling overhead.
+   * Checks `dist >= 0` to filter Screeps API error codes.
+   * @param {Creep} creep
+   * @param {Array} targets
+   * @returns {Object|null}
+   */
+  _findClosestTarget (creep, targets) {
+    if (!targets || targets.length === 0) return null
+
+    const hasGetRangeTo = creep.pos && typeof creep.pos.getRangeTo === 'function'
+    if (hasGetRangeTo) {
+      let closest = null
+      let minDist = Infinity
+      for (let i = 0; i < targets.length; i++) {
+        const t = targets[i]
+        if (!t) continue
+        const dist = creep.pos.getRangeTo(t)
+        if (typeof dist === 'number' && dist >= 0 && dist < minDist) {
+          minDist = dist
+          closest = t
+          if (dist <= 1) break
+        }
+      }
+      if (closest) return closest
+    }
+
+    if (creep.pos && typeof creep.pos.findClosestByRange === 'function') {
+      return creep.pos.findClosestByRange(targets)
+    }
+    return targets[0] || null
+  },
+
+  /**
      * Priority 1: Attack hostile creeps in range
      * @param {Creep} creep
      * @returns {boolean} True if handling hostile creep
@@ -82,7 +116,7 @@ const roleAttacker = {
 
       // ⚡ PERFORMANCE: O(1) check for target validity instead of O(N) search
       if (!hostileCreep || hostileCreep.room.name !== creep.room.name) {
-        hostileCreep = creep.pos.findClosestByRange(hostiles)
+        hostileCreep = this._findClosestTarget(creep, hostiles)
         if (hostileCreep) {
           creep.memory.targetId = hostileCreep.id
         } else {

@@ -154,4 +154,63 @@ describe('role.attacker', () => {
     )
     expect(mockCreep.attack).not.toHaveBeenCalled()
   })
+
+  describe('_findClosestTarget optimization', () => {
+    test('returns null for empty or null target lists', () => {
+      expect(roleAttacker._findClosestTarget(mockCreep, null)).toBeNull()
+      expect(roleAttacker._findClosestTarget(mockCreep, [])).toBeNull()
+    })
+
+    test('uses getRangeTo and finds closest target with early exit on dist <= 1', () => {
+      const getRangeToMock = jest.fn()
+      const creepWithRange = {
+        pos: {
+          getRangeTo: getRangeToMock
+        }
+      }
+      const target1 = { id: 't1' }
+      const target2 = { id: 't2' }
+      const target3 = { id: 't3' }
+
+      // target1 is at distance 1 (adjacent), so loop should early-exit before evaluating target2 or target3
+      getRangeToMock.mockReturnValueOnce(1)
+
+      const result = roleAttacker._findClosestTarget(creepWithRange, [target1, target2, target3])
+      expect(result).toBe(target1)
+      expect(getRangeToMock).toHaveBeenCalledTimes(1)
+      expect(getRangeToMock).toHaveBeenCalledWith(target1)
+    })
+
+    test('correctly picks closest target when multiple targets are farther than 1', () => {
+      const getRangeToMock = jest.fn()
+      const creepWithRange = {
+        pos: {
+          getRangeTo: getRangeToMock
+        }
+      }
+      const target1 = { id: 't1' }
+      const target2 = { id: 't2' }
+
+      getRangeToMock.mockReturnValueOnce(5)
+      getRangeToMock.mockReturnValueOnce(2)
+
+      const result = roleAttacker._findClosestTarget(creepWithRange, [target1, target2])
+      expect(result).toBe(target2)
+      expect(getRangeToMock).toHaveBeenCalledTimes(2)
+    })
+
+    test('falls back to findClosestByRange when getRangeTo is not a function', () => {
+      const target1 = { id: 't1' }
+      const findClosestMock = jest.fn().mockReturnValue(target1)
+      const creepFallback = {
+        pos: {
+          findClosestByRange: findClosestMock
+        }
+      }
+
+      const result = roleAttacker._findClosestTarget(creepFallback, [target1])
+      expect(result).toBe(target1)
+      expect(findClosestMock).toHaveBeenCalledWith([target1])
+    })
+  })
 })

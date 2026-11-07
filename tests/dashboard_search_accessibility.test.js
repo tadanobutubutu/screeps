@@ -23,6 +23,10 @@ describe('Dashboard Search Accessibility', () => {
     expect(labelRegex.test(content)).toBe(true);
   });
 
+  test('should bind active-match clear button focus outline to matchClearFocused', () => {
+    expect(content).toContain("outline: matchClearFocused ? '2px solid #004b73' : 'none'");
+  });
+
   test('should bind zero-match clear button focus outline to noMatchClearFocused', () => {
     expect(content).toContain("outline: noMatchClearFocused ? '2px solid #004b73' : 'none'");
   });

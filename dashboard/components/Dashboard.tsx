@@ -1442,7 +1442,7 @@ export default function Dashboard() {
                                     textDecoration: 'underline',
                                     padding: '0.1rem 0.25rem',
                                     borderRadius: '2px',
-                                    outline: noMatchClearFocused ? '2px solid #004b73' : 'none',
+                                    outline: matchClearFocused ? '2px solid #004b73' : 'none',
                                     outlineOffset: '1px',
                                     transition: 'all 0.15s ease-in-out',
                                     minWidth: '24px',

@@ -84,6 +84,13 @@ BOT_AUTHORS = {
 _label_ready = False
 
 
+def is_safe_repo_name(name):
+    """Validate repository name against CLI flag injection (e.g. -R option)."""
+    if not name or not isinstance(name, str):
+        return False
+    return bool(re.match(r"^[a-zA-Z0-9_.-]+/[a-zA-Z0-9_.-]+$", name)) and not name.startswith("-")
+
+
 def gh(args):
     return subprocess.run(["gh", *args], capture_output=True, text=True)
 
@@ -246,7 +253,11 @@ def main(argv=None):
         info = gh_json(["repo", "view", "--json", "nameWithOwner"])
         if not info:
             return 1
-        repo = info["nameWithOwner"]
+        repo = info.get("nameWithOwner") if isinstance(info, dict) else None
+
+    if not is_safe_repo_name(repo):
+        print(f"Error: Invalid or unsafe repository name: {repo}")
+        return 1
 
     if args.numbers:
         prs = [gh_json(["pr", "view", str(n), "-R", repo, "--json", PR_FIELDS]) for n in args.numbers]

@@ -1,3 +1,8 @@
+## 2026-04-30 - Dynamic Action Button State Announcements with aria-live
+
+**Learning:** When interactive action buttons change visual and accessible text upon completion (such as transitioning from "📋 JSONをコピー" to "✅ コピー済み"), assistive technologies do not automatically announce the newly updated state without an explicit live region attribute.
+**Action:** Always add `aria-live="polite"` to state-toggling action buttons whose label dynamically transitions upon completion so screen reader users receive immediate auditory confirmation.
+
 ## 2026-04-09 - Async Clipboard Rejection Fallback Notification
 
 **Learning:** When async clipboard write operations (`navigator.clipboard.writeText(...)`) encounter permission denials or system errors, missing `.catch()` rejection handlers cause silent failures or unhandled promise rejections without user feedback.

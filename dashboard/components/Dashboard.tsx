@@ -1682,6 +1682,7 @@ export default function Dashboard() {
                                 onMouseLeave={() => setJsonHover(false)}
                                 onFocus={() => setJsonFocused(true)}
                                 onBlur={() => setJsonFocused(false)}
+                                aria-live="polite"
                                 aria-label={
                                     copiedJson
                                         ? '生データをJSONとしてコピーしました'

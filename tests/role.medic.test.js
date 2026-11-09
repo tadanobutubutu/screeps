@@ -204,4 +204,63 @@ describe('role.medic', () => {
 
     expect(creep.heal).toHaveBeenCalledWith(injured)
   })
+
+  test('⚡ [Bolt Perf] 負傷者探索で距離1以内のターゲットを見つけたとき早期脱出する', () => {
+    global.Game.time = 13
+    const targetAdjacent = { id: 'creepAdj', hits: 30, hitsMax: 100, pos: { x: 10, y: 11 } }
+    const targetFar = { id: 'creepFar', hits: 30, hitsMax: 100, pos: { x: 40, y: 40 } }
+    const creep = {
+      memory: { healing: true },
+      say: jest.fn(),
+      heal: jest.fn().mockReturnValue(global.OK),
+      rangedHeal: jest.fn().mockReturnValue(global.OK),
+      moveTo: jest.fn(),
+      room: {
+        name: 'W1N1',
+        _injuredCreeps: [targetAdjacent, targetFar],
+        _activeSources: []
+      },
+      pos: {
+        x: 10,
+        y: 10,
+        isNearTo: jest.fn().mockReturnValue(true),
+        inRangeTo: jest.fn().mockReturnValue(true)
+      },
+      store: { [global.RESOURCE_ENERGY]: 50, getFreeCapacity: jest.fn().mockReturnValue(0) },
+      getActiveBodyparts: jest.fn().mockReturnValue(1)
+    }
+
+    roleMedic.run(creep)
+
+    expect(creep.memory.healTargetId).toBe('creepAdj')
+    expect(creep.heal).toHaveBeenCalledWith(targetAdjacent)
+  })
+
+  test('⚡ [Bolt Perf] roleUtils.getHarvestTargetを使用してエネルギーを採取する', () => {
+    global.Game.time = 14
+    const source1 = { id: 'source1', energy: 1000, pos: { x: 20, y: 20 } }
+    const creep = {
+      memory: { healing: false },
+      say: jest.fn(),
+      harvest: jest.fn().mockReturnValue(global.OK),
+      moveTo: jest.fn(),
+      room: {
+        name: 'W1N1',
+        _injuredCreeps: [],
+        _activeSources: [source1]
+      },
+      pos: {
+        x: 19,
+        y: 20,
+        getRangeTo: jest.fn().mockReturnValue(1)
+      },
+      store: { [global.RESOURCE_ENERGY]: 0, getFreeCapacity: jest.fn().mockReturnValue(50) },
+      getActiveBodyparts: jest.fn().mockImplementation((part) => (part === global.WORK ? 1 : 0))
+    }
+
+    roleMedic.run(creep)
+
+    expect(creep.memory.harvestTargetId).toBe('source1')
+    expect(creep.harvest).toHaveBeenCalledWith(source1)
+  })
 })

@@ -1,3 +1,5 @@
+const roleUtils = require('./src/utils/roleUtils')
+
 // ⚡ PERFORMANCE: Hoisted constant path styles to reduce per-tick object allocation.
 const PATH_STYLE_HEAL = { visualizePathStyle: { stroke: '#00ff00' } }
 const PATH_STYLE_IDLE = { visualizePathStyle: { stroke: '#ffffff', opacity: 0.2 } }
@@ -30,7 +32,9 @@ function _handleHealingMode (creep, injured) {
 function _handleGatheringMode (creep, sources, injured) {
   const canHarvest = creep.getActiveBodyparts(WORK) > 0
   if (canHarvest && sources.length > 0) {
-    const target = _getHarvestTarget(creep, sources)
+    // ⚡ PERFORMANCE OPTIMIZATION: Use roleUtils.getHarvestTarget to leverage single-pass indexed
+    // distance calculation and short-circuit depleted sources before distance evaluation.
+    const target = roleUtils.getHarvestTarget(creep, sources)
     if (target) {
       if (creep.harvest(target) === ERR_NOT_IN_RANGE) {
         creep.moveTo(target, PATH_STYLE_HARVEST)
@@ -64,6 +68,8 @@ function _getHealTarget (creep, injured) {
       if (range < minRange) {
         minRange = range
         closest = obj
+        // ⚡ PERFORMANCE OPTIMIZATION: Short-circuit loop when adjacent target (range <= 1) is found
+        if (range <= 1) break
       }
     }
     target = closest
@@ -71,35 +77,6 @@ function _getHealTarget (creep, injured) {
       creep.memory.healTargetId = target.id
     } else {
       delete creep.memory.healTargetId
-    }
-  }
-  return target
-}
-
-function _getHarvestTarget (creep, sources) {
-  // ⚡ PERFORMANCE: Cache harvest target ID and use closest by range
-  let target = Game.getObjectById(creep.memory.harvestTargetId)
-
-  if (!target || target.energy === 0) {
-    let closest = null
-    let minRange = Infinity
-    const originPos = creep.pos
-    for (let i = 0, len = sources.length; i < len; i++) {
-      const obj = sources[i]
-      const targetPos = obj.pos || obj
-      const dx = Math.abs(originPos.x - targetPos.x)
-      const dy = Math.abs(originPos.y - targetPos.y)
-      const range = dx > dy ? dx : dy
-      if (range < minRange) {
-        minRange = range
-        closest = obj
-      }
-    }
-    target = closest
-    if (target) {
-      creep.memory.harvestTargetId = target.id
-    } else {
-      delete creep.memory.harvestTargetId
     }
   }
   return target

@@ -255,7 +255,9 @@ describe('role.medic', () => {
         getRangeTo: jest.fn().mockReturnValue(1)
       },
       store: { [global.RESOURCE_ENERGY]: 0, getFreeCapacity: jest.fn().mockReturnValue(50) },
-      getActiveBodyparts: jest.fn().mockImplementation((part) => (part === global.WORK ? 1 : 0))
+      getActiveBodyparts: jest
+        .fn()
+        .mockImplementation((part) => (part === global.WORK ? 1 : 0))
     }
 
     roleMedic.run(creep)

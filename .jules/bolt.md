@@ -1,3 +1,8 @@
+## 2026-11-06 - Target Search Early Exit and Centralized Harvest Targeting in Medic Role
+
+**Learning:** In `role.medic.js`, `_getHealTarget`'s Chebyshev distance loop continued evaluating coordinates across all candidates in `injured` even when an adjacent injured creep (`range <= 1`) was already found. Adding `if (range <= 1) break;` short-circuits subsequent coordinate calculations. Additionally, reusing `roleUtils.getHarvestTarget(creep, sources)` replaces duplicate inline harvest targeting with pre-existing single-pass distance checks and depleted source short-circuiting.
+**Action:** Always short-circuit closest target distance scans with `if (range <= 1) break;` when looking for adjacent targets, and reuse centralized `roleUtils.getHarvestTarget` across creep roles.
+
 ## 2026-11-06 - Single-Pass Target Range Evaluation with Early Exit in Attacker Role
 
 **Learning:** In `role.attacker.js`, calling `creep.pos.findClosestByRange(hostiles)` marshals JavaScript arrays into C++ game engine wrappers on every enemy re-targeting tick. Implementing a manual single-pass indexed `for` loop with `creep.pos.getRangeTo(t)` and early-exit on adjacent targets (`dist <= 1`) bypasses engine marshalling overhead and cuts CPU processing time during target search (~70% faster in local micro-benchmarks).

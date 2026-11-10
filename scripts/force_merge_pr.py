@@ -84,6 +84,28 @@ BOT_AUTHORS = {
 _label_ready = False
 
 
+def is_safe_repo(repo):
+    """Validate GitHub repository identifier (owner/repo) to prevent option injection and path traversal."""
+    if not repo or not isinstance(repo, str):
+        return False
+    parts = repo.split("/")
+    if len(parts) != 2 or not parts[0] or not parts[1]:
+        return False
+    return (
+        bool(re.match(r"^[a-zA-Z0-9_.-]+$", parts[0]))
+        and not parts[0].startswith("-")
+        and bool(re.match(r"^[a-zA-Z0-9_.-]+$", parts[1]))
+        and not parts[1].startswith("-")
+    )
+
+
+def is_safe_ref(ref):
+    """Validate Git ref or branch string to prevent option injection and path traversal."""
+    if not ref or not isinstance(ref, str):
+        return False
+    return bool(re.match(r"^[a-zA-Z0-9_./-]+$", ref)) and not ref.startswith("-")
+
+
 def gh(args):
     return subprocess.run(["gh", *args], capture_output=True, text=True)
 
@@ -98,6 +120,8 @@ def gh_json(args):
 
 def gh_raw(repo, path, ref):
     """ref 時点のファイル本文を返す。存在しなければ None。"""
+    if not is_safe_repo(repo) or not is_safe_ref(ref):
+        return None
     url = f"repos/{repo}/contents/{quote(path)}?ref={quote(ref)}"
     res = gh(["api", "-H", "Accept: application/vnd.github.raw", url])
     return res.stdout if res.returncode == 0 else None
@@ -247,6 +271,10 @@ def main(argv=None):
         if not info:
             return 1
         repo = info["nameWithOwner"]
+
+    if not is_safe_repo(repo):
+        print(f"Error: Invalid repository identifier: {repo}")
+        return 1
 
     if args.numbers:
         prs = [gh_json(["pr", "view", str(n), "-R", repo, "--json", PR_FIELDS]) for n in args.numbers]

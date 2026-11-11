@@ -1210,6 +1210,7 @@ export default function Dashboard() {
                         <button
                             onClick={copyAllRooms}
                             aria-disabled={filteredRooms.length === 0 ? 'true' : undefined}
+                            aria-live="polite"
                             onMouseEnter={() => setCopyAllHover(true)}
                             onMouseLeave={() => setCopyAllHover(false)}
                             onFocus={() => setCopyAllFocused(true)}
@@ -1510,6 +1511,7 @@ export default function Dashboard() {
                               <button
                                   key={room}
                                   onClick={() => copyRoom(room)}
+                                  aria-live="polite"
                                   onMouseEnter={() => setHoveredRoom(room)}
                                   onMouseLeave={() => setHoveredRoom(null)}
                                   onFocus={() => setFocusedRoom(room)}

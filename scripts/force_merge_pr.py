@@ -84,6 +84,22 @@ BOT_AUTHORS = {
 _label_ready = False
 
 
+def is_safe_repo_name(name):
+    """Validate that repository name follows owner/repo format and prevents flag injection."""
+    if not name or not isinstance(name, str):
+        return False
+    parts = name.split("/")
+    if len(parts) != 2:
+        return False
+    owner, repo = parts
+    pattern = r"^[a-zA-Z0-9_.-]+$"
+    if not re.match(pattern, owner) or not re.match(pattern, repo):
+        return False
+    if owner.startswith("-") or repo.startswith("-"):
+        return False
+    return True
+
+
 def gh(args):
     return subprocess.run(["gh", *args], capture_output=True, text=True)
 
@@ -246,7 +262,11 @@ def main(argv=None):
         info = gh_json(["repo", "view", "--json", "nameWithOwner"])
         if not info:
             return 1
-        repo = info["nameWithOwner"]
+        repo = info.get("nameWithOwner")
+
+    if not is_safe_repo_name(repo):
+        print(f"Error: Invalid or unsafe repository name: {repo}")
+        return 1
 
     if args.numbers:
         prs = [gh_json(["pr", "view", str(n), "-R", repo, "--json", PR_FIELDS]) for n in args.numbers]

@@ -1,6 +1,6 @@
 {
-  "experiment": "add-energy-efficiency",
-  "description": "エネルギー効率トラッキング",
-  "timestamp": "2026-11-14T22:52:33.786Z",
+  "experiment": "add-tower-optimization",
+  "description": "タワーのターゲット選択を最適化",
+  "timestamp": "2026-11-21T23:42:31.797Z",
   "status": "applied"
 }

@@ -161,3 +161,9 @@ Use of deprecated and predictable Math.random() for security-sensitive logic in 
 **Vulnerability:** In `scripts/ai_branch_cleaner.py`, `get_recent_runs(branch)` accepted unvalidated `branch` arguments and passed them to `gh run list --branch <branch>`, risking CLI option flag injection if branch names contained option flags or leading hyphens.
 **Learning:** When invoking CLI tools like `gh` with parameters specifying Git branches, unvalidated branch strings starting with hyphens can be parsed as option flags.
 **Prevention:** Validate branch parameters against `/^[a-zA-Z0-9_./-]+$/` and disallow leading hyphens before invoking CLI subprocesses.
+
+## 2026-11-08 - [Validate repo name in force_merge_pr.py against CLI option injection]
+
+**Vulnerability:** In `scripts/force_merge_pr.py`, the repository parameter `repo` derived from `GITHUB_REPOSITORY` or `gh repo view` was not validated before being passed as `-R <repo>` across multiple `gh` CLI commands (`pr list`, `pr view`, `label create`, `pr edit`), exposing the execution to flag injection if the repository string begins with a hyphen or contains illegal characters.
+**Learning:** Environment variables or API responses specifying repository identifiers can contain option flags (e.g. `--help` or `--repo=...`) that manipulate `gh` CLI commands if interpolated without format validation.
+**Prevention:** Always validate repository strings against `^[a-zA-Z0-9_.-]+/[a-zA-Z0-9_.-]+$` while ensuring they do not start with a hyphen (`-`) before passing to `gh` CLI subprocesses.

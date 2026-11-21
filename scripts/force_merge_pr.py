@@ -84,6 +84,28 @@ BOT_AUTHORS = {
 _label_ready = False
 
 
+def is_safe_repo_name(name):
+    """Validate repository name against owner/repo format and prevent flag injection."""
+    if not name or not isinstance(name, str) or name.startswith("-"):
+        return False
+    parts = name.split("/")
+    if len(parts) != 2:
+        return False
+    owner, repo = parts
+    if not owner or not repo or owner.startswith("-") or repo.startswith("-"):
+        return False
+    return bool(
+        re.match(r"^[a-zA-Z0-9_.-]+$", owner) and re.match(r"^[a-zA-Z0-9_.-]+$", repo)
+    )
+
+
+def is_safe_ref(ref):
+    """Validate git ref/commit SHA to prevent flag injection or malformed paths."""
+    if not ref or not isinstance(ref, str):
+        return False
+    return bool(re.match(r"^[a-zA-Z0-9_./-]+$", ref)) and not ref.startswith("-")
+
+
 def gh(args):
     return subprocess.run(["gh", *args], capture_output=True, text=True)
 
@@ -98,6 +120,8 @@ def gh_json(args):
 
 def gh_raw(repo, path, ref):
     """ref 時点のファイル本文を返す。存在しなければ None。"""
+    if not is_safe_repo_name(repo) or not is_safe_ref(ref):
+        return None
     url = f"repos/{repo}/contents/{quote(path)}?ref={quote(ref)}"
     res = gh(["api", "-H", "Accept: application/vnd.github.raw", url])
     return res.stdout if res.returncode == 0 else None
@@ -187,8 +211,20 @@ def evaluate(repo, pr, touched):
 def ensure_label(repo):
     global _label_ready
     if not _label_ready:
-        gh(["label", "create", "needs-human", "-R", repo, "--color", "FBCA04",
-            "--description", "自動マージを保留。人の判断が必要", "--force"])
+        gh(
+            [
+                "label",
+                "create",
+                "needs-human",
+                "-R",
+                repo,
+                "--color",
+                "FBCA04",
+                "--description",
+                "自動マージを保留。人の判断が必要",
+                "--force",
+            ]
+        )
         _label_ready = True
 
 
@@ -198,16 +234,34 @@ def hold_pr(repo, number):
 
 
 def update_pr(repo, pr):
-    gh(["api", "-X", "PUT", f"repos/{repo}/pulls/{pr['number']}/update-branch",
-        "-f", f"expected_head_sha={pr['headRefOid']}"])
+    gh(
+        [
+            "api",
+            "-X",
+            "PUT",
+            f"repos/{repo}/pulls/{pr['number']}/update-branch",
+            "-f",
+            f"expected_head_sha={pr['headRefOid']}",
+        ]
+    )
 
 
 def merge_pr(repo, pr):
     """検証時の head SHA を指定してマージする。失敗時はエラー文字列を返す。"""
-    res = gh(["api", "-X", "PUT", f"repos/{repo}/pulls/{pr['number']}/merge",
-              "-f", "merge_method=squash",
-              "-f", f"sha={pr['headRefOid']}",
-              "-f", f"commit_title={pr['title']} (#{pr['number']})"])
+    res = gh(
+        [
+            "api",
+            "-X",
+            "PUT",
+            f"repos/{repo}/pulls/{pr['number']}/merge",
+            "-f",
+            "merge_method=squash",
+            "-f",
+            f"sha={pr['headRefOid']}",
+            "-f",
+            f"commit_title={pr['title']} (#{pr['number']})",
+        ]
+    )
     return None if res.returncode == 0 else res.stderr.strip()[:200]
 
 
@@ -233,7 +287,9 @@ def write_summary(lines):
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description="自動マージゲート")
-    parser.add_argument("numbers", nargs="*", type=int, help="判定する PR 番号（省略時は open PR 全体）")
+    parser.add_argument(
+        "numbers", nargs="*", type=int, help="判定する PR 番号（省略時は open PR 全体）"
+    )
     parser.add_argument("--batch", type=int, help=argparse.SUPPRESS)
     parser.add_argument("--dry-run", action="store_true", help="判定のみ行う")
     parser.add_argument("--push-every", type=int, help=argparse.SUPPRESS)
@@ -248,12 +304,31 @@ def main(argv=None):
             return 1
         repo = info["nameWithOwner"]
 
+    if not is_safe_repo_name(repo):
+        print(f"Error: Invalid repository name: {repo}")
+        return 1
+
     if args.numbers:
-        prs = [gh_json(["pr", "view", str(n), "-R", repo, "--json", PR_FIELDS]) for n in args.numbers]
+        prs = [
+            gh_json(["pr", "view", str(n), "-R", repo, "--json", PR_FIELDS])
+            for n in args.numbers
+        ]
         prs = [pr for pr in prs if pr]
     else:
-        prs = gh_json(["pr", "list", "-R", repo, "--state", "open",
-                       "--limit", str(SWEEP_LIMIT), "--json", PR_FIELDS])
+        prs = gh_json(
+            [
+                "pr",
+                "list",
+                "-R",
+                repo,
+                "--state",
+                "open",
+                "--limit",
+                str(SWEEP_LIMIT),
+                "--json",
+                PR_FIELDS,
+            ]
+        )
         if prs is None:
             return 1
     prs.sort(key=lambda pr: pr["number"])
@@ -279,7 +354,11 @@ def main(argv=None):
             update_pr(repo, pr)
         elif action == "merge":
             if dry_run:
-                status = "would merge (Draft なら ready にしてから)" if pr.get("isDraft") else "would merge"
+                status = (
+                    "would merge (Draft なら ready にしてから)"
+                    if pr.get("isDraft")
+                    else "would merge"
+                )
                 ok = True
             else:
                 ok, status = land_pr(repo, pr)
